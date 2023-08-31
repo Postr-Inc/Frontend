@@ -44,15 +44,18 @@ export default function Profile(props){
     }, []);
     function fetchMorePosts() {
     const nextPage = page + 1;
-     if (posts.length >= totalItems) {
+     if ( nextPage * 10 > totalItems) {
+        console.log("No more posts");
       setHasMore(false);
       return;
      }
-    fetchPosts(nextPage).then(function (fetchedPosts){
-      setPosts([...posts, ...fetchedPosts]);
-      setPage(nextPage);
-    }
-    );
+     debounce(() => {
+        fetchPosts(nextPage).then(function (fetchedPosts){
+            setPosts([...posts, ...fetchedPosts]);
+            setPage(nextPage);
+          });
+     }, 1000);
+   
   };
 
   function edit(){
@@ -272,9 +275,9 @@ export default function Profile(props){
 
       <div className="flex flex-col gap-5 mt-12">
       <InfiniteScroll
-          dataLength={posts.length - 1}
-          next={fetchMorePosts}
-          hasMore={hasMore}
+        dataLength={posts.length} //This is important field to render the next data
+        next={fetchMorePosts}
+        hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts
           
          

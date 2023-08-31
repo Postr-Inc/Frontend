@@ -10,6 +10,7 @@ import Bottomnav from "../components/Bottomnav";
 import Post from "../components/Post";
  
 export default function Profile(props){
+  console.log('rerender')
   let [profile, setProfile] = useState({});
   let [posts, setPosts] = useState([]);
   let [followers, setFollowers] = useState([]);
@@ -272,8 +273,8 @@ export default function Profile(props){
       <div className="flex flex-col gap-5 mt-12">
         // fix so no infinite scroll on private profiles
       <InfiniteScroll
-         dataLength={posts.length} //This is important field to render the next data
-          next={fetchMorePosts}
+         dataLength={posts.length - 1} //This is important field to render the next data
+          next={fetchMorePosts }
          hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts
           

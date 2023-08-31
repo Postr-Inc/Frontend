@@ -312,11 +312,9 @@ export default function Profile(props){
         ) : (
           <div>
             {posts.map((p) => {
-               
-              let id = Math.random() * 100000000000000000;
-
+             
               return (
-                <div key={id} className="mb-16">
+                <div key={p.id}>
                   <Post
                     content={p.content}
                     author={p.expand.author}

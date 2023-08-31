@@ -20,11 +20,13 @@ export default function Profile(props){
   let [hasLoaded, setHasLoaded] = useState(false);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
-  const fetchPosts = (page) => {
+  let [totalItems, setTotalItems] = useState(0);
+  function fetchPosts() {
     return api.collection('posts').getList(page, 10, {
       filter: `author.username="${props.user}"`,
       expand: 'author'
     }).then((res)=>{
+        setTotalItems(res.totalItems)
         return res.items
     })
   };
@@ -35,24 +37,25 @@ export default function Profile(props){
     
   }, [props.user]);
     useEffect(() => {
-        fetchPosts(1).then((fetchedPosts) => {
+        fetchPosts(1).then(function (fetchedPosts){
             setPosts(fetchedPosts);
             setHasLoaded(true);
         });
     }, []);
-  const fetchMorePosts = () => {
+    function fetchMorePosts() {
     const nextPage = page + 1;
-    fetchPosts(nextPage).then((fetchedPosts) => {
-      if (fetchedPosts.length === 0) {
-        setHasMore(false);
-      } else {
-        setPosts(prevPosts => [...prevPosts, ...fetchedPosts]);
-        setPage(nextPage);
-      }
-    });
+     if (posts.length >= totalItems) {
+      setHasMore(false);
+      return;
+     }
+    fetchPosts(nextPage).then(function (fetchedPosts){
+      setPosts([...posts, ...fetchedPosts]);
+      setPage(nextPage);
+    }
+    );
   };
 
-  const edit = () => {
+  function edit(){
     let form = new FormData();
     form.append("username", edited.username)
     form.append("bio", edited.bio)

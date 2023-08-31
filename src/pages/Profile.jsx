@@ -19,13 +19,11 @@ export default function Profile(props){
   let [hasLoaded, setHasLoaded] = useState(false);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
-  let [totalItems, setTotalItems] = useState(0);
   function fetchPosts(page) {
     return api.collection('posts').getList(page, 10, {
       filter: `author.username="${props.user}"`,
       expand: 'author'
     }).then((res)=>{
-        setTotalItems(res.totalItems)
         return res.items
     })
   };
@@ -43,11 +41,11 @@ export default function Profile(props){
     }, []);
     function fetchMorePosts() {
     const nextPage =  Math.floor(posts.length / 10) + 1;
-     if ( nextPage * 10 > totalItems) {
+    console.log('fetched')
+    if (nextPage > Math.ceil(posts.length / 10)) {
         console.log("No more posts");
-      setHasMore(false);
-      return;
-     }
+        return;
+    }
      debounce(() => {
         fetchPosts(nextPage).then(function (fetchedPosts){
             setPosts([...posts, ...fetchedPosts]);
@@ -272,10 +270,11 @@ export default function Profile(props){
       </div>
 
       <div className="flex flex-col gap-5 mt-12">
+        // fix so no infinite scroll on private profiles
       <InfiniteScroll
-        dataLength={posts.length} //This is important field to render the next data
-        next={fetchMorePosts}
-        hasMore={hasMore}
+         dataLength={posts.length} //This is important field to render the next data
+          next={fetchMorePosts}
+         hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts
           
          

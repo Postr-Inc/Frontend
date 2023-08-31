@@ -16,12 +16,11 @@ export default function Profile(props){
   let [isFollow, setIsFollow] = useState(false);
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
-  let [page, setPage] = useState(1);
   let [hasLoaded, setHasLoaded] = useState(false);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
   let [totalItems, setTotalItems] = useState(0);
-  function fetchPosts() {
+  function fetchPosts(page) {
     return api.collection('posts').getList(page, 10, {
       filter: `author.username="${props.user}"`,
       expand: 'author'
@@ -43,7 +42,7 @@ export default function Profile(props){
         });
     }, []);
     function fetchMorePosts() {
-    const nextPage = page + 1;
+    const nextPage =  Math.floor(posts.length / 10) + 1;
      if ( nextPage * 10 > totalItems) {
         console.log("No more posts");
       setHasMore(false);
@@ -52,7 +51,6 @@ export default function Profile(props){
      debounce(() => {
         fetchPosts(nextPage).then(function (fetchedPosts){
             setPosts([...posts, ...fetchedPosts]);
-            setPage(nextPage);
           });
      }, 1000);
    

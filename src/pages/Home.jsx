@@ -24,21 +24,19 @@ export default function Home() {
     }, []);
     
   
-    const fetchMorePosts = () => {
-      const nextPage =  Math.floor(posts.length / 10) + 1;
-      fetchPosts(nextPage).then((fetchedPosts) => {
-        if (fetchedPosts.length === 0) {
+    function fetchMorePosts() {
+      fetchPosts(posts.length / 10 + 1).then((fetchedPosts) => {
+        if (fetchedPosts.length < 10) {
           setHasMore(false);
-        } else {
-          setPosts(prevPosts => [...prevPosts, ...fetchedPosts]);
         }
+        setPosts(posts.concat(fetchedPosts));
       });
-    };
+    }
   
     return (
       <div className="p-5 mt-2">
         <InfiniteScroll
-          dataLength={posts.length}
+          dataLength={posts.length || 0}
           next={fetchMorePosts}
           hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts

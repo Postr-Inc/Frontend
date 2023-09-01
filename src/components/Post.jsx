@@ -10,8 +10,7 @@ export default function Post(props){
             alt="post image"
           />
        
-       <img src="https://postrapi.pockethost.io"
-      {props.content}
+          {props.content}
 
           <img
           src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}

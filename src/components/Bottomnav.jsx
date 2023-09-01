@@ -383,7 +383,10 @@ export  default function Bottomnav() {
             ref={pRef}
             inputMode="text"
             onInput={handleContentInput}
-            onBlur={handleContentInput}
+            onBlur={() => {
+              setIsTyping(false);
+              pRef.current.innerHTML = "";
+            }}
           ></p>
 
           {image ? (

@@ -54,7 +54,7 @@ export default function Post(props){
           style={{ width: "13px", height: "13px" }}
         />
       ) : (
-        "
+        ""
       )}
 
       <div className="dropdown dropdown-left absolute end-5 ">

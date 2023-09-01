@@ -101,11 +101,11 @@ export default function Post(props){
 
     <p
       className="mt-6 text-sm"
-       ref{(el)=>{
-         if (el) {
+       ref={(el) => {
+        if (el) {
           el.innerHTML = props.content;
         }
-       })
+      }}
     >
         
     

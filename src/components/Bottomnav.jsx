@@ -1,6 +1,5 @@
- 
 import React, { useState, useRef, useEffect } from "react";
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
 import Modal from "./Modal";
 import { api } from "../pages";
 
@@ -58,94 +57,98 @@ function handleEmojis(html) {
   return doc.documentElement.innerHTML;
 }
 
-
-export  default function Bottomnav() {
+export default function Bottomnav() {
   let maxchar = 280;
   let [chars, setChar] = useState(0);
   let [image, setImage] = useState("");
   let [file, setFile] = useState("");
   let [pContent, setPContent] = useState("");
   let [modalisOpen, setModalisOpen] = useState(false);
-  let [listOfMentions, setListOfMentions] = useState([]);
+  let [mentionedUsers, setMentionedUsers] = useState([]);
+  let [hasMention, setHasMention] = useState(false);
   let pRef = useRef();
-  
+
   let [isTyping, setIsTyping] = useState(false);
-  
 
   window.addEventListener("keydown", (e) => {
     setIsTyping(true);
   });
   window.addEventListener("keyup", (e) => {
- 
     setIsTyping(false);
-  }); 
- 
-  function saveCaretPosition (){
+  });
+
+  function saveCaretPosition() {
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       return range.cloneRange();
     }
     return null;
-  };
+  }
 
-  function restoreCaretPositionToEnd  (element) {
+  function restoreCaretPositionToEnd(element) {
     const range = document.createRange();
     range.selectNodeContents(element);
     range.collapse(false);
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-  };
+  }
 
-  function handleContentInput(e){
-   
-    let text = e.target.innerHTML;
-    
+  function handleContentInput(e) {
+    let text = pRef.current.innerHTML;
+
     let charCount = text.length;
     setChar(charCount);
-    
+
     if (charCount > maxchar) {
       text = text.slice(0, maxchar); // Truncate text
       charCount = maxchar;
     }
-    
+
     // Process emojis and replace &lt; and &gt;
     text = handleEmojis(text);
     text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
-    
+
     text = sanitizeHtml(text, {
-      allowedTags: ["b", "i", "em", "strong", "a", "p", "br", "div"],
+      allowedTags: sanitizeHtml.defaults.allowedTag,
       allowedAttributes: {
         a: ["href"],
+        span: ["class"],
       },
-    })
+    });
 
     console.log(text);
 
-    
     if (text.includes("@")) {
-      // Only process if the last word starts with @
-      // get all @
+      // do not process already mentioned users
       let mentions = text.match(/@(\w+)/g);
 
-      if(mentions ) {
+     
+
+      setHasMention(true);
+      if (mentions) {
         mentions.forEach((mention) => {
-            let username = mention.replace("@", "");
-            if(username === api.authStore.model.username){
-                return
-            }
-            api.collection('users').getFirstListItem(`username ="${username}"`)
+          let username = mention.replace("@", "");
+          if (username === api.authStore.model.username) {
+            return;
+          }
+          api
+            .collection("users")
+            .getFullList('*', {
+              filter: `username ~ "${username}"`,
+            })
             .then((res) => {
-              if (res ) {
-                
-                let id = res.id;
-                if(!document.getElementById('tag'+id)){
-                    let link = `<a id="tag${id}" href="/u/${username}" class="text-sky-500">@${username}</a>`;
-                    text = text.replace(mention, link);
-                    pRef.current.innerHTML = text;
-                    setListOfMentions([...listOfMentions, '@' + username]);
+             
+              if (res) {
+                if(res.length > 0){
+                  let id = res.id;
+                  if (!document.getElementById("tag" + id)) {
+                    setMentionedUsers(res)
                     restoreCaretPositionToEnd(pRef.current);
+                  }
+                }else{
+                  setMentionedUsers([])
                 }
                
               }
@@ -153,19 +156,17 @@ export  default function Bottomnav() {
             .catch((err) => {
               console.log(`User ${username} does not exist`);
             });
-          })
+        });
       }
-
-      
-       
+    }else{
+      setHasMention(false);
+      setMentionedUsers([])
     }
+
     pRef.current.innerHTML = text;
-    
     setPContent(text);
     restoreCaretPositionToEnd(pRef.current);
-  };
-  
-
+  }
 
   useEffect(() => {
     if (pContent == "") {
@@ -174,11 +175,9 @@ export  default function Bottomnav() {
   }, [pContent]);
 
   function createPost() {
-     
-
     let form = new FormData();
     if (image) {
-        form.append("file", file);
+      form.append("file", file);
     }
     form.append("content", pRef.current.innerHTML);
     form.append("author", api.authStore.model.id);
@@ -186,20 +185,21 @@ export  default function Bottomnav() {
     form.append("likes", JSON.stringify([]));
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
-    
 
     api
       .collection("posts")
       .create(form)
       .then((res) => {
-        window.location.href === "/u/" + api.authStore.model.username ? window.location.reload() : window.location.hash = "/u/" + api.authStore.model.username;
+        window.location.href === "/u/" + api.authStore.model.username
+          ? window.location.reload()
+          : (window.location.hash = "/u/" + api.authStore.model.username);
         pRef.current.innerHTML = "";
         setChar(0);
         setImage("");
         setFile("");
         setModalisOpen(false);
       });
-     document.getElementById("newpost").close();
+    document.getElementById("newpost").close();
   }
   return (
     <div className=" fixed  bottom-0 left-0 ">
@@ -207,10 +207,13 @@ export  default function Bottomnav() {
         <div className="flex flex-row gap-5 mb-5 justify-between   ">
           <div
             onClick={() => {
-              window.location.href = "/";
+              if(!window.location.href === "/"){
+                window.location.href = "/"
+              }
             }}
           >
-            {window.location.origin + window.location.pathname === window.location.origin + "/" ? (
+            {window.location.origin + window.location.pathname ===
+            window.location.origin + "/" ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -249,7 +252,7 @@ export  default function Bottomnav() {
             strokeWidth="1.5"
             stroke="currentColor"
             onClick={() => {
-              window.location.hash = "#/search";
+              return
             }}
           >
             <path
@@ -292,14 +295,16 @@ export  default function Bottomnav() {
               />
             </svg>
           )}
-          {window.location.hash === "#/notifications" ? (
+          {window.location.origin + window.location.pathname === window.location.origin + "/notifications" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
               className="w-6 h-6 cursor-pointer"
               onClick={() => {
-                window.location.hash = "#/";
+                if(!window.location.href === "/notifications"){
+                  return
+                }
               }}
             >
               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
@@ -308,7 +313,9 @@ export  default function Bottomnav() {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               onClick={() => {
-                window.location.hash = "#/search";
+                if(!window.location.href === "/search"){
+                  return
+                }
               }}
               fill="none"
               viewBox="0 0 24 24"
@@ -324,26 +331,28 @@ export  default function Bottomnav() {
             </svg>
           )}
           <div
-          className="cursor-pointer"
+            className="cursor-pointer"
             onClick={() => {
+             if(! window.location.href === "/u/" + api.authStore.model.username){
               window.location.href = "/u/" + api.authStore.model.username;
+             }
             }}
           >
-            {
-            
-            window.location.origin + window.location.pathname === window.location.origin + "/u/" + api.authStore.model.username
-             
-            ?  
-            <img src={
-              `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
-            } className="rounded-full w-6 h-6" alt={api.authStore.model.username + "'s avatar"} />
-            
-            : (
-                <img src={
-              `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
-                } className="rounded-full w-6 h-6
+            {window.location.origin + window.location.pathname ===
+            window.location.origin + "/u/" + api.authStore.model.username ? (
+              <img
+                src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                className="rounded-full w-6 h-6"
+                alt={api.authStore.model.username + "'s avatar"}
+              />
+            ) : (
+              <img
+                src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                className="rounded-full w-6 h-6
                 opacity-50
-                " alt={api.authStore.model.username + "'s avatar"} />
+                "
+                alt={api.authStore.model.username + "'s avatar"}
+              />
             )}
           </div>
         </div>
@@ -362,7 +371,7 @@ export  default function Bottomnav() {
           <div className="divider  text-slate-400  w-12   mt-0"></div>
         </button>
 
-        <div className='flex flex-col  gap-5 mt-2 p-5'>
+        <div className="flex flex-col  gap-5 mt-2 p-5">
           <div className="flex flex-row gap-4 w-full">
             <img
               src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
@@ -376,19 +385,72 @@ export  default function Bottomnav() {
             className={`w-full    focus:outline-none resize-none
              overflow-hidden text-slate-900 placeholder-slate-300
         before:text-slate-300
-         mb-16
+         mb-5
         max-h-[5rem] overflow-y-auto`}
             placeholder="What's on your mind?"
             id="post"
             ref={pRef}
             inputMode="text"
             onInput={handleContentInput}
+            onChange={handleContentInput}
             onBlur={() => {
               setIsTyping(false);
-              pRef.current.innerHTML = "";
             }}
           ></p>
 
+          <div className={`dropdown ${hasMention ? "dropdown-open" : "hidden"}`}>
+             
+            <div
+             tabIndex={0}
+             className="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52"
+            >
+              
+              {
+                mentionedUsers.length > 0 ? mentionedUsers.map((user) => {
+                  return (
+                    <div className="flex flex-col gap-2 mb-5"
+                    key={user.id}
+                    >
+                      <div className="flex flex-row gap-2">
+                      {
+                        user.avatar ? <img
+                        src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${user.id}/${user.avatar}`}
+                        className="w-8 h-8 rounded-full object-cover"
+                      /> : <div className="avatar placeholder">
+                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
+                        <span className="text-xs">
+                          {user.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                       }
+                        <span className="text-sm"
+                        onClick={()=>{
+                           setHasMention(false)
+                            // replace with link
+                            let text = pRef.current.innerHTML;
+                            let mention = `@${user.username}`;
+                            let link = `<a class="text-sky-500" href="/u/${user.username}">${mention}</a>`;
+                            text = text.replaceAll(mention, link);
+                            setPContent(text);
+                           setMentionedUsers([])
+                           
+                        }}
+                        >{user.username}</span>
+                        </div>
+                        
+                      
+                      <span className="text-xs text-gray-400 ml-1">
+                        {user.bio.toString().slice(0, 20)}...
+                      </span>
+                      
+                    </div>
+                  )
+                }) : <></>
+              }
+
+            </div>
+          </div>
           {image ? (
             <img
               src={image}
@@ -429,7 +491,6 @@ export  default function Bottomnav() {
               setImage(url);
               setFile(file);
               e.target.value = "";
-
             }}
           />
         </div>
@@ -470,7 +531,4 @@ export  default function Bottomnav() {
       </Modal>
     </div>
   );
-};
-
- 
- 
+}

@@ -17,7 +17,6 @@ export default function Home() {
     const [hasLoaded, setHasLoaded] = useState(false);
     const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
-    const [page, setPage] = useState(1);
   
     useEffect(() => {
       fetchPosts(1).then((fetchedPosts) => {
@@ -28,13 +27,12 @@ export default function Home() {
     
   
     const fetchMorePosts = () => {
-      const nextPage = page + 1;
+      const nextPage =  Math.floor(posts.length / 10) + 1;
       fetchPosts(nextPage).then((fetchedPosts) => {
         if (fetchedPosts.length === 0) {
           setHasMore(false);
         } else {
           setPosts(prevPosts => [...prevPosts, ...fetchedPosts]);
-          setPage(nextPage);
         }
       });
     };

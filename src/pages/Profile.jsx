@@ -1,13 +1,14 @@
  
-import { useState, useEffect } from "react";
 import { api } from ".";
 import Loading from "../components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import * as sanitizeHtml from 'sanitize-html';
+
 api.autoCancellation(false)
 import Modal from "../components/Modal";
 import Bottomnav from "../components/Bottomnav";
 import Post from "../components/Post";
+import { useEffect, useState} from "react";
  
 export default function Profile(props){
   console.log('rerender')
@@ -28,12 +29,9 @@ export default function Profile(props){
         return res.items
     })
   };
-  useEffect(() => {
-    api.collection('users').getFirstListItem(`username="${props.user}"`).then((res)=>{
-        setProfile(res)
-    })
-    
-  }, [props.user]);
+  api.collection('users').getFirstListItem(`username="${props.user}"`).then((res)=>{
+    setProfile(res)
+})
     useEffect(() => {
         fetchPosts(1).then(function (fetchedPosts){
             setPosts(fetchedPosts);
@@ -312,9 +310,11 @@ export default function Profile(props){
         ) : (
           <div>
             {posts.map((p) => {
-             
+               
+              let id = Math.random() * 100000000000000000;
+
               return (
-                <div key={p.id}>
+                <div key={id} className="mb-16">
                   <Post
                     content={p.content}
                     author={p.expand.author}

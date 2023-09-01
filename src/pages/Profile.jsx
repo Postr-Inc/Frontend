@@ -23,7 +23,8 @@ export default function Profile(props){
   function fetchPosts(page) {
     return api.collection('posts').getList(page, 10, {
       filter: `author.username="${props.user}"`,
-      expand: 'author'
+      expand: 'author',
+      sort: '-created'
     }).then((res)=>{
         return res.items
     })
@@ -60,11 +61,12 @@ export default function Profile(props){
   function edit(){
     let form = new FormData();
     form.append("username", edited.username)
-    form.append("bio", edited.bio)
+    form.append("bio", edited.bio ? edited.bio : profile.bio)
     form.append("Isprivate", edited.Isprivate)
     form.append("avatar", edited.avatar ? edited.avatar : profile.avatar)
     api.collection("users").update(profile.id, form).then((res)=>{
         setProfile(res)
+        window.location.href = `/u/${res.username}`
     })
     document.getElementById("editprofile").close();
   };
@@ -428,7 +430,7 @@ export default function Profile(props){
           </label>
           <input
             type="text"
-            placeholder="Owner of this app :}"
+            placeholder={profile.bio}
             className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   focus:outline-none focus:ring-0"
             onChange={(e) => {
                let val =   sanitizeHtml(e.target.value, {
@@ -436,8 +438,16 @@ export default function Profile(props){
                     allowedAttributes: {},
                  });
               
-                setedited({ ...edited, bio: val });
-            }}
+                 
+                if(val.length < 100){
+                    setedited({ ...edited, bio: val });
+                }else if (val.length > 100){
+                    alert("Bio cannot be more than 100 characters")
+                }else{
+                    setedited({ ...edited, bio: val });
+                }setedited({ ...edited, bio: val });
+                }
+            }
           />
           <div className="form-control   mt-5">
             <label className="label cursor-pointer">

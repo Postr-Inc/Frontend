@@ -1,4 +1,4 @@
-mport { api } from "../pages";
+import { api } from "../pages";
 import Modal from "./Modal";
 import { useState } from "react";
 export default function Post(props){

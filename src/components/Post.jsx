@@ -4,7 +4,23 @@ import { useState } from "react";
 export default function Post(props){
    return(
     <div>
+       <img
+            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
+            className="w-8 h-8 rounded-full object-cover"
+            alt="post image"
+          />
+       
+       <img src="https://postrapi.pockethost.io"
       {props.content}
+
+          <img
+          src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+          className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
+          alt="post image"
+          onClick={() => {
+            document.getElementById("modal" + props.id).showModal();
+          }}
+        />
     </div>
    )
 }

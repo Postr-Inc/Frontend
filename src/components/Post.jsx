@@ -42,8 +42,8 @@ export default function Post(props) {
           className="mx-2   cursor-pointer "
           style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
           onClick={() => {
-            if(! window.location.href === `/u/${props.author.username}`){
-              window.location.href = `/u/${props.author.username}`;
+            if(window.location.pathname !== "/u/" + props.author.username){
+              window.location.href = "/u/" + props.author.username;
             }
           }}
         >

@@ -68,7 +68,9 @@ export default function Home() {
         </InfiniteScroll>
 
         
-          <Bottomnav />
+        <div className="mt-8">
+         <Bottomnav />
+        </div>
         
       
       </div>

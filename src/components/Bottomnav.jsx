@@ -1,6 +1,6 @@
  
 import React, { useState, useRef, useEffect } from "react";
-import * as sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 import Modal from "./Modal";
 import { api } from "../pages";
 
@@ -99,7 +99,9 @@ export  default function Bottomnav() {
   };
 
   function handleContentInput(e){
+   
     let text = e.target.innerHTML;
+    
     let charCount = text.length;
     setChar(charCount);
     
@@ -113,13 +115,13 @@ export  default function Bottomnav() {
     text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
     
     text = sanitizeHtml(text, {
-      allowedTags: ["b", "i", "em", "strong", "a", "p", "br"],
+      allowedTags: ["b", "i", "em", "strong", "a", "p", "br", "div"],
       allowedAttributes: {
         a: ["href"],
       },
     })
 
-    
+    console.log(text);
 
     
     if (text.includes("@")) {
@@ -157,6 +159,7 @@ export  default function Bottomnav() {
       
        
     }
+    pRef.current.innerHTML = text;
     
     setPContent(text);
     restoreCaretPositionToEnd(pRef.current);

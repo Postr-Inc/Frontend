@@ -10,7 +10,7 @@ function fetchPosts(page) {
     .collection("posts")
     .getList(page, 10, {
       expand: "author",
-      sort: "created",
+      sort: "-created",
       filter: `author.id != "${api.authStore.model.id}" && author.followers ?~ "${api.authStore.model.id}"`,
     })
     .then((posts) => {
@@ -73,7 +73,9 @@ export default function Home() {
                       Comments
                     </span>
 
-                    <div className="flex flex-row   gap-2 left-2  p-2  absolute bottom-5">
+                    <div className={`flex flex-row   gap-2 left-2  p-2  absolute bottom-${
+                      window.innerWidth > 640 ? "16" :  "5"
+                    }`}>
                       <img
                         src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                         className="w-8 h-8 rounded-full object-cover"

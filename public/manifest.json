@@ -1,0 +1,85 @@
+{
+    "short_name": "Postr",
+    "name": "Postr",
+    "scope": "/",
+    "start_url": "/",
+    "lang": "en-US",
+    "categories": [
+      "photo",
+      "productivity",
+      "social"
+    ],
+    "description": "Unleash Your Potential: Elevate Your Life With Postr!",
+    "id": "/",
+    "orientation": "portrait",
+    "display_override": [
+      "fullscreen",
+      "window-controls-overlay"
+    ],
+    "display": "standalone",
+    "background_color":"#ffffff",
+    "theme_color": "#ffffff",
+    "handle_links": "prefered",
+    "icons": [
+      {
+        "src": "/icons/logo.png",
+        "sizes": "238x238",
+        "type": "image/png"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "/images/loginback.png",
+        "sizes": "1080x1920",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "Image of Login Screen"
+      },
+      {
+        "src": "/images/profilepage.png",
+        "sizes": "374x817",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "User Profile Page"
+      }
+    ],
+    "protocol_handlers": [
+      {
+        "protocol": "web+postr",
+        "url": "/launch?type=%s"
+      },
+      {
+        "protocol": "web+user",
+        "url": "/u/?type=%s"
+      }
+    ],
+    "related_applications": [{
+      "platform": "webapp",
+      "url": "https://v6-0.pages.dev/manifest.json"
+    }],
+    "shortcuts": [
+      {
+        "name": "Settings",
+        "url": "/settings",
+        "description": "Quickly access your settings",
+        "icons": [{ "src": "/icons/logo.png", "sizes": "238x238" }]
+      },
+      {
+        "name": "Feed",
+        "url": "/",
+        "icons": [{ "src": "/icons/logo.png", "sizes": "238x238" }]
+      },
+      {
+        "name": "Privacy Policy",
+        "url": "/privacy",
+        "icons": [{ "src": "/icons/logo.png", "sizes": "238x238" }]
+      },
+      {
+        "name": "Terms of Service",
+        "url": "/tos",
+        "icons": [{ "src": "/icons/logo.png", "sizes": "238x238" }]
+      }
+    ],
+    "prefer_related_applications": false,
+    "dir": "ltr"
+  }

@@ -74,8 +74,13 @@ export default function Post(props){
             <span
               onClick={() => {
                 navigator.share({
-                  title: `View ${props.author.username}'s post on Postr!`,
-                  text: props.content,
+                  title: `
+                  View this post by
+                  ${
+                     props.author.id === api.authStore.model.id ? "Me" : props.author.username  
+                  }
+                  `,
+                  text: props.content.slice(0, 300),
                   url: window.location.href,
                 });
               }}

@@ -4,6 +4,17 @@ let { username } = Astro.params
 import Pocketbase from 'pocketbase'
 import Profile from "../Profile";
  
+
+let db = new Pocketbase('https://postrapi.pockethost.io')
+ 
+db.collection('users').getFirstListItem(`username="${username}"`, {
+    
+}).then((data)=>{
+    global.user = data
+}).catch((err)=>{
+    console.log(err)
+})
+ 
  
 ---
 
@@ -11,7 +22,7 @@ import Profile from "../Profile";
 <Layout 
  title={username + ' (@'+ username + ') | Postr'}
  description={'View the profile of ' + username + ' (@'+ username + ') on Postr.'}
- 
+ image={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${global.user.id}/${global.user.avatar}`}
 >
  <Profile  client:only
  user={username}

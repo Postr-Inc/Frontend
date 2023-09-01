@@ -98,7 +98,7 @@ export default function Post(props){
                 <a
                   className="cursor-pointer"
                   onClick={() => {
-                    props.onDelete();
+                    props.ondelete();
                   }}
                 >
                   Delete

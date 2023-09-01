@@ -139,7 +139,7 @@ export default function Post(props) {
               />
           </div>
           <dialog id={"modal" + props.id} className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}>
-             <button className="btn btn-sm text-lg btn-circle btn-ghost absolute bg-transparent text-white bg-[#222222] z-[9999]  top-5 left-10"
+             <button className="btn btn-sm text-lg btn-circle btn-ghost absolute   text-white bg-[#222222] z-[9999]  top-5 left-10"
              onClick={() => {
               document.getElementById("modal" + props.id).close();
              }}

@@ -91,6 +91,23 @@ export default function Post(props){
           ) : (
             ""
           )}
+
+          {
+             props.author.id === api.authStore.model.id ? (
+              <li>
+                <a
+                  className="cursor-pointer"
+                  onClick={() => {
+                    props.onDelete();
+                  }}
+                >
+                  Delete
+                </a>
+              </li>
+            ) : (
+              ""
+            )
+          }
           
           
  

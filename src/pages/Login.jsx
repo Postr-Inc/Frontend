@@ -21,7 +21,7 @@ export default function Login(){
           if (window.matchMedia("(display-mode: standalone)")) {
              w.location.href = url
           } else {
-            console.log(url)
+           
             window.open(url);
           }
         },

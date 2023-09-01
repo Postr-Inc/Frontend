@@ -14,11 +14,10 @@ export default function Profile(props){
   console.log('rerender')
   let [profile, setProfile] = useState({});
   let [posts, setPosts] = useState([]);
-  let [followers, setFollowers] = useState([]);
+  let [followers, setFollowers] = useState(profile.followers ? profile.followers : []);
   let [isFollow, setIsFollow] = useState(false);
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
-  let [hasLoaded, setHasLoaded] = useState(false);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
   function fetchPosts(page) {
@@ -29,19 +28,23 @@ export default function Profile(props){
         return res.items
     })
   };
-  api.collection('users').getFirstListItem(`username="${props.user}"`).then((res)=>{
-    setProfile(res)
-})
+ 
     useEffect(() => {
-      
-        fetchPosts(1).then(function (fetchedPosts){
+      api.collection('users').getFirstListItem(`username="${props.user}"`).then((res)=>{
+        setProfile(res);
+        setFollowers(res.followers ? res.followers : []);
+         
+        })
+         if(profile.followers && profile.followers.includes(api.authStore.model.id) && profile.Isprivate || !profile.Isprivate){
+             
+          fetchPosts(1).then(function (fetchedPosts){
             setPosts(fetchedPosts);
-            setHasLoaded(true);
+           
         });
-    }, []);
+         }
+    }, [ props.user]);
     function fetchMorePosts() {
     const nextPage =  Math.floor(posts.length / 10) + 1;
-    console.log('fetched')
     if (nextPage > Math.ceil(posts.length / 10)) {
         console.log("No more posts");
         return;
@@ -177,7 +180,7 @@ export default function Profile(props){
             </>
           ) : (
             <>
-              {profile.Isprivate && !isFollow ? (
+              {profile.Isprivate &&  !followers.includes(api.authStore.model.id) ? (
                 <>
                   <button
                     className={`${
@@ -207,13 +210,13 @@ export default function Profile(props){
                 <>
                   <button
                     className={`${
-                      isFollow
+                       profile.followers && profile.followers.includes(api.authStore.model.id)
                         ? "text-[#121212] btn-ghost border-slate-400"
                         : "bg-[#121212] text-white"
                     } w-full btn btn-sm   rounded-md  `}
                     
                   >
-                    {isFollow ? "Unfollow" : "Follow"}
+                    {profile.followers && profile.followers.includes(api.authStore.model.id) ? "Unfollow" : "Follow"}
                   </button>
                   <button
                     className="btn btn-sm btn-ghost w-full border-slate-400 text-[#121212] rounded-md "
@@ -270,106 +273,111 @@ export default function Profile(props){
       </div>
 
       <div className="flex flex-col gap-5 mt-12">
-        // fix so no infinite scroll on private profiles
-      <InfiniteScroll
-          dataLength={posts.length || 0}
-          next={fetchMorePosts }
-          hasMore={hasMore}
-          loader={<Loading />} // Display loading indicator while fetching more posts
-          
-         
+    
+       {
+         profile.followers && !profile.followers.includes(api.authStore.model.id) && profile.Isprivate ?
+         <div  className="flex flex-col justify-center  items-center mx-auto mt-8 gap-5">
+           <svg
+         xmlns="http://www.w3.org/2000/svg"
+         fill="none"
+         viewBox="0 0 24 24"
+         strokeWidth={1.5}
+         stroke="currentColor"
+         className="w-12 h-12"
        >
-        
-        {posts.length < 1 || (profile.Isprivate && !isFollow) ? (
-          <div className="flex flex-col justify-center  items-center mx-auto mt-8 gap-5">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-12 h-12"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-              />
-            </svg>
+         <path
+           strokeLinecap="round"
+           strokeLinejoin="round"
+           d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+         />
+         <path
+           strokeLinecap="round"
+           strokeLinejoin="round"
+           d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+         />
+       </svg>
 
-            <h1 className="text-xl mt-2">
-              {profile && profile.Isprivate && !isFollow
-                ? "This account is private"
-                : "No posts yet"}
-            </h1>
+       <h1 className="text-xl mt-2">
+          This account is private.
+       </h1>
+      
+      </div>
+         : <InfiniteScroll
+         dataLength={posts.length}
+         next={fetchMorePosts}
+         hasMore={hasMore}
+       >
+         {posts.length < 1 ? (
+          <div className=" gap-8 flex flex-col">
+              <Loading />
+              <Loading />
+              <Loading />
           </div>
-        ) : (
-          <div>
-            {posts.map((p) => {
-               
-              let id = Math.random() * 100000000000000000;
-
-              return (
-                <div key={id} className="mb-16">
-                  <Post
-                    content={p.content}
-                    author={p.expand.author}
-                    file={p.file}
-                    likes={p.likes}
-                    id={p.id}
-                    created={p.created}
-                    ondelete={() => {
-                      window["delete" + id].showModal();
-                    }}
-                    comments={p.comments}
-                  />
-                  <Modal id={"delete" + id} height="h-96">
-                    <button className="flex justify-center mx-auto focus:outline-none">
-                      <div className="divider  text-slate-400  w-12   mt-0"></div>
-                    </button>
-                    <div className="flex-col text-sm mt-8 flex">
-                      <div className="form-control w-full ">
-                        <label className="label flex text-lg flex-row">
-                          Please confirm that you want to delete this post -
-                          this action cannot be undone.
-                        </label>
-                      </div>
-                      <div className="flex flex-row gap-5 mt-5">
-                        <a
-                          onClick={() => {
-                            document.getElementById("delete" + id).close();
-                          }}
-                          className="absolute bottom-5 cursor-pointer text-sky-500 text-sm left-5 "
-                        >
-                          Cancel
-                        </a>
-                        <></>
-                        <a
-                          onClick={debounce(() => {
-                            api.collection("posts").delete(p.id);
-                            let index = posts.indexOf(p);
-                            posts.splice(index, 1);
-                            setPosts([...posts]);
-                            document.getElementById("delete" + id).close();
-                          }, 1000)}
-                          className="absolute bottom-5 text-sky-500 cursor-pointer text-sm end-5 "
-                        >
-                          Delete
-                        </a>
-                      </div>
-                    </div>
-                  </Modal>
-                </div>
-              );
-            })}
-          </div>
-        )}
+         ) : (
+           // Display posts when there are posts
+           <div>
+             {posts.map((p) => {
+               let id = Math.random() * 100000000000000000;
+       
+               return (
+                 <div key={id} className="mb-16">
+                   <Post
+                     content={p.content}
+                     author={p.expand.author}
+                     file={p.file}
+                     likes={p.likes}
+                     id={p.id}
+                     created={p.created}
+                     ondelete={() => {
+                       window["delete" + id].showModal();
+                     }}
+                     comments={p.comments}
+                   />
+                   <Modal id={"delete" + id} height="h-96">
+                     <button className="flex justify-center mx-auto focus:outline-none">
+                       <div className="divider  text-slate-400  w-12   mt-0"></div>
+                     </button>
+                     <div className="flex-col text-sm mt-8 flex">
+                       <div className="form-control w-full ">
+                         <label className="label flex text-lg flex-row">
+                           Please confirm that you want to delete this post - this action cannot be undone.
+                         </label>
+                       </div>
+                       <div className="flex flex-row gap-5 mt-5">
+                         <a
+                           onClick={() => {
+                             document.getElementById("delete" + id).close();
+                           }}
+                           className="absolute bottom-5 cursor-pointer text-sky-500 text-sm left-5"
+                         >
+                           Cancel
+                         </a>
+                         {/* The delete action should only be available when the post exists */}
+                         {posts.includes(p) && (
+                           <a
+                             onClick={debounce(() => {
+                               api.collection("posts").delete(p.id);
+                               let index = posts.indexOf(p);
+                               posts.splice(index, 1);
+                               setPosts([...posts]);
+                               document.getElementById("delete" + id).close();
+                             }, 1000)}
+                             className="absolute bottom-5 text-sky-500 cursor-pointer text-sm end-5"
+                           >
+                             Delete
+                           </a>
+                         )}
+                       </div>
+                     </div>
+                   </Modal>
+                 </div>
+               );
+             })}
+           </div>
+         )}
        </InfiniteScroll>
+       
+       }
       </div>
       
     </div>

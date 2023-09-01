@@ -1,26 +1,158 @@
-import { useRef, useState } from "react";
+ 
+import React, { useState, useRef, useEffect } from "react";
+import * as sanitizeHtml from 'sanitize-html';
 import Modal from "./Modal";
 import { api } from "../pages";
-import Image from "astro/components/Image.astro";
+export  default function Bottomnav() {
+  let maxchar = 280;
+  let [chars, setChar] = useState(0);
+  let [image, setImage] = useState("");
+  let [file, setFile] = useState("");
+  let [pContent, setPContent] = useState("");
+  let [modalisOpen, setModalisOpen] = useState(false);
+  let [listOfMentions, setListOfMentions] = useState([]);
+  let pRef = useRef();
+  
+  let [isTyping, setIsTyping] = useState(false);
+  
+
+  window.addEventListener("keydown", (e) => {
+    setIsTyping(true);
+  });
+  window.addEventListener("keyup", (e) => {
  
-export default function Bottomnav(){
-    let [modalisOpen, setModalisOpen] = useState(false);
-    let [image, setImage] = useState("");
-    let [file, setFile] = useState("");
-    let [pContent, setPContent] = useState("");
-    let [chars, setChars] = useState(0);
-    let [maxchar, setMaxchar] = useState(280);
-    let pRef = useRef();
-    return(
-        <div className=" fixed  bottom-0 left-0 ">
+    setIsTyping(false);
+  }); 
+ 
+  const saveCaretPosition = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      return range.cloneRange();
+    }
+    return null;
+  };
+
+  const restoreCaretPositionToEnd = (element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  const handleContentInput = (e) => {
+    let text = e.target.innerHTML;
+    let charCount = text.length;
+    setChar(charCount);
+    
+    if (charCount > maxchar) {
+      text = text.slice(0, maxchar); // Truncate text
+      charCount = maxchar;
+    }
+    
+    // Process emojis and replace &lt; and &gt;
+    text = handleEmojis(text);
+    text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
+    let sanitized = sanitizeHtml(text, {
+      allowedTags: ["b", "i", "em", "strong", "a", "p", "br"],
+      allowedAttributes: {
+        a: ["href"],
+      },
+    });
+    text = sanitized;
+    pRef.current.innerHTML = text;
+
+ 
+  
+    // Handle @mentions
+    
+    
+    if (text.includes("@")) {
+      // Only process if the last word starts with @
+      // get all @
+      let mentions = text.match(/@(\w+)/g);
+
+      if(mentions ) {
+        mentions.forEach((mention) => {
+            let username = mention.replace("@", "");
+            if(username === api.authStore.model.username){
+                return
+            }
+            api.collection('users').getFirstListItem(`username ="${username}"`)
+            .then((res) => {
+              if (res ) {
+                
+                let id = res.id;
+                if(!document.getElementById('tag'+id)){
+                    let link = `<a id="tag${id}" href="/u/${username}" class="text-sky-500">@${username}</a>`;
+                    text = text.replace(mention, link);
+                    pRef.current.innerHTML = text;
+                    setListOfMentions([...listOfMentions, '@' + username]);
+                    restoreCaretPositionToEnd(pRef.current);
+                }
+               
+              }
+            })
+            .catch((err) => {
+              console.log(`User ${username} does not exist`);
+            });
+          })
+      }
+
+      
+       
+    }
+    
+    setPContent(text);
+    restoreCaretPositionToEnd(pRef.current);
+  };
+  
+
+
+  useEffect(() => {
+    if (pContent == "") {
+      setChar(0);
+    }
+  }, [pContent]);
+
+  function createPost() {
+     
+
+    let form = new FormData();
+    if (image) {
+        form.append("file", file);
+    }
+    form.append("content", pRef.current.innerHTML);
+    form.append("author", api.authStore.model.id);
+    form.append("type", "text");
+    form.append("likes", JSON.stringify([]));
+    form.append("shares", JSON.stringify([]));
+    form.append("repostedBy", JSON.stringify([]));
+    
+
+    api
+      .collection("posts")
+      .create(form)
+      .then((res) => {
+        window.location.href === "/u/" + api.authStore.model.username ? window.location.reload() : window.location.hash = "/u/" + api.authStore.model.username;
+        pRef.current.innerHTML = "";
+        setChar(0);
+        setImage("");
+        setFile("");
+      });
+  }
+  return (
+    <div className=" fixed  bottom-0 left-0 ">
       <div className="  bg-white w-screen p-5">
         <div className="flex flex-row gap-5 mb-5 justify-between   ">
           <div
             onClick={() => {
-             window.location.href = "/"
+              window.location.href = "/";
             }}
           >
-            {window.location.href === "/" ? (
+            {window.location.origin + window.location.pathname === window.location.origin + "/" ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -59,7 +191,7 @@ export default function Bottomnav(){
             strokeWidth="1.5"
             stroke="currentColor"
             onClick={() => {
-              window.location.href = "/search";
+              window.location.hash = "#/search";
             }}
           >
             <path
@@ -102,7 +234,7 @@ export default function Bottomnav(){
               />
             </svg>
           )}
-          {window.location.href = "/notifications" ? (
+          {window.location.hash === "#/notifications" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -139,12 +271,19 @@ export default function Bottomnav(){
               window.location.href = "/u/" + api.authStore.model.username;
             }}
           >
-            { window.location.href === "/u/" + api.authStore.model.username 
-            || window.location.href === "/settings"
-            ? (
-               <img src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`} className="rounded-full w-6 h-6" alt={api.authStore.model.username + "'s avatar"} />
-            ) : (
-                <img src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`} className="rounded-full w-6 h-6
+            {
+            
+            window.location.origin + window.location.pathname === window.location.origin + "/u/" + api.authStore.model.username
+             
+            ?  
+            <img src={
+              `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
+            } className="rounded-full w-6 h-6" alt={api.authStore.model.username + "'s avatar"} />
+            
+            : (
+                <img src={
+              `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
+                } className="rounded-full w-6 h-6
                 opacity-50
                 " alt={api.authStore.model.username + "'s avatar"} />
             )}
@@ -162,9 +301,8 @@ export default function Bottomnav(){
           <div className="divider  text-slate-400  w-12   mt-0"></div>
         </button>
 
-        <div className='flex flex-col  gap-5 mt-2 p-2'>
+        <div className='flex flex-col  gap-5 mt-2 p-5'>
           <div className="flex flex-row gap-4 w-full">
- 
             <img
               src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
               className="rounded-full w-12 h-12"
@@ -174,7 +312,7 @@ export default function Bottomnav(){
           </div>
           <p
             contentEditable
-            className={`w-full font-mono focus:outline-none resize-none
+            className={`w-full    focus:outline-none resize-none
              overflow-hidden text-slate-900 placeholder-slate-300
         before:text-slate-300
          mb-16
@@ -183,8 +321,15 @@ export default function Bottomnav(){
             id="post"
             ref={pRef}
             inputMode="text"
-             
-          
+            onInput={handleContentInput}
+            onBlur={(e) => {
+
+
+              let sanatized = e.target.innerHTML;
+              let emojis = handleEmojis(sanatized);
+              setPContent(emojis.replace(/<br>/g, ""));
+ 
+            }}
           ></p>
 
           {image ? (
@@ -261,11 +406,66 @@ export default function Bottomnav(){
           ) : (
             <></>
           )}
-          <span className="text-sky-500 text-sm"  >
+          <span className="text-sky-500 text-sm" onClick={createPost}>
             Post
           </span>
         </div>
       </Modal>
     </div>
-    )
+  );
+};
+
+ 
+function handleEmojis(html) {
+  let parser = new DOMParser();
+  let defaults = {
+    ":thumbsup:": "👍",
+    ":thumbsdown:": "👎",
+    ":heart:": "❤️",
+    ":broken_heart:": "💔",
+    ":star:": "⭐",
+    ":star2:": "🌟",
+    ":exclamation:": "❗",
+    ":question:": "❓",
+    ":warning:": "⚠️",
+    ":poop:": "💩",
+    ":clap:": "👏",
+    ":muscle:": "💪",
+    ":pray:": "🙏",
+    ":smile:": "😄",
+    ":smiley:": "😃",
+    ":grin:": "😀",
+    ":laughing:": "😆",
+    ":sweat_smile:": "😅",
+    ":joy:": "😂",
+    ":rofl:": "🤣",
+    ":relaxed:": "☺️",
+    ":ok_hand:": "👌",
+    ":100:": "💯",
+  };
+
+  let emojis = defaults;
+
+  let doc = parser.parseFromString(html, "text/html");
+  let c = doc.body;
+  let h = c.innerHTML;
+  for (const emoji in emojis) {
+    if (!emoji.startsWith(":") || !emoji.endsWith(":")) {
+      throw new Error("Emoji must be in the format :emoji:");
+    }
+    if (Object.hasOwnProperty.call(emojis, emoji)) {
+      let value = emojis[emoji];
+      // set to an img element if a path
+      if (
+        value.startsWith("http") ||
+        value.startsWith("www") ||
+        value.startsWith("./")
+      ) {
+        value = `<img src="${value}" width="32px" height="32px" />`;
+      }
+      h = h.replaceAll(emoji, value);
+    }
+  }
+  c.innerHTML = h;
+  return doc.documentElement.innerHTML;
 }

@@ -8,7 +8,7 @@ function fetchPosts(page) {
     return api.collection('posts').getList(page, 10, {
       expand: 'author',
       sort: 'created',
-      filter: `author.id != "${api.authStore.model.id}"`
+      filter: `author.id != "${api.authStore.model.id}" && author.followers ?~ "${api.authStore.model.id}"`
     }).then((posts) => {
        return posts.items
     })

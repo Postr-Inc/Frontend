@@ -354,6 +354,7 @@ export  default function Bottomnav() {
           className="flex justify-center mx-auto focus:outline-none"
           onClick={() => {
             setModalisOpen(false);
+            document.activeElement.blur()
           }}
         >
           <div className="divider  text-slate-400  w-12   mt-0"></div>

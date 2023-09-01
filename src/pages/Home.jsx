@@ -66,6 +66,8 @@ export default function Home() {
             )}
           </div>
         </InfiniteScroll>
+
+          <Bottomnav />
         
       </div>
     );

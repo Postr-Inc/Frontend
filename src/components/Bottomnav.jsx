@@ -80,7 +80,7 @@ export  default function Bottomnav() {
     setIsTyping(false);
   }); 
  
-  const saveCaretPosition = () => {
+  function saveCaretPosition (){
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -89,7 +89,7 @@ export  default function Bottomnav() {
     return null;
   };
 
-  const restoreCaretPositionToEnd = (element) => {
+  function restoreCaretPositionToEnd  (element) {
     const range = document.createRange();
     range.selectNodeContents(element);
     range.collapse(false);
@@ -98,7 +98,7 @@ export  default function Bottomnav() {
     selection.addRange(range);
   };
 
-  const handleContentInput = (e) => {
+  function handleContentInput(e){
     let text = e.target.innerHTML;
     let charCount = text.length;
     setChar(charCount);

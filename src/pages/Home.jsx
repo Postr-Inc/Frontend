@@ -14,14 +14,12 @@ function fetchPosts(page) {
     })
   }
 export default function Home() {
-    const [hasLoaded, setHasLoaded] = useState(false);
     const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
   
     useEffect(() => {
       fetchPosts(1).then((fetchedPosts) => {
         setPosts(fetchedPosts);
-        setHasLoaded(true);
       });
     }, []);
     

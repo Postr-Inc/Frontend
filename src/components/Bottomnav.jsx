@@ -3,6 +3,62 @@ import React, { useState, useRef, useEffect } from "react";
 import * as sanitizeHtml from 'sanitize-html';
 import Modal from "./Modal";
 import { api } from "../pages";
+
+function handleEmojis(html) {
+  let parser = new DOMParser();
+  let defaults = {
+    ":thumbsup:": "👍",
+    ":thumbsdown:": "👎",
+    ":heart:": "❤️",
+    ":broken_heart:": "💔",
+    ":star:": "⭐",
+    ":star2:": "🌟",
+    ":exclamation:": "❗",
+    ":question:": "❓",
+    ":warning:": "⚠️",
+    ":poop:": "💩",
+    ":clap:": "👏",
+    ":muscle:": "💪",
+    ":pray:": "🙏",
+    ":smile:": "😄",
+    ":smiley:": "😃",
+    ":grin:": "😀",
+    ":laughing:": "😆",
+    ":sweat_smile:": "😅",
+    ":joy:": "😂",
+    ":rofl:": "🤣",
+    ":relaxed:": "☺️",
+    ":ok_hand:": "👌",
+    ":100:": "💯",
+  };
+
+  let emojis = defaults;
+
+  let doc = parser.parseFromString(html, "text/html");
+  let c = doc.body;
+  let h = c.innerHTML;
+  for (const emoji in emojis) {
+    if (!emoji.startsWith(":") || !emoji.endsWith(":")) {
+      throw new Error("Emoji must be in the format :emoji:");
+    }
+    if (Object.hasOwnProperty.call(emojis, emoji)) {
+      let value = emojis[emoji];
+      // set to an img element if a path
+      if (
+        value.startsWith("http") ||
+        value.startsWith("www") ||
+        value.startsWith("./")
+      ) {
+        value = `<img src="${value}" width="32px" height="32px" />`;
+      }
+      h = h.replaceAll(emoji, value);
+    }
+  }
+  c.innerHTML = h;
+  return doc.documentElement.innerHTML;
+}
+
+
 export  default function Bottomnav() {
   let maxchar = 280;
   let [chars, setChar] = useState(0);
@@ -55,19 +111,16 @@ export  default function Bottomnav() {
     // Process emojis and replace &lt; and &gt;
     text = handleEmojis(text);
     text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
-    let sanitized = sanitizeHtml(text, {
+    
+    text = sanitizeHtml(text, {
       allowedTags: ["b", "i", "em", "strong", "a", "p", "br"],
       allowedAttributes: {
         a: ["href"],
       },
-    });
-    text = sanitized;
-    pRef.current.innerHTML = text;
+    })
 
- 
-  
-    // Handle @mentions
     
+
     
     if (text.includes("@")) {
       // Only process if the last word starts with @
@@ -322,14 +375,7 @@ export  default function Bottomnav() {
             ref={pRef}
             inputMode="text"
             onInput={handleContentInput}
-            onBlur={(e) => {
-
-
-              let sanatized = e.target.innerHTML;
-              let emojis = handleEmojis(sanatized);
-              setPContent(emojis.replace(/<br>/g, ""));
- 
-            }}
+            onBlur={handleContentInput}
           ></p>
 
           {image ? (
@@ -416,56 +462,4 @@ export  default function Bottomnav() {
 };
 
  
-function handleEmojis(html) {
-  let parser = new DOMParser();
-  let defaults = {
-    ":thumbsup:": "👍",
-    ":thumbsdown:": "👎",
-    ":heart:": "❤️",
-    ":broken_heart:": "💔",
-    ":star:": "⭐",
-    ":star2:": "🌟",
-    ":exclamation:": "❗",
-    ":question:": "❓",
-    ":warning:": "⚠️",
-    ":poop:": "💩",
-    ":clap:": "👏",
-    ":muscle:": "💪",
-    ":pray:": "🙏",
-    ":smile:": "😄",
-    ":smiley:": "😃",
-    ":grin:": "😀",
-    ":laughing:": "😆",
-    ":sweat_smile:": "😅",
-    ":joy:": "😂",
-    ":rofl:": "🤣",
-    ":relaxed:": "☺️",
-    ":ok_hand:": "👌",
-    ":100:": "💯",
-  };
-
-  let emojis = defaults;
-
-  let doc = parser.parseFromString(html, "text/html");
-  let c = doc.body;
-  let h = c.innerHTML;
-  for (const emoji in emojis) {
-    if (!emoji.startsWith(":") || !emoji.endsWith(":")) {
-      throw new Error("Emoji must be in the format :emoji:");
-    }
-    if (Object.hasOwnProperty.call(emojis, emoji)) {
-      let value = emojis[emoji];
-      // set to an img element if a path
-      if (
-        value.startsWith("http") ||
-        value.startsWith("www") ||
-        value.startsWith("./")
-      ) {
-        value = `<img src="${value}" width="32px" height="32px" />`;
-      }
-      h = h.replaceAll(emoji, value);
-    }
-  }
-  c.innerHTML = h;
-  return doc.documentElement.innerHTML;
-}
+ 

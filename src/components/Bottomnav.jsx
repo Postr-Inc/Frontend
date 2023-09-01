@@ -197,7 +197,9 @@ export  default function Bottomnav() {
         setChar(0);
         setImage("");
         setFile("");
+        setModalisOpen(false);
       });
+     document.getElementById("newpost").close();
   }
   return (
     <div className=" fixed  bottom-0 left-0 ">

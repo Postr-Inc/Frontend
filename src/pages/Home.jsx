@@ -41,7 +41,7 @@ export default function Home() {
           hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts
         >
-          <div className="flex flex-col gap-5" key="postcontainer">
+          <div className="flex flex-col gap-5 mb-8" key="postcontainer">
             {posts.length < 1 ? (
               <div className=" gap-5 flex flex-col">
                 <Loading />

@@ -271,9 +271,9 @@ export default function Profile(props){
       <div className="flex flex-col gap-5 mt-12">
         // fix so no infinite scroll on private profiles
       <InfiniteScroll
-         dataLength={posts.length - 1} //This is important field to render the next data
+          dataLength={posts.length || 0}
           next={fetchMorePosts }
-         hasMore={hasMore}
+          hasMore={hasMore}
           loader={<Loading />} // Display loading indicator while fetching more posts
           
          
@@ -322,9 +322,6 @@ export default function Profile(props){
                     likes={p.likes}
                     id={p.id}
                     created={p.created}
-                    pinned={p.pinned}
-                    repostedBy={p.expand.repostedBy}
-                    OriginalAuthor={p.expand.OriginalAuthor}
                     ondelete={() => {
                       window["delete" + id].showModal();
                     }}

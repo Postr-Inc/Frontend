@@ -19,21 +19,8 @@ export default function Post(props){
           });
         }
       }
-    return hidden ? 
-
-    <div className="alert h-16 rounded-1 bg-[#f3f6f4] flex flex-row">
-    <span>This Post is hidden</span>
-    <button
-      onClick={() => {
-        setHidden(false);
-      }}
-      className="btn-close  text-sky-500 font-bold ml-auto"
-    >
-      Undo
-    </button>
-  </div>
-
-    : (    <div className="flex flex-col text-sm mb-[35px]  ">
+    return  (  
+    <div className="flex flex-col text-sm mb-[35px]  ">
     <div className="flex flex-row ">
       {props.author.avatar ? (
         <img
@@ -67,7 +54,7 @@ export default function Post(props){
           style={{ width: "13px", height: "13px" }}
         />
       ) : (
-        <></>
+        "
       )}
 
       <div className="dropdown dropdown-left absolute end-5 ">
@@ -104,47 +91,10 @@ export default function Post(props){
           ) : (
             ""
           )}
-          <li>
-            <a
-              className="cursor-pointer"
-              onClick={() => {
-                setHidden(true);
-              }}
-            >
-              Hide
-            </a>
-          </li>
-          {props.author.id === api.authStore.model.id ? (
-            <li>
-              <a
-                className="cursor-pointer"
-                onClick={() => {
-                  props.ondelete();
-                }}
-              >
-                Delete
-              </a>
-            </li>
-          ) : (
-            <></>
+          
+           
           )}
-
-          {window.location.href === window.location.origin + '/' 
-          && props.author.id !== api.authStore.model.id 
-          ? (
-            <li>
-              <a
-                onClick={() => {
-                  document.getElementById("moreinfo" + props.id).showModal();
-                }}
-                className="cursor-pointer"
-              >
-                Why am I seeing this?
-              </a>
-            </li>
-          ) : (
-            <></>
-          )}
+ 
         </ul>
       </div>
     </div>
@@ -168,82 +118,10 @@ export default function Post(props){
         }}
       />
     ) : (
-      <></>
+     "
     )}
-    {props.file ? (
-      <Modal id={"modal" + props.id} height="h-screen">
-        <button className="flex justify-center mx-auto focus:outline-none">
-          <div className="divider  text-slate-400  w-12   mt-0"></div>
-        </button>
-        <img
-          src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-          className="w-full p-2 h-full object-cover rounded  "
-          alt="post image"
-        />
-      </Modal>
-    ) : (
-      ""
-    )}
-    <Modal id={"moreinfo" + props.id} height="h-75">
-      <button className="flex justify-center mx-auto focus:outline-none">
-        <div className="divider  text-slate-400  w-12   mt-0"></div>
-      </button>
-      <h1 className="text-md justify-center flex mx-auto font-bold">
-        Why You're Seeing This Post
-      </h1>
-      <span className="text-md justify-center mt-5 flex mx-auto cursor-text ">
-        There are various reasons why you may see content on your feed. Postr
-        shows posts based on who you follow.
-      </span>
-      <div className="flex mt-6  gap-5 items-center">
-        <div className="avatar placeholder">
-          <div className=" ring-2 ring-slate-200 rounded-full w-12 h-12">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
-              />
-            </svg>
-          </div>
-        </div>
-        <p className="text-sm cursor-text ">
-          This post was made by {props.author.username} and was posted on{" "}
-          {new Date(props.created).toLocaleDateString()}.
-        </p>
-      </div>
-
-      {props.author.followers.includes(api.authStore.model.id) ? (
-        <div className="flex gap-5 items-center">
-          {props.author.avatar ? (
-            <img
-              src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
-              className="w-12 h-12 rounded-full object-cover mt-5"
-            />
-          ) : (
-            <div className="avatar placeholder">
-              <div className="bg-neutral-focus text-neutral-content mt-5 border-slate-200 rounded-full w-12 h-12">
-                <span className="text-xs cursor-text">
-                  {props.author.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            </div>
-          )}
-          <p className="text-sm mt-5">
-            You are following {props.author.username}.
-          </p>
-        </div>
-      ) : (
-        <></>
-      )}
-    </Modal>
+    
+     
     <Modal id={"comment" + props.id} height="h-screen w-screen">
       <button className="flex justify-center mx-auto focus:outline-none">
         <div className="divider  text-slate-400  w-12   mt-0"></div>

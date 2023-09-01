@@ -52,7 +52,6 @@ export default function Login(){
     setTimeout(() => {
       if (!isLogin) {
         setBtnstate("aborted");
-        console.log("aborted");
       }
     }, 6000);
   }

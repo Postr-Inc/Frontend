@@ -105,7 +105,30 @@ export default function Post(props){
     ) : (
      ""
     )}
-    
+     <Modal id={"comment" + props.id} height="h-screen w-screen">
+      <button className="flex justify-center mx-auto focus:outline-none">
+        <div className="divider  text-slate-400  w-12   mt-0"></div>
+      </button>
+      <div className="p-2">
+        <span className="justify-center mx-auto flex font-bold text-black">
+          Comments
+        </span>
+
+        <div className="flex flex-row   gap-2 left-2  p-2 w-96  absolute bottom-5">
+          <img
+            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <input
+            placeholder="Add a comment..."
+            className="w-96 rounded-full input input-sm   border-slate-200  px-2 py-1 focus:outline-none"
+          />
+          <button className="btn btn-sm btn-ghost text-sm text-sky-500 hover:bg-transparent focus:bg-transparent">
+            Post
+          </button>
+        </div>
+      </div>
+    </Modal>
      
      
     <div className="flex flex-row gap-5 mt-6">

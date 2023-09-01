@@ -207,7 +207,7 @@ export default function Bottomnav() {
         <div className="flex flex-row gap-5 mb-5 justify-between   ">
           <div
             onClick={() => {
-              if(!window.location.href === "/"){
+              if(window.location.pathname !== "/"){
                 window.location.href = "/"
               }
             }}
@@ -313,8 +313,8 @@ export default function Bottomnav() {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               onClick={() => {
-                if(!window.location.href === "/search"){
-                  return
+                if(window.location.pathname !== "/search"){
+                  window.location.href = "/search"
                 }
               }}
               fill="none"
@@ -333,9 +333,9 @@ export default function Bottomnav() {
           <div
             className="cursor-pointer"
             onClick={() => {
-             if(! window.location.href === "/u/" + api.authStore.model.username){
-              window.location.href = "/u/" + api.authStore.model.username;
-             }
+              if(window.location.pathname !== "/u/" + api.authStore.model.username){
+                window.location.href = "/u/" +  api.authStore.model.username
+              }
             }}
           >
             {window.location.origin + window.location.pathname ===

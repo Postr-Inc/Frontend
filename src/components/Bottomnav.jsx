@@ -139,8 +139,8 @@ export default function Bottomnav(){
               window.location.href = "/u/" + api.authStore.model.username;
             }}
           >
-            { window.location.href = "/u/" + api.authStore.model.username;
-            || window.location.href = "/settings"
+            { window.location.href === "/u/" + api.authStore.model.username 
+            || window.location.href === "/settings"
             ? (
                <img src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`} className="rounded-full w-6 h-6" alt={api.authStore.model.username + "'s avatar"} />
             ) : (

@@ -6,7 +6,9 @@ export const api = new Pocketbase('https://postrapi.pockethost.io')
 import { useEffect } from "react";
 export default function App() {
 	useEffect(() => {
-		api.collection("users").authRefresh()
+		if(api.authStore.isValid){
+			api.collection("users").authRefresh()
+		}
 	}, [])
 	return api.authStore.isValid ? 
 	   (

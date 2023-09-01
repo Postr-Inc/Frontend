@@ -33,7 +33,7 @@ export default function Profile(props){
     setProfile(res)
 })
     useEffect(() => {
-        !api.authStore.isValid ? window.location.href  = "/" : console.log('auth state active');
+      
         fetchPosts(1).then(function (fetchedPosts){
             setPosts(fetchedPosts);
             setHasLoaded(true);

@@ -4,7 +4,21 @@ import { useState } from "react";
 export default function Post(props){
     let [likes, setLikes] = useState(props.likes);
     let [hidden, setHidden] = useState(false);
-    
+    function likepost() {
+        if (likes.includes(api.authStore.model.id)) {
+          let index = likes.indexOf(api.authStore.model.id);
+          likes.splice(index, 1);
+          setLikes([...likes]);
+          api.collection("posts").update(props.id, {
+            likes: likes,
+          });
+        } else {
+          setLikes([...likes, api.authStore.model.id]);
+          api.collection("posts").update(props.id, {
+            likes: [...likes, api.authStore.model.id],
+          });
+        }
+      }
     return  (  
     <div className="flex flex-col text-sm mb-[35px]  ">
     <div className="flex flex-row ">
@@ -87,9 +101,13 @@ export default function Post(props){
 
     <p
       className="mt-6 text-sm"
-       
+       ref{(el)=>{
+         if (el) {
+          el.innerHTML = props.content;
+        }
+       })
     >
-        {props.content}
+        
     
     </p>
 
@@ -105,30 +123,7 @@ export default function Post(props){
     ) : (
      ""
     )}
-     <Modal id={"comment" + props.id} height="h-screen w-screen">
-      <button className="flex justify-center mx-auto focus:outline-none">
-        <div className="divider  text-slate-400  w-12   mt-0"></div>
-      </button>
-      <div className="p-2">
-        <span className="justify-center mx-auto flex font-bold text-black">
-          Comments
-        </span>
-
-        <div className="flex flex-row   gap-2 left-2  p-2 w-96  absolute bottom-5">
-          <img
-            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-          <input
-            placeholder="Add a comment..."
-            className="w-96 rounded-full input input-sm   border-slate-200  px-2 py-1 focus:outline-none"
-          />
-          <button className="btn btn-sm btn-ghost text-sm text-sky-500 hover:bg-transparent focus:bg-transparent">
-            Post
-          </button>
-        </div>
-      </div>
-    </Modal>
+   
      
      
     <div className="flex flex-row gap-5 mt-6">
@@ -143,7 +138,7 @@ export default function Post(props){
 
       <div className="flex flex-row gap-2 items-center">
         <svg
-         
+          onClick={debounce(likepost, 1000)}
           xmlns="http://www.w3.org/2000/svg"
           fill={likes.includes(api.authStore.model.id) ? "#F13B38" : "none"}
           viewBox="0 0 24 24"

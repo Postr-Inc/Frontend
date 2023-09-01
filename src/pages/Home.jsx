@@ -70,7 +70,7 @@ export default function Home() {
           <div className="mt-8>
           <Bottomnav />
           </div>
-        
+         </div>
       </div>
     );
   }

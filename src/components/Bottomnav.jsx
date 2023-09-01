@@ -102,7 +102,7 @@ export default function Bottomnav(){
               />
             </svg>
           )}
-          {window.location.hash === "#/notifications" ? (
+          {window.location.href = "/notifications" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -139,8 +139,8 @@ export default function Bottomnav(){
               window.location.href = "/u/" + api.authStore.model.username;
             }}
           >
-            {window.location.hash === "#/profile/" + api.authStore.model.id
-            || window.location.hash === "#/settings"
+            { window.location.href = "/u/" + api.authStore.model.username;
+            || window.location.href = "/settings"
             ? (
                <img src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`} className="rounded-full w-6 h-6" alt={api.authStore.model.username + "'s avatar"} />
             ) : (

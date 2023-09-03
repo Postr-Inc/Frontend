@@ -38,6 +38,9 @@ const { title, description, image } = Astro.props;
         content: attr(placeholder);
         color: #aaa;
       }
+      p[placeholderSize]:empty:before {
+        font-size: attr(placeholderSize);
+      }
     </style>
 	   
 	 
@@ -45,7 +48,7 @@ const { title, description, image } = Astro.props;
   <body>
     <slot />
   </body>
-
+  <script is:inline src="/app.js"></script>
   <script is:inline>
     window.onresize = () => {
       window.innerWidth > 1000

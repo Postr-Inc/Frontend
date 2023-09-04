@@ -10,7 +10,6 @@
 │   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   └── Card.astro
 │   │   └── Post.jsx
 │   ├── layouts/
 │   │   └── Layout.astro

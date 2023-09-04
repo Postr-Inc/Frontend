@@ -7,7 +7,6 @@ import Comment from "../components/Comments";
 import Modal from "../components/Modal";
 import santizeHtml from "sanitize-html";
 import emojis from "./misc/emojis.json";
-console.log(emojis);
 export default function Vpost(props) {
   const [post, setPost] = useState({});
   const [chars, setChars] = useState(0);
@@ -247,6 +246,7 @@ export default function Vpost(props) {
                 {...(chars < 1 ? { disabled: true } : { disabled: false })}
                 onClick={() => {
                   createComment();
+                  commentRef.current.value = "";
                 }}
               >
                 Reply

@@ -1,7 +1,8 @@
 
 import { Image } from 'astro:assets';
 import { useState } from 'react';
-import { api } from './Index';
+import { api } from '.';
+ 
  
 export default function Login(){
  let [btnstate, setBtnstate] = useState("aborted");

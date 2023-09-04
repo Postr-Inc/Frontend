@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { api } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Loading from "../components/Loading";
 import Post from "../components/Post";
@@ -7,6 +6,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Modal from "../components/Modal";
 import Comment from "../components/Comments";
 import sanitizeHtml from "sanitize-html";
+import { api } from ".";
 function fetchPosts(page) {
   return api
     .collection("posts")

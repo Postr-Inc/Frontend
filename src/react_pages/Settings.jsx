@@ -1,4 +1,4 @@
-import { api } from "./Index";
+import { api } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
 

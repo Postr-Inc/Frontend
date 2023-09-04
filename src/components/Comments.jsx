@@ -1,4 +1,4 @@
-import { api } from "../react_pages/Index";
+import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useState } from "react";
 export default function Comment(props) {

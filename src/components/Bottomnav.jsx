@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import sanitizeHtml from "sanitize-html";
 import Modal from "./Modal";
-import { api } from "../react_pages/Index";
+import { api } from  "."
  
 
 function handleEmojis(html) {

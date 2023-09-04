@@ -1,0 +1,69 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image: string;
+}
+
+const { title, description, image } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta name="theme-color" content="#fff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={image} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/icons/logo.png" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="dns-prefetch preconnect" href="https://postrapi.pockethost.io" />
+    <link rel="preconnect" href="https://v6-0.pages.dev" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>{title}</title>
+    <style is:global>
+      p[placeholder]:empty:before {
+        content: attr(placeholder);
+        color: #aaa;
+      }
+      p[placeholderSize]:empty:before {
+        font-size: attr(placeholderSize);
+      }
+    </style>
+	   
+	 
+  </head>
+  <body>
+    <slot />
+  </body>
+  <script is:inline>
+    window.onresize = () => {
+      window.innerWidth > 1000
+        ? (document.body.style.zoom = 1.5)
+        : (document.body.style.zoom = 1);
+      window.innerHeight > 1000
+        ? (document.body.style.zoom = 1.5)
+        : (document.body.style.zoom = 1);
+      window.resizeTo(375, 812);
+    };
+    window.innerWidth > 1000
+      ? (document.body.style.zoom = 1.5)
+      : (document.body.style.zoom = 1);
+    window.innerHeight > 1000
+      ? (document.body.style.zoom = 1.5)
+      : (document.body.style.zoom = 1);
+    window.resizeTo(375, 812);
+  </script>
+</html>

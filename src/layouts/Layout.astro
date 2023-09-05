@@ -46,19 +46,17 @@ const { title, description, image } = Astro.props;
  
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" 
    async="">
-</script>   
+</script>  
 <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-            appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
-            notifyButton: {
-                enable: true
-            },
-            serviceWorkerParam: { scope: "/" },
-            serviceWorkerPath: "OneSignalSDKWorker.js",
-        });
-    });
+const OneSignal = window.OneSignal || [];
+const initConfig = {
+    appId: "b1beca0d-bf7b-4767-9637-7e345fff7710"
+};
+OneSignal.push(function () {
+    OneSignal.SERVICE_WORKER_PARAM = { scope: '/' };
+    OneSignal.SERVICE_WORKER_PATH = '/OneSignalSDKWorker.js'
+    OneSignal.init(initConfig);
+});
 </script>
   </head>
   <body>

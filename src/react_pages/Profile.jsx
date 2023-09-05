@@ -295,14 +295,14 @@ export default function Profile(props) {
           <a
             className={`tab w-full tab-bordered
          ease-out
-          ${pageSelected === "saved" ? "ease-in tab-active" : ""}
+          ${pageSelected === "comments" ? "ease-in tab-active" : ""}
       `}
             onClick={() => {
-              setPageSelected("saved");
+              setPageSelected("comments");
             }}
-            id="reposts"
+            id="comments"
           >
-            Saved
+            Comments
           </a>
           <a
             className={`tab w-full tab-bordered

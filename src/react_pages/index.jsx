@@ -16,7 +16,8 @@ export default function App() {
 OneSignal.init({
       appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
     }).then(()=>{
-      console.log('initilized')
+      OneSignal.login(api.authStore.model.id)
+      console.log('loggedin')
     })
 		
 			 

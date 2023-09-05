@@ -48,15 +48,12 @@ const { title, description, image } = Astro.props;
    async="" is:inline>
 </script>  
 <script is:inline>
-const OneSignal = window.OneSignal || [];
-const initConfig = {
-    appId: "b1beca0d-bf7b-4767-9637-7e345fff7710"
-};
-OneSignal.push(function () {
-    OneSignal.SERVICE_WORKER_PARAM = { scope: '/' };
-    OneSignal.SERVICE_WORKER_PATH = '/OneSignalSDKWorker.js'
-    OneSignal.init(initConfig);
-});
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
+    });
+  });
 </script>
   </head>
   <body>

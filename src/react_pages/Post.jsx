@@ -156,7 +156,7 @@ export default function Vpost(props) {
         <div className="fixed h-24 rounded bottom-16 bg-white left-0 ">
           <div className="form-control  justify-center mx-auto w-screen   p-2 ">
             <label className="input-group    rounded-full">
-              <span className="bg-transparent border border-slate-200 border-r-0 border-l-0">
+              <span className="bg-transparent border border-slate-200 border-r-0 ">
                 <img
                   src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="w-6 h-6 absolute left-4 rounded-full bg-transparent object-cover"

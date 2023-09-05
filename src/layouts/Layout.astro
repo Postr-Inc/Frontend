@@ -33,6 +33,7 @@ const { title, description, image } = Astro.props;
     <link rel="preconnect" href="https://v6-0.pages.dev" />
     <link rel="manifest" href="/manifest.json" />
     <title>{title}</title>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer is:inline></script>
     <style is:global>
       p[placeholder]:empty:before {
         content: attr(placeholder);
@@ -42,7 +43,16 @@ const { title, description, image } = Astro.props;
         font-size: attr(placeholderSize);
       }
     </style>
-	   
+ <script is:inline>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
+    }).then(()=>{
+      console.log('initilized')
+    })
+  });
+</script>   
 	 
   </head>
   <body>

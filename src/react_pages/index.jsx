@@ -14,7 +14,7 @@ export default function App() {
     // Check whether notification permissions have already been granted;
     // if so, create a notification
     const notification = new Notification("Hi there!");
-    // …
+    alert('working')
   } else if (Notification.permission !== "denied") {
     // We need to ask the user for permission
     Notification.requestPermission().then((permission) => {

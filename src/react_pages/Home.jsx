@@ -13,7 +13,7 @@ function fetchPosts(page) {
     .getList(page, 10, {
       expand: "author,comments.user",
       sort: "-created",
-      filter: ``,
+      filter: `author.id != "${api.authStore.model.id}"`,
     })
     .then((posts) => {
       return {

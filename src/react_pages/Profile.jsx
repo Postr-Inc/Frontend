@@ -34,6 +34,14 @@ export default function Profile(props) {
       api.collection("users").update(profile.id, {
         followers: [...followers, api.authStore.model.id],
       });
+      api.collection("notifications").create({
+        recipient: profile.id,
+        author: api.authStore.model.id,
+        type: "follow",
+        title: `${api.authStore.model.username} followed you`,
+        image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+        url: `/u/${api.authStore.model.username}`,
+      });
     }
   }
   function fetchPosts(page) {

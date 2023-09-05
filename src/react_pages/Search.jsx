@@ -83,9 +83,9 @@ export default function Search() {
     loadUsers();
   }, []);
   return (
-    <div className=" p-5 flex flex-col ">
+    <div className=" p-5 flex flex-col  ">
       <span className="text-2xl font-bold">Search</span>
-      <div class="form-control mt-2">
+      <div class="form-control mt-2 mb-8">
         <div class="input-group">
           <button class=" border-r-0 input-group-xs border  focus:bg-transparent hover:bg-transparent">
             <svg

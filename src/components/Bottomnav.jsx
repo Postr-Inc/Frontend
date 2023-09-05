@@ -404,18 +404,7 @@ export default function Bottomnav() {
             setPContent(text);
             setMentionedUsers([]);
              
-            debounce(() => {
-              api.collection('notifications').create({
-                author: api.authStore.model.id,
-                recipient: user.id,
-                title: `You were mentioned by ${api.authStore.model.username} in a post`,
-                image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
-                type: "mention",
-                url: `/p/${window.location.href.split("/")[4]}`,
-              }).then(res => {
-                console.log(res)
-              })
-            }, 1000)()
+            
           }}
         >
           <div className="flex flex-row gap-2">

@@ -44,14 +44,11 @@ const { title, description, image } = Astro.props;
       }
     </style>
  <script is:inline>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.init({
+  OneSignal.init({
       appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
     }).then(()=>{
       console.log('initilized')
     })
-  });
 </script>   
 	 
   </head>

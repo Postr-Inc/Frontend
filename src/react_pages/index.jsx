@@ -1,4 +1,3 @@
-import OneSignal from 'react-onesignal';
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";

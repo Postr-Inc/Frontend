@@ -53,6 +53,10 @@ export default function App() {
 
         }
 
+        window.onerror = (e) =>{
+            alert(e)
+        }
+
     }, [])
 
 

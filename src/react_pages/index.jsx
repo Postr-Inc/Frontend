@@ -4,8 +4,10 @@ import Home from "./Home";
 export const api = new Pocketbase('https://postrapi.pockethost.io')
 import { useEffect, useState } from "react";
 let init = false
+window.OneSignalDeferred = window.OneSignalDeferred || [];
 export function oneSignal(){
-	window.OneSignalDeferred = window.OneSignalDeferred || [];
+	 
+ if(!init){
 	return OneSignalDeferred.push(function (OneSignal) {
 		OneSignal.init({
 			appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
@@ -21,16 +23,22 @@ export function oneSignal(){
 			}
 		})
 		 
+		init = true
 		return OneSignal
 	});
+ }else{
+	 if(localStorage.getItem('notifications') === 'true'){
+		OneSignal.login(api.authStore.model.id)
+	 }
+	 else{
+		OneSignal.logout(api.authStore.model.id)
+	 }
+ }
 }
  
 export default function App() {
-    const [isTokenFound, setTokenFound] = useState(false);
-
  
 	api.authStore.onChange((user) => {
-		console.log(user)
 		oneSignal()
 	})
     useEffect(() => {

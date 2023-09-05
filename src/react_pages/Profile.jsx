@@ -405,7 +405,7 @@ export default function Profile(props) {
                                     .getElementById("delete" + id)
                                     .close();
                                 }}
-                                className="absolute bottom-5 cursor-pointer text-sky-500 text-sm left-5"
+                                className="absolute bottom-12 cursor-pointer text-sky-500 text-sm left-5"
                               >
                                 Cancel
                               </a>
@@ -421,7 +421,7 @@ export default function Profile(props) {
                                       .getElementById("delete" + id)
                                       .close();
                                   }, 1000)}
-                                  className="absolute bottom-5 text-sky-500 cursor-pointer text-sm end-5"
+                                  className="absolute bottom-12 text-sky-500 cursor-pointer text-sm end-5"
                                 >
                                   Delete
                                 </a>

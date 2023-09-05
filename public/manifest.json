@@ -51,6 +51,10 @@
       {
         "protocol": "web+user",
         "url": "/u/?type=%s"
+      },
+      {
+        "protocol": "web+notifications",
+        "url": "/notifications?type=%s"
       }
     ],
     "related_applications": [{

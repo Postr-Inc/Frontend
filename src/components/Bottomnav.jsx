@@ -97,20 +97,20 @@ export default function Bottomnav() {
   }
 
   function handleContentInput(e) {
-    let text = pRef.current.innerHTML;
-
+    let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
+  
     let charCount = text.length;
     setChar(charCount);
-
+  
     if (charCount > maxchar) {
       text = text.slice(0, maxchar); // Truncate text
       charCount = maxchar;
     }
-
+  
     // Process emojis and replace &lt; and &gt;
     text = handleEmojis(text);
     text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
-
+  
     text = sanitizeHtml(text, {
       allowedTags: sanitizeHtml.defaults.allowedTag,
       allowedAttributes: {
@@ -118,56 +118,39 @@ export default function Bottomnav() {
         span: ["class"],
       },
     });
-
-    console.log(text);
-
+  
     if (text.includes("@")) {
       // do not process already mentioned users
       let mentions = text.match(/@(\w+)/g);
-
-     
-
+  
       setHasMention(true);
       if (mentions) {
-        mentions.forEach((mention) => {
-          let username = mention.replace("@", "");
-          if (username === api.authStore.model.username) {
-            return;
-          }
-          api
-            .collection("users")
-            .getFullList('*', {
-              filter: `username ~ "${username}"`,
-            })
-            .then((res) => {
-             
-              if (res) {
-                if(res.length > 0){
-                  let id = res.id;
-                  if (!document.getElementById("tag" + id)) {
-                    setMentionedUsers(res)
-                    restoreCaretPositionToEnd(pRef.current);
-                  }
-                }else{
-                  setMentionedUsers([])
-                }
-               
-              }
-            })
-            .catch((err) => {
-              console.log(`User ${username} does not exist`);
-            });
-        });
+        const usernames = mentions.map((mention) => mention.replace("@", ""));
+        api
+          .collection("users")
+          .getFullList("*", {
+            filter: `username ~ "${usernames.join("|")}"`,
+          })
+          .then((res) => {
+            if (res) {
+              setMentionedUsers(res);
+            } else {
+              setMentionedUsers([]);
+            }
+          })
+          .catch((err) => {
+            console.log("Error fetching mentioned users", err);
+          });
       }
-    }else{
+    } else {
       setHasMention(false);
-      setMentionedUsers([])
+      setMentionedUsers([]);
     }
-
-    pRef.current.innerHTML = text;
+  
     setPContent(text);
-    restoreCaretPositionToEnd(pRef.current);
   }
+  
+  
 
   useEffect(() => {
     if (pContent == "") {
@@ -401,59 +384,68 @@ export default function Bottomnav() {
             }}
           ></p>
 
-          <div className={`dropdown ${hasMention ? "dropdown-open" : "hidden"}`}>
+<div className={`dropdown ${hasMention ? "dropdown-open" : "hidden"}`}>
+  <div
+    tabIndex={0}
+    className="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52"
+  >
+    {mentionedUsers.length > 0 ? (
+      mentionedUsers.map((user) => (
+        <div
+          className="flex flex-col gap-2 mb-5"
+          key={user.id}
+          onClick={() => {
+            setHasMention(false);
+            // Append a link to the user's profile without replacing the mention
+            let text = pRef.current.innerHTML;
+            let mention = text.match(/@(\w+)/g);
+            text = text.replaceAll(mention, `<a class="text-sky-500" href="/u/${user.username}">u/${user.username}</a>`);
+            pRef.current.innerHTML = text;
+            setPContent(text);
+            setMentionedUsers([]);
              
-            <div
-             tabIndex={0}
-             className="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52"
-            >
-              
-              {
-                mentionedUsers.length > 0 ? mentionedUsers.map((user) => {
-                  return (
-                    <div className="flex flex-col gap-2 mb-5"
-                    key={user.id}
-                    >
-                      <div className="flex flex-row gap-2">
-                      {
-                        user.avatar ? <img
-                        src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${user.id}/${user.avatar}`}
-                        className="w-8 h-8 rounded-full object-cover"
-                      /> : <div className="avatar placeholder">
-                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
-                        <span className="text-xs">
-                          {user.username.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                       }
-                        <span className="text-sm"
-                        onClick={()=>{
-                           setHasMention(false)
-                            // replace with link
-                            let text = pRef.current.innerHTML;
-                            let mention = `@${user.username}`;
-                            let link = `<a class="text-sky-500" href="/u/${user.username}">${mention}</a>`;
-                            text = text.replaceAll(mention, link);
-                            setPContent(text);
-                           setMentionedUsers([])
-                           
-                        }}
-                        >{user.username}</span>
-                        </div>
-                        
-                      
-                      <span className="text-xs text-gray-400 ml-1">
-                        {user.bio.toString().slice(0, 20)}...
-                      </span>
-                      
-                    </div>
-                  )
-                }) : <></>
-              }
-
-            </div>
+            debounce(() => {
+              api.collection('notifications').create({
+                author: api.authStore.model.id,
+                recipient: user.id,
+                title: `You were mentioned by ${api.authStore.model.username} in a post`,
+                image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+                type: "mention",
+                url: `/p/${window.location.href.split("/")[4]}`,
+              }).then(res => {
+                console.log(res)
+              })
+            }, 1000)()
+          }}
+        >
+          <div className="flex flex-row gap-2">
+            {user.avatar ? (
+              <img
+                src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${user.id}/${user.avatar}`}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="avatar placeholder">
+                <div className="bg-neutral-focus text-neutral-content border-slate-200 rounded-full w-8">
+                  <span className="text-xs">
+                    {user.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            )}
+            <span className="text-sm">{user.username}</span>
           </div>
+          <span className="text-xs text-gray-400 ml-1">
+            {user.bio.toString().slice(0, 20)}...
+          </span>
+        </div>
+      ))
+    ) : (
+      <></>
+    )}
+  </div>
+</div>
+
           {image ? (
             <img
               src={image}
@@ -534,4 +526,14 @@ export default function Bottomnav() {
       </Modal>
     </div>
   );
+}
+
+const debounce = (func, delay) => {
+  let debounceTimer;
+  return function () {
+    const context = this;
+    const args = arguments;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(context, args), delay);
+  };
 }

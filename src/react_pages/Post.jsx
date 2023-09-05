@@ -239,7 +239,7 @@ export default function Vpost(props) {
                 placeholder={`Reply to ${
                   post.author ? post.expand.author.username : ""
                 }`}
-                className="input input-sm h-[2.5rem]  w-full text-lg   border border-slate-200  focus:outline-none border-l-0 border-r-0"
+                className="input input-sm h-[2.5rem]  w-full text-sm   border border-slate-200  focus:outline-none border-l-0 border-r-0"
                 ref={commentRef}
                 onInput={(e) => {
                   e.target.focus();
@@ -253,7 +253,7 @@ export default function Vpost(props) {
                 }}
               />
               <span
-                className="bg-transparent border border-slate-200 text-sky-500 border-l-0"
+                className="bg-transparent border text-sm border-slate-200 text-sky-500 border-l-0"
                 {...(chars < 1 ? { disabled: true } : { disabled: false })}
                 onClick={() => {
                   createComment();

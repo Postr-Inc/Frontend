@@ -13,7 +13,16 @@ export default function App() {
 		if(api.authStore.isValid){
 			api.collection("users").authRefresh()
 			 
- 
+   window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
+      serviceWorkerPath: '/OneSignalSDKWorker.js',
+      scope: "/"
+    }).then(()=>{
+     alert('listening')
+    })
+  });
 			 
 		}else if (window.matchMedia("(display-mode: browser)").matches) {
 			 window.location.href = "/download"

@@ -11,17 +11,15 @@ export default function App() {
 	useEffect(() => {
 		if(api.authStore.isValid){
 			api.collection("users").authRefresh()
-			 
-   window.OneSignalDeferred = window.OneSignalDeferred || [];
+			 window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(function(OneSignal) {
     OneSignal.init({
-      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710" 
-   
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
     }).then(()=>{
-     console.log('initilized')
+console.log('notifications on')
     })
-  });
-			 
+  }); 
+    	 
 		}else if (window.matchMedia("(display-mode: browser)").matches) {
 			 window.location.href = "/download"
 			 

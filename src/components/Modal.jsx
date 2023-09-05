@@ -1,7 +1,8 @@
 export default function Modal(props) {
     return (
         <>
-            <dialog id={props.id} className={`modal    modal-bottom sm:modal-middle  `}
+            <dialog id={props.id} className={`modal    modal-bottom sm:modal-middle
+              `}
             
             >
                 <form method="dialog" className={`modal-box  stickt rounded-non bg-white  

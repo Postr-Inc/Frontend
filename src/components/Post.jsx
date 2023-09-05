@@ -17,10 +17,22 @@ export default function Post(props) {
       api.collection("posts").update(props.id, {
         likes: [...likes, api.authStore.model.id],
       });
+      if(props.author.id !== api.authStore.model.id){
+        api.collection("notifications").create( {
+          "image":`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}` ,
+          "author": api.authStore.model.id,
+          "recipient": props.author.id,
+          "post":  props.id,
+          "title":  `${api.authStore.model.username} liked your post!`,
+          "body":   `${api.authStore.model.username} liked your post!`,
+          "type":  "like",
+          "url": "/p/" + props.id,
+        })
+      }
     }
   }
   return (
-    <div className="flex flex-col text-sm mb-[35px]  "
+    <div className="flex flex-col  text-sm mb-[35px]  "
     id={props.id}
     onClick={(e) => {
       if(window.location.pathname !== "/p/" + props.id

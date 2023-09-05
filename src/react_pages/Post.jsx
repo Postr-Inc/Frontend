@@ -7,6 +7,7 @@ import Comment from "../components/Comments";
 import Modal from "../components/Modal";
 import santizeHtml from "sanitize-html";
 import emojis from "./misc/emojis.json";
+ 
 export default function Vpost(props) {
   const [post, setPost] = useState({});
   const [chars, setChars] = useState(0);
@@ -23,7 +24,7 @@ export default function Vpost(props) {
       .then((res) => {
         setPost(res);
         setComments(res.expand.comments ? res.expand.comments : []);
-        console.log(comments);
+ 
         document.title = `${res.expand.author.username} on Postr: ${res.content} `;
       });
   }
@@ -154,23 +155,31 @@ export default function Vpost(props) {
       </div>
       <div className="mt-8">
         <div className="fixed h-24 rounded bottom-16 bg-white left-0 ">
-          <div className="form-control  justify-center mx-auto w-screen   p-2 ">
+          <div className="form-control  justify-center mx-auto w-screen   p-5 ">
             <label className="input-group    rounded-full">
-              <span className="bg-transparent border border-slate-200 border-r-0 ">
+              <span className="bg-transparent border border-slate-200 border-r-0  ">
                 <img
                   src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                  className="w-6 h-6 absolute left-4 rounded-full bg-transparent object-cover"
+                  className="w-6 h-6 absolute left-8 rounded-full bg-transparent object-cover"
                   alt="post image"
                 />
               </span>
               <dialog id="emojimodal" className="modal">
+                
                 <div className="modal-box overflow-y-scroll">
+                 <button className="flex justify-center mx-auto focus:outline-none"
+                  onClick={() => { document.querySelector("#emojimodal").close(); }}>
+                  
+                    <div className="divider  text-slate-400  w-12   mt-0"></div>
+                  </button>
                   <h3 className="font-bold text-lg">People</h3>
                   <div className="flex flex-row flex-wrap   text-2xl  ">
                     {emojis.people.map((emoji) => {
+                      let id = Math.random();
                       return (
                         <span
                           className="bg-transparent "
+                          key={id}
                           onClick={() => {
                             commentRef.current.value += emoji.replace(
                               /_/g,
@@ -187,9 +196,11 @@ export default function Vpost(props) {
                   <h3 className="font-bold text-lg">Misc</h3>
                   <div className="flex flex-row flex-wrap   text-2xl  ">
                   {emojis.misc.map((emoji) => {
+                      let id = Math.random();
                     return (
                       <span
                         className="bg-transparent "
+                        key={id}
                         onClick={() => {
                           commentRef.current.value += emoji.replace(/_/g, " ");
                           commentRef.current.focus();
@@ -251,7 +262,10 @@ export default function Vpost(props) {
               >
                 Reply
               </span>
+            
+              
             </label>
+             
             <progress
               className={`
             bg-transparent

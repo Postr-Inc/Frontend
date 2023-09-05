@@ -16,11 +16,10 @@ export default function App() {
    window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(function(OneSignal) {
     OneSignal.init({
-      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
-      serviceWorkerPath: '/OneSignalSDKWorker.js',
-      scope: "/"
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710" 
+   
     }).then(()=>{
-     alert('listening')
+     console.log('initilized')
     })
   });
 			 

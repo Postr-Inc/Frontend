@@ -17,6 +17,7 @@ export default function App() {
       appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
     }).then(()=>{
       console.log('notifications on')
+	    alert('working')
       OneSignal.login(api.authStore.model.id)
     })
   }); 

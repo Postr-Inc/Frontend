@@ -1,4 +1,4 @@
- 
+import OneSignal from 'react-onesignal';
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
@@ -13,14 +13,18 @@ export default function App() {
 		if(api.authStore.isValid){
 			api.collection("users").authRefresh()
 			 
-
+OneSignal.init({
+      appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
+    }).then(()=>{
+      console.log('initilized')
+    })
+		
 			 
 		}else if (window.matchMedia("(display-mode: browser)").matches) {
 			 window.location.href = "/download"
 			 
 			}
-		 
-		
+		   
 	}, [])
  
  

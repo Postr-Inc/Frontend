@@ -134,7 +134,7 @@ export default function Profile(props) {
           <img src="/icons/backarrow.svg" className="w-6 h-6" alt="Back" />{" "}
          
         </div>
-        
+        <span className="text-xl " style={{fontFamily: 'pacifico'}}>@{profile.username}</span>
         <div
           className="hover:cursor-pointer"
           onClick={() => {
@@ -152,23 +152,20 @@ export default function Profile(props) {
         </div>
         
       </div>
+
       
       <div className="flex flex-col   p-5 gap-2"
       >
         <div className="flex flex-row  justify-between gap-5">
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2s">
             <div className="flex flex-col gap-2">
               <h1 className="text-xl font-bold">{profile.username}</h1>
-              <span className="text-gray-500 text-sm "
               
-              >
-                @{profile.username}
-              </span>
             </div>
             <span
               className="text-gray-500 
-      w-[80vw] max-w-[80vw] 
-      "
+      w-[80vw] max-w-[80vw]  mb-6
+      "  
             >
               {profile.bio}
             </span>

@@ -185,9 +185,9 @@ export default function Bottomnav() {
     document.getElementById("newpost").close();
   }
   return (
-    <div className=" fixed  bottom-0 left-0 ">
-      <div className="  bg-white w-screen p-5">
-        <div className="flex flex-row gap-5 mb-5 justify-between   ">
+    <div className=" fixed  bottom-2 left-[15vw] flex justify-center mx-auto w-[70vw]">
+      <div className=" border border-slate-200 mr-2   bg-white rounded-2xl w-full h-12 p-2">
+        <div className="flex flex-row  gap-2  mb-3   justify-between ">
           <div
             onClick={() => {
               if(window.location.pathname !== "/"){
@@ -198,41 +198,25 @@ export default function Bottomnav() {
             {window.location.origin + window.location.pathname ===
             window.location.origin + "/" ? (
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-6 h-6 cursor-pointer"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              className="w-7 h-7  cursor-pointer"
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" id="home"><path fill="#200E32" d="M6.63477851,18.7733424 L6.63477851,15.7156161 C6.63477851,14.9350667 7.27217143,14.3023065 8.05843544,14.3023065 L10.9326107,14.3023065 C11.310188,14.3023065 11.6723007,14.4512083 11.9392882,14.7162553 C12.2062757,14.9813022 12.3562677,15.3407831 12.3562677,15.7156161 L12.3562677,18.7733424 C12.3538816,19.0978491 12.4820659,19.4098788 12.7123708,19.6401787 C12.9426757,19.8704786 13.2560494,20 13.5829406,20 L15.5438266,20 C16.4596364,20.0023499 17.3387522,19.6428442 17.9871692,19.0008077 C18.6355861,18.3587712 19,17.4869804 19,16.5778238 L19,7.86685918 C19,7.13246047 18.6720694,6.43584231 18.1046183,5.96466895 L11.4340245,0.675869015 C10.2736604,-0.251438297 8.61111277,-0.221497907 7.48539114,0.74697893 L0.967012253,5.96466895 C0.37274068,6.42195254 0.0175522924,7.12063643 0,7.86685918 L0,16.568935 C0,18.4638535 1.54738155,20 3.45617342,20 L5.37229029,20 C6.05122667,20 6.60299723,19.4562152 6.60791706,18.7822311 L6.63477851,18.7733424 Z" transform="translate(2.5 2)"></path></svg>
             ) : (
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6 cursor-pointer"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                />
-              </svg>
+              className="w-7 h-7 text-slate-200  cursor-pointer"
+              xmlns="http://www.w3.org/2000/svg" width="24"
+              
+            height="24" viewBox="0 0 24 24" id="home"><path fill="none" stroke="#bcbcbc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.65721519,18.7714023 L6.65721519,15.70467 C6.65719744,14.9246392 7.29311743,14.2908272 8.08101266,14.2855921 L10.9670886,14.2855921 C11.7587434,14.2855921 12.4005063,14.9209349 12.4005063,15.70467 L12.4005063,15.70467 L12.4005063,18.7809263 C12.4003226,19.4432001 12.9342557,19.984478 13.603038,20 L15.5270886,20 C17.4451246,20 19,18.4606794 19,16.5618312 L19,16.5618312 L19,7.8378351 C18.9897577,7.09082692 18.6354747,6.38934919 18.0379747,5.93303245 L11.4577215,0.685301154 C10.3049347,-0.228433718 8.66620456,-0.228433718 7.51341772,0.685301154 L0.962025316,5.94255646 C0.362258604,6.39702249 0.00738668938,7.09966612 0,7.84735911 L0,16.5618312 C0,18.4606794 1.55487539,20 3.47291139,20 L5.39696203,20 C6.08235439,20 6.63797468,19.4499381 6.63797468,18.7714023 L6.63797468,18.7714023" transform="translate(2.5 2)"></path></svg>
             )}
           </div>
-
-          <svg
-            className="w-6 h-6 cursor-pointer"
+          {
+            window.location.origin + window.location.pathname === 
+            window.location.origin + '/q' ? 
+            <svg
+            className="w-7 h-7 cursor-pointer"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth="1.5"
+            strokeWidth="2"
             stroke="currentColor"
             onClick={() => {
               if(window.location.pathname !== "/q"){
@@ -246,12 +230,34 @@ export default function Bottomnav() {
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
+          : 
+          <svg
+          className="w-7 h-7 text-slate-300 cursor-pointer"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+          stroke="currentColor"
+          onClick={() => {
+            if(window.location.pathname !== "/q"){
+              window.location.href = "/q"
+            }
+          }}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          />
+        </svg>
+          }
+          
           {modalisOpen ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-6 h-6 cursor-pointer"
+              className="w-7 h-7 cursor-pointer"
               onClick={() => {
                 document.getElementById("newpost").showModal();
                 setModalisOpen(true);
@@ -266,7 +272,7 @@ export default function Bottomnav() {
                 document.getElementById("newpost").showModal();
                 setModalisOpen(true);
               }}
-              className="w-6 h-6 cursor-pointer"
+              className="w-7 h-7 text-slate-300 cursor-pointer"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -281,11 +287,13 @@ export default function Bottomnav() {
             </svg>
           )}
           {window.location.origin + window.location.pathname === window.location.origin + "/notifications" ? (
-            <svg
+           
+           
+           <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-6 h-6 cursor-pointer"
+              className="w-7 h-7 cursor-pointer"
               onClick={() => {
                 if(!window.location.href === "/notifications"){
                   return
@@ -307,7 +315,7 @@ export default function Bottomnav() {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-6 h-6 cursor-pointer"
+              className="w-7 h-7 text-slate-300 cursor-pointer"
             >
               <path
                 strokeLinecap="round"
@@ -328,13 +336,13 @@ export default function Bottomnav() {
             window.location.origin + "/u/" + api.authStore.model.username ? (
               <img
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                className="rounded-full w-6 h-6"
+                className="rounded-full w-7 h-7 mx-2"
                 alt={api.authStore.model.username + "'s avatar"}
               />
             ) : (
               <img
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                className="rounded-full w-6 h-6
+                className="rounded-full w-7 h-7
                 opacity-50
                 "
                 alt={api.authStore.model.username + "'s avatar"}
@@ -411,7 +419,7 @@ export default function Bottomnav() {
             {user.avatar ? (
               <img
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${user.id}/${user.avatar}`}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-7 h-7 rounded-full object-cover"
               />
             ) : (
               <div className="avatar placeholder">

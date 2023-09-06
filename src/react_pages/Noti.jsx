@@ -1,5 +1,5 @@
 import Bottomnav from "../components/Bottomnav";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from ".";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
@@ -55,13 +55,20 @@ export default function Noti() {
         className="flex flex-col gap-2  mb-16 mt-8"
       >
         {notifications.map((noti) => {
-            console.log(noti)
+            // remove duplicate notifications that contain the same title
+            if(noti.type === "like" || noti.type === "comment" || noti.type === "mention"){
+              if(noti.expand.post && noti.expand.post.content === noti.expand.post.title){
+                 return
+              }
+            }
+           
             return (
-                <div className=" w-full bg-base-100   rounded-none  "
+                <div className=" w-full bg-base-100  relative  rounded-none  "
                 key={noti.id}
                 >
-                
+                 
                 <div className="flex flex-col p-2  text-sm w-full">
+                
                   <h2 className="card-title">
                     <img 
                     src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${noti.expand.author.id}/${noti.expand.author.avatar}`}
@@ -79,6 +86,7 @@ export default function Noti() {
                     {noti.expand.author.username}
                     </span>
                   </h2>
+                  
                   <p>
                     {noti.type === "like" ? "liked your post" : noti.type === "comment" ? "commented on your post" : noti.type === "mention" ? "mentioned you in a post" : ""}
                   </p>
@@ -86,9 +94,18 @@ export default function Noti() {
                   onClick={()=>{
                     window.location.href = "/p/" + noti.expand.post.id
                   }}
+                   
+                  ref={(el) => {
+                    if (el) {
+                     el.innerHTML = noti.expand.post  ? noti.expand.post.content : "Post not found"
+                    }
+                  }}
+                   
                   >
-                    {noti.expand.post ? noti.expand.post.content : ""}
+                    
+                     
                   </span>
+                  
                   <span className="absolute right-5">
                     {parseDate(noti.created)}
                   </span>

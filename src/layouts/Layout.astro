@@ -41,8 +41,15 @@ const { title, description, image } = Astro.props;
       p[placeholderSize]:empty:before {
         font-size: attr(placeholderSize);
       }
+      
     </style>
- 
+ <style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,400&display=swap');
+  </style>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Pacifico&family=Poppins:ital,wght@0,300;1,400&display=swap');
+  </style>
+  
  
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
   async is:inline>
@@ -60,7 +67,7 @@ const { title, description, image } = Astro.props;
       window.innerHeight > 1000
         ? (document.body.style.zoom = 1.5)
         : (document.body.style.zoom = 1);
-      window.resizeTo(375, 812);
+      window.resizeTo(75, 812);
     };
     window.innerWidth > 1000
       ? (document.body.style.zoom = 1.5)
@@ -68,6 +75,6 @@ const { title, description, image } = Astro.props;
     window.innerHeight > 1000
       ? (document.body.style.zoom = 1.5)
       : (document.body.style.zoom = 1);
-    window.resizeTo(375, 812);
+    window.resizeTo(30, 812);
   </script>
 </html>

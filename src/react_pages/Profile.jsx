@@ -120,7 +120,9 @@ export default function Profile(props) {
 
   return (
     <>
-      <div className=" p-5 flex flex-row justify-between">
+      <div className=" p-5 flex flex-row justify-between"
+       style={{fontFamily: 'Inter !important'}}
+      >
         <div
           className="flex flex-row
         cursor-pointer
@@ -129,8 +131,10 @@ export default function Profile(props) {
             window.history.back();
           }}
         >
-          <img src="/icons/backarrow.svg" className="w-5 h-5" alt="Back" />{" "}
+          <img src="/icons/backarrow.svg" className="w-6 h-6" alt="Back" />{" "}
+         
         </div>
+        
         <div
           className="hover:cursor-pointer"
           onClick={() => {
@@ -146,13 +150,18 @@ export default function Profile(props) {
         >
           •••
         </div>
+        
       </div>
-      <div className="flex flex-col  p-5 gap-2">
+      
+      <div className="flex flex-col   p-5 gap-2"
+      >
         <div className="flex flex-row  justify-between gap-5">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <h1 className="text-xl font-bold">{profile.username}</h1>
-              <span className="text-gray-500 text-sm ">
+              <span className="text-gray-500 text-sm "
+              
+              >
                 @{profile.username}
               </span>
             </div>
@@ -206,7 +215,7 @@ export default function Profile(props) {
             {props.user === api.authStore.model.username ? (
               <>
                 <button
-                  className="bg-[#121212] w-full btn btn-sm   text-white rounded-md  "
+                  className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  "
                   onClick={() => {
                     document.getElementById("editprofile").showModal();
                   }}
@@ -286,48 +295,56 @@ export default function Profile(props) {
             )}
           </div>
         </div>
-        <div className=" mt-6 flex flex-row justify-evenly">
-          <a
-            id="posts"
-            className={`tab w-full tab-bordered
-        ease-out  
-        ${pageSelected === "posts" ? "ease-in tab-active" : ""}
-        
-        `}
-            onClick={() => {
+        <div
+        className=" font-medium  mt-8  mb-6 flex flex-row justify-between  gap-1"
+        style={{ fontFamily: "Inter", fontSize: "14px" }}
+      >
+        <a
+          className={`
+         cursor-pointer
+         text-lg  ${
+           pageSelected === "posts" ? "underline underline-offset-[10px]" : ""
+         }`}
+          onClick={() => {
+            if (pageSelected !== "posts") {
               setPageSelected("posts");
-            }}
-          >
-            Postrs
-          </a>
-          <a
-            className={`tab w-full tab-bordered
-         ease-out
-          ${pageSelected === "saved" ? "ease-in tab-active" : ""}
-      `}
-            onClick={() => {
-              setPageSelected("saved");
-            }}
-            id="reposts"
-          >
-            Saved
-          </a>
-          <a
-            className={`tab w-full tab-bordered
-        ease-out
-        
-          ${pageSelected === "media" ? "ease-in tab-active" : ""}
-          
-        `}
-            onClick={() => {
-              setPageSelected("media");
-            }}
-            id="media"
-          >
-            {" "}
-            Media
-          </a>
-        </div>
+            }
+          }}
+        >
+         Postrs
+        </a>
+        <a
+          onClick={() => {
+            if (pageSelected !== "recommended") {
+              setPageSelected("recommended");
+            }
+          }}
+          className={`
+         cursor-pointer
+         text-lg  ${
+           pageSelected === "recommended"
+             ? "underline underline-offset-[10px]"
+             : ""
+         }`}
+        >
+         Media
+        </a>
+        <a
+          onClick={() => {
+            if (pageSelected !== "top") {
+              setPageSelected("top");
+            }
+          }}
+          className={`
+             cursor-pointer
+          text-lg ${
+            pageSelected === "top" ? "underline underline-offset-[10px]" : ""
+          } `}
+        >
+          Collections
+        </a>
+      </div>
+      
 
         <div className="flex flex-col gap-5 mt-12">
           {profile.followers &&
@@ -374,6 +391,13 @@ export default function Profile(props) {
                   {posts.map((p) => {
                     let id = Math.random() * 100000000000000000;
 
+                    if(p.file && p.expand.author){
+                      let preload = document.createElement("link");
+                      preload.href = `https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${p.id}/${p.file}`;
+                      preload.rel = "preload";
+                      preload.as = "image";
+                      document.head.appendChild(preload);
+                    }
                     return (
                       <div key={id} className="mb-16">
                         <Post

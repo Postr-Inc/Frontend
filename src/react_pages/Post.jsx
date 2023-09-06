@@ -253,7 +253,7 @@ export default function Vpost(props) {
                 }}
               />
               <span
-                className="bg-transparent border text-sm border-slate-200 text-sky-500 border-l-0"
+                className="bg-transparent border text-sm border-slate-200 text-sky-500 cursor-pointer border-l-0"
                 {...(chars < 1 ? { disabled: true } : { disabled: false })}
                 onClick={() => {
                   createComment();

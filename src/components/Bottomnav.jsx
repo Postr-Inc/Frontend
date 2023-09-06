@@ -185,7 +185,7 @@ export default function Bottomnav() {
     document.getElementById("newpost").close();
   }
   return (
-    <div className=" fixed  bottom-[2vh] left-[15vw] flex justify-center mx-auto w-[70vw]">
+    <div className=" fixed  bottom-[5vh] left-[15vw] flex justify-center mx-auto w-[70vw]">
       <div className=" border border-slate-200 mr-2   bg-white rounded-2xl w-full h-12 p-2">
         <div className="flex flex-row  gap-2  mb-3   justify-between ">
           <div

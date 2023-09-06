@@ -296,7 +296,7 @@ export default function Vpost(props) {
           <div className="modal-action  ">
           <form method="dialog">
              
-            <button className="btn btn-sm btn-ghost hover:bg-slate-200 focus:bg-slate-200 border-slate-200">Ok</button>
+            <button className="btn btn-sm btn-ghost bg-transparent hover:bg-transparent hover:border-slate-200 focus:border-slate-200 focus:bg-transparent border-slate-200">Ok</button>
            </form>
           </div>
          </div>

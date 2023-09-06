@@ -5,6 +5,7 @@ import Bottomnav from "../components/Bottomnav";
 import Loading from "../components/Loading";
 import Comment from "../components/Comments";
 import Modal from "../components/Modal";
+import Modal2 from "../components/Modal2";
 import santizeHtml from "sanitize-html";
 import emojis from "./misc/emojis.json";
  
@@ -49,7 +50,7 @@ export default function Vpost(props) {
         comments: JSON.stringify([...post.comments, c.id]),
       });
     } else {
-      alert("Comment must be between 1 and 200 characters");
+       document.getElementById('invalidcharmodal').showModal()
     }
   }
   function deleteComment(id) {
@@ -280,6 +281,26 @@ export default function Vpost(props) {
             ></progress>
           </div>
         </div>
+        <Modal2 id="invalidcharmodal">
+         <div className="flex flex-col">
+          <div className="flex flex-row gap-5">
+            <div className="btn btn-circle btn-ghost bg-error">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-error">
+             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+           </svg>
+            </div>
+
+           <h1>Comment Must Be Between 1 - 200 Characters cannot be empty!</h1>
+
+          </div>
+          <div className="modal-action bg-slate-200">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn">Close</button>
+           </form>
+          </div>
+         </div>
+        </Modal2>
         <Bottomnav />
       </div>
     </div>

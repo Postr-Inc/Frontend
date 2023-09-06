@@ -254,14 +254,14 @@ export default function Search() {
                     <div className="flex flex-col">
                       <span className="mx-2 text-sm cursor-pointer"
                         onClick={() => {
-                          window.location.href = `#/profile/${u.id}`
+                          window.location.href = `/u/${u.username}`
                         }}
                       >{u.username}</span>
                       <span className="mx-2 text-sm text-slate-400">{u.bio.substring(0, 20)}...</span>
                       <span className="mx-2 text-sm ">{u.followers.length} Followers</span>
                     </div>
                     <span
-                      className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white focus:ring-0 hover:ring-0 hover:bg-transparent focus:bg-transparent"
+                      className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white hover:bg-black focus:ring-0 hover:ring-0   focus:bg-transparent"
                       onClick={debounce(() => {
 
                         const updatedFollowers = u.followers.includes(api.authStore.model.id)

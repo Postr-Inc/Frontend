@@ -154,7 +154,7 @@ export default function Search() {
                     
                   </div>
                   <button
-                    className="btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white focus:ring-0 hover:ring-0 hover:bg-black focus:bg-black"
+                    className="btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200  hover:text-white focus:ring-0 hover:ring-0 hover:bg-black "
                     onClick={() => {
                       const updatedFollowers = u.followers.includes(api.authStore.model.id)
                         ? u.followers.filter(id => id !== api.authStore.model.id)
@@ -261,7 +261,7 @@ export default function Search() {
                       <span className="mx-2 text-sm ">{u.followers.length} Followers</span>
                     </div>
                     <span
-                      className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white hover:bg-black focus:ring-0 hover:ring-0   focus:bg-black"
+                      className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white hover:bg-black focus:ring-0 hover:ring-0   "
                       onClick={debounce(() => {
 
                         const updatedFollowers = u.followers.includes(api.authStore.model.id)

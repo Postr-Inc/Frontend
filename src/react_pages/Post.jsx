@@ -75,7 +75,9 @@ export default function Vpost(props) {
         >
           <img src="/icons/backarrow.svg" className="w-5 h-5" alt="Back" />{" "}
         </div>
-        <h1 className="font-bold text-md"> Postr</h1>
+        <h1 className="font-bold text-xl flex flex-row justify-center mx-auto"
+        style={{fontFamily: "Pacifico"}}
+        > Postr</h1>
         <div></div>
       </div>
       <div className="p-5">
@@ -90,17 +92,20 @@ export default function Vpost(props) {
               file={post.file ? post.file : ""}
             />
 
-            <div className="divider mt-0 h-6"></div>
+            <div className="divider mt-0 h-2  opacity-[30%]"></div>
           </>
         ) : (
           <Loading />
         )}
 
-        <div className="flex flex-col gap-5 mb-24">
+        <div className="flex flex-col gap-5 mb-24"
+        
+        >
           {post.author && comments.length > 0 ? (
             comments.map((comment) => {
               return (
                 <div key={comment.id}>
+                
                   <Comment
                     id={comment.id}
                     user={comment.expand.user}
@@ -108,6 +113,7 @@ export default function Vpost(props) {
                     text={comment.text}
                     created={comment.created}
                   />
+                   <div className="divider mt-0 h-2  opacity-[30%]"></div>
                   <Modal id={"delete" + comment.id} height="h-96">
                     <button className="flex justify-center mx-auto focus:outline-none">
                       <div className="divider  text-slate-400  w-12   mt-0"></div>
@@ -154,9 +160,9 @@ export default function Vpost(props) {
         </div>
       </div>
       <div className="mt-8">
-        <div className="fixed h-24 rounded bottom-16 bg-white left-0 ">
+        <div className="fixed h-24 rounded bottom-0 rounded-full  bg-white left-0 ">
           <div className="form-control  justify-center mx-auto w-screen   p-5 ">
-            <label className="input-group    rounded-full">
+            <label className="input-group      ">
               <span className="bg-transparent border border-slate-200 border-r-0  ">
                 <img
                   src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
@@ -280,7 +286,7 @@ export default function Vpost(props) {
             ></progress>
           </div>
         </div>
-        <Bottomnav />
+         
       </div>
     </div>
   );

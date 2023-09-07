@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import sanitizeHtml from "sanitize-html";
 import Modal from "./Modal";
 import { api } from "../react_pages";
+import { doc } from "firebase/firestore";
  
 
 function handleEmojis(html) {
@@ -188,6 +189,7 @@ export default function Bottomnav() {
         
       });
     document.getElementById("newpost").close();
+    document.activeElement.blur();
   }
   return (
     <div className=" fixed  bottom-[5vh] left-[15vw] flex justify-center mx-auto w-[70vw]">

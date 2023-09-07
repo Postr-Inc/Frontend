@@ -396,6 +396,10 @@ export default function Bottomnav() {
            placeholder="What's on your mind?"
            onInput={debounce(handleContentInput, 100)}
            onPaste={handleContentInput}
+           autofocus
+           onBlur={(e) => {
+              e.target.focus()
+           }}
           
         ></p>
  

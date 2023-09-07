@@ -19,11 +19,9 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "recommended"
           ? "author.followers"
           : "" || pageSelected === "top"
-          ? "-likes, -author.followers"
+          ? "-likes, -created"
           : ""
-          || pageSelected === "top"
-          ? "created, likes, author.followers:length"
-          : ""
+          
       }
       `,
       filter: `
@@ -31,11 +29,12 @@ function fetchPosts(page, pageSelected) {
         pageSelected === "posts"
           ? `author.followers ?~ "${api.authStore.model.id}" && author.id != "${api.authStore.model.id}"`
           : "" || pageSelected === "recommended"
-          ? `  author.id != "${api.authStore.model.id}"`
+          ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id}"`
           : "" || pageSelected === "top"
-          ? `author.followers:length > 5 && author.id != "${api.authStore.model.id}"`
+          ? `  author.id != "${api.authStore.model.id}"`
           : ""
       }
+
       `,
     })
     .then((posts) => {

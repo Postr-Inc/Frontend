@@ -102,9 +102,11 @@ export default function Bottomnav() {
     let charCount = text.length;
     setChar(charCount);
   
-    if (charCount > maxchar) {
-      text = text.slice(0, maxchar); // Truncate text
-      charCount = maxchar;
+    if (charCount >= maxchar) {
+      setChar(maxchar);
+      text = text.substring(0, maxchar);
+      pRef.current.innerText = text;
+     
     }
   
     // Process emojis and replace &lt; and &gt;
@@ -118,6 +120,7 @@ export default function Bottomnav() {
         span: ["class"],
       },
     });
+   
   
     if (text.includes("@")) {
       // do not process already mentioned users
@@ -146,7 +149,9 @@ export default function Bottomnav() {
       setHasMention(false);
       setMentionedUsers([]);
     }
-  
+    pRef.current.innerHTML = text;
+    restoreCaretPositionToEnd(pRef.current);
+ 
     setPContent(text);
   }
   
@@ -185,7 +190,7 @@ export default function Bottomnav() {
     document.getElementById("newpost").close();
   }
   return (
-    <div className=" fixed  bottom-[5vh] left-[15vw] flex justify-center mx-auto w-[70vw]">
+    <div className=" fixed  bottom-2 left-[15vw] flex justify-center mx-auto w-[70vw]">
       <div className=" border border-slate-200 mr-2   bg-white rounded-2xl w-full h-12 p-2">
         <div className="flex flex-row  gap-2  mb-3   justify-between ">
           <div
@@ -270,6 +275,7 @@ export default function Bottomnav() {
             <svg
               onClick={() => {
                 document.getElementById("newpost").showModal();
+                pRef.current.focus();
                 setModalisOpen(true);
               }}
               className="w-7 h-7 text-slate-300 cursor-pointer"
@@ -352,175 +358,85 @@ export default function Bottomnav() {
         </div>
       </div>
 
-      <Modal id="newpost">
-        <button
-          className="flex justify-center mx-auto focus:outline-none"
-          onClick={() => {
-            setModalisOpen(false);
-            document.getElementById("newpost").close();
-            // stop focus
-            pRef.current.blur();
-          }}
-        >
-          <div className="divider  text-slate-400  w-12   mt-0"></div>
-        </button>
-
-        <div className="flex flex-col  gap-5 mt-2 p-5">
-          <div className="flex flex-row gap-4 w-full">
-            <img
-              src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-              className="rounded-full w-12 h-12"
-              alt={api.authStore.model.username + "'s avatar"}
-            />
-            <h1>@{api.authStore.model.username}</h1>
-          </div>
-          <p
-            contentEditable
-            className={`w-full    focus:outline-none resize-none
-             overflow-hidden text-slate-900 placeholder-slate-300
-        before:text-slate-300
-         mb-5
-        max-h-[5rem] overflow-y-auto`}
-            placeholder="What's on your mind?"
-            id="post"
-            ref={pRef}
-            inputMode="text"
-            onInput={handleContentInput}
-            onChange={handleContentInput}
-            onBlur={() => {
-              setIsTyping(false);
-            }}
-          ></p>
-
-<div className={`dropdown ${hasMention ? "dropdown-open" : "hidden"}`}>
-  <div
-    tabIndex={0}
-    className="dropdown-content z-[1] menu p-5 shadow bg-base-100 rounded-box w-52"
-  >
-    {mentionedUsers.length > 0 ? (
-      mentionedUsers.map((user) => (
-        <div
-          className="flex flex-col gap-2 mb-5"
-          key={user.id}
-          onClick={() => {
-            setHasMention(false);
-            // Append a link to the user's profile without replacing the mention
-            let text = pRef.current.innerHTML;
-            let mention = text.match(/@(\w+)/g);
-            text = text.replaceAll(mention, `<a class="text-sky-500" href="/u/${user.username}">u/${user.username}</a>`);
-            pRef.current.innerHTML = text;
-            setPContent(text);
-            setMentionedUsers([]);
-             
-            
-          }}
-        >
-          <div className="flex flex-row gap-2">
-            {user.avatar ? (
-              <img
-                src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${user.id}/${user.avatar}`}
-                className="w-7 h-7 rounded-full object-cover"
-              />
-            ) : (
-              <div className="avatar placeholder">
-                <div className="bg-neutral-focus text-neutral-content border-slate-200 rounded-full w-8">
-                  <span className="text-xs">
-                    {user.username.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            )}
-            <span className="text-sm">{user.username}</span>
-          </div>
-          <span className="text-xs text-gray-400 ml-1">
-            {user.bio.toString().slice(0, 20)}...
-          </span>
-        </div>
-      ))
-    ) : (
-      <></>
-    )}
-  </div>
-</div>
-
-          {image ? (
-            <img
-              src={image}
-              className="w-96 h-full object-cover   rounded-md  "
-              alt="post image"
-            />
-          ) : (
-            <></>
-          )}
-          {!image ? (
-            <label htmlFor="file">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6 mb-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
-                />
-              </svg>
-            </label>
-          ) : (
-            <></>
-          )}
-          <input
-            type="file"
-            id="file"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => {
-              let file = e.target.files[0];
-              let url = URL.createObjectURL(file);
-              setImage(url);
-              setFile(file);
-              e.target.value = "";
-            }}
-          />
+      <dialog id="newpost" className="modal text-start bg-base-100 focus:outline-none"
+      style={{backgroundColor: "white", fontFamily: "Inter", fontSize: "16px"}}
+      >
+      <div className=" max-w-screen max-w-screen h-screen w-screen overflow-auto shadow-none fixed top-0 left-0 p-5">
+       <div className="flex flex-row justify-between">
+        <img src="/icons/backarrow.svg" alt="back arrow" className="w-7 h-7 cursor-pointer" onClick={() => {
+          document.getElementById("newpost").close();
+          setModalisOpen(false);
+          pRef.current.innerHTML = "";
+          setChar(0);
+          setImage("");
+          setFile("");
+        }} />
+        <button className=" " onClick={createPost}>Proceed</button>
         </div>
 
-        <div
-          className="   bottom-0  w-full flex flex-row justify-between 
-                left-0
-                p-5
-
-                     
-                    "
+        <div className="flex flex-row relative    gap-5 mt-8"
+        
         >
-          <span
-            className={`
-                         ${
-                           chars === maxchar ? "text-red-500" : "text-slate-500"
-                         } text-sm
-                        `}
-          >
-            {chars}/{maxchar}
-          </span>
-          {image ? (
-            <span
-              className="text-sky-500 text-sm"
-              onClick={() => {
-                setImage("");
-              }}
-            >
-              Clear Image
-            </span>
-          ) : (
-            <></>
-          )}
-          <span className="text-sky-500 text-sm" onClick={createPost}>
-            Post
-          </span>
+          <img src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+           className="rounded-full w-12 h-12" alt={api.authStore.model.username + "'s avatar"} />
+          
+           <h1  className="text-sm font-sans   ">@{api.authStore.model.username}</h1>
+
+
+
+     
+
+          
+        
         </div>
-      </Modal>
+        <div className="flex flex-col">
+        <p contentEditable="true" suppressContentEditableWarning={true} className="w-full  h-[12vh]  mt-5 outline-none resize-none"
+           
+           ref={pRef}
+           placeholder="What's on your mind?"
+           onInput={debounce(handleContentInput, 100)}
+           onPaste={handleContentInput}
+          
+        ></p>
+ 
+       
+        <div className="flex flex-row justifyy">
+       <input type="file" id="file" className="hidden" onChange={(e) => {
+         setImage(URL.createObjectURL(e.target.files[0]))
+         setFile(e.target.files[0])
+         e.target.value = ""
+        }
+        } />
+        <label htmlFor="file" className="  text-white mt-12 rounded-lg cursor-pointer">
+        <svg
+        className="w-8 h-8 text-slate-300 cursor-pointer"
+        xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24" id="image"><path fill="#d8d8ff" d="M13.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path><path fill="#b2b1ff" d="M19 2H5a3.009 3.009 0 0 0-3 3v8.86l3.88-3.88a3.075 3.075 0 0 1 4.24 0l2.871 2.887.888-.888a3.008 3.008 0 0 1 4.242 0L22 15.86V5a3.009 3.009 0 0 0-3-3zm-5.5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path><path fill="#6563ff" d="M10.12 9.98a3.075 3.075 0 0 0-4.24 0L2 13.86V19a3.009 3.009 0 0 0 3 3h14c.815 0 1.595-.333 2.16-.92L10.12 9.98z"></path><path fill="#d8d8ff" d="m22 15.858-3.879-3.879a3.008 3.008 0 0 0-4.242 0l-.888.888 8.165 8.209c.542-.555.845-1.3.844-2.076v-3.142z"></path></svg>
+
+
+          </label>
+        </div>
+      </div>
+      
+      <p className={`text-sm font-sans mt-8 ${chars >= maxchar ? "text-red-500" : "text-slate-300"}` }
+      
+      >{chars}/{maxchar}</p>
+        {
+          image ?
+           <div className="flex flex-row relative justify-center">
+             <img src={image} alt="post image" className="w-full  rounded mt-2" />
+             <span className="absolute  text-sm font-sans top-5 
+             hover:bg-[#05050555] border-none right-2 bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer" onClick={() => {
+                setImage("")
+                setFile("")
+              }}>X</span>
+            </div>
+           : null
+        }
+      </div>
+      
+         
+      </dialog>
+      
     </div>
   );
 }

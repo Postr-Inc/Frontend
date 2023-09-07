@@ -164,7 +164,7 @@ export default function Profile(props) {
             </div>
             <span
               className="text-gray-500 
-      w-[80vw] max-w-[80vw]  mb-6
+      w-[80vw] max-w-[80vw]  
       "  
             >
               {profile.bio}
@@ -291,9 +291,10 @@ export default function Profile(props) {
               </>
             )}
           </div>
+       
         </div>
         <div
-        className=" font-medium  mt-8  mb-6 flex flex-row justify-between  gap-1"
+        className=" font-medium p-2 flex flex-row justify-between mt-6 "
         style={{ fontFamily: "Inter", fontSize: "14px" }}
       >
         <a
@@ -341,6 +342,7 @@ export default function Profile(props) {
           Collections
         </a>
       </div>
+         
       
 
         <div className="flex flex-col gap-5 mt-12">
@@ -465,7 +467,7 @@ export default function Profile(props) {
                          * @function: comment{props.id}
                          */}
                         <Modal
-                          id={"comment" + post.id}
+                          id={"comment" +  id}
                           height="h-screen w-screen"
                         >
                           <button className="flex justify-center mx-auto focus:outline-none">

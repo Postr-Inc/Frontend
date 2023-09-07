@@ -93,27 +93,7 @@ export default function Post(props) {
             tabIndex="0"
             className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
           >
-            <li>
-              <span
-                onClick={() => {
-                  navigator.share({
-                    title: `
-                  View this post by
-                  ${
-                    props.author.id === api.authStore.model.id
-                      ? "Me"
-                      : props.author.username
-                  }
-                  `,
-                    text: props.content.slice(0, 300),
-                    url: window.location.href,
-                  });
-                }}
-                className="cursor-pointer"
-              >
-                Share
-              </span>
-            </li>
+           
             {props.author.id !== api.authStore.model.id ? (
               <li>
                 <a className="cursor-pointer">Report</a>
@@ -156,7 +136,7 @@ export default function Post(props) {
       </div>
 
       <p
-        className="mt-6 text-sm"
+        className="mt-6 text-sm max-w-full break-words"
          
         ref={(el) => {
           if (el) {
@@ -238,7 +218,7 @@ export default function Post(props) {
                 ? "#F13B38"
                 : "currentColor"
             }
-            className="w-4 h-4 cursor-pointer"
+            className="w-5 h-5 cursor-pointer"
           >
             <path
               strokeLinecap="round"
@@ -264,7 +244,7 @@ export default function Post(props) {
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="w-4 h-4 cursor-pointer "
+            className="w-5 h-5 cursor-pointer "
             onClick={() => {
               if(window.location.pathname !== "/p/" + props.id){
                 window.location.href = "/p/" + props.id
@@ -291,16 +271,36 @@ export default function Post(props) {
         }
            
 
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-5 h-5"
+           
+           onClick={() => {
+            navigator.share({
+              title: `
+            View this post by
+            ${
+              props.author.id === api.authStore.model.id
+                ? "Me"
+                : props.author.username
+            }
+            `,
+              text: props.content.slice(0, 300),
+              url: window.location.href,
+            });
+          }}
+           >
   <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15" />
 </svg>
 
 
 
       </div>
-      <div className="flex flex-row gap-5 mt-6">
-      <span> {props.comments.length ?  props.comments.length > 1 ? props.comments.length + "Replies" : props.comments.length + " Reply" : ""}</span>
-      <span> {likes.length} Likes</span>
+      <div className="flex flex-row font-normal text-slate-400 gap-2 mt-6"
+      
+      >
+      <span> {props.comments.length ?  props.comments.length > 1 ? props.comments.length + "Replies" : props.comments.length + " Reply" :  
+      0 + " Replies"}</span>
+      <span className="text-slate-300">•</span>
+      <span>   {likes.length ?  likes.length > 1 ? likes.length + " Likes" : likes.length + " Like" : "0 Likes"}</span>
       </div>
     </div>
   );

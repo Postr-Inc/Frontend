@@ -370,6 +370,7 @@ export default function Bottomnav() {
           setChar(0);
           setImage("");
           setFile("");
+          pRef.current.blur();
         }} />
         <button className=" " onClick={createPost}>Proceed</button>
         </div>

@@ -120,21 +120,34 @@ export default function Profile(props) {
 
   return (
     <>
-      <div className=" p-5 flex flex-row justify-between"
+      <div className="  flex flex-row justify-between
+       p-5
+      "
        style={{fontFamily: 'Inter !important'}}
       >
-        <div
-          className="flex flex-row
-        cursor-pointer
-        "
-          onClick={() => {
-            window.history.back();
-          }}
-        >
-          <img src="/icons/backarrow.svg" className="w-6 h-6" alt="Back" />{" "}
-         
-        </div>
-        <span className="text-xl " style={{fontFamily: 'pacifico'}}>@{profile.username}</span>
+        <span
+            className="flex flex-row items-center gap-2 cursor-pointer
+           
+          "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              onClick={() => {
+                window.history.back();
+              }}
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+          
+          </span>
+        <span className="text-xl " style={{fontFamily: 'pacifico'}}>{profile.username ? '@' + profile.username : "Loading..."}</span>
         <div
           className="hover:cursor-pointer"
           onClick={() => {
@@ -159,7 +172,7 @@ export default function Profile(props) {
         <div className="flex flex-row  justify-between gap-5">
           <div className="flex flex-col gap-2s">
             <div className="flex flex-col gap-2">
-              <h1 className="text-xl font-bold">{profile.username}</h1>
+              <h1 className="text-xl font-bold">{profile.username ? profile.username : "Loading..."}</h1>
               
             </div>
             <span
@@ -167,14 +180,14 @@ export default function Profile(props) {
       w-[80vw] max-w-[80vw]  
       "  
             >
-              {profile.bio}
+              {profile.bio ? profile.bio : ""}
             </span>
             <span className="text-gray-500 text-sm ">
               Followed by {followers ? followers.length : 0}{" "}
               {followers.length === 1 ? "person" : "people"}
             </span>
           </div>
-          <div className="indicator  absolute end-5">
+          <div className="indicator  absolute  end-5">
             {profile.avatar ? (
               <img
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`}
@@ -194,21 +207,22 @@ export default function Profile(props) {
             )}
 
             {profile.validVerified ? (
-              <img
+            <span className="">
+                 <img
                 src="/icons/verified.png"
-                className="w-5 h-5 absolute bottom-0  left-0
+                className="w-5 h-5 absolute border-white border-1 bg-white  bottom-0  left-0
           rounded-full
            
           "
               />
-            ) : (
-              ""
-            )}
+            </span>
+            ) :  <></>
+            }
           </div>
         </div>
 
         <div>
-          <div className="flex flex-row gap-5 w-[42vw] mt-5">
+          <div className="flex flex-row gap-5 w-[42vw] mt-8">
             {props.user === api.authStore.model.username ? (
               <>
                 <button
@@ -255,7 +269,7 @@ export default function Profile(props) {
                         window.newpost.showModal();
                         document.getElementById(
                           "post"
-                        ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}"> @${profile.username}<a/>`;
+                        ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                       }}
                     >
                       Mention
@@ -281,7 +295,7 @@ export default function Profile(props) {
                         window.newpost.showModal();
                         document.getElementById(
                           "post"
-                        ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}"> @${profile.username}<a/>`;
+                        ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                       }}
                     >
                       Mention

@@ -297,7 +297,7 @@ export default function Post(props) {
       <div className="flex flex-row font-normal text-slate-400 gap-2 mt-6"
       
       >
-      <span> {props.comments.length ?  props.comments.length > 1 ? props.comments.length + "Replies" : props.comments.length + " Reply" :  
+      <span> {props.comments.length ?  props.comments.length > 1 ? props.comments.length + " Replies" : props.comments.length + " Reply" :  
       0 + " Replies"}</span>
       <span className="text-slate-300">•</span>
       <span>   {likes.length ?  likes.length > 1 ? likes.length + " Likes" : likes.length + " Like" : "0 Likes"}</span>

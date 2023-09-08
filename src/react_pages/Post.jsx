@@ -23,10 +23,16 @@ export default function Vpost(props) {
         expand: "author, comments.user",
       })
       .then((res) => {
+        console.log(res);
         setPost(res);
         setComments(res.expand.comments ? res.expand.comments : []);
  
-        document.title = `${res.expand.author.username} on Postr: ${res.content} `;
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(res.content, "text/html");
+        let c = doc.body;
+        let h = c.firstChild.textContent;
+
+        document.title = `${res.expand.author.username} on Postr: ${h} `;
       });
   }
   async function createComment() {
@@ -49,6 +55,17 @@ export default function Vpost(props) {
       await api.collection("posts").update(props.id, {
         comments: JSON.stringify([...post.comments, c.id]),
       });
+      
+      if(post.expand.author.id !== api.authStore.model.id){
+        await api.collection("notifications").create({
+          recipient:  post.expand.author.id,
+          type: "comment",
+          author: api.authStore.model.id,
+          title: `${api.authStore.model.username} commented on your post`,
+          post: props.id,
+          body: comment
+        }) 
+      }
     } else {
       document.querySelector("#invalidcharmodal").showModal();
     }
@@ -64,24 +81,30 @@ export default function Vpost(props) {
   }, []);
 
   return (
-    <div className="flex flex-col text-sm    ">
-      <div className=" p-5 flex flex-row justify-between">
-        <div
-          className="flex flex-row
-        cursor-pointer
-        "
-          onClick={() => {
-            window.history.back();
-          }}
-        >
-          <img src="/icons/backarrow.svg" className="w-5 h-5" alt="Back" />{" "}
-        </div>
-        <h1 className="font-bold text-xl flex flex-row justify-center mx-auto"
+    <div className="flex flex-col text-sm  p-5   ">
+      <div className="  flex flex-row justify-between">
+         <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              onClick={() => {
+                window.history.back();
+              }}
+              className="w-5 h-5 cursor-pointer"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+          
+        <h1 className=" text-xl flex flex-row justify-center mx-auto"
         style={{fontFamily: "Pacifico"}}
         > Postr</h1>
         <div></div>
       </div>
-      <div className="p-5">
+      <div className=" mt-8">
         {post.author ? (
           <>
             <Post
@@ -99,7 +122,7 @@ export default function Vpost(props) {
           <Loading />
         )}
 
-        <div className="flex flex-col gap-5 mb-24"
+        <div className="flex flex-col gap-5   mb-24"
         
         >
           {post.author && comments.length > 0 ? (
@@ -152,16 +175,12 @@ export default function Vpost(props) {
               );
             })
           ) : (
-            <div className=" gap-5 flex flex-col">
-              <h1 className="text-md justify-center mb-16 flex mx-auto font-bold">
-                No Comments Be The First To Comment
-              </h1>
-            </div>
+            ""
           )}
         </div>
       </div>
       <div className="mt-8">
-        <div className="fixed h-24 rounded bottom-0 rounded-full  bg-white left-0 ">
+        <div className="fixed h-24  bottom-0    bg-white left-0 ">
           <div className="form-control  justify-center mx-auto w-screen   p-5 ">
             <label className="input-group      ">
               <span className="bg-transparent border border-slate-200 border-r-0  ">
@@ -260,7 +279,7 @@ export default function Vpost(props) {
                 }}
               />
               <span
-                className="bg-transparent border text-sm border-slate-200 text-sky-500 border-l-0"
+                className="bg-transparent border cursor-pointer text-fsm border-slate-200 text-sky-500 border-l-0"
                 {...(chars < 1 ? { disabled: true } : { disabled: false })}
                 onClick={() => {
                   createComment();

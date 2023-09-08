@@ -84,7 +84,35 @@ export default function Search() {
   }, []);
   return (
     <div className=" p-5 flex flex-col  ">
-      <span className="text-2xl font-bold">Search</span>
+       <div className="flex justify-between  mb-2  items-center">
+      <span
+            className="flex flex-row items-center gap-2 cursor-pointer
+           
+          "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              onClick={() => {
+                window.history.back();
+              }}
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+          
+          </span>
+        <h1 className="text-2xl " style={{ fontFamily: "Inter" }}>
+         Search &nbsp;
+        </h1>
+        <div></div>
+        
+      </div>
       <div class="form-control mt-2 mb-8">
         <div class="input-group">
           <button class=" border-r-0 input-group-xs border  focus:bg-transparent hover:bg-transparent">
@@ -122,7 +150,7 @@ export default function Search() {
         {users.map((u) => {
 
           return (
-            <div className="flex flex-col mt-6 gap-2"
+            <div className="flex flex-col mt-6 mb-6 gap-2"
             key={u.id}
             >
               <div className="flex flex-row justify-between">
@@ -150,7 +178,7 @@ export default function Search() {
                       }}
                     >{u.username}</span>
                     <span className="mx-2 text-sm text-slate-400">{u.bio.substring(0, 20)}...</span>
-                    <span className="mx-2 text-sm ">{u.followers.length} Followers</span>
+                    
                     
                   </div>
                   <button

@@ -15,7 +15,7 @@ export default function Settings() {
         <div className="flex mx-5 flex-row justify-between">
           <span
             className="flex flex-row items-center gap-2 cursor-pointer
-          text-slate-500
+           
           "
           >
             <svg
@@ -25,7 +25,7 @@ export default function Settings() {
               onClick={() => {
                 window.history.back();
               }}
-              className="w-6 h-6"
+              className="w-5 h-5"
             >
               <path
                 fillRule="evenodd"
@@ -33,11 +33,11 @@ export default function Settings() {
                 clipRule="evenodd"
               />
             </svg>
-            Back
+          
           </span>
           <span className="font-semibold text-lg">
             Settings
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </span>
           <div>
             {""}

@@ -157,7 +157,11 @@ export default function Post(props) {
               className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
               alt="post image"
               onClick={() => {
-                document.getElementById("modal" + props.id).showModal();
+                 try {
+                  document.getElementById("modal" + props.id).showModal();
+                 } catch (error) {
+                  console.log(error)
+                 }
               }}
             />
           </div>

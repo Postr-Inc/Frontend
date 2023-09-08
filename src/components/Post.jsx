@@ -148,9 +148,7 @@ export default function Post(props) {
       {props.file ? (
         <>
           <div
-            onClick={() =>
-              document.getElementById("modal" + props.id).showModal()
-            }
+            
           >
             <img
               src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}

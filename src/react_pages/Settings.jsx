@@ -37,7 +37,7 @@ export default function Settings() {
           </span>
           <span className="font-semibold text-lg">
             Settings
-             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+               
           </span>
           <div>
             {""}

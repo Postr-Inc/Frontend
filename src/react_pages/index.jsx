@@ -42,14 +42,16 @@ export default function App() {
 		oneSignal()
 	})
     useEffect(() => {
+      if (window.matchMedia("(display-mode: browser)").matches) {
+            window.location.href = "/download"
+
+        }
         if (api.authStore.isValid) {
             api.collection("users").authRefresh()
             oneSignal()
 
-        } else if (window.matchMedia("(display-mode: browser)").matches) {
-            window.location.href = "/download"
-
-        }
+        } 
+        
 
         window.onerror = (e) =>{
             alert(e)

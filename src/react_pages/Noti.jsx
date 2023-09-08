@@ -41,6 +41,7 @@ export default function Noti() {
       getNotifications(nextPage).then((res) => {
         setPage(nextPage);
         setNotifications([...notifications, ...res.items]);
+        setTotalPages(res.totalPages);
       });
     }
   }

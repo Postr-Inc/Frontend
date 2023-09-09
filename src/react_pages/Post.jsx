@@ -45,7 +45,9 @@ export default function Vpost(props) {
           author: api.authStore.model.id,
           title: `${api.authStore.model.username} commented on your post`,
           post: props.id,
-          body: comment
+          body:  `${comment.substring(0, 50)}...`,
+          notification_title: `${api.authStore.model.username} commented on your post`,
+          notification_body: comment.substring(0, 50),
         }) 
       }
     } else {
@@ -73,12 +75,7 @@ export default function Vpost(props) {
      if(comments.length > 0){
         
       api.collection('comments').subscribe('*', (msg) => {
-        if (msg.action === 'create') {
-          let comment = msg.record;
-          if (comment.post === props.id) {
-            setComments((prevComments) => [...prevComments, comment]);
-          }
-        } else if (msg.action === 'delete') {
+         if (msg.action === 'delete') {
           let comment = msg.record;
           if (comment.post === props.id) {
             setComments((prevComments) =>

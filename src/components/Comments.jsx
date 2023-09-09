@@ -202,12 +202,9 @@ export default function Comment(props) {
             />
           </svg>
           <span
-           ref={(el) => {
-            if (likes.length > 0 && el) {
-              el.innerHTML =  likes.length
-            }
-           }}
-          >  </span>
+            
+           
+          > {likes.length} </span>
         </div>
 
         {

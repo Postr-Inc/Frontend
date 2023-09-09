@@ -22,9 +22,10 @@ export default function Comment(props) {
           type: "comment_like",
           recipient:  props.user.id,
           author: api.authStore.model.id,
-          title: `${props.user.username} hearted your comment`,
+          title: `hearted your comment`,
           comment: props.id,
-          post: props.post.id
+          post: props.post.id,
+          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
         }) 
       }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
         api.collection("notifications").create({
@@ -33,7 +34,8 @@ export default function Comment(props) {
           author:  api.authStore.model.id,
           title: `${api.authStore.model.username} hearted your comment`,
           comment: props.id,
-          post: props.post.id
+          post: props.post.id,
+          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
         })
 
       }

@@ -35,7 +35,7 @@ export default function Profile(props) {
         followers: [...followers, api.authStore.model.id],
       });
       api.collection("notifications").create({
-        recipient: profile.id,
+        recipient:  profile.id,
         author: api.authStore.model.id,
         type: "follow",
         title: `${api.authStore.model.username} followed you`,

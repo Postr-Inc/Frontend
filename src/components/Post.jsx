@@ -1,82 +1,53 @@
 import { api } from "../react_pages";
 import Modal from "./Modal";
-import { useEffect, useState } from "react";
-export default function Comment(props) {
-  console.log(props);
+import { useState } from "react";
+export default function Post(props) {
   let [likes, setLikes] = useState(props.likes);
-  
+  let [hidden, setHidden] = useState(false);
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
       likes.splice(index, 1);
       setLikes([...likes]);
-      api.collection("comments").update(props.id, {
+      api.collection("posts").update(props.id, {
         likes: likes,
       });
     } else {
       setLikes([...likes, api.authStore.model.id]);
-      api.collection("comments").update(props.id, {
+      api.collection("posts").update(props.id, {
         likes: [...likes, api.authStore.model.id],
       });
-      if(props.user.id !== api.authStore.model.id && props.post.author === api.authStore.model.id){
-        api.collection("notifications").create({
-          type: "comment_like",
-          recipient:  props.user.id,
-          author: api.authStore.model.id,
-          title: `hearted your comment`,
-          comment: props.id,
-          post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
-          notification_title: `${api.authStore.model.username} hearted your comment`,
-          notification_body: props.text.slice(0, 300),
-          url: `/p/${props.post.id}`
-        }) 
-      }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
-        api.collection("notifications").create({
-          type: "comment_like",
-          recipient: props.user.id,
-          author:  api.authStore.model.id,
-          title: `${api.authStore.model.username} hearted your comment`,
-          comment: props.id,
-          post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
-          notification_title: `${api.authStore.model.username} hearted your comment`,
-          notification_body: props.text.slice(0, 300),
-          url: `/p/${props.post.id}`
+      if(props.author.id !== api.authStore.model.id){
+        console.log("creating notification")
+        api.collection("notifications").create( {
+          "image":`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}` ,
+          "author": api.authStore.model.id,
+          "recipient": props.author.id,
+          "post":  props.id,
+          "title":  `${api.authStore.model.username} liked your post!`,
+          "notification_title":   `${api.authStore.model.username} liked your post!`,
+          "notification_body": `Open Postr to view this notification`,
+          "type":  "like",
+          "url": "/p/" + props.id,
         })
-
       }
-   
-      
     }
-  } 
- 
+  }
   return (
-    <div className="flex flex-col text-sm mb-[35px]   ">
-       {
-            likes && likes.length > 0     &&  likes.includes(props.post.author)
-            && props.author !== props.post.author
-            ? <div className="mb-4 text-sm flex flex-row gap-2 items-center">
-              
-  <svg xmlns="http://www.w3.org/2000/svg" fill="#F13B38" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#F13B38" className="w-4 h-4">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-</svg>
-     
- 
-
-              
-         
-              <span className="text-xs">
-              by author
-              </span>
-          </div> :  ""
-
+    <div className="flex flex-col  text-sm mb-[35px]  "
+    id={props.id}
+    onClick={(e) => {
+      if(window.location.pathname !== "/p/" + props.id
+       && e.target.id === props.id
+      ){
+        window.location.href = "/p/" + props.id
       }
+    }}
+    >
       <div className="flex flex-row ">
-        
-        {props.user.avatar ? (
+        {props.author.avatar ? (
           <img
-            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.user.id}/${props.user.avatar}`}
+            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
             className="w-8 h-8 rounded-full object-cover"
             alt="post image"
           />
@@ -84,7 +55,7 @@ export default function Comment(props) {
           <div className="avatar placeholder">
             <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
               <span className="text-xs">
-                {props.user.username.charAt(0).toUpperCase()}
+                {props.author.username.charAt(0).toUpperCase()}
               </span>
             </div>
           </div>
@@ -94,14 +65,14 @@ export default function Comment(props) {
           className="mx-2   cursor-pointer "
           style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
           onClick={() => {
-            if (window.location.pathname !== "/u/" + props.user.username) {
-              window.location.href = "/u/" + props.user.username;
+            if (window.location.pathname !== "/u/" + props.author.username) {
+              window.location.href = "/u/" + props.author.username;
             }
           }}
         >
-          {props.user.username}
+          {props.author.username}
         </span>
-        {props.user.validVerified ? (
+        {props.author.validVerified ? (
           <img
             src="/icons/verified.png"
             className="mt-[.4em]"
@@ -124,69 +95,110 @@ export default function Comment(props) {
             tabIndex="0"
             className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
           >
-            <li>
-              <span
-                onClick={() => {
-                  navigator.share({
-                    title: `
-                  View this Comment by
-                  ${
-                    props.user.id === api.authStore.model.id
-                      ? "Me"
-                      : props.user.username
-                  }
-                  `,
-                    text: props.text.slice(0, 300),
-                    url: window.location.href,
-                  });
-                }}
-                className="cursor-pointer"
-              >
-                Share
-              </span>
-            </li>
-            {props.user.id !== api.authStore.model.id ? (
+           
+            {props.author.id !== api.authStore.model.id ? (
               <li>
                 <a className="cursor-pointer">Report</a>
               </li>
             ) : (
               ""
             )}
-            <li>
-              {
-                 props.user.id === api.authStore.model.id ? (
-                    <a
-                    className="cursor-pointer"
-                    onClick={() => {
-                        document.getElementById("delete" + props.id).showModal();
-                    }}
+
+            {props.author.id === api.authStore.model.id ? (
+              <li>
+                <a
+                  className="cursor-pointer"
+                  onClick={() => {
+                    props.ondelete();
+                  }}
                 >
-                    Delete
+                  Delete
                 </a>
-                ) : (
-                    ""
-                )
-              }
-            </li>
- 
+              </li>
+            ) : (
+              ""
+            )}
+
+            {props.author.id !== api.authStore.model.id &&
+            window.location.pathname === "/" ? (
+              <li>
+                <a
+                  onClick={() => {
+                    document.getElementById("moreinfo" + props.id).showModal();
+                  }}
+                >
+                  Why am I Seeing This?
+                </a>
+              </li>
+            ) : (
+              <></>
+            )}
           </ul>
         </div>
       </div>
 
-
-      
-       
       <p
-        className="mt-6 text-sm"
+        className="mt-6 text-sm max-w-full break-words"
+         
         ref={(el) => {
           if (el) {
-            el.innerHTML = props.text;
+            el.innerHTML = props.content;
           }
         }}
       ></p>
- 
-   
-       
+
+      {props.file ? (
+        <>
+          <div
+            
+          >
+            <img
+              src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+              className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
+              alt="post image"
+              onClick={() => {
+                 try {
+                  document.getElementById("modal" + props.id).showModal();
+                 } catch (error) {
+                  console.log(error)
+                 }
+              }}
+            />
+          </div>
+          <dialog
+            id={"modal" + props.id}
+            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
+          >
+            <button
+              className="btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  text-white bg-[#222222]  top-5 left-10
+             focus:outline-none
+             "
+              onClick={() => {
+                document.getElementById("modal" + props.id).close();
+              }}
+            >
+              ✕
+            </button>
+            <form
+              method="dialog"
+              className="modal-box bg-transparent z-[-1]  w-screen"
+            >
+              <img
+                src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
+                alt="post image"
+                width={window.innerWidth}
+                height={window.innerHeight}
+                onClick={() => {
+                  document.getElementById("modal" + props.id).showModal();
+                }}
+              />
+            </form>
+          </dialog>
+        </>
+      ) : (
+        ""
+      )}
 
       <div className="flex flex-row gap-5 mt-6">
         {
@@ -210,7 +222,7 @@ export default function Comment(props) {
                 ? "#F13B38"
                 : "currentColor"
             }
-            className="w-4 h-4 cursor-pointer"
+            className="w-5 h-5 cursor-pointer"
           >
             <path
               strokeLinecap="round"
@@ -218,10 +230,7 @@ export default function Comment(props) {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
             />
           </svg>
-          <span
-            
            
-          > {likes.length} </span>
         </div>
 
         {
@@ -239,9 +248,12 @@ export default function Comment(props) {
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="w-4 h-4 cursor-pointer "
+            className="w-5 h-5 cursor-pointer "
             onClick={() => {
-              document.getElementById("comment" + props.id).showModal();
+              if(window.location.pathname !== "/p/" + props.id){
+                window.location.href = "/p/" + props.id
+                 
+              }
             }}
           >
             <path
@@ -249,9 +261,50 @@ export default function Comment(props) {
               strokeLinejoin="round"
               d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
             />
-          </svg>{" "}
+          </svg>
+           
         </div>
- 
+        
+
+        {
+          /**
+           * @Icon
+           * @name: repost
+           * @description: repost icon
+           */ ""
+        }
+           
+
+           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="cursor-pointer w-5 h-5"
+           
+           onClick={() => {
+            navigator.share({
+              title: `
+            View this post by
+            ${
+              props.author.id === api.authStore.model.id
+                ? "Me"
+                : props.author.username
+            }
+            `,
+              text: props.content.slice(0, 300),
+              url: window.location.href,
+            });
+          }}
+           >
+  <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15" />
+</svg>
+
+
+
+      </div>
+      <div className="flex flex-row font-normal text-slate-400 gap-2 mt-6"
+      
+      >
+      <span> {props.comments.length ?  props.comments.length > 1 ? props.comments.length + " Replies" : props.comments.length + " Reply" :  
+      0 + " Replies"}</span>
+      <span className="text-slate-300">•</span>
+      <span>   {likes.length ?  likes.length > 1 ? likes.length + " Likes" : likes.length + " Like" : "0 Likes"}</span>
       </div>
     </div>
   );

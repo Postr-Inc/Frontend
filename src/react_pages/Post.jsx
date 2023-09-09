@@ -88,23 +88,16 @@ export default function Vpost(props) {
         } else if (msg.action === 'update') {
           let updatedComment = msg.record;
           if (updatedComment.post === props.id) {
-            setComments((prevComments) => {
-              let index = prevComments.findIndex((c) => c.id === updatedComment.id);
-          
-              if (index !== -1) {
-                // Check if the expand property exists
-                if (updatedComment.expand) {
-                  prevComments[index] = updatedComment;
+            setComments((prevComments) =>
+              prevComments.map((c) => {
+                if (c.id === updatedComment.id) {
+                  updatedComment.expand = c.expand;
+                  return updatedComment;
                 } else {
-                  // If expand is missing, keep the existing comment as is
-                  prevComments[index] = { ...prevComments[index], ...updatedComment };
+                  return c;
                 }
-          
-                return [...prevComments];
-              }
-          
-              return prevComments;
-            });
+              })
+            );
           }
           
         }
@@ -168,13 +161,14 @@ export default function Vpost(props) {
         >
           {post.author && comments.length > 0 ? (
             comments.map((comment) => {
+              let key = Math.random();
               return (
-                <div key={comment.id}>
+                <div key={key} >
                 
                   <Comment
                     id={comment.id}
                     user={comment.expand.user}
-                    likes={comment.likes}
+                    likes={comment.likes ? comment.likes : []}
                     text={comment.text}
                     created={comment.created}
                     post={post}

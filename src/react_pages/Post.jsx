@@ -67,47 +67,39 @@ export default function Vpost(props) {
         }).then((res) => {
           setPost(res);
           setComments(res.expand.comments ? res.expand.comments : []);
-          
-     
-        
-         
         }) 
   }, [props.id]);
    useEffect(() => {
      if(comments.length > 0){
         
       api.collection('comments').subscribe('*', (msg) => {
-        // update comments
-         if(msg.action === 'create'){
-           let comment = msg.record
-           if(comment.post === props.id){
-             setComments([...comments, comment])
-             
-           }
-         }else if(msg.action === 'delete'){
-            let comment = msg.record
-            if(comment.post === props.id){
-              let index = comments.findIndex((c) => c.id === comment.id)
-              comments.splice(index, 1)
-              setComments([...comments])
-            }
-         }else if (msg.action === 'update'){
-           let comment = msg.record
+        if (msg.action === 'create') {
+          let comment = msg.record;
+          if (comment.post === props.id) {
+            setComments((prevComments) => [...prevComments, comment]);
+          }
+        } else if (msg.action === 'delete') {
+          let comment = msg.record;
+          if (comment.post === props.id) {
+            setComments((prevComments) =>
+              prevComments.filter((c) => c.id !== comment.id)
+            );
+          }
+        } else if (msg.action === 'update') {
+          let updatedComment = msg.record;
+          if (updatedComment.post === props.id) {
+            let index = comments.findIndex( (c) => c.id === updatedComment.id);
+            let expand = comments[index].expand;
+            // add expand to updated comment
+            updatedComment.expand = expand;
+            // replace comment in array
+            comments[index] = updatedComment;
+            setComments([...comments]);
+
+          }
+        }
+      });
       
-           if(comment.post === props.id){
-           
-             comments.forEach((c) => {
-                if(c.id === comment.id && comments.length > 0){
-                  c = comment
-                }
-             })
-              setComments([...comments])
-           
-              
-           }
-         }
-     
-    });
    
     
      }

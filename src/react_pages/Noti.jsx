@@ -48,7 +48,9 @@ export default function Noti() {
    // make sure their arent duplicates like - liked the same post twice
   notifications = notifications.filter((noti, index, self) => {
     return self.findIndex((n) => {
-      return n.expand.author && n.expand.author.id === noti.expand.author.id && n.type === noti.type && n.expand.post && n.expand.post.id === noti.expand.post.id
+      if(n.expand && n.expand.post && noti.expand && noti.expand.post && n.expand.author && noti.expand.author){
+        return n.expand.author && n.expand.author.id === noti.expand.author.id && n.type === noti.type && n.expand.post && n.expand.post.id === noti.expand.post.id
+      }
 
     }) === index;
   })

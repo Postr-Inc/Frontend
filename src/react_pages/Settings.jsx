@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api, oneSignal } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
+import Modal2 from "../components/Modal2";
 export default function Settings() {
   let [emailVisibility, setEmailVisibility] = useState(
     api.authStore.model.emailVisibility
@@ -9,6 +10,8 @@ export default function Settings() {
   let [notificationsOn, setNotificationsOn] = useState(
     localStorage.getItem("notifications") === "true" ? true : false
   );
+  let [recommendation_ratings, setrecommendation_ratings] = useState(localStorage.getItem("recommendation_ratings") === "true" ? true : false);
+
   return (
     <>
       <div className="p-2 w-scree font-normal text-sm mb-24">
@@ -50,7 +53,7 @@ export default function Settings() {
           <div className="card card-compact w-full bg-base-100  shadow">
             
             <h1
-              className="text-md font-bold   p-5  "
+              className="text-md font-bold   p-5 "
               aria-label="General Settings"
             >
                Account Management
@@ -90,7 +93,7 @@ export default function Settings() {
                     Delete
                 </a>
               </div>
-              <div className="flex flex-row gap-5 mt-6">
+              <div className="flex flex-row    ">
                 <div className="flex flex-col">
                   <p>Deactivate Account</p>
                   <span className="text-xs text-gray-500 w-60 mt-2">
@@ -100,10 +103,20 @@ export default function Settings() {
                 <a
                     className="text-sm cursor-pointer text-warning absolute right-5"
                     onClick={() => {
-                        document.getElementById('delete').showModal();
+                         if(api.authStore.model.deactivated){
+                          api.collection('users').update(api.authStore.model.id, {deactivated:false})
+                          .then(()=>{
+                            api.collection('users').authRefresh()
+                            window.location.href = "/"
+                          })
+                         }else{
+                          document.getElementById('deactivate').showModal();
+                         }
                     }}
                 >
-                    Deactivate
+                   {
+                    api.authStore.model.deactivated ? 'Reactivate' : 'Deactivate'
+                   }
                 </a>
               </div>
             </div>
@@ -111,7 +124,48 @@ export default function Settings() {
               className="text-md font-bold   p-5  "
               aria-label="General Settings"
             >
-              Notifications / Security 
+              What you see
+            </h1>
+            <div className="card-body flex flex-col">
+              <div className="flex flex-row ">
+                <div className="flex flex-col">
+                  <p>Recommendation Ratings </p>
+                  <span className="text-xs text-gray-500 w-60">
+                    Get Prompted to share input to better organize your feed
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  value=""
+                  className={`
+                  toggle
+                  ${recommendation_ratings ? "bg-sky-500" : "bg-slate-200"}
+                   border-slate-200
+                   absolute
+                     right-5    
+                  `}
+                    {...(recommendation_ratings ? { checked: true } : {})}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      // request permission
+                      localStorage.setItem("recommendation_ratings", true);
+                      setrecommendation_ratings(true);
+                      
+                    } else {
+                      e.target.checked = false;
+                      localStorage.setItem("recommendation_ratings", false);
+                      setrecommendation_ratings(false);
+                    }
+                  }}
+                />
+              </div>
+              
+            </div>
+            <h1
+              className="text-md font-bold   p-5 "
+              aria-label="General Settings"
+            >
+              Notifications / Privacy
             </h1>
 
             <div className="card-body flex flex-col">
@@ -282,25 +336,22 @@ export default function Settings() {
 
       </div>
 
-      <Modal id="delete" height="h-[50vh]">
-        <button className="flex justify-center mx-auto focus:outline-none">
-          <div className="divider  text-slate-400 w-12 mt-0"></div>
-        </button>
+      <Modal2 id="delete" height="h-[50vh]"
+      styles="w-72 "
+      >
+        
 
-        <div className="flex text-sm flex-col gap-2">
+        <div className="flex  text-sm flex-col gap-2">
           <span className="mt-2 ">
             We recommend you deactivate your account instead of deleting it, if you want to take a break from Postr. If you delete your account, you will lose all your data and will not be able to recover it.
           </span>
        
-          <div className="flex flex-row gap-2 fixed bottom-12">
-           <button className="text-sm text-sky-500 cursor-pointer" onClick={() => {
-                document.getElementById('delete').close()
-            }
-            }>
-                Cancel
-            </button>
-            <button className="text-sm text-sky-500 
-            fixed right-5
+          <div className="gap-2 flex-col flex ">
+           
+            <button
+            style={{fontSize:'12px'}}
+            className="text-sm btn bg-transparent focus:bg-transparent w-full text-error 
+             
             cursor-pointer" onClick={() => {
               api.collection('users').delete(api.authStore.model.id)
               .then(()=>{
@@ -311,9 +362,49 @@ export default function Settings() {
             }>
                 Confirm
             </button>
+            <button className="text-sm btn focus:bg-transparent bg-transparent w-full btn-md  cursor-pointer"
+           style={{fontSize:'12px'}}
+           onClick={() => {
+                document.getElementById('delete').close()
+            }
+            }>
+                Cancel
+            </button>
           </div>
         </div>
-        </Modal>
+        </Modal2>
+        <Modal2 id="deactivate" height="h-[50vh]"
+        styles="w-72 "
+        >
+       
+
+        <div className="flex text-sm flex-col gap-2">
+          <span className="mt-2 ">
+           You can still use your account, but no one will be able to interact with you or see your content. You can reactivate your account by reactivating it from settings.
+          </span>
+       
+          <div >
+           <button className="text-sm text-sky-500 cursor-pointer" onClick={() => {
+                document.getElementById('delete').close()
+            }
+            }>
+                Cancel
+            </button>
+            <button className="text-sm text-sky-500 
+            fixed right-5
+            cursor-pointer" onClick={() => {
+              api.collection('users').update(api.authStore.model.id, {deactivated:true})
+              .then(()=>{
+                api.collection('users').authRefresh()
+                window.location.href = "/"
+              })
+            }
+            }>
+                Confirm
+            </button>
+          </div>
+        </div>
+        </Modal2>
       <Bottomnav />
     </>
   );

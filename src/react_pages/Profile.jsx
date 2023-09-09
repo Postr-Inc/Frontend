@@ -41,6 +41,8 @@ export default function Profile(props) {
         title: `${api.authStore.model.username} followed you`,
         image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
         url: `/u/${api.authStore.model.username}`,
+        notification_title: `${api.authStore.model.username} followed you`,
+        notification_body: `Open Postr to see more`,
       });
     }
   }

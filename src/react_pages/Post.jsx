@@ -16,25 +16,7 @@ export default function Vpost(props) {
   let [comment, setComment] = useState("");
   let commentRef = useRef();
   let max = 200;
-  function getPost() {
-    api
-      .collection("posts")
-      .getOne(props.id, {
-        expand: "author, comments.user",
-      })
-      .then((res) => {
-        console.log(res);
-        setPost(res);
-        setComments(res.expand.comments ? res.expand.comments : []);
- 
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(res.content, "text/html");
-        let c = doc.body;
-        let h = c.firstChild.textContent;
-
-        document.title = `${res.expand.author.username} on Postr: ${h} `;
-      });
-  }
+   
   async function createComment() {
     if (chars > 0 && chars <= max) {
       let c = await api.collection("comments").create(
@@ -77,9 +59,66 @@ export default function Vpost(props) {
     setComments([...comments]);
   }
   useEffect(() => {
-    getPost();
-  }, []);
+    
+      api
+        .collection("posts")
+        .getOne(props.id, {
+          expand: "author, comments.user",
+        }).then((res) => {
+          setPost(res);
+          setComments(res.expand.comments ? res.expand.comments : []);
+          
+     
+        
+         
+        }) 
+  }, [props.id]);
+   useEffect(() => {
+     if(comments.length > 0){
+        
+      api.collection('comments').subscribe('*', (msg) => {
+        // update comments
+         if(msg.action === 'create'){
+           let comment = msg.record
+           if(comment.post === props.id){
+             setComments([...comments, comment])
+             
+           }
+         }else if(msg.action === 'delete'){
+            let comment = msg.record
+            if(comment.post === props.id){
+              let index = comments.findIndex((c) => c.id === comment.id)
+              comments.splice(index, 1)
+              setComments([...comments])
+            }
+         }else if (msg.action === 'update'){
+           let comment = msg.record
+      
+           if(comment.post === props.id){
+           
+             comments.forEach((c) => {
+                if(c.id === comment.id && comments.length > 0){
+                  c = comment
+                }
+             })
+              setComments([...comments])
+           
+              
+           }
+         }
+     
+    });
+   
+    
+     }
 
+    return () => {
+      api.collection('comments').unsubscribe('*');
+    }
+  }, [comments, props.id])
+ 
+
+  
   return (
     <div className="flex flex-col text-sm  p-5   ">
       <div className="  flex flex-row justify-between">
@@ -136,6 +175,7 @@ export default function Vpost(props) {
                     likes={comment.likes}
                     text={comment.text}
                     created={comment.created}
+                    post={post}
                   />
                    <div className="divider mt-0 h-2  opacity-[30%]"></div>
                   <Modal id={"delete" + comment.id} height="h-96">

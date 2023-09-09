@@ -17,6 +17,28 @@ export default function Comment(props) {
       api.collection("comments").update(props.id, {
         likes: [...likes, api.authStore.model.id],
       });
+      if(props.user.id !== api.authStore.model.id && props.post.author === api.authStore.model.id){
+        api.collection("notifications").create({
+          type: "like",
+          recipient:  props.user.id,
+          author: api.authStore.model.id,
+          title: `${props.user.username} hearted your comment`,
+          comment: props.id,
+          post: props.post.id
+        }) 
+      }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
+        api.collection("notifications").create({
+          type: "like",
+          recipient: props.user.id,
+          author:  api.authStore.model.id,
+          title: `${api.authStore.model.username} hearted your comment`,
+          comment: props.id,
+          post: props.post.id
+        })
+
+      }
+   
+      
     }
   } 
  

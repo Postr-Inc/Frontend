@@ -18,13 +18,15 @@ export default function Post(props) {
         likes: [...likes, api.authStore.model.id],
       });
       if(props.author.id !== api.authStore.model.id){
+        console.log("creating notification")
         api.collection("notifications").create( {
           "image":`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}` ,
           "author": api.authStore.model.id,
           "recipient": props.author.id,
           "post":  props.id,
           "title":  `${api.authStore.model.username} liked your post!`,
-          "body":   `${api.authStore.model.username} liked your post!`,
+          "notification_title":   `${api.authStore.model.username} liked your post!`,
+          "notification_body": `On Postr`,
           "type":  "like",
           "url": "/p/" + props.id,
         })

@@ -19,7 +19,7 @@ export default function Comment(props) {
       });
       if(props.user.id !== api.authStore.model.id && props.post.author === api.authStore.model.id){
         api.collection("notifications").create({
-          type: "like",
+          type: "comment_like",
           recipient:  props.user.id,
           author: api.authStore.model.id,
           title: `${props.user.username} hearted your comment`,
@@ -28,7 +28,7 @@ export default function Comment(props) {
         }) 
       }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
         api.collection("notifications").create({
-          type: "like",
+          type: "comment_like",
           recipient: props.user.id,
           author:  api.authStore.model.id,
           title: `${api.authStore.model.username} hearted your comment`,

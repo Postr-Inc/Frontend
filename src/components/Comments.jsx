@@ -2,6 +2,7 @@ import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useEffect, useState } from "react";
 export default function Comment(props) {
+  console.log(props);
   let [likes, setLikes] = useState(props.likes);
   
   function likepost() {
@@ -25,7 +26,10 @@ export default function Comment(props) {
           title: `hearted your comment`,
           comment: props.id,
           post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
+          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          notification_title: `${api.authStore.model.username} hearted your comment`,
+          notification_body: props.text.slice(0, 300),
+          url: `/p/${props.post.id}`
         }) 
       }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
         api.collection("notifications").create({
@@ -35,7 +39,10 @@ export default function Comment(props) {
           title: `${api.authStore.model.username} hearted your comment`,
           comment: props.id,
           post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`
+          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          notification_title: `${api.authStore.model.username} hearted your comment`,
+          notification_body: props.text.slice(0, 300),
+          url: `/p/${props.post.id}`
         })
 
       }
@@ -47,11 +54,21 @@ export default function Comment(props) {
   return (
     <div className="flex flex-col text-sm mb-[35px]   ">
        {
-            likes && likes.length > 0     &&  likes.includes(props.post.author) ? <div className="mb-4 text-sm flex flex-row gap-2 items-center">
-             <svg xmlns="http://www.w3.org/2000/svg" fill="#F13B38" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#F13B38" className="w-4 h-4">
+            likes && likes.length > 0     &&  likes.includes(props.post.author)
+            && props.author !== props.post.author
+            ? <div className="mb-4 text-sm flex flex-row gap-2 items-center">
+              
+  <svg xmlns="http://www.w3.org/2000/svg" fill="#F13B38" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#F13B38" className="w-4 h-4">
   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
 </svg>
-   By  the author
+     
+ 
+
+              
+         
+              <span className="text-xs">
+              by author
+              </span>
           </div> :  ""
 
       }

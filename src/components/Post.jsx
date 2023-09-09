@@ -26,7 +26,7 @@ export default function Post(props) {
           "post":  props.id,
           "title":  `${api.authStore.model.username} liked your post!`,
           "notification_title":   `${api.authStore.model.username} liked your post!`,
-          "notification_body": `On Postr`,
+          "notification_body": `Open Postr to view this notification`,
           "type":  "like",
           "url": "/p/" + props.id,
         })

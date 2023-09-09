@@ -1,9 +1,9 @@
 import { api } from "../react_pages";
 import Modal from "./Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 export default function Comment(props) {
   let [likes, setLikes] = useState(props.likes);
-  let [hidden, setHidden] = useState(false);
+  
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -18,11 +18,21 @@ export default function Comment(props) {
         likes: [...likes, api.authStore.model.id],
       });
     }
-  }
+  } 
  
   return (
     <div className="flex flex-col text-sm mb-[35px]   ">
+       {
+            likes && likes.length > 0     &&  likes.includes(props.post.author) ? <div className="mb-4 text-sm flex flex-row gap-2 items-center">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="#F13B38" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#F13B38" className="w-4 h-4">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+</svg>
+   By  the author
+          </div> :  ""
+
+      }
       <div className="flex flex-row ">
+        
         {props.user.avatar ? (
           <img
             src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.user.id}/${props.user.avatar}`}
@@ -43,7 +53,7 @@ export default function Comment(props) {
           className="mx-2   cursor-pointer "
           style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
           onClick={() => {
-            if (window.location.pathname !== "/u/" + props.author.username) {
+            if (window.location.pathname !== "/u/" + props.user.username) {
               window.location.href = "/u/" + props.user.username;
             }
           }}
@@ -123,6 +133,8 @@ export default function Comment(props) {
       </div>
 
 
+      
+       
       <p
         className="mt-6 text-sm"
         ref={(el) => {
@@ -131,6 +143,7 @@ export default function Comment(props) {
           }
         }}
       ></p>
+ 
    
        
 
@@ -164,7 +177,13 @@ export default function Comment(props) {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
             />
           </svg>
-          <span> {likes.length}</span>
+          <span
+           ref={(el) => {
+            if (likes.length > 0 && el) {
+              el.innerHTML =  likes.length
+            }
+           }}
+          >  </span>
         </div>
 
         {

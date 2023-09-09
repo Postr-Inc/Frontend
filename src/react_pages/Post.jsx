@@ -88,15 +88,25 @@ export default function Vpost(props) {
         } else if (msg.action === 'update') {
           let updatedComment = msg.record;
           if (updatedComment.post === props.id) {
-            let index = comments.findIndex( (c) => c.id === updatedComment.id);
-            let expand = comments[index].expand;
-            // add expand to updated comment
-            updatedComment.expand = expand;
-            // replace comment in array
-            comments[index] = updatedComment;
-            setComments([...comments]);
-
+            setComments((prevComments) => {
+              let index = prevComments.findIndex((c) => c.id === updatedComment.id);
+          
+              if (index !== -1) {
+                // Check if the expand property exists
+                if (updatedComment.expand) {
+                  prevComments[index] = updatedComment;
+                } else {
+                  // If expand is missing, keep the existing comment as is
+                  prevComments[index] = { ...prevComments[index], ...updatedComment };
+                }
+          
+                return [...prevComments];
+              }
+          
+              return prevComments;
+            });
           }
+          
         }
       });
       

@@ -42,7 +42,7 @@ export default function Profile(props) {
         image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
         url: `/u/${api.authStore.model.username}`,
         notification_title: `${api.authStore.model.username} followed you`,
-        notification_body: `Open Postr to see more`,
+        notification_body: `Open Postr to see more`
       });
     }
   }
@@ -68,6 +68,18 @@ export default function Profile(props) {
       .collection("users")
       .getFirstListItem(`username="${props.user}"`)
       .then((res) => {
+        if(res.deactivated){
+          let profile = {
+            username: "User not found",
+            bio: "",
+            avatar: "",
+            followers: [],
+            Isprivate: true,
+            $dead: true
+          }
+          setProfile(profile);
+          return
+        }
         setProfile(res);
         setFollowers(res.followers ? res.followers : []);
       });
@@ -75,7 +87,7 @@ export default function Profile(props) {
       (profile.followers &&
         profile.followers.includes(api.authStore.model.id) &&
         profile.Isprivate) ||
-      !profile.Isprivate
+      !profile.Isprivate && !profile.deactivated
     ) {
       fetchPosts(1).then(function (fetchedPosts) {
         setPosts(fetchedPosts.items);
@@ -224,7 +236,8 @@ export default function Profile(props) {
         </div>
 
         <div>
-          <div className="flex flex-row gap-5 w-[42vw] mt-8">
+           {
+            profile.$dead ===  undefined ? <div className="flex flex-row gap-5 w-[42vw] mt-8">
             {props.user === api.authStore.model.username ? (
               <>
                 <button
@@ -307,6 +320,8 @@ export default function Profile(props) {
               </>
             )}
           </div>
+          : <></>
+           }
        
         </div>
         <div
@@ -364,6 +379,7 @@ export default function Profile(props) {
         <div className="flex flex-col gap-5 mt-12">
           {profile.followers &&
           !profile.followers.includes(api.authStore.model.id) &&
+          profile.$dead === true &&
           profile.Isprivate ? (
             <div className="flex flex-col justify-center  items-center mx-auto mt-8 gap-5">
               <svg
@@ -386,7 +402,9 @@ export default function Profile(props) {
                 />
               </svg>
 
-              <h1 className="text-xl mt-2">This account is private.</h1>
+              <h1 className="text-xl mt-2">{
+                profile.$dead ? "This account is deactivated" : "This account is private"
+}</h1>
             </div>
           ) : (
             <InfiniteScroll

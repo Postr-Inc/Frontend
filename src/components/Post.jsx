@@ -433,7 +433,7 @@ export default function Post(props) {
         </span>
       </div>
       <dialog id={`reportmodal${props.id}`} className="  modal modal-bottom h-screen">
-        <form method="dialog" className="modal-box p-5">
+        <form method="dialog" className="modal-box p-5  h-96">
           <h3 className="font-bold text-lg">Report {props.author.username}</h3>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕

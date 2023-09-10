@@ -49,12 +49,12 @@ export default function Home() {
   let maxChars = 80;
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const pRef = useRef();
+ 
   const [totalPages, setTotalPages] = useState(0);
   const [comments, setComments] = useState([]); // [postid, comments
-  const [chars, setChars] = useState(0); // [postid, comments
+ 
   let [page, setPage] = useState(1);
-  let [comment, setComment] = useState("");
+ 
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
     setPosts([]);
@@ -80,45 +80,8 @@ export default function Home() {
     }
   }
 
-  function handleComment(e) {
-    if (chars >= maxChars) {
-      e.target.innerText = e.target.innerText.slice(0, maxChars);
-      e.target.classList.add("border-red-500");
-    } else {
-      e.target.classList.remove("border-red-500");
-    }
-
-    setChars(e.target.value.length);
-    setComment(
-      sanitizeHtml(e.target.value, {
-        allowedTags: [],
-        allowedAttributes: {},
-      })
-    );
-  }
-
-  function createComment(postId) {
-    api
-      .collection("comments")
-      .create({
-        user: api.authStore.model.id,
-        text: comment,
-        post: postId,
-        likes: JSON.stringify([]),
-      })
-      .then((comment) => {
-        setComments([...comments, comment]);
-        setComment("");
-        document.getElementById("comment" + postId).classList.remove("open");
-        api.collection("posts").update(postId, {
-          comments: JSON.stringify([
-            ...posts.find((p) => p.id === postId).comments,
-            comment.id,
-          ]),
-        });
-      });
-  }
-
+ 
+   
   return (
     <div className="p-5 mt-2    ">
       <div className="flex flex-row justify-between">
@@ -135,7 +98,10 @@ export default function Home() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6"
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => {
+              window.location.pathname = "/bookmarks"
+            }}
           >
             <path
               strokeLinecap="round"
@@ -245,6 +211,7 @@ export default function Home() {
                   content={post.content}
                   id={post.id}
                   created={post.created}
+                  bookmarked={post.bookmarked}
                 />
 
                 <Modal id={"moreinfo" + post.id} height="h-75">

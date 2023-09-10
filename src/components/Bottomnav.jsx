@@ -450,15 +450,12 @@ export default function Bottomnav() {
             ></p>
 
             {image ? (
-              <div className="flex flex-row relative justify-center">
-                <img
-                  src={image}
-                  alt="post image"
-                  className="w-full  rounded mt-2"
-                />
+              <div className="relative max-w-32">
+               
                 <span
-                  className="absolute  text-sm font-sans top-5 
-             hover:bg-[#05050555] border-none right-2 bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
+                  className="
+             hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
+             style={{fontSize:".7rem",position:"absolute",top:"-5px",right:"-5px"}}
                   onClick={() => {
                     setImage("");
                     setFile("");
@@ -466,6 +463,12 @@ export default function Bottomnav() {
                 >
                   X
                 </span>
+                
+                <img
+                  src={image}
+                  alt="post image"
+                  className="w-32  rounded mt-2"
+                />
               </div>
             ) : null}
 

@@ -30,24 +30,48 @@
   ],
   "screenshots": [
     {
-      "src": "/images/loginback.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Image of Login Screen"
+        "src": "/images/ss/1.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "Minimal Aesthetic Ui",
+        "form_factor": "wide"
     },
     {
-      "src": "/images/profilepage.png",
-      "sizes": "374x817",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "User Profile Page"
+        "src": "/images/ss/2.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "User Select Feeds - Choose What you want to see",
+        "form_factor": "wide"
+    },
+    {
+        "src": "/images/ss/3.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "Pinned Posts - Pin your top posts for your followers to see!",
+        "form_factor": "wide"
+    },
+    {
+        "src": "/images/ss/4.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "Bookmarks - Save posts that you want to revisit later!",
+        "form_factor": "wide"
+    },
+    {
+        "src": "/images/ss/5.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "Leave Comments - Interact more in the comment section",
+        "form_factor": "wide"
+    },
+    {
+        "src": "/images/ss/6.jpg",
+        "type": "image/jpeg",
+        "sizes": "900x1600",
+        "label": "Notifications - Keep up with interactions, by using push notifications",
+        "form_factor": "wide"
     }
-  ],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-}
-,
+],
   "protocol_handlers": [
     {
       "protocol": "web+postr",

@@ -120,7 +120,7 @@ export default function Download(){
       <div className="h-[30vw] p-5 hero">
         <div className="hero-content text-center flex flex-col lg:flex-row">
           {
-            isWindows || isLinux || isMac ?  <img src='/images/profilepage.png' className="max-w-sm  mr-5 w-64 shadow  rounded-lg" /> : <></>
+            isWindows || isLinux || isMac ?  <img src='/images/feed.png' className=" max-w-md   rounded-lg" /> : <></>
           }
           <div className="max-w-md flex flex-col">
             <h1 className="text-5xl font-bold">Get Postr For Any Device!</h1>
@@ -131,35 +131,39 @@ export default function Download(){
               onClick={() => {
                 if (isIOS && isSafari) {
                   document.getElementById('ios').showModal();
-                } else if (download !== 'Open Postr' && (isAndroid || isMac || isWindows || isLinux) || !JSON.parse(localStorage.getItem('installed'))) {
+                } else if (deferredPrompt) {
                   deferredPrompt.prompt() 
                    
                 } else {
-                  console.log('already installed');
                   document.getElementById('installed').showModal();
                 }
               }}
             >
-              {download}
+              {deferredPrompt ? download : 'Open Postr'}
             </button>
-            <span className="text-sm mt-2 flex gap-2 text-gray-500 mx-auto">
-              For{' '}
-              <span className="">
-                {isAndroid
-                  ? 'Android'
-                  : isIOS
-                  ? 'iOS'
-                  : isMac
-                  ? 'Mac'
-                  : isWindows
-                  ? 'Windows 11/10 64bit'
-                  : isLinux
-                  ? 'Linux'
-                  : 'Other'}
-              </span>
-            </span>
+              
+              {
+                deferredPrompt ? <span className="text-sm mt-2 flex gap-2 text-gray-500 mx-auto">
+                For{' '}
+                <span className="">
+                  {isAndroid
+                    ? 'Android'
+                    : isIOS
+                    ? 'iOS'
+                    : isMac
+                    ? 'Mac'
+                    : isWindows
+                    ? 'Windows 11/10 64bit'
+                    : isLinux
+                    ? 'Linux'
+                    : 'Other'}
+                </span>
+                </span> : <></>
+              }
+             
+              
             <span className='mt-2'>
-              By downloading Postr, you agree to our {' '} <a href="/tos" className="text-blue-500">Terms of Service</a> and <a href="/privacy" className="text-blue-500">Privacy Policy</a>. 
+              By using Postr, you agree to our {' '} <a href="/tos" className="text-blue-500">Terms of Service</a> and <a href="/privacy" className="text-blue-500">Privacy Policy</a>. 
             </span>
           </div>
         </div>

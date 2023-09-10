@@ -70,30 +70,36 @@ export default function Bookmarks() {
               className="dropdown-content  z-[1] menu  shadow bg-base-100 rounded-box h-12 w-52"
             >
               <li>
-                <a
-                  onClick={() => {
-                    bookmarks.forEach((post) => {
-                      let bookmarked = post.bookmarked;
-                      api.collection("posts").update(post.id, {
-                        bookmarked: [
-                          ...bookmarked.filter(
-                            (id) => id !== api.authStore.model.id
-                          ),
-                        ],
+                 {
+                    bookmarks.length > 0 ? <a
+                    onClick={() => {
+                      bookmarks.forEach((post) => {
+                        let bookmarked = post.bookmarked;
+                        api.collection("posts").update(post.id, {
+                          bookmarked: [
+                            ...bookmarked.filter(
+                              (id) => id !== api.authStore.model.id
+                            ),
+                          ],
+                        });
                       });
-                    });
-                    api
-                      .collection("users")
-                      .update(api.authStore.model.id, {
-                        bookmarks: [],
-                      })
-                      .then(() => {
-                        setBookmarks([]);
-                      });
-                  }}
-                >
-                  Clear All Bookmarks
-                </a>
+                      api
+                        .collection("users")
+                        .update(api.authStore.model.id, {
+                          bookmarks: [],
+                        })
+                        .then(() => {
+                          setBookmarks([]);
+                        });
+                    }}
+                  >
+                    Clear All Bookmarks
+                  </a>
+                  :  <a
+                    >
+                        Clear All Bookmarks 
+                    </a>
+                 }
               </li>
             </ul>
           </div>

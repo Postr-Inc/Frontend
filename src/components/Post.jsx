@@ -1,7 +1,6 @@
 import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useState } from "react";
-import Filter from "bad-words";
 export default function Post(props) {
   let [likes, setLikes] = useState(props.likes);
   let [hidden, setHidden] = useState(false);
@@ -145,14 +144,7 @@ export default function Post(props) {
         className="mt-6 text-sm max-w-full break-words"
         ref={(el) => {
           if (el) {
-            localStorage.getItem("profanity") === "true"
-              ? (el.innerHTML = String(props.content).replace(
-                  new Filter().list,
-                  function (match) {
-                    return "*".repeat(match.length);
-                  }
-                ))
-              : (el.innerHTML = props.content);
+            el.innerHTML = props.content
           }
         }}
       ></p>

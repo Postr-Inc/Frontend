@@ -10,7 +10,6 @@ import Post from "../components/Post";
 import { useEffect, useState } from "react";
 
 export default function Profile(props) {
-  console.log("rerender");
   let [profile, setProfile] = useState({});
   let [posts, setPosts] = useState([]);
   let [followers, setFollowers] = useState(
@@ -52,7 +51,7 @@ export default function Profile(props) {
       .getList(page, 10, {
         filter: `author.username="${props.user}"`,
         expand: "author",
-        sort: "-created",
+        sort: "-pinned, -created",
       })
       .then((res) => {
         return {
@@ -344,33 +343,47 @@ export default function Profile(props) {
         </a>
         <a
           onClick={() => {
-            if (pageSelected !== "recommended") {
-              setPageSelected("recommended");
+            if (pageSelected !== "replies") {
+              setPageSelected("replies");
             }
           }}
           className={`
          cursor-pointer
          text-lg  ${
-           pageSelected === "recommended"
+           pageSelected === "replies"
              ? "underline underline-offset-[10px]"
              : ""
          }`}
         >
-         Media
+        Replies
         </a>
         <a
           onClick={() => {
-            if (pageSelected !== "top") {
-              setPageSelected("top");
+            if (pageSelected !== "collections") {
+              setPageSelected("collections");
             }
           }}
           className={`
              cursor-pointer
           text-lg ${
-            pageSelected === "top" ? "underline underline-offset-[10px]" : ""
+            pageSelected === "collections" ? "underline underline-offset-[10px]" : ""
           } `}
         >
           Collections
+        </a>
+        <a
+          onClick={() => {
+            if (pageSelected !==  "likes") {
+              setPageSelected("likes");
+            }
+          }}
+          className={`
+             cursor-pointer
+          text-lg ${
+            pageSelected === "likes" ? "underline underline-offset-[10px]" : ""
+          } `}
+        >
+          Likes
         </a>
       </div>
          
@@ -444,6 +457,7 @@ export default function Profile(props) {
                             window["delete" + id].showModal();
                           }}
                           comments={p.comments}
+                          pinned={p.pinned}
                         />
                         {/**
                          * @Modal
@@ -504,6 +518,7 @@ export default function Profile(props) {
           )}
         </div>
       </div>
+      
       <Modal id="editprofile" height="h-screen">
         <button className="flex justify-center mx-auto focus:outline-none">
           <div className="divider  text-slate-400  w-12   mt-0"></div>

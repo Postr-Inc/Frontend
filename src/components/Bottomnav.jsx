@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import sanitizeHtml from "sanitize-html";
 import Modal from "./Modal";
 import { api } from "../react_pages";
-
 function handleEmojis(html) {
   let parser = new DOMParser();
   let defaults = {
@@ -396,7 +395,7 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen   w-screen   shadow-none fixed top-0 left-0 p-5">
+        <div className=" max-w-screen max-w-screen   w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex">
               <img

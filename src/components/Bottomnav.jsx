@@ -277,53 +277,65 @@ export default function Bottomnav() {
           )}
 
           {modalisOpen ? (
-           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-7 h-7
         cursor-pointer
            "
-           
-           onClick={() => {
-              document.getElementById("newpost").close();
-              setModalisOpen(false);
-           }}
-           >
-            
-           <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-         </svg>
-         
+              onClick={() => {
+                document.getElementById("newpost").close();
+                setModalisOpen(false);
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-7 h-7
             cursor-pointer text-slate-300     
             "
-           
-            onClick={() => {
-              document.getElementById("newpost").showModal();
-              setModalisOpen(true);
-              pRef.current.focus();
-            }}
+              onClick={() => {
+                document.getElementById("newpost").showModal();
+                setModalisOpen(true);
+                pRef.current.focus();
+              }}
             >
-             
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
           )}
           {window.location.origin + window.location.pathname ===
           window.location.origin + "/notifications" ? (
-             
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-7 h-7 cursor-pointer"
-                onClick={() => {
-                  if (!window.location.href === "/notifications") {
-                    return;
-                  }
-                  window.location.href = "/notifications";
-                }}
-              >
-                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-              </svg>
-          
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-7 h-7 cursor-pointer"
+              onClick={() => {
+                if (!window.location.href === "/notifications") {
+                  return;
+                }
+                window.location.href = "/notifications";
+              }}
+            >
+              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+            </svg>
           ) : (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -381,35 +393,37 @@ export default function Bottomnav() {
         className="modal text-start bg-base-100 focus:outline-none"
         style={{
           backgroundColor: "white",
-          
+
           fontSize: "16px",
         }}
       >
         <div className=" max-w-screen max-w-screen h-screen w-screen overflow-auto shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
-             <div className="flex">
-             <img
-              src="/icons/backarrow.svg"
-              alt="back arrow"
-              className="w-7 h-7 cursor-pointer"
-              onClick={() => {
-                document.getElementById("newpost").close();
-                setModalisOpen(false);
-                pRef.current.innerHTML = "";
-                setChar(0);
-                setImage("");
-                setFile("");
-                document.activeElement.blur();
-              }}
-            />
-            <span className="mx-5  font-bold"
-            style={{fontSize:"1.2rem"}} 
-            >Create Postr</span>
-             </div>
-            <button className=" btn btn-sm rounded-full"
-            style={{fontSize:".8rem"}}
-            onClick={createPost}>
-             Post
+            <div className="flex">
+              <img
+                src="/icons/backarrow.svg"
+                alt="back arrow"
+                className="w-7 h-7 cursor-pointer"
+                onClick={() => {
+                  document.getElementById("newpost").close();
+                  setModalisOpen(false);
+                  pRef.current.innerHTML = "";
+                  setChar(0);
+                  setImage("");
+                  setFile("");
+                  document.activeElement.blur();
+                }}
+              />
+              <span className="mx-5  font-bold" style={{ fontSize: "1.2rem" }}>
+                Create Postr
+              </span>
+            </div>
+            <button
+              className=" btn btn-sm rounded-full"
+              style={{ fontSize: ".8rem" }}
+              onClick={createPost}
+            >
+              Post
             </button>
           </div>
 
@@ -437,8 +451,27 @@ export default function Bottomnav() {
               autoFocus
             ></p>
 
-            <div className="flex flex-row   fixed bottom-5">
-              
+            {image ? (
+              <div className="flex flex-row relative justify-center">
+                <img
+                  src={image}
+                  alt="post image"
+                  className="w-full  rounded mt-2"
+                />
+                <span
+                  className="absolute  text-sm font-sans top-5 
+             hover:bg-[#05050555] border-none right-2 bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
+                  onClick={() => {
+                    setImage("");
+                    setFile("");
+                  }}
+                >
+                  X
+                </span>
+              </div>
+            ) : null}
+
+            <div className="flex flex-row  mt-8  ">
               <input
                 type="file"
                 id="file"
@@ -453,38 +486,17 @@ export default function Bottomnav() {
                 htmlFor="file"
                 className="  text-white  rounded-lg cursor-pointer"
               >
-                <svg xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                enableBackground="new 0 0 24 24" viewBox="0 0 24 24"  ><path d="M19,2H5C3.3438721,2.0018311,2.0018311,3.3438721,2,5v9.0683594V19c0.0018311,1.6561279,1.3438721,2.9981689,3,3h14c0.182312-0.0002441,0.3621216-0.0219727,0.5395508-0.0549316c0.0661011-0.012085,0.1291504-0.0303345,0.1936646-0.0466919c0.1060181-0.0270996,0.210083-0.0586548,0.3125-0.097229c0.0744629-0.0278931,0.1471558-0.0571289,0.218689-0.0906372c0.0839844-0.0395508,0.1642456-0.0853882,0.2444458-0.1327515c0.0751953-0.0441895,0.1511841-0.0856323,0.2219849-0.1359863c0.0057983-0.0041504,0.0123901-0.006897,0.0181885-0.0111084c0.0074463-0.0053711,0.013855-0.0120239,0.0209961-0.0178223c0.0136719-0.0110474,0.0308228-0.0164795,0.043335-0.0289917c0.0066528-0.0066528,0.008728-0.015564,0.0148926-0.0224609C21.5355225,20.8126221,21.9989624,19.9642944,22,19v-2.9296875V5C21.9981689,3.3438721,20.6561279,2.0018311,19,2z M19.5749512,20.9053955C19.3883667,20.9631958,19.1954956,20.9998779,19,21H5c-1.1040039-0.0014038-1.9985962-0.8959961-2-2v-4.7246094l3.7626953-3.7626953c0.684021-0.6816406,1.7905884-0.6816406,2.4746094,0l3.4048462,3.404541c0.0018921,0.0019531,0.0023804,0.0045776,0.0043335,0.0065308l6.9689941,6.9689941C19.6020508,20.8971558,19.588501,20.9012451,19.5749512,20.9053955z M21,19c-0.0006714,0.5162964-0.2020264,0.9821777-0.5234375,1.3369751l-6.7684326-6.7678223l1.055542-1.055481c0.6912231-0.6621094,1.7814331-0.6621094,2.4726562,0L21,16.2773438V19z M21,14.8632812l-3.0566406-3.0566406c-1.0737305-1.0722656-2.8129883-1.0722656-3.8867188,0l-1.055542,1.055542L9.9443359,9.8056641c-1.0744629-1.0722656-2.814209-1.0722656-3.8886719,0L3,12.8613281V5c0.0014038-1.1040039,0.8959961-1.9985962,2-2h14c1.1040039,0.0014038,1.9985962,0.8959961,2,2V14.8632812z M13.5,6C12.6715698,6,12,6.6715698,12,7.5S12.6715698,9,13.5,9c0.828064-0.0009155,1.4990845-0.671936,1.5-1.5C15,6.6715698,14.3284302,6,13.5,6z M13.5,8C13.223877,8,13,7.776123,13,7.5S13.223877,7,13.5,7c0.2759399,0.0005493,0.4994507,0.2240601,0.5,0.5C14,7.776123,13.776123,8,13.5,8z"></path></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-7 h-7"
+                  enableBackground="new 0 0 24 24"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M19,2H5C3.3438721,2.0018311,2.0018311,3.3438721,2,5v9.0683594V19c0.0018311,1.6561279,1.3438721,2.9981689,3,3h14c0.182312-0.0002441,0.3621216-0.0219727,0.5395508-0.0549316c0.0661011-0.012085,0.1291504-0.0303345,0.1936646-0.0466919c0.1060181-0.0270996,0.210083-0.0586548,0.3125-0.097229c0.0744629-0.0278931,0.1471558-0.0571289,0.218689-0.0906372c0.0839844-0.0395508,0.1642456-0.0853882,0.2444458-0.1327515c0.0751953-0.0441895,0.1511841-0.0856323,0.2219849-0.1359863c0.0057983-0.0041504,0.0123901-0.006897,0.0181885-0.0111084c0.0074463-0.0053711,0.013855-0.0120239,0.0209961-0.0178223c0.0136719-0.0110474,0.0308228-0.0164795,0.043335-0.0289917c0.0066528-0.0066528,0.008728-0.015564,0.0148926-0.0224609C21.5355225,20.8126221,21.9989624,19.9642944,22,19v-2.9296875V5C21.9981689,3.3438721,20.6561279,2.0018311,19,2z M19.5749512,20.9053955C19.3883667,20.9631958,19.1954956,20.9998779,19,21H5c-1.1040039-0.0014038-1.9985962-0.8959961-2-2v-4.7246094l3.7626953-3.7626953c0.684021-0.6816406,1.7905884-0.6816406,2.4746094,0l3.4048462,3.404541c0.0018921,0.0019531,0.0023804,0.0045776,0.0043335,0.0065308l6.9689941,6.9689941C19.6020508,20.8971558,19.588501,20.9012451,19.5749512,20.9053955z M21,19c-0.0006714,0.5162964-0.2020264,0.9821777-0.5234375,1.3369751l-6.7684326-6.7678223l1.055542-1.055481c0.6912231-0.6621094,1.7814331-0.6621094,2.4726562,0L21,16.2773438V19z M21,14.8632812l-3.0566406-3.0566406c-1.0737305-1.0722656-2.8129883-1.0722656-3.8867188,0l-1.055542,1.055542L9.9443359,9.8056641c-1.0744629-1.0722656-2.814209-1.0722656-3.8886719,0L3,12.8613281V5c0.0014038-1.1040039,0.8959961-1.9985962,2-2h14c1.1040039,0.0014038,1.9985962,0.8959961,2,2V14.8632812z M13.5,6C12.6715698,6,12,6.6715698,12,7.5S12.6715698,9,13.5,9c0.828064-0.0009155,1.4990845-0.671936,1.5-1.5C15,6.6715698,14.3284302,6,13.5,6z M13.5,8C13.223877,8,13,7.776123,13,7.5S13.223877,7,13.5,7c0.2759399,0.0005493,0.4994507,0.2240601,0.5,0.5C14,7.776123,13.776123,8,13.5,8z"></path>
+                </svg>
               </label>
-             
-               
-
             </div>
-           
-            
           </div>
-
-          
-          {image ? (
-            <div className="flex flex-row relative justify-center">
-              <img
-                src={image}
-                alt="post image"
-                className="w-full  rounded mt-2"
-              />
-              <span
-                className="absolute  text-sm font-sans top-5 
-             hover:bg-[#05050555] border-none right-2 bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
-                onClick={() => {
-                  setImage("");
-                  setFile("");
-                }}
-              >
-                X
-              </span>
-            </div>
-          ) : null}
         </div>
       </dialog>
     </div>

@@ -609,12 +609,12 @@ export default function Profile(props) {
             </div>
           </div>
           <div className="absolute bottom-12 flex flex-row gap-5  ">
-            <a
+            <button
               onClick={edit}
               className="  text-sky-500 text-sm end-5 cusor-pointer"
             >
               Done
-            </a>
+            </button>
           </div>
         </div>
       </Modal>

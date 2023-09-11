@@ -10,6 +10,7 @@ import Post from "../components/Post";
 import { useEffect, useState } from "react";
 
 export default function Profile(props) {
+  console.log("rerender");
   let [profile, setProfile] = useState({});
   let [posts, setPosts] = useState([]);
   let [followers, setFollowers] = useState(
@@ -117,17 +118,19 @@ export default function Profile(props) {
 
   function edit() {
     let form = new FormData();
-    form.append("username", edited.username);
+    form.append("username", edited.username ? edited.username : profile.username);
     form.append("bio", edited.bio ? edited.bio : profile.bio);
-    form.append("Isprivate", edited.Isprivate);
-    form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
+    form.append("Isprivate", edited.Isprivate ? edited.Isprivate : profile.Isprivate);
+    form.append("avatar",  edited.avatar ? edited.avatar : profile.avatar);
     api
       .collection("users")
       .update(profile.id, form)
       .then((res) => {
         setProfile(res);
         window.location.href = `/u/${res.username}`;
-      });
+      }).catch((e) => {
+        alert(e)
+      })
     document.getElementById("editprofile").close();
   }
 
@@ -542,8 +545,11 @@ export default function Profile(props) {
                 id="profileinput"
                 accept="image/*"
                 onChange={(e) => {
-                  let file = e.target.files[0];
-                  setedited({ ...edited, avatar: file });
+                  setedited({ ...edited, avatar: e.target.files[0] });
+                  document.getElementById("profilepicin").src = URL.createObjectURL(
+                    e.target.files[0]
+                  );
+                  e.target.value = "";
                 }}
               />
             </label>
@@ -598,10 +604,10 @@ export default function Profile(props) {
               </label>
             </div>
           </div>
-          <div className="flex flex-row gap-5 mt-5">
+          <div className="absolute bottom-12 flex flex-row gap-5 cusor-pointer">
             <a
               onClick={edit}
-              className="absolute bottom-5 text-sky-500 text-sm end-5 "
+              className="  text-sky-500 text-sm end-5 "
             >
               Done
             </a>

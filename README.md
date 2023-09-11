@@ -11,12 +11,13 @@
 ├── src/
 │   ├── components/
 │   │   └── Post.jsx
+|   |   └── Bottomnav.jsx
 │   ├── layouts/
 │   │   └── Layout.astro
 │   └── pages/
 │       └── index.astro
 └── react_pages/
-│       └── Home.jsx
+│       └── index.jsx
 └── package.json
 ```
  

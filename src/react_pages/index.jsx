@@ -41,13 +41,10 @@ export default function App() {
 	api.authStore.onChange((user) => {
 		oneSignal()
 	})
-	 if (window.matchMedia("(display-mode: browser)").matches) {
-            window.location.pathname = "/download"
-
-        }
+ 
     useEffect(() => {
      
-        if (api.authStore.isValid) {
+        if (api.authStore.isValid && !window.matchMedia("(display-mode: browser)").matches) {
             api.collection("users").authRefresh()
             oneSignal()
 
@@ -55,18 +52,21 @@ export default function App() {
         
 
         window.onerror = (e) =>{
-            alert(e)
+            alert({dead_or_die: e})
         }
 
     }, [])
 
 
-
-    return api.authStore.isValid ?
+    if(window.matchMedia("(display-mode: browser)").matches){
+	    window.location.pathname = "/download"
+    }else{
+	return api.authStore.isValid ?
         (
             <Home />
         )
         : (
             <Login />
-        )
+        )    
+    }
 }

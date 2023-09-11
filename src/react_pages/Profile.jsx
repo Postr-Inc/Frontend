@@ -558,16 +558,10 @@ export default function Profile(props) {
               type="text"
               placeholder={profile.username}
               className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   focus:outline-none focus:ring-0"
-              onChange={(e) => {
-                let val = sanitizeHtml(e.target.value, {
-                  allowedTags: [],
-                  allowedAttributes: {},
-                });
-
-                if (val.length < 20) {
-                  setedited({ ...edited, username: val });
-                }
+              onInput={(e) => {
+                setedited({ ...edited, username: e.target.value });
                 
+ 
               }}
               name="username"
             />
@@ -601,7 +595,7 @@ export default function Profile(props) {
                   type="checkbox"
                   className="toggle"
                   checked={profile.Isprivate ? true : false}
-                  onChange={(e) => {
+                  onInput={(e) => {
                     setedited({ ...edited, Isprivate: e.target.checked });
                   }}
                 />

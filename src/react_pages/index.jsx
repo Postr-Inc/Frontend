@@ -41,11 +41,12 @@ export default function App() {
 	api.authStore.onChange((user) => {
 		oneSignal()
 	})
-    useEffect(() => {
-      if (window.matchMedia("(display-mode: browser)").matches) {
-            window.location.href = "/download"
+	 if (window.matchMedia("(display-mode: browser)").matches) {
+            window.location.pathname = "/download"
 
         }
+    useEffect(() => {
+     
         if (api.authStore.isValid) {
             api.collection("users").authRefresh()
             oneSignal()

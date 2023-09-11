@@ -118,8 +118,8 @@ export default function Profile(props) {
 
   function edit() {
     let form = new FormData();
-    form.append("username", edited.username ? edited.username : profile.username);
-    form.append("bio", edited.bio ? edited.bio : profile.bio);
+    form.append("username", edited.username.length > 0 ? edited.username : profile.username);
+    form.append("bio", edited.bio.length > 0 ? edited.bio : profile.bio);
     form.append("Isprivate", edited.Isprivate ? edited.Isprivate : profile.Isprivate);
     form.append("avatar",  edited.avatar ? edited.avatar : profile.avatar);
     api

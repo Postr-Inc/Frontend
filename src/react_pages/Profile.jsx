@@ -11,7 +11,6 @@ import Comment from "../components/Comments";
 import { useEffect, useState } from "react";
 
 export default function Profile(props) {
-  console.log("rerender");
   let [profile, setProfile] = useState({});
   let [array, setarray] = useState([]);
   let [followers, setFollowers] = useState(
@@ -70,8 +69,6 @@ export default function Profile(props) {
         expand: "author,post,user,post.author",
       })
       .then((res) => {
-        console.log(type, pageSelected);
-        console.log(res);
         return res;
       });
   }
@@ -112,10 +109,10 @@ export default function Profile(props) {
 
   let [page, setPage] = useState(1);
   useEffect(() => {
- 
-    
+    setTotalPages([])
+    setarray([]);
     fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
-      setarray([]);
+      
       setarray(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
     });

@@ -74,6 +74,8 @@ export default function Profile(props) {
   }
 
   useEffect(() => {
+    setarray([])
+    setTotalPages(null)
     setPageSelected("posts");
     api
       .collection("users")

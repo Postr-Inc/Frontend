@@ -67,13 +67,13 @@ export default function Home() {
   }, [pageSelected]);
 
   function fetchMorePosts() {
+          console.log(page, totalPages)
     if (Number(page) >= Number(totalPages)) {
       setHasMore(false);
-      console.log(page, totalPages)
+ 
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
-        console.log(fetchedPosts)
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
         setTotalPages(fetchedPosts.totalPages)

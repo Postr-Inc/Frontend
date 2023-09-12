@@ -59,6 +59,7 @@ export default function Home() {
   useEffect(() => {
     setTotalPages(0)
     setPosts([]);
+    setPage(1)
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);

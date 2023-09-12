@@ -60,6 +60,7 @@ export default function Home() {
     setTotalPages(0)
     setPosts([]);
     setPage(1)
+    console.log(totalPages, posts)
     if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);

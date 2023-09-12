@@ -60,10 +60,12 @@ export default function Home() {
     setTotalPages(0)
     setPosts([]);
     setPage(1)
+    if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
     });
+    }
   }, [pageSelected]);
 
   function fetchMorePosts() {

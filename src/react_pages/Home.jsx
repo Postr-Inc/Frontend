@@ -58,7 +58,6 @@ export default function Home() {
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
     setPosts([]);
-    console.log(pageSelected);
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
@@ -66,7 +65,7 @@ export default function Home() {
   }, [pageSelected]);
 
   function fetchMorePosts() {
-    if (page >= totalPages) {
+    if (Number(page) >= Number(totalPages)) {
       setHasMore(false);
     } else {
       const nextPage = page + 1;

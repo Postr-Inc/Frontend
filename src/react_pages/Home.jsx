@@ -73,10 +73,10 @@ export default function Home() {
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
-        setTotalPages(fetchedPosts.totalPages)
+        
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
-       
+        setTotalPages(fetchedPosts.totalPages)
         setHasMore(true)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);

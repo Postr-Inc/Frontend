@@ -68,23 +68,24 @@ export default function Home() {
     });
     }
   }, [pageSelected]);
+ 
+
   useEffect(() => {
-    window.addEventListener("scroll", () => {
-      // half way to the bottom
-      if (
-        window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight  / 2
-      ) {
-        setScrollPosition("bottom");
-      } else {
-        setScrollPosition("top");
+   window.onscroll = () => {
+    // toggle scroll position on doiuble tap
+   window.ontouchstart = (e) => {
+    console.log(e.touches.length)
+      if(e.touches.length === 2){
+        if(scrollPosition === "top"){
+          setScrollPosition("bottom")
+        }else if(e.touches.length === 1){
+          setScrollPosition("top")
+        }
       }
-
-      
-    });
-   
+    }
+  }
+ 
   }, [scrollPosition]);
-
   function fetchMorePosts() {
     if (Number(page)  >= Number(totalPages)) {
       setHasMore(false);
@@ -106,7 +107,7 @@ export default function Home() {
     <div className="p-5 mt-2    ">
      
       <div className="flex flex-row justify-between">
-        <h1 className=" text-2xl" style={{ fontFamily: "Pacifico" }}>
+        <h1 className=" text-2xl text-base-900" style={{ fontFamily: "Pacifico" }}>
           Postr
         </h1>
 

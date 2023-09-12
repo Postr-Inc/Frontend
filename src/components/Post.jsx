@@ -36,6 +36,11 @@ export default function Post(props) {
         });
       }
     }
+    if ("vibrate" in navigator) {
+      navigator.vibrate(500);
+    } else {
+      console.log("Vibration not supported in this browser.");
+    }
   }
 
   return (
@@ -124,7 +129,9 @@ export default function Post(props) {
               ""
             )}
 
-            {props.author.id === api.authStore.model.id ? (
+            {props.author.id === api.authStore.model.id 
+            &&  window.location.pathname === "/u/" + props.author.username  
+            ? (
               <li>
                 <a
                   className="cursor-pointer"
@@ -445,12 +452,13 @@ export default function Post(props) {
           </p>
           <div className="divider h-0 mb-5 opacity-50">Please Select A Reason</div>
           <select
+          defaultValue="Select a reason"
             className="select select-ghost w-full select-sm"
             onChange={(e) => {
                setReport(e.target.value);
             }}
           >
-            <option disabled="disabled" selected="selected">
+            <option disabled="disabled"  >
               Select a reason
             </option>
             <option value="Inappropriate">Inappropriate</option>

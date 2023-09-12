@@ -194,7 +194,7 @@ export default function Home() {
       <div className="flex flex-row gap-5">
       </div>
       <InfiniteScroll
-        dataLength={posts.length}
+        dataLength={posts.length / totalPages.length}
         next={fetchMorePosts}
         hasMore={hasMore}
         loader={<Loading />} // Display loading indicator while fetching more posts

@@ -57,11 +57,11 @@ export default function Home() {
  
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
-    setTotalPages(0)
+    setHasMore(true)
     if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
-      setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
+      setPosts(fetchedPosts.items);
     });
     }
   }, [pageSelected]);
@@ -73,11 +73,9 @@ export default function Home() {
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
-        
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
         setTotalPages(fetchedPosts.totalPages)
-        setHasMore(true)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);
         });

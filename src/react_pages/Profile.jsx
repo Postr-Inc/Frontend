@@ -18,7 +18,7 @@ export default function Profile(props) {
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
-
+   let [loading, setLoading] = useState(false);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
   const [totalPages, setTotalPages] = useState(0);
@@ -76,6 +76,7 @@ export default function Profile(props) {
   useEffect(() => {
     setarray([])
     setTotalPages(null)
+    setLoading(true)
     api
       .collection("users")
       .getFirstListItem(`username="${props.user}"`)
@@ -104,7 +105,11 @@ export default function Profile(props) {
       fetchInfo("posts", 1).then(function (fetchedPosts) {
         setarray(fetchedPosts.items);
         setTotalPages(fetchedPosts.totalPages);
+        
       });
+    }
+    if(array.length > 0){
+      setLoading(false)
     }
   }, [props.user]);
 
@@ -114,11 +119,16 @@ export default function Profile(props) {
     setarray([]);
     setPage(1);
     if(pageSelected){
+      setLoading(true)
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
       
       setarray(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
+       
     });
+    }
+    if(array.length > 0){
+      setLoading(false)
     }
   }, [pageSelected]);
 
@@ -464,9 +474,11 @@ export default function Profile(props) {
                 array.map((p) => {
                   if (p.expand && p.expand.author) {
                     return (
-                      <div className="mb-16">
+                      <div className="mb-16"
+                      key={p.id}
+                      >
                         <Post
-                          key={p.id}
+                          
                           id={p.id}
                           file={p.file}
                           pinned={p.pinned}
@@ -500,7 +512,7 @@ export default function Profile(props) {
                         }}
                       >
                         <Comment
-                          key={id}
+                        
                           id={c.id}
                           text={c.text}
                           likes={c.likes}
@@ -575,10 +587,50 @@ export default function Profile(props) {
                   }
                 })
               ) : (
-                <></>
+                <div className="flex    mt-0">
+                <h1 className="font-bold  ">
+                   {profile.$dead ? "This account is private"
+                   
+                 :  
+                 pageSelected === "collections" && array.length < 1
+                 && !loading
+                 ? 
+                 <>
+                 <h1 className="text-2xl w-64">
+                  Likes ❤️ Cameras ....  action! 🎬
+                 </h1>
+                 <p className="mt-4 text-slate-800 font-normal">
+                   {
+                    props.user === api.authStore.model.username ?
+                    ` Your photo and video posts will show up here.`
+                    : `  When ${props.user} posts a image or video post, it'll show up here.`
+                   }
+                 </p>
+                 </>
+                 : pageSelected === "likes" && array.length < 1
+                 && !loading
+                 ?
+                 <>
+                 <h1 className="text-2xl w-64">
+                  Go like some posts!
+                 </h1>
+                 <p className="mt-4 text-slate-800 font-normal">
+                   {
+                    props.user === api.authStore.model.username ?
+                    `  When you like a post, it'll show up here.`
+                    : `  When ${props.user} likes a post, it'll show up here.`
+                   }
+                 </p>
+                 </>
+                 : <></>
+                 } 
+                 
+                </h1>
+               </div>
               )}
             </InfiniteScroll>
           )}
+            
         </div>
       </div>
 

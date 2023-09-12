@@ -57,25 +57,24 @@ export default function Home() {
  
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
-    setHasMore(true)
-    if(pageSelected){
+    setTotalPages(0)
+    setPosts([]);
+    setPage(1)
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
-      setTotalPages(fetchedPosts.totalPages);
       setPosts(fetchedPosts.items);
+      setTotalPages(fetchedPosts.totalPages);
     });
-    }
   }, [pageSelected]);
 
   function fetchMorePosts() {
     if (Number(page) >= Number(totalPages)) {
       setHasMore(false);
- 
+      console.log(page, totalPages)
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
-        setTotalPages(fetchedPosts.totalPages)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);
         });
@@ -190,7 +189,7 @@ export default function Home() {
       <div className="flex flex-row gap-5">
       </div>
       <InfiniteScroll
-        dataLength={posts.length / totalPages.length}
+        dataLength={posts.length}
         next={fetchMorePosts}
         hasMore={hasMore}
         loader={<Loading />} // Display loading indicator while fetching more posts

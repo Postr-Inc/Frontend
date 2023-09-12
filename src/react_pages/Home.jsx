@@ -17,9 +17,9 @@ function fetchPosts(page, pageSelected) {
         pageSelected === "posts"
           ? "-created"
           : "" || pageSelected === "recommended"
-          ? "author.followers"
+          ? "-author.followers"
           : "" || pageSelected === "top"
-          ? "-likes, -created"
+          ? "likes, -created"
           : ""
           
       }
@@ -29,7 +29,7 @@ function fetchPosts(page, pageSelected) {
         pageSelected === "posts"
           ? `author.followers ?~ "${api.authStore.model.id}" && author.id != "${api.authStore.model.id}" && author.deactivated != true`
           : "" || pageSelected === "recommended"
-          ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id} && author.deactivated != true"`
+          ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id}" && author.deactivated != true"`
           : "" || pageSelected === "top"
           ? `  author.id != "${api.authStore.model.id}" && author.deactivated != true`
           : ""

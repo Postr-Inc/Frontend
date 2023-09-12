@@ -77,6 +77,7 @@ export default function Home() {
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
         setTotalPages(fetchedPosts.totalPages)
+        setHasMore(true)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);
         });

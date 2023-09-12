@@ -18,7 +18,7 @@ export default function Profile(props) {
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
-   let [loading, setLoading] = useState(false);
+   let [loading, setLoading] = useState(true)
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
   const [totalPages, setTotalPages] = useState(0);
@@ -76,7 +76,7 @@ export default function Profile(props) {
   useEffect(() => {
     setarray([])
     setTotalPages(null)
-    setLoading(true)
+   
     api
       .collection("users")
       .getFirstListItem(`username="${props.user}"`)
@@ -96,6 +96,7 @@ export default function Profile(props) {
         setProfile(res);
         setFollowers(res.followers ? res.followers : []);
       });
+      
     if (
       (profile.followers &&
         profile.followers.includes(api.authStore.model.id) &&
@@ -103,13 +104,15 @@ export default function Profile(props) {
       (!profile.Isprivate && !profile.deactivated)
     ) {
       fetchInfo("posts", 1).then(function (fetchedPosts) {
+        if(fetchedPosts.items.length < 10){
+          setHasMore(false)
+        }else if (fetchedPosts.items > 1){
+          setLoading(true)
+        }
         setarray(fetchedPosts.items);
         setTotalPages(fetchedPosts.totalPages);
-        
+   
       });
-    }
-    if(array.length > 0){
-      setLoading(false)
     }
   }, [props.user]);
 
@@ -119,17 +122,20 @@ export default function Profile(props) {
     setarray([]);
     setPage(1);
     if(pageSelected){
-      setLoading(true)
+     
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
-      
+      if(fetchedPosts.items.length < 10){
+        setHasMore(false)
+      }else if (fetchedPosts.items > 1){
+        setLoading(true)
+      }else if (fetchedPosts.items.length < 1){
+        setLoading(false)
+      }
       setarray(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
-       
     });
     }
-    if(array.length > 0){
-      setLoading(false)
-    }
+   
   }, [pageSelected]);
 
   function fetchMore() {
@@ -589,7 +595,10 @@ export default function Profile(props) {
               ) : (
                 <div className="flex    mt-0">
                 <h1 className="font-bold  ">
-                   {profile.$dead ? "This account is private"
+                   {profile.$dead       && !loading ? 
+                   
+              
+                   "This account is private"
                    
                  :  
                  pageSelected === "collections" && array.length < 1
@@ -612,7 +621,11 @@ export default function Profile(props) {
                  ?
                  <>
                  <h1 className="text-2xl w-64">
-                  Go like some posts!
+                  {
+                    props.user === api.authStore.model.username ?
+                    ` Go like some posts!`
+                    : `  ${props.user} hasn't liked any posts yet.`
+                  }
                  </h1>
                  <p className="mt-4 text-slate-800 font-normal">
                    {

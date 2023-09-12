@@ -112,6 +112,7 @@ export default function Profile(props) {
   useEffect(() => {
     setTotalPages([])
     setarray([]);
+    setPage(1);
     if(pageSelected){
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
       
@@ -122,17 +123,14 @@ export default function Profile(props) {
   }, [pageSelected]);
 
   function fetchMore() {
-    if (Number(page) >= Number(totalPages)) {
-      setHasMore(false);
-      return
-    } else {
+    
       
       fetchInfo(pageSelected, page + 1).then(function (fetchedPosts) {
         setPage(page + 1);
         setarray([...array, ...fetchedPosts.items]);
         setTotalPages(fetchedPosts.totalPages);
       });
-    }
+     
   }
 
   function edit() {
@@ -457,6 +455,8 @@ export default function Profile(props) {
               dataLength={array.length}
               next={fetchMore}
               hasMore={hasMore}
+          
+
             >
               {pageSelected === "posts" &&
               profile.$dead === undefined &&

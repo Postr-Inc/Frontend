@@ -207,7 +207,7 @@ export default function Home() {
       </div>
      {
       scrollPosition === "bottom" ?  <div className="flex justify-center mx-auto">
-      <div className="fixed btn btn-circle btn-sm opacity-25 hover:opacity-80 touch:opacity-80" onClick={()=>{{
+      <div className="fixed btn btn-circle btn-sm opacity-25 hover:opacity-80 z-[9999] touch:opacity-80" onClick={()=>{{
          // scroll to the first post
           window.scrollTo({top:0, behavior:"smooth"})
       }}}>

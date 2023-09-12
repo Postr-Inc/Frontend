@@ -2,7 +2,7 @@ import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useEffect, useState } from "react";
 export default function Comment(props) {
-  console.log(props);
+ 
   let [likes, setLikes] = useState(props.likes);
   
   function likepost() {
@@ -52,7 +52,9 @@ export default function Comment(props) {
   } 
  
   return (
-    <div className="flex flex-col text-sm mb-[35px]   ">
+    <div className="flex flex-col text-sm mb-[35px]   "
+    id={props.id}
+    >
        {
             likes && likes.length > 0     &&  likes.includes(props.post.author)
             && props.author !== props.post.author
@@ -184,7 +186,13 @@ export default function Comment(props) {
           }
         }}
       ></p>
- 
+      
+     {
+      window.location.pathname === "/u/" + props.user.username ? 
+      <span className="text-xs text-gray-500 mt-2">
+        Replied to <a className="text-sky-500" href={`/p/${props.post.id}`}> @{props.post.expand.author.username}</a>
+      </span> : ""
+     }
    
        
 

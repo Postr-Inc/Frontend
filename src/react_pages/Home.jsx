@@ -19,7 +19,7 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "recommended"
           ? "author.followers:length,-likes:length,-created"
           : "" || pageSelected === "top"
-          ? "-created,-likes:length"
+          ? "-created,-likes"
           : ""
           
       }
@@ -31,7 +31,7 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "recommended"
           ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id} && author.deactivated != true"`
           : "" || pageSelected === "top"
-          ? `  author.id != "${api.authStore.model.id}" && author.deactivated != true`
+          ? ` author.id != "${api.authStore.model.id}" && author.deactivated != true`
           : ""
       }
 
@@ -57,13 +57,16 @@ export default function Home() {
  
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
-    setPosts([]);
     setPage(1);
-    setTotalPages(0);
+    setPosts([]);
+    setComments([]);
+    setHasMore(true);
+    if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
     });
+    }
   }, [pageSelected]);
 
   function fetchMorePosts() {

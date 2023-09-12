@@ -58,8 +58,6 @@ export default function Home() {
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
     setTotalPages(0)
-    setPosts([]);
-    setPage(1)
     if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);

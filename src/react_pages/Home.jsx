@@ -75,6 +75,7 @@ export default function Home() {
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
+        setTotalPages(fetchedPosts.totalPages)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);
         });

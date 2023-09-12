@@ -17,9 +17,9 @@ function fetchPosts(page, pageSelected) {
         pageSelected === "posts"
           ? "-created"
           : "" || pageSelected === "recommended"
-          ? "-author.followers"
+          ? "author.followers:length,-likes:length,-created"
           : "" || pageSelected === "top"
-          ? "-likes, -created"
+          ? "-created,-likes:length"
           : ""
           
       }
@@ -27,11 +27,11 @@ function fetchPosts(page, pageSelected) {
       filter: `
       ${
         pageSelected === "posts"
-          ?  `author.followers ~ "${api.authStore.model.id}" && author.id != "${api.authStore.model.id}" && author.deactivated != true`
+          ? `author.followers ~ "${api.authStore.model.id}" && author.id != "${api.authStore.model.id}" && author.deactivated != true`
           : "" || pageSelected === "recommended"
-          ? `author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id}" && author.deactivated != true`
+          ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id} && author.deactivated != true"`
           : "" || pageSelected === "top"
-          ? `author.id != "${api.authStore.model.id}" && author.deactivated != true`
+          ? `  author.id != "${api.authStore.model.id}" && author.deactivated != true`
           : ""
       }
 
@@ -57,9 +57,9 @@ export default function Home() {
  
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
-    setTotalPages(0)
     setPosts([]);
-    setPage(1)
+    setPage(1);
+    setTotalPages(0);
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
@@ -67,9 +67,8 @@ export default function Home() {
   }, [pageSelected]);
 
   function fetchMorePosts() {
-    if (Number(page) >= Number(totalPages)) {
+    if (page >= totalPages) {
       setHasMore(false);
-      console.log(page, totalPages)
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
@@ -183,7 +182,7 @@ export default function Home() {
             pageSelected === "top" ? "underline underline-offset-[10px]" : ""
           } `}
         >
-          Top Posts
+         Trending
         </a>
       </div>
       <div className="flex flex-row gap-5">
@@ -216,7 +215,7 @@ export default function Home() {
                   bookmarked={post.bookmarked}
                 />
 
-                <Modal id={"moreinfo" + post.id} height="h-75">
+                <Modal id={"moreinfo" + post.id} height="h-75 modal-box">
                   <button className="flex justify-center mx-auto focus:outline-none">
                     <div className="divider  text-slate-400  w-12   mt-0"></div>
                   </button>

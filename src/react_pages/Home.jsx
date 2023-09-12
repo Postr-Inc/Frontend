@@ -73,6 +73,7 @@ export default function Home() {
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
+        console.log(fetchedPosts)
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
         setTotalPages(fetchedPosts.totalPages)

@@ -17,7 +17,7 @@ export default function Profile(props) {
     profile.followers ? profile.followers : []
   );
   let [hasRequested, setHasRequested] = useState(false);
-  let [pageSelected, setPageSelected] = useState("");
+  let [pageSelected, setPageSelected] = useState("posts");
 
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
@@ -76,7 +76,6 @@ export default function Profile(props) {
   useEffect(() => {
     setarray([])
     setTotalPages(null)
-    setPageSelected("posts");
     api
       .collection("users")
       .getFirstListItem(`username="${props.user}"`)
@@ -113,11 +112,13 @@ export default function Profile(props) {
   useEffect(() => {
     setTotalPages([])
     setarray([]);
-    fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
+    if(pageSelected){
+      fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
       
       setarray(fetchedPosts.items);
       setTotalPages(fetchedPosts.totalPages);
     });
+    }
   }, [pageSelected]);
 
   function fetchMore() {

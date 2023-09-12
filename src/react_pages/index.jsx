@@ -52,7 +52,7 @@ export default function App() {
         
 
         window.onerror = (e) =>{
-            alert(JSON.stringify({dead_or_die: e, message: "Alert Developers"})
+            alert(JSON.stringify({dead_or_die: e, message: "Alert Developers"}))
         }
 
     }, [])

@@ -60,7 +60,6 @@ export default function Home() {
     setTotalPages(0)
     setPosts([]);
     setPage(1)
-    console.log(totalPages, posts)
     if(pageSelected){
     fetchPosts(1, pageSelected).then((fetchedPosts) => {
       setPosts(fetchedPosts.items);
@@ -70,16 +69,16 @@ export default function Home() {
   }, [pageSelected]);
 
   function fetchMorePosts() {
-          console.log(page, totalPages)
     if (Number(page) >= Number(totalPages)) {
       setHasMore(false);
  
     } else {
       const nextPage = page + 1;
       fetchPosts(nextPage, pageSelected).then((fetchedPosts) => {
+        setTotalPages(fetchedPosts.totalPages)
         setPage(nextPage);
         setPosts([...posts, ...fetchedPosts.items]);
-        setTotalPages(fetchedPosts.totalPages)
+       
         setHasMore(true)
         fetchPosts.items?.map((post) => {
           setComments([...comments, ...post.expand.comments]);

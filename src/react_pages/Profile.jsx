@@ -306,7 +306,7 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  "
+                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  uppercase"
                     onClick={() => {
                       document.getElementById("editprofile").showModal();
                     }}
@@ -314,7 +314,7 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`btn btn-sm btn-ghost w-full border-slate-200
+                    className={`btn btn-sm btn-ghost w-full uppercase border-slate-200
                     ${
                       document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white' : 'text-[#121212]'
                     }

@@ -248,6 +248,7 @@ export default function Home() {
                   created={post.created}
                   bookmarked={post.bookmarked}
                 />
+                <div className="divider mt-0 h-0 opacity-50"></div>
 
                 <Modal id={"moreinfo" + post.id} height="h-75 modal-box">
                   <button className="flex justify-center mx-auto focus:outline-none">

@@ -43,10 +43,12 @@ const { title, description, image } = Astro.props;
       }
       
     </style>
-    <script>
-      localStorage.getItem("theme") === "dark"
-      ? (document.documentElement.dataset.theme = "black")
-      : (document.documentElement.dataset.theme = "light");
+    <script is:inline>
+       if(localStorage.getItem('theme') == 'black'){
+        document.documentElement.setAttribute('data-theme', 'black');
+      }else{
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     </script>
  <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,400&display=swap');

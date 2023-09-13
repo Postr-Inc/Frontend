@@ -195,7 +195,7 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                    p-2 mt-2"
                     style={{width:'fit-content'}}
                   >
-                    {theme ? "Dark" : "Light"}
+                    {theme ? "Night" : "Light"}
                   </div>
                 </div>
                 <input

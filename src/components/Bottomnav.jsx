@@ -187,6 +187,7 @@ export default function Bottomnav() {
 
           document.getElementById("success").classList.add("hidden");
         };
+        setModalisOpen(false);
       })
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
@@ -217,6 +218,7 @@ export default function Bottomnav() {
           document.getElementById("success").classList.remove("text-error");
         };
         document.getElementById("newpost").close();
+        setModalisOpen(false);
         document.activeElement.blur();
       });
   }

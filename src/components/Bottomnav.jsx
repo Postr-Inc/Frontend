@@ -290,7 +290,7 @@ export default function Bottomnav() {
                 w-7 h-7
                 cursor-pointer
                  ${ 
-                  theme === "black" ? "fill-slate-200" : ""
+                  theme === "black" ? "fill-white" : ""
                  }
                 `}
                 xmlns="http://www.w3.org/2000/svg"
@@ -310,7 +310,7 @@ export default function Bottomnav() {
               <svg
                   className={`
                 w-7 h-7
-                 ${theme === "black" ? "fill-base-300" : "fill-slate-200"}
+                 ${theme === "black" ? "fill-[#232323]" : "fill-slate-200"}
                 `}
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -333,7 +333,9 @@ export default function Bottomnav() {
           {window.location.origin + window.location.pathname ===
           window.location.origin + "/q" ? (
             <svg
-              className="w-7 h-7   cursor-pointer"
+              className={`w-7 h-7 ${
+                theme === "black" ? " text-white" : ""
+              } cursor-pointer`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -353,7 +355,11 @@ export default function Bottomnav() {
             </svg>
           ) : (
             <svg
-              className="w-7 h-7  text-base-300 cursor-pointer"
+              className={`
+              w-7 h-7
+              cursor-pointer
+              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              `}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -402,9 +408,11 @@ export default function Bottomnav() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-7 h-7
-            cursor-pointer text-base-300 
-            "
+              className={`
+              w-7 h-7
+              cursor-pointer
+              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              `}
               onClick={() => {
                 document.getElementById("newpost").showModal();
                 setModalisOpen(true);
@@ -424,7 +432,11 @@ export default function Bottomnav() {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-7 h-7 cursor-pointer"
+              className={`
+              w-7 h-7
+              cursor-pointer
+              ${theme === "black" ? "fill-white" : "fill-black"}
+              `}
               onClick={() => {
                 if (!window.location.href === "/notifications") {
                   return;
@@ -446,7 +458,11 @@ export default function Bottomnav() {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-7 h-7 text-base-300 cursor-pointer"
+              className={`
+              w-7 h-7
+              cursor-pointer
+              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              `}
             >
               <path
                 strokeLinecap="round"

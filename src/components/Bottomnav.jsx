@@ -209,6 +209,7 @@ export default function Bottomnav() {
     document.getElementById("newpost").close();
     document.activeElement.blur();
       })
+  }
       
     
   return (

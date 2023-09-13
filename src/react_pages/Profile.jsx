@@ -72,6 +72,27 @@ export default function Profile(props) {
         return res;
       });
   }
+  useEffect(() => {
+    let theme = localStorage.getItem('theme')
+	 
+    if(!theme){
+      localStorage.setItem('theme', 'black')
+      document.querySelector('html').setAttribute('data-theme', 'black')
+  
+    }else{
+      document.querySelector('html').setAttribute('data-theme', theme)
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if(e.matches){
+          document.querySelector('html').setAttribute('data-theme', 'black')
+          localStorage.setItem('theme', 'black')
+        }else{
+          document.querySelector('html').setAttribute('data-theme', 'white')
+          localStorage.setItem('theme', 'white')
+        }
+      })
+  
+    }
+  }, [])
 
   useEffect(() => {
     setarray([])
@@ -114,6 +135,7 @@ export default function Profile(props) {
    
       });
     }
+    
   }, [props.user]);
 
   let [page, setPage] = useState(1);
@@ -266,7 +288,7 @@ export default function Profile(props) {
               <span className="">
                 <img
                   src="/icons/verified.png"
-                  className="w-5 h-5 absolute border-white border-1 bg-white  bottom-0  left-0
+                  className="w-5 h-5 absolute border-white border-1 bg-base-300  bottom-0  left-0
           rounded-full
            
           "
@@ -292,7 +314,11 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className="btn btn-sm btn-ghost w-full border-slate-200 text-[#121212] rounded-md "
+                    className={`btn btn-sm btn-ghost w-full border-slate-200
+                    ${
+                      document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white' : 'text-[#121212]'
+                    }
+                    rounded-md `}
                     onClick={() => {
                       navigator.share({
                         title: `Follow ${profile.username} on Postr!`,
@@ -312,8 +338,15 @@ export default function Profile(props) {
                       <button
                         className={`${
                           hasRequested
-                            ? "text-[#12121212] btn-ghost border-slate-200"
-                            : "bg-[#121212] text-white"
+                            ? `
+                             ${
+                                document.querySelector('html').getAttribute('data-theme') === 'black' ? ` text-white btn-ghost border-slate-200 ` :
+                                ` text-[#12121212] btn-ghost border-slate-200 `
+                             }
+                            `
+                            : 
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? `bg-[#121212] text-white` :
+                            `bg-white text-[#121212]`
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={() => {
                           alert("Request sent!");
@@ -322,7 +355,13 @@ export default function Profile(props) {
                         {hasRequested ? "Requested" : "Request Access"}
                       </button>
                       <button
-                        className="btn btn-sm btn-ghost w-full border-slate-200 text-[#121212] rounded-md "
+                        className={`
+                         btn btn-sm btn-ghost w-full  ${
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                             'text-[#121212]'
+                         }
+                        
+                        `}
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
@@ -339,8 +378,9 @@ export default function Profile(props) {
                         className={`${
                           followers &&
                           followers.includes(api.authStore.model.id)
-                            ? "text-[#121212] btn-ghost border-slate-200"
-                            : "bg-[#121212] text-white"
+                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                            'text-white bg-black hover:bg-black focus:bg-black'
+                            : ""
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={debounce(follow, 1000)}
                       >
@@ -349,7 +389,13 @@ export default function Profile(props) {
                           : "Follow"}
                       </button>
                       <button
-                        className="btn btn-sm btn-ghost w-full border-slate-200 text-[#121212] rounded-md "
+                        className={`
+                          btn btn-sm btn-ghost w-full  ${
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                              'text-[#121212] border-slate-200'
+                          }
+
+                        `}
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
@@ -495,6 +541,13 @@ export default function Profile(props) {
                           created={p.created}
                           image={p.image}
                           post={p}
+                          ondelete={() => {
+                            let index = array.indexOf(p);
+                            array.splice(index, 1);
+                            setarray([...array]);
+                            document.getElementById(p.id).remove();
+                            api.collection("posts").delete(p.id);
+                          }}
                         />
                       </div>
                     );
@@ -556,6 +609,13 @@ export default function Profile(props) {
                           content={l.content}
                           likes={l.likes}
                           comments={l.comments}
+                          ondelete={() => {
+                            let index = array.indexOf(l);
+                            array.splice(index, 1);
+                            setarray([...array]);
+                            document.getElementById(id).remove();
+                            api.collection("posts").delete(l.id);
+                          }}
                         />
                       </div>
                     );
@@ -595,14 +655,15 @@ export default function Profile(props) {
               ) : (
                 <div className="flex    mt-0">
                 <h1 className="font-bold  ">
-                   {profile.$dead       && !loading ? 
+                   {profile.$dead ? 
                    
               
                    "This account is private"
                    
                  :  
                  pageSelected === "collections" && array.length < 1
-                 && !loading
+               
+                 
                  ? 
                  <>
                  <h1 className="text-2xl w-64">
@@ -647,7 +708,11 @@ export default function Profile(props) {
         </div>
       </div>
 
-      <Modal id="editprofile" height="h-screen">
+      <Modal id="editprofile" height={`
+      h-screen ${
+        document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-200 rounded' : 'bg-white'
+      }
+      `}>
         <button className="flex justify-center mx-auto focus:outline-none">
           <div className="divider  text-slate-400  w-12   mt-0"></div>
         </button>
@@ -680,7 +745,7 @@ export default function Profile(props) {
             <input
               type="text"
               placeholder={profile.username}
-              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   focus:outline-none focus:ring-0"
+              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300  bg-transparent  focus:outline-none focus:ring-0"
               onInput={(e) => {
                 setedited({ ...edited, username: e.target.value });
               }}
@@ -692,7 +757,7 @@ export default function Profile(props) {
             <input
               type="text"
               placeholder={profile.bio}
-              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   focus:outline-none focus:ring-0"
+              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   bg-transparent focus:outline-none focus:ring-0"
               onChange={(e) => {
                 let val = sanitizeHtml(e.target.value, {
                   allowedTags: [],
@@ -714,8 +779,8 @@ export default function Profile(props) {
                 <span className="label-text">Private Profile</span>
                 <input
                   type="checkbox"
-                  className="toggle"
-                  checked={profile.Isprivate ? true : false}
+                  className={`toggle rounded-full`}
+                  {...edited.Isprivate ? "checked" : ""}
                   onInput={(e) => {
                     setedited({ ...edited, Isprivate: e.target.checked });
                   }}

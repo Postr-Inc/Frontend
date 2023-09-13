@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRe, useEffect } from "react";
 import { api, oneSignal } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
@@ -11,7 +11,29 @@ export default function Settings() {
     localStorage.getItem("notifications") === "true" ? true : false
   );
   let [recommendation_ratings, setrecommendation_ratings] = useState(localStorage.getItem("recommendation_ratings") === "true" ? true : false);
+  let [theme, setTheme] = useState(localStorage.getItem("theme") === "black" ? true : false);
 
+  useEffect(() => {
+    
+    let theme = localStorage.getItem('theme')
+		if(!theme){
+			localStorage.setItem('theme', 'black')
+			document.querySelector('html').setAttribute('data-theme', 'black')
+	
+		}else{
+			document.querySelector('html').setAttribute('data-theme', theme)
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+				if(e.matches){
+					document.querySelector('html').setAttribute('data-theme', 'black')
+					localStorage.setItem('theme', 'black')
+				}else{
+					document.querySelector('html').setAttribute('data-theme', 'white')
+					localStorage.setItem('theme', 'white')
+				}
+			})
+	
+		}
+  }, [theme])
   return (
     <>
       <div className="p-2 w-scree font-normal text-sm mb-24">
@@ -50,7 +72,10 @@ export default function Settings() {
           </div>
         </div>
         <div className="flex flex-col p-5">
-          <div className="card card-compact w-full bg-base-100  shadow">
+          <div className={`card card-compact w-full  ${
+
+document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-base-200' : ''
+}   rounded mt-8  shadow`}>
             
             <h1
               className="text-md font-bold   p-5 "
@@ -130,7 +155,7 @@ export default function Settings() {
               <div className="flex flex-row ">
                 <div className="flex flex-col">
                   <p>Recommendation Ratings </p>
-                  <span className="text-xs text-gray-500 w-60">
+                  <span className="text-xs text-gray-500 w-60 text-start">
                     Get Prompted to share input to better organize your feed
                   </span>
                 </div>
@@ -141,6 +166,7 @@ export default function Settings() {
                   toggle
                   ${recommendation_ratings ? "bg-sky-500" : "bg-slate-200"}
                    border-slate-200
+                   rounded-full
                    absolute
                      right-5    
                   `}
@@ -159,10 +185,54 @@ export default function Settings() {
                   }}
                 />
               </div>
+              <div className="flex flex-row mt-8 ">
+                <div className="flex flex-col">
+                  <p>Theme </p>
+                  <span className="text-xs text-gray-500 w-60 text-start">
+                     Change the theme of the app
+                  </span>
+                  <div className="badge badge-xs badge-outline
+                   p-2 mt-2"
+                    style={{width:'fit-content'}}
+                  >
+                    {theme ? "Dark" : "Light"}
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  value=""
+                  className={`
+                  toggle
+                  ${theme   ? "bg-sky-500" : "bg-slate-200"}
+                   border-slate-200
+                   rounded-full
+                   absolute
+                     right-5    
+                  `}
+                    {
+                      ...(theme ? { checked: true } : {})
+                    }
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      // request permission
+                      localStorage.setItem("theme", 'black');
+                      setTheme(true)
+                      document.querySelector('html').setAttribute('data-theme', 'black')
+                     
+                    } else {
+                      e.target.checked = false;
+                      localStorage.setItem("theme", 'white');
+                      setTheme(false)
+                      document.querySelector('html').setAttribute('data-theme', 'light')
+                       
+                    }
+                  }}
+                />
+              </div>
               
             </div>
             <h1
-              className="text-md font-bold   p-5 "
+              className="text-md font-bold    p-5"
               aria-label="General Settings"
             >
               Notifications / Privacy
@@ -184,6 +254,7 @@ export default function Settings() {
                   toggle
                   ${notificationsOn ? "bg-sky-500" : "bg-slate-200"}
                    border-slate-200
+                   rounded-full
                    absolute
                      right-5    
                   `}
@@ -216,6 +287,7 @@ export default function Settings() {
                   <span className={`badge badge-xs badge-outline
                   
                   p-2 mt-2 
+                  rounded-full
                   ${
                     emailVisibility ? "badge-error" : "badge-success"
                   }
@@ -235,6 +307,7 @@ export default function Settings() {
                   ${emailVisibility ? "bg-sky-500" : "bg-slate-200"}
                    absolute right-5
                    border-slate-200
+                    rounded-full
                   `}
                   {...(emailVisibility ? { checked: true } : {})}
                   onChange={(e) => {
@@ -266,9 +339,37 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+            <h1
+              className="text-md font-bold    p-5"
+              aria-label="General Settings"
+            >
+              Usage / Data
+            </h1>
+            <div className="card-body flex flex-col">
+              <div className="flex flex-row gap-5">
+                <div className="flex flex-col">
+                  <p>Usage</p>
+                  <span className="text-xs text-gray-500 w-60 mt-2">
+                    View your usage statistics.
+                  </span>
+
+                  <a
+                    href="/usage"
+                    className="text-sm text-sky-500 cursor-pointer absolute right-5"
+                  >
+                    View
+                  </a>
+                  </div>
+
+                  </div>
+                
+            </div>
           </div>
 
-          <div className="card card-compact w-full bg-base-100 mt-8 shadow">
+          <div className={`card card-compact w-full  ${
+
+document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-base-200' : ''
+}   rounded mt-8  shadow`}>
             <h1 className="text-md font-bold  p-5  ">Support</h1>
             <div className="card-body flex flex-col">
               <div className="flex flex-row gap-5">
@@ -328,7 +429,7 @@ export default function Settings() {
           </div>
         </div>
         <span className="mx-auto text-sm flex justify-center mb-2">
-            v6.0.1 Flying Fox
+            v6.0.2 Flying Fox
         </span>
         <span className="mx-auto text-sm flex justify-center">
             &copy; 2023 Postr Inc. All Rights Reserved.

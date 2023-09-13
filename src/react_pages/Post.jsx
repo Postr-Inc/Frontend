@@ -33,6 +33,13 @@ export default function Vpost(props) {
       setComments([...comments, c]);
       setComment("");
       setChars(0);
+      document.querySelector("#success").classList.toggle("hidden");
+      document.querySelector("#success").addEventListener("click", () => {
+        console.log("clicked")
+        document.querySelector("#success").classList.add("hidden");
+        document.getElementById(c.id).scrollIntoView();
+      })
+
 
       await api.collection("posts").update(props.id, {
         comments: JSON.stringify([...post.comments, c.id]),
@@ -47,7 +54,8 @@ export default function Vpost(props) {
           post: props.id,
           body:  `${comment.substring(0, 50)}...`,
           notification_title: `${api.authStore.model.username} commented on your post`,
-          notification_body: comment.substring(0, 50),
+          notification_body:  `${comment}`,
+          url: `/p/${props.id}`
         }) 
       }
     } else {
@@ -113,6 +121,7 @@ export default function Vpost(props) {
   
   return (
     <div className="flex flex-col text-sm  p-5   ">
+      
       <div className="  flex flex-row justify-between">
          <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -135,6 +144,7 @@ export default function Vpost(props) {
         > Postr</h1>
         <div></div>
       </div>
+       
       <div className=" mt-8">
         {post.author ? (
           <>
@@ -145,6 +155,7 @@ export default function Vpost(props) {
               content={post.content}
               comments={post.expand.comments ? post.expand.comments : []}
               file={post.file ? post.file : ""}
+              bookmarked={post.bookmarked}
             />
 
             <div className="divider mt-0 h-2  opacity-[30%]"></div>
@@ -160,7 +171,10 @@ export default function Vpost(props) {
             comments.map((comment) => {
               let key = Math.random();
               return (
-                <div key={key} >
+                <div key={key} 
+                
+                id={comment.id}
+                >
                 
                   <Comment
                     id={comment.id}
@@ -212,17 +226,27 @@ export default function Vpost(props) {
           )}
         </div>
       </div>
+      
       <div className="mt-8">
-        <div className="fixed h-24  bottom-0    bg-white left-0 ">
+        <div className={`fixed h-24  bottom-0  m-0   left-0
+        ${
+          document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-100' : 'bg-white'
+        }
+        `}>
           <div className="form-control  justify-center mx-auto w-screen   p-5 ">
             <label className="input-group      ">
-              <span className="bg-transparent border border-slate-200 border-r-0  ">
+              <span className="bg-transparent border border-base-300 border-r-0  "
+               style={{
+                borderRadius:  document.querySelector('html').getAttribute('data-theme') ===  'black' ?  '0.375rem 0 0 0.375rem' : ''
+             }}
+              >
                 <img
                   src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="w-6 h-6 absolute left-8 rounded-full bg-transparent object-cover"
                   alt="post image"
                 />
               </span>
+              
               <dialog id="emojimodal" className="modal">
                 
                 <div className="modal-box overflow-y-scroll">
@@ -275,8 +299,9 @@ export default function Vpost(props) {
                   <button>close</button>
                 </form>
               </dialog>
+               
               <span
-                className="bg-transparent border border-slate-200 border-r-0
+                className="bg-transparent border border-base-300 border-r-0
               text-sky-500 border-l-0 text-lg"
               >
                 <label className="swap swap-flip ">
@@ -298,7 +323,13 @@ export default function Vpost(props) {
                 placeholder={`Reply to ${
                   post.author ? post.expand.author.username : ""
                 }`}
-                className="input input-sm h-[2.5rem]  w-full text-sm   border border-slate-200  focus:outline-none border-l-0 border-r-0"
+                className={`
+                
+                input input-sm h-[2.5rem]  w-full text-sm   border border-base-300  focus:outline-none border-l-0 border-r-0
+                ${
+                  document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-100 rounded-full' : 'bg-white'
+                }
+                `}
                 ref={commentRef}
                 onInput={(e) => {
                   e.target.focus();
@@ -312,11 +343,17 @@ export default function Vpost(props) {
                 }}
               />
               <span
-                className="bg-transparent border cursor-pointer text-fsm border-slate-200 text-sky-500 border-l-0"
+                className={`bg-transparent border cursor-pointer text-fsm border-base-300 text-sky-500 border-l-0
+                
+                `}
+                style={{
+                   borderRadius:  document.querySelector('html').getAttribute('data-theme') ===  'black' ? '0 0.375rem 0.375rem 0' : ''
+                }}
                 {...(chars < 1 ? { disabled: true } : { disabled: false })}
                 onClick={() => {
                   createComment();
                   commentRef.current.value = "";
+                  setChars(0);
                 }}
               >
                 Reply
@@ -354,7 +391,7 @@ export default function Vpost(props) {
           <div className="modal-action  ">
           <form method="dialog">
              
-            <button className="btn btn-sm btn-ghost bg-transparent hover:bg-transparent hover:border-slate-200 focus:border-slate-200 focus:bg-transparent border-slate-200">Ok</button>
+            <button className="btn btn-sm btn-ghost bg-transparent hover:bg-transparent hover:border-base-300 focus:border-base-300 focus:bg-transparent border-base-300">Ok</button>
            </form>
           </div>
          </div>

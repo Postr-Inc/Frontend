@@ -103,7 +103,7 @@ export default function Post(props) {
         ) : (
           ""
         )}
-        <span className="mx-2 text-slate-200">
+        <span className="mx-2 text-slate-300">
         @{props.author.username}
         </span>
 

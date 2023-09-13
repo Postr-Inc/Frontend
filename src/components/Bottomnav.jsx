@@ -170,7 +170,7 @@ export default function Bottomnav() {
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
 
-     try{
+ 
        api
       .collection("posts")
       .create(form)
@@ -189,9 +189,8 @@ export default function Bottomnav() {
         }
  
         
-      });
-     }catch (e){
-       document.getElementById("success").classList.remove("hidden");
+      }).catch((e)=>{
+         document.getElementById("success").classList.remove("hidden");
        document.getElementById("success").innerHTML = `
         <p>
        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-error">
@@ -202,14 +201,16 @@ export default function Bottomnav() {
 </p>
   Post Failed To Send: ${e}
        `
-     }
+    
      document.getElementById("success").onclick = () => {
           console.clear()
           document.getElementById("success").classList.add("hidden");
         }
     document.getElementById("newpost").close();
     document.activeElement.blur();
-  }
+      })
+      
+    
   return (
     <div className=" fixed  bottom-[5vh]  left-[10vw] flex justify-center mx-auto w-[70vw]">
          <div className="p-5">

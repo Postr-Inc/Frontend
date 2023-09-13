@@ -66,6 +66,7 @@ export default function Bottomnav() {
   let [modalisOpen, setModalisOpen] = useState(false);
   let [mentionedUsers, setMentionedUsers] = useState([]);
   let [hasMention, setHasMention] = useState(false);
+  let [error, setError] = useState(false);
   let pRef = useRef();
 
   let [isTyping, setIsTyping] = useState(false);
@@ -183,6 +184,7 @@ export default function Bottomnav() {
         setModalisOpen(false);
         document.getElementById("success").classList.remove("hidden");
         document.getElementById("success").classList.add("flex");
+        setError(false);
         document.getElementById("success").onclick = () => {
           window.location.href = "/p/" + res.id;
 
@@ -192,25 +194,7 @@ export default function Bottomnav() {
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
         document.getElementById("success").classList.add("text-error");
-        document.getElementById("success").innerHTML = `
-         <p class="text-start">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 text-sky-500 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-              />
-            </svg>
-          </p>
-          Post Failed To Send
-       `;
+        setError(true);
 
         document.getElementById("success").onclick = () => {
           console.clear();
@@ -227,26 +211,40 @@ export default function Bottomnav() {
       <div className="p-5">
         <div
           id="success"
-          className="fixed top-12   bg-base-100 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96  
-         "
+          className={`
+          fixed top-12   bg-base-100 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96 
+          ${
+            error ? "text-error" : "text-sky-500"
+          }
+          `}
         >
           <p>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 text-sky-500 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-              />
-            </svg>
+             {
+               !error ? <svg
+               xmlns="http://www.w3.org/2000/svg"
+               fill="none"
+               viewBox="0 0 24 24"
+               strokeWidth={1.5}
+               stroke="currentColor"
+               className="w-6 text-sky-500 h-6"
+             >
+               <path
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+               />
+             </svg>
+             : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6
+             text-error
+             ">
+             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+           </svg>
+           
+             }
           </p>
-          Your post was sent!
+           {
+            error ?  'Error creating post' : 'Your post was sent!'
+           }
         </div>
       </div>
 

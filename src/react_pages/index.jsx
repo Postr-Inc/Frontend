@@ -49,7 +49,8 @@ export default function App() {
             api.collection("users").authRefresh()
             oneSignal()
 
-        } else if (window.matchMedia("(display-mode: browser)").matches) {
+        } 
+	if (window.matchMedia("(display-mode: browser)").matches) {
             window.location.href = "/download"
 
         }

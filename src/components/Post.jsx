@@ -97,7 +97,7 @@ export default function Post(props) {
         {props.author.validVerified ? (
           <img
             src="/icons/verified.png"
-            className="mt-[.4em]"
+            className="mt-[.3em]"
             style={{ width: "13px", height: "13px" }}
           />
         ) : (

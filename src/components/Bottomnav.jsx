@@ -275,7 +275,7 @@ export default function Bottomnav() {
 
       <div className={` border ${theme === 'black' ?   "border-base-300 bg-black" : "bg-white border-base-300"}  mr-2    rounded-2xl w-full h-12 p-2`}
       >
-        <div className="flex flex-row  gap-8  mb-3   justify-between ">
+        <div className="flex flex-row     mb-3   justify-between ">
           <div
             onClick={() => {
               if (window.location.pathname !== "/") {
@@ -470,7 +470,7 @@ export default function Bottomnav() {
             window.location.origin + "/u/" + api.authStore.model.username ? (
               <img
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                className="rounded-full w-7 h-7 mx-2"
+                className="rounded-full w-7 h-7  "
                 alt={api.authStore.model.username + "'s avatar"}
               />
             ) : (

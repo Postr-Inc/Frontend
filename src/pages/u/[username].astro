@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 let { username } = Astro.params
 import Profile from "../../react_pages/Profile";
+import {ViewTransitions} from 'astro:transitions';
 ---
 
 
@@ -10,6 +11,7 @@ import Profile from "../../react_pages/Profile";
  description={'View the profile of ' + username + ' (@'+ username + ') on Postr.'}
  image={""}
 >
+ <ViewTransitions />
  <Profile  client:only
  user={username}
  />

@@ -1,10 +1,12 @@
 ---
 import Layout  from "../layouts/Layout.astro";
 import App from  '../react_pages'
+import {ViewTransitions} from 'astro:transitions';
 ---
-<Layout title="Postr 6.0" description="Postr - Post Share Unite!, at Postr we are empowering a new wave of social media apps and standards!"
+<Layout title="Postr 6.0 Beta" description="Postr - Post Share Unite!, at Postr we are empowering a new wave of social media apps and standards!"
 image="/icons/logo.png"
 >
+ <ViewTransitions/> 
  <App client:only/>
 </Layout>
  

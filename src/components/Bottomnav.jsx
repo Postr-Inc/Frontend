@@ -160,6 +160,7 @@ export default function Bottomnav() {
 
   function createPost() {
     document.getElementById("newpost").close();
+    setModalisOpen(false);
     let form = new FormData();
     if (image) {
       form.append("file", file);
@@ -187,13 +188,12 @@ export default function Bottomnav() {
 
           document.getElementById("success").classList.add("hidden");
         };
-        setModalisOpen(false);
       })
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
         document.getElementById("success").classList.add("text-error");
         document.getElementById("success").innerHTML = `
-         <p>
+         <p class="text-start">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -218,7 +218,6 @@ export default function Bottomnav() {
           document.getElementById("success").classList.remove("text-error");
         };
         document.getElementById("newpost").close();
-        setModalisOpen(false);
         document.activeElement.blur();
       });
   }

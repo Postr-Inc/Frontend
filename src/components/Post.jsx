@@ -103,6 +103,9 @@ export default function Post(props) {
         ) : (
           ""
         )}
+        <span className="mx-2 text-slate-200">
+        @{props.author.username}
+        </span>
 
         <div className="dropdown dropdown-left absolute end-5 ">
           <div className="flex text-sm flex-row gap-5">

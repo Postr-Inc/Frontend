@@ -159,6 +159,7 @@ export default function Bottomnav() {
   }, [pContent]);
 
   function createPost() {
+    document.getElementById("newpost").close();
     let form = new FormData();
     if (image) {
       form.append("file", file);
@@ -170,8 +171,7 @@ export default function Bottomnav() {
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
 
- 
-       api
+    api
       .collection("posts")
       .create(form)
       .then((res) => {
@@ -184,52 +184,63 @@ export default function Bottomnav() {
         document.getElementById("success").classList.add("flex");
         document.getElementById("success").onclick = () => {
           window.location.href = "/p/" + res.id;
- 
+
           document.getElementById("success").classList.add("hidden");
-        }
- 
-        
-      }).catch((e)=>{
-         document.getElementById("success").classList.remove("hidden");
-       document.getElementById("success").innerHTML = `
+        };
+      })
+      .catch((e) => {
+        document.getElementById("success").classList.remove("hidden");
+        document.getElementById("success").classList.add("text-error");
+        document.getElementById("success").innerHTML = `
         <p>
        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-error">
   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
 </svg>
-
+ 
+  Post Failed To Send 
+  
  
 </p>
-  Post Failed To Send: ${e}
-       `
-    
-     document.getElementById("success").onclick = () => {
-          console.clear()
+       `;
+
+        document.getElementById("success").onclick = () => {
+          console.clear();
           document.getElementById("success").classList.add("hidden");
-        }
-    document.getElementById("newpost").close();
-    document.activeElement.blur();
-      })
+          document.getElementById("success").classList.remove("text-error");
+        };
+        document.getElementById("newpost").close();
+        document.activeElement.blur();
+      });
   }
-      
-    
+
   return (
     <div className=" fixed  bottom-[5vh]  left-[10vw] flex justify-center mx-auto w-[70vw]">
-         <div className="p-5">
-         <div id="success" className="fixed top-12   bg-base-100 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96  
+      <div className="p-5">
+        <div
+          id="success"
+          className="fixed top-12   bg-base-100 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96  
          "
-         
-         >
-       <p>
-       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 text-sky-500 h-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-</svg>
- 
-</p>
-Your post was sent!
-         </div>
-         
-     </div>
-     
+        >
+          <p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 text-sky-500 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+              />
+            </svg>
+          </p>
+          Your post was sent!
+        </div>
+      </div>
+
       <div className=" border border-slate-200 mr-2   bg-white rounded-2xl w-full h-12 p-2">
         <div className="flex flex-row  gap-2  mb-3   justify-between ">
           <div
@@ -429,9 +440,8 @@ Your post was sent!
             )}
           </div>
         </div>
-        
       </div>
-  
+
       <dialog
         id="newpost"
         className="modal text-start bg-base-100 focus:outline-none"
@@ -497,11 +507,15 @@ Your post was sent!
 
             {image ? (
               <div className="relative max-w-32">
-               
                 <span
                   className="
              hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
-             style={{fontSize:".7rem",position:"absolute",top:"-5px",right:"-5px"}}
+                  style={{
+                    fontSize: ".7rem",
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                  }}
                   onClick={() => {
                     setImage("");
                     setFile("");
@@ -509,7 +523,7 @@ Your post was sent!
                 >
                   X
                 </span>
-                
+
                 <img
                   src={image}
                   alt="post image"
@@ -546,7 +560,6 @@ Your post was sent!
           </div>
         </div>
       </dialog>
-    
     </div>
   );
 }

@@ -51,7 +51,9 @@ export default function App() {
 
         } 
 
-	    console.log( document.referrer.includes('android-app://'))
+	if(!window.matchMedia("(display-mode: standalone)").matches){
+		window.location.href = "/download"
+	}
 	
 
         window.onerror = (e) =>{

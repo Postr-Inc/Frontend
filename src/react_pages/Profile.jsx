@@ -785,22 +785,8 @@ export default function Profile(props) {
               type="text"
               placeholder={profile.bio}
               className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   bg-transparent focus:outline-none focus:ring-0"
-              onChange={(e) => {
-                let val = sanitizeHtml(e.target.value, {
-                  allowedTags: [],
-                  allowedAttributes: {},
-                });
-                console.log(val);
-
-                if (val.length < 100) {
-                  setedited({ ...edited, bio: val });
-                } else if (val.length > 100) {
-                  alert("Bio cannot be more than 100 characters");
-                  e.target.value = val.slice(0, 100);
-                } else {
-                  setedited({ ...edited, bio: val });
-                }
-                setedited({ ...edited, bio: val });
+              onInput={(e) => {
+                setedited({ ...edited, bio: e.target.value });
               }}
             />
             <div className="form-control   mt-5">

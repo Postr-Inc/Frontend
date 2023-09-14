@@ -669,7 +669,7 @@ export default function Profile(props) {
                  <h1 className="text-2xl w-64">
                   Likes ❤️ Cameras ....  action! 🎬
                  </h1>
-                 <p className="mt-4 text-slate-800 font-normal">
+                 <p className="mt-4 text-[#b7b5b5] font-normal">
                    {
                     props.user === api.authStore.model.username ?
                     ` Your photo and video posts will show up here.`

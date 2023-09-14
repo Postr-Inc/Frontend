@@ -173,11 +173,11 @@ export default function App() {
 	  };
 	
   
-	if(api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
+	if(api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches || !window.matchMedia('(display-mode: browser)').matches  ){
 		return (
 			<Home/>
 		)
-	}else if (!api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
+	}else if (!api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches || !window.matchMedia('(display-mode: browser)').matches  ){
 		return (
 			<Login/>
 		)

@@ -666,10 +666,10 @@ export default function Profile(props) {
                  
                  ? 
                  <>
-                 <h1 className="text-2xl w-64">
+                 <h1 className="text-2xl  w-64">
                   Likes ❤️ Cameras ....  action! 🎬
                  </h1>
-                 <p className="mt-4 text-[#b7b5b5] font-normal">
+                 <p className="mt-4 text-slate-300 font-normal">
                    {
                     props.user === api.authStore.model.username ?
                     ` Your photo and video posts will show up here.`
@@ -685,7 +685,7 @@ export default function Profile(props) {
                   {
                     props.user === api.authStore.model.username ?
                     ` Go like some posts!`
-                    : `  ${props.user} hasn't liked any posts yet.`
+                    : `  ${props.user}f hasn't liked any posts yet.`
                   }
                  </h1>
                  <p className="mt-4 text-slate-800 font-normal">
@@ -696,7 +696,27 @@ export default function Profile(props) {
                    }
                  </p>
                  </>
-                 : <></>
+                 :  pageSelected === "comments" && array.length < 1
+                  
+                  ?
+                  <>
+                  <h1 className="text-2xl w-96">
+                    {
+                      props.user === api.authStore.model.username ?
+                      ` Go comment on some posts!`
+                      : `  ${props.user} hasn't commented on any posts yet.`
+
+                    }
+                  </h1>
+                  <p className="mt-4 text-slate-300 font-normal">
+                    {
+                      props.user === api.authStore.model.username ?
+                      `  When you comment on a post, it'll show up here.`
+                      : `  When ${props.user} comments on a post, it'll show up here.`
+                    }
+                  </p>
+                  </>
+                  : ""
                  } 
                  
                 </h1>

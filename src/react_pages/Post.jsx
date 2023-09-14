@@ -33,13 +33,7 @@ export default function Vpost(props) {
       setComments([...comments, c]);
       setComment("");
       setChars(0);
-      document.querySelector("#success").classList.toggle("hidden");
-      document.querySelector("#success").addEventListener("click", () => {
-        console.log("clicked")
-        document.querySelector("#success").classList.add("hidden");
-        document.getElementById(c.id).scrollIntoView();
-      })
-
+       
 
       await api.collection("posts").update(props.id, {
         comments: JSON.stringify([...post.comments, c.id]),

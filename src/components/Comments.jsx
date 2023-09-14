@@ -1,6 +1,7 @@
 import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useEffect, useState } from "react";
+import sanitizeHtml from "sanitize-html";
 export default function Comment(props) {
  
   let [likes, setLikes] = useState(props.likes);
@@ -124,7 +125,12 @@ export default function Comment(props) {
           </div>
           <ul
             tabIndex="0"
-            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+            className={`dropdown-content z-[1] menu  absolute right-0  shadow  rounded-box  w-32
+            
+            ${
+              document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-300 rounded" : "bg-base-100"
+            }
+            `}
           >
             <li>
               <span
@@ -182,7 +188,12 @@ export default function Comment(props) {
         className="mt-6 text-sm"
         ref={(el) => {
           if (el) {
-            el.innerHTML = props.text;
+             el.innerHTML = sanitizeHtml(props.text, {
+              allowedTags: ["b", "i", "em", "strong", "a"],
+              allowedAttributes: {
+                a: ["href"],
+              },
+            });
           }
         }}
       ></p>

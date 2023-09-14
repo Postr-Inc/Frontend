@@ -46,7 +46,7 @@ const { title, description, image } = Astro.props;
     <script is:inline>
        if(localStorage.getItem('theme') == 'black'){
         document.documentElement.setAttribute('data-theme', 'black');
-      }else{
+      }else if(!window.matchMedia("(display-mode: standalone)").matches && !localStorage.getItem('theme') == 'black'){
         document.documentElement.setAttribute('data-theme', 'light');
       }
     </script>

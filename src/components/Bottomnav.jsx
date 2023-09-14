@@ -177,7 +177,22 @@ export default function Bottomnav() {
 
     setPContent(text);
   }
+  var scrollTimer = -1;
 
+  function bodyScroll() {
+ 
+
+    if (scrollTimer != -1)
+      clearTimeout(scrollTimer);
+
+    scrollTimer =   setTimeout(scrollFinished, 1000);
+    setIsScrolling(true)
+  }
+  window.addEventListener("scroll", bodyScroll, false);
+  function scrollFinished() {
+    console.log("scrolling finished")
+    setIsScrolling(false)
+  }
   useEffect(() => {
     if (pContent == "") {
       setChar(0);
@@ -214,6 +229,7 @@ export default function Bottomnav() {
           window.location.href = "/p/" + res.id;
 
           document.getElementById("success").classList.add("hidden");
+          document.getElementById("success").classList.remove("flex");
         };
       })
       .catch((e) => {
@@ -233,17 +249,26 @@ export default function Bottomnav() {
 
   return (
     <div className=" fixed  bottom-[5vh]  left-[10vw] flex justify-center mx-auto w-[70vw]">
-      <div className="p-5">
+      <div className="p-2">
         <div
           id="success"
           className={`
-          fixed top-12   bg-base-200 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96 
+          fixed top-[8vh] left-[50%] transform -translate-x-1/2   
+           rounded-lg cursor-pointer  flex-row justify-center items-center gap-2 
+            hidden
+             p-2
           ${
-            error ? "text-error" : "text-sky-500"
+            error ? `text-error  font-thin rounded 
+            ${
+              theme === "black" ? "text-white bg-[#ff41334b]" : "text-black  border border-base-200"
+            }
+            `: `text-sky-500  border-base-200 shadow rounded  ${theme === "black" ? "bg-base-300" : "bg-white"}   `   
           }
           `}
         >
-          <p>
+          <p
+          className="flex flex-row   gap-2"
+          >
              {
                !error ? <svg
                xmlns="http://www.w3.org/2000/svg"
@@ -273,7 +298,11 @@ export default function Bottomnav() {
         </div>
       </div>
 
-      <div className={` border ${theme === 'black' ?   "border-base-300 bg-black" : "bg-white border-base-300"}  mr-2    rounded-2xl w-full h-12 p-2`}
+      <div className={` 
+      ${
+        isScrolling ? " bg-opacity-50" : "bg-opacity-100"
+      }
+      ${theme === 'black' ?   "border border-base-300 bg-black" : "bg-white border border-base-200 bg-opacity-100"}  mr-2    rounded-2xl w-full h-12 p-2`}
       >
         <div className="flex flex-row     mb-3   justify-between ">
           <div

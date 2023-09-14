@@ -1,6 +1,7 @@
 import { api } from "../react_pages";
 import Modal from "./Modal";
 import { useState } from "react";
+import sanitizeHtml from "sanitize-html";
 export default function Post(props) {
   let [likes, setLikes] = useState(props.likes);
   let [hidden, setHidden] = useState(false);
@@ -8,6 +9,7 @@ export default function Post(props) {
   let [reported, setReported] = useState(false);
   let [report, setReport] = useState("");
   let [pinned, setPinned] = useState(props.pinned ? true : false);
+  let theme = document.documentElement.getAttribute("data-theme");
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -118,7 +120,12 @@ export default function Post(props) {
           </div>
           <ul
             tabIndex="0"
-            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+            className={`dropdown-content rounded z-[1] menu p-2 shadow  h-fit w-52
+            ${
+              theme === "black" ? "bg-base-300" : "bg-base-100"
+            }
+            `}
+            style={{height: "fit-content"}}
           >
             {props.author.id !== api.authStore.model.id ? (
               <li>
@@ -201,8 +208,13 @@ export default function Post(props) {
       <p
         className="mt-6 text-sm max-w-full break-words"
         ref={(el) => {
-          if (el) {
-            el.innerHTML = props.content;
+          if (el) { 
+            el.innerHTML = sanitizeHtml(props.content, {
+              allowedTags: ["b", "i", "em", "strong", "a"],
+              allowedAttributes: {
+                a: ["href"],
+              },
+            });
           }
         }}
       ></p>

@@ -231,6 +231,11 @@ export default function Bottomnav() {
           document.getElementById("success").classList.add("hidden");
           document.getElementById("success").classList.remove("flex");
         };
+        setTimeout(() => {
+          document.getElementById("success").classList.add("hidden");
+          document.getElementById("success").classList.remove("flex");
+        } , 3000)
+        document.activeElement.blur();
       })
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
@@ -244,6 +249,10 @@ export default function Bottomnav() {
         };
         document.getElementById("newpost").close();
         document.activeElement.blur();
+        setTimeout(() => {
+          document.getElementById("success").classList.add("hidden");
+          document.getElementById("success").classList.remove("flex");
+        } , 3000)
       });
   }
 

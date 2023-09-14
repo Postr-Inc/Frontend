@@ -248,7 +248,7 @@ export default function Bottomnav() {
   }
 
   return (
-    <div className="  fixed bottom-5 left-[50%] transform -translate-x-1/2
+    <div className="  fixed bottom-8 left-[50%] transform -translate-x-1/2
     w-64">
       <div className="p-2">
         <div

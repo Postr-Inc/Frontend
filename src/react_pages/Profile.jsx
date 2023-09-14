@@ -182,7 +182,7 @@ export default function Profile(props) {
     form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
     form.append(
       "Isprivate",
-      edited.Isprivate ? edited.Isprivate : profile.Ispri1vate
+      edited.Isprivate ? edited.Isprivate : profile.Isprivate
     );
     form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
     api

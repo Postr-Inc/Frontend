@@ -170,7 +170,7 @@ export default function Profile(props) {
       });
      
   }
-  console.log(edited)
+  
   function edit() {
     if(edited !== '{}'){
         
@@ -564,7 +564,7 @@ export default function Profile(props) {
                 profile.$dead === undefined &&
                 array.length > 0 ? (
                 array.map((c) => {
-                  if (c.expand && c.expand.user) {
+                  if (c.expand && c.expand.user && c.expand.post) {
                     let id = c.id;
                     return (
                       <div

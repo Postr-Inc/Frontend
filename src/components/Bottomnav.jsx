@@ -248,7 +248,8 @@ export default function Bottomnav() {
   }
 
   return (
-    <div className=" fixed  bottom-[5vh]  left-[10vw] flex justify-center mx-auto w-[70vw]">
+    <div className="  fixed bottom-5 left-[50%] transform -translate-x-1/2
+    w-64">
       <div className="p-2">
         <div
           id="success"
@@ -298,7 +299,8 @@ export default function Bottomnav() {
         </div>
       </div>
 
-      <div className={` 
+      <div className={`
+      
       ${
         isScrolling ? " bg-opacity-50" : "bg-opacity-100"
       }

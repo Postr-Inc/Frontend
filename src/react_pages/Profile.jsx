@@ -170,10 +170,10 @@ export default function Profile(props) {
       });
      
   }
-
   console.log(edited)
   function edit() {
-     
+    if(edited !== '{}'){
+        
     let form = new FormData();
     form.append(
       "username",
@@ -200,6 +200,7 @@ export default function Profile(props) {
       });
     document.getElementById("editprofile").close();
     
+    }
   }
 
   return (
@@ -789,6 +790,7 @@ export default function Profile(props) {
                   allowedTags: [],
                   allowedAttributes: {},
                 });
+                console.log(val);
 
                 if (val.length < 100) {
                   setedited({ ...edited, bio: val });

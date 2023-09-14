@@ -177,6 +177,8 @@ export default function Bottomnav() {
 
     setPContent(text);
   }
+  useEffect(() => {
+ 
   var scrollTimer = -1;
 
   function bodyScroll() {
@@ -193,6 +195,11 @@ export default function Bottomnav() {
     console.log("scrolling finished")
     setIsScrolling(false)
   }
+  return () => {
+    window.removeEventListener("scroll", bodyScroll);
+  }
+
+  }, []);
   useEffect(() => {
     if (pContent == "") {
       setChar(0);

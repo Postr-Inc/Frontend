@@ -171,17 +171,18 @@ export default function Profile(props) {
      
   }
 
+  console.log(edited)
   function edit() {
-    console.log(edited);  
+     
     let form = new FormData();
     form.append(
       "username",
       edited.username ? edited.username : profile.username
     );
-    form.append("bio",  edited.bio ? sanitizeHtml(edited.bio) : profile.bio);
+    form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
     form.append(
       "Isprivate",
-      edited.Isprivate ? edited.Isprivate : profile.Isprivate
+      edited.Isprivate ? edited.Isprivate : profile.Ispri1vate
     );
     form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
     api
@@ -189,12 +190,16 @@ export default function Profile(props) {
       .update(profile.id, form)
       .then((res) => {
         setProfile(res);
-        window.location.href = `/u/${res.username}`;
+        if(edited.username){
+          window.location.href = `/u/${edited.username}`
+        }
+        setedited({});
       })
       .catch((e) => {
         alert(e);
       });
     document.getElementById("editprofile").close();
+    
   }
 
   return (

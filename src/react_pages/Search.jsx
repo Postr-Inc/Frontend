@@ -271,7 +271,11 @@ export default function Search() {
                     ) : (
                       <div className="avatar placeholder">
                         <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8 h-8">
-                          <span className="text-lg">
+                          <span className="text-lg"
+                           onClick={()=>{
+                            window.location.href = "/u/" + u.username
+                           }}
+                           >
                             {u.username
                               ? u.username.charAt(0).toUpperCase()
                               : ""}
@@ -282,7 +286,7 @@ export default function Search() {
                     <div className="flex flex-col">
                       <span className="mx-2 text-sm cursor-pointer"
                         onClick={() => {
-                          window.location.href = `#/profile/${u.id}`
+                          window.location.href = `/u/${u.username}`
                         }}
                       >{u.username}</span>
                       <span className="mx-2 text-sm text-slate-400">{u.bio.substring(0, 20)}...</span>

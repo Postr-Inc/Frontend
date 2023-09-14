@@ -340,12 +340,12 @@ export default function Profile(props) {
                           hasRequested
                             ? `
                              ${
-                                document.querySelector('html').getAttribute('data-theme') === 'black' ? ` text-white btn-ghost border-slate-200 ` :
+                                document.querySelector('html').getAttribute('data-theme') === 'black' ? ` uppercase text-white btn-ghost border-slate-200 ` :
                                 ` text-[#12121212] btn-ghost border-slate-200 `
                              }
                             `
                             : 
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? `bg-[#121212] text-white` :
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? `uppercase bg-[#121212] text-white` :
                             `bg-white text-[#121212]`
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={() => {
@@ -357,7 +357,7 @@ export default function Profile(props) {
                       <button
                         className={`
                          btn btn-sm btn-ghost w-full  ${
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border border-white' :
                              'text-[#121212]'
                          }
                         
@@ -378,7 +378,7 @@ export default function Profile(props) {
                         className={`${
                           followers &&
                           followers.includes(api.authStore.model.id)
-                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border ' :
+                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border ' :
                             'text-white bg-black hover:bg-black focus:bg-black'
                             : ""
                         } w-full btn btn-sm   rounded-md  `}
@@ -391,7 +391,7 @@ export default function Profile(props) {
                       <button
                         className={`
                           btn btn-sm btn-ghost w-full  ${
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border border-white' :
                               'text-[#121212] border-slate-200'
                           }
 

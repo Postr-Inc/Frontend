@@ -50,6 +50,8 @@ export default function App() {
             oneSignal()
 
         } 
+
+	    console.log( document.referrer.includes('android-app://'))
 	
 
         window.onerror = (e) =>{

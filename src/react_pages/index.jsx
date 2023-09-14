@@ -50,7 +50,7 @@ export default function App() {
             oneSignal()
 
         } 
-	if (window.matchMedia("(display-mode: browser)").matches) {
+	if (window.matchMedia("(display-mode: browser)").matches || !window.matchMedia("(display-mode: standalone)").matches) {
             window.location.href = "/download"
 
         }
@@ -173,16 +173,13 @@ export default function App() {
 	  };
 	
   
-	if(api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches || !window.matchMedia('(display-mode: browser)').matches  ){
+	if(api.authStore.isValid){
 		return (
 			<Home/>
 		)
-	}else if (!api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches || !window.matchMedia('(display-mode: browser)').matches  ){
+	}else if (!api.authStore.isValid){
 		return (
 			<Login/>
 		)
-	}else {
-		console.log(window.location.pathname)
-		 window.location.pathname = "/download"
 	}
 }

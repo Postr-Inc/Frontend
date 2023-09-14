@@ -172,12 +172,13 @@ export default function Profile(props) {
   }
 
   function edit() {
+    console.log(edited);  
     let form = new FormData();
     form.append(
       "username",
       edited.username ? edited.username : profile.username
     );
-    form.append("bio", edited.bio ? edited.bio : profile.bio);
+    form.append("bio",  edited.bio ? sanitizeHtml(edited.bio) : profile.bio);
     form.append(
       "Isprivate",
       edited.Isprivate ? edited.Isprivate : profile.Isprivate
@@ -788,6 +789,7 @@ export default function Profile(props) {
                   setedited({ ...edited, bio: val });
                 } else if (val.length > 100) {
                   alert("Bio cannot be more than 100 characters");
+                  e.target.value = val.slice(0, 100);
                 } else {
                   setedited({ ...edited, bio: val });
                 }

@@ -378,7 +378,7 @@ export default function Profile(props) {
                         className={`${
                           followers &&
                           followers.includes(api.authStore.model.id)
-                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border border-white' :
+                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white rounded border ' :
                             'text-white bg-black hover:bg-black focus:bg-black'
                             : ""
                         } w-full btn btn-sm   rounded-md  `}

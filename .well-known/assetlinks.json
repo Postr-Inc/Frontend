@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.postr_inc",
+        "sha256_cert_fingerprints": ["84:92:DA:D6:A1:88:B4:58:0A:B5:3C:D3:07:C9:58:DC:A7:3E:26:D5:74:23:53:61:53:2B:2C:1E:F6:57:70:5C"]
+      }
+    }]

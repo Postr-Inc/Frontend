@@ -50,10 +50,7 @@ export default function App() {
             oneSignal()
 
         } 
-	if (window.matchMedia("(display-mode: browser)").matches || !window.matchMedia("(display-mode: standalone)").matches) {
-            window.location.href = "/download"
-
-        }
+	
 
         window.onerror = (e) =>{
             alert(e)

@@ -80,7 +80,7 @@
     },
     {
       "protocol": "web+user",
-      "url": "/u/?type=%s"
+      "url": "/u/"
     },
     {
       "protocol": "web+notifications",

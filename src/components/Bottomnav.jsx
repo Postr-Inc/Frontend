@@ -248,15 +248,17 @@ export default function Bottomnav() {
   }
 
   return (
-    <div className="  fixed bottom-8 left-[50%] transform -translate-x-1/2
-    w-64">
-      <div className="p-2">
-        <div
+    <> 
+     <div
+          
           id="success"
           className={`
-          fixed top-[8vh] left-[50%] transform -translate-x-1/2   
-           rounded-lg cursor-pointer  flex-row justify-center items-center gap-2 
-            hidden
+          hidden
+         fixed left-1/2
+         top-12
+               transform -translate-x-1/2 -translate-y-1/2
+           rounded-lg cursor-pointer   
+            flex-row gap-2
              p-2
           ${
             error ? `text-error  font-thin rounded 
@@ -297,6 +299,12 @@ export default function Bottomnav() {
             error ?  'Error creating post' : 'Your post was sent!'
            }
         </div>
+    <div className="  fixed bottom-8 left-[50%] transform -translate-x-1/2
+    w-64">
+      <div className="  fixed top-0 left-0"
+     
+      >
+        
       </div>
 
       <div className={`
@@ -663,6 +671,7 @@ export default function Bottomnav() {
         </div>
       </dialog>
     </div>
+    </>
   );
 }
 

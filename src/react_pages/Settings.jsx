@@ -192,7 +192,7 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                      Change the theme of the app
                   </span>
                   <div className="badge badge-xs badge-outline
-                   p-2 mt-2"
+                   p-2 mt-2 rounded-full"
                     style={{width:'fit-content'}}
                   >
                     {theme ? "Night" : "Light"}

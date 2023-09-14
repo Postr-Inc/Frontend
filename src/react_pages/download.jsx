@@ -35,7 +35,11 @@ export default function Download(){
     const relatedApps =  navigator.getInstalledRelatedApps();
      
   }
-
+function isStandaloneApp() {
+  return window.matchMedia("(display-mode: standalone)").matches;
+} if(isStandaloneApp()){
+  window.location.href = "/"
+}
   window.matchMedia('(display-mode: standalone)')
   .addEventListener('change', (event) => {
       if (event.matches) {

@@ -310,7 +310,9 @@ export default function Bottomnav() {
               <svg
                   className={`
                 w-7 h-7
-                 ${theme === "black" ? "fill-[#232323]" : "fill-slate-200"}
+                 ${theme === "black" ? "fill-[#434242]" : "fill-slate-200"}
+                 hover:fill-sky-500
+                 cursor-pointer
                 `}
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -358,7 +360,8 @@ export default function Bottomnav() {
               className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              ${theme === "black" ? "text-[#434242]" : "text-slate-200"}
+              hover:text-sky-500
               `}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -411,7 +414,8 @@ export default function Bottomnav() {
               className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              ${theme === "black" ? "text-[#434242]" : "text-slate-200"}
+              hover:text-sky-500
               `}
               onClick={() => {
                 document.getElementById("newpost").showModal();
@@ -461,7 +465,8 @@ export default function Bottomnav() {
               className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#232323]" : "text-slate-200"}
+              ${theme === "black" ? "text-[#434242]" : "text-slate-200"}
+              hover:text-sky-500
               `}
             >
               <path
@@ -494,6 +499,7 @@ export default function Bottomnav() {
                 src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                 className="rounded-full w-7 h-7
                 opacity-50
+                hover:opacity-100
                 "
                 alt={api.authStore.model.username + "'s avatar"}
               />

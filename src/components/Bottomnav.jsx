@@ -635,7 +635,6 @@ export default function Bottomnav() {
           <div className="flex flex-col">
             <p
               contentEditable="true"
-              suppressContentEditableWarning={true}
               className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}

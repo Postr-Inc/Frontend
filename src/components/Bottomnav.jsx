@@ -545,7 +545,7 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
             <svg 
@@ -595,8 +595,7 @@ export default function Bottomnav() {
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
-              onInput={handleContentInput}
-              onPaste={handleContentInput}
+              onChange={handleContentInput}
             ></p>
 
             {image ? (

@@ -222,7 +222,9 @@ export default function Bottomnav() {
 
     api
       .collection("posts")
-      .create(form)
+      .create(form, {
+        expand: "author",
+      })
       .then((res) => {
         pRef.current.innerHTML = "";
         setChar(0);
@@ -243,6 +245,16 @@ export default function Bottomnav() {
           document.getElementById("success").classList.remove("flex");
         } , 3000)
         document.activeElement.blur();
+        api.collection('notifications').create({
+          type: 'post',
+          post: res.id,
+          notification_title: `${api.authStore.model.username} justed posted!`,
+          notification_body: `Click to view their post`,
+          url: `/p/${res.id}`,
+          author: api.authStore.model.id,
+          multi_recipients: res.expand.author.followers,
+          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${res.expand.author.id}/${res.expand.author.avatar}`
+        }) 
       })
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
@@ -260,7 +272,11 @@ export default function Bottomnav() {
           document.getElementById("success").classList.add("hidden");
           document.getElementById("success").classList.remove("flex");
         } , 3000)
-      });
+      })
+
+      
+
+
   }
 
   return (
@@ -623,7 +639,7 @@ export default function Bottomnav() {
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
-              onInput={debounce(handleContentInput, 100)}
+              onInput={handleContentInput}
               onPaste={handleContentInput}
               autoFocus
             ></p>

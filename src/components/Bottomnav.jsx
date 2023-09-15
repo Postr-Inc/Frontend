@@ -81,15 +81,6 @@ export default function Bottomnav() {
   window.addEventListener("keyup", (e) => {
     setIsTyping(false);
   });
-  window.addEventListener("scroll", (e) => {
-    if(window.scrollY > 0){
-      setIsScrolling(true)
-    }
-    // check if mot scrolling
-    if(window.scrollY === 0){
-      setIsScrolling(false)
-    }
-  });
 
   let themewatcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {

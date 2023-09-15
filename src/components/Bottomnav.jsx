@@ -122,8 +122,9 @@ export default function Bottomnav() {
   }
 
   function handleContentInput(e) {
+ 
     let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
-
+    console.log(text)
     let charCount = text.length;
     setChar(charCount);
 

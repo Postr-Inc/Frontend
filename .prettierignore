@@ -1,0 +1,2 @@
+# Prevents workflows being updated (permission issue)
+.github/

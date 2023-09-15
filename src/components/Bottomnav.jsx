@@ -122,22 +122,19 @@ export default function Bottomnav() {
   }
 
   function handleContentInput(e) {
- 
+    
     let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
     console.log(text)
     let charCount = text.length;
     setChar(charCount);
 
-    if (charCount >= maxchar) {
+    if (charCount > maxchar) {
       setChar(maxchar);
       text = text.substring(0, maxchar);
       pRef.current.innerText = text;
     }
 
-    // Process emojis and replace &lt; and &gt;
-    text = handleEmojis(text);
-    text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
-
+   
     text = sanitizeHtml(text, {
       allowedTags: sanitizeHtml.defaults.allowedTag,
       allowedAttributes: {
@@ -146,33 +143,7 @@ export default function Bottomnav() {
       },
     });
 
-    if (text.includes("@")) {
-      // do not process already mentioned users
-      let mentions = text.match(/@(\w+)/g);
-
-      setHasMention(true);
-      if (mentions) {
-        const usernames = mentions.map((mention) => mention.replace("@", ""));
-        api
-          .collection("users")
-          .getFullList("*", {
-            filter: `username ~ "${usernames.join("|")}"`,
-          })
-          .then((res) => {
-            if (res) {
-              setMentionedUsers(res);
-            } else {
-              setMentionedUsers([]);
-            }
-          })
-          .catch((err) => {
-            console.log("Error fetching mentioned users", err);
-          });
-      }
-    } else {
-      setHasMention(false);
-      setMentionedUsers([]);
-    }
+    
     pRef.current.innerHTML = text;
     restoreCaretPositionToEnd(pRef.current);
 
@@ -641,9 +612,6 @@ export default function Bottomnav() {
               placeholder="What's on your mind?"
               onInput={handleContentInput}
               onPaste={handleContentInput}
-             onClick={(e) => {
-                e.target.focus();
-             }}
             ></p>
 
             {image ? (

@@ -641,7 +641,9 @@ export default function Bottomnav() {
               placeholder="What's on your mind?"
               onInput={handleContentInput}
               onPaste={handleContentInput}
-              autoFocus
+             onClick={(e) => {
+                e.target.focus();
+             }}
             ></p>
 
             {image ? (

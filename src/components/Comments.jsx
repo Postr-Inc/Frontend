@@ -3,9 +3,8 @@ import Modal from "./Modal";
 import { useEffect, useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Comment(props) {
- 
   let [likes, setLikes] = useState(props.likes);
-  
+
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -19,10 +18,13 @@ export default function Comment(props) {
       api.collection("comments").update(props.id, {
         likes: [...likes, api.authStore.model.id],
       });
-      if(props.user.id !== api.authStore.model.id && props.post.author === api.authStore.model.id){
+      if (
+        props.user.id !== api.authStore.model.id &&
+        props.post.author === api.authStore.model.id
+      ) {
         api.collection("notifications").create({
           type: "comment_like",
-          recipient:  props.user.id,
+          recipient: props.user.id,
           author: api.authStore.model.id,
           title: `hearted your comment`,
           comment: props.id,
@@ -30,53 +32,56 @@ export default function Comment(props) {
           image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           notification_title: `${api.authStore.model.username} hearted your comment`,
           notification_body: props.text.slice(0, 300),
-          url: `/p/${props.post.id}`
-        }) 
-      }else if (props.user.id !== api.authStore.model.id && props.post.author !== api.authStore.model.id){
+          url: `/p/${props.post.id}`,
+        });
+      } else if (
+        props.user.id !== api.authStore.model.id &&
+        props.post.author !== api.authStore.model.id
+      ) {
         api.collection("notifications").create({
           type: "comment_like",
           recipient: props.user.id,
-          author:  api.authStore.model.id,
+          author: api.authStore.model.id,
           title: `${api.authStore.model.username} hearted your comment`,
           comment: props.id,
           post: props.post.id,
           image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           notification_title: `${api.authStore.model.username} hearted your comment`,
           notification_body: props.text.slice(0, 300),
-          url: `/p/${props.post.id}`
-        })
-
+          url: `/p/${props.post.id}`,
+        });
       }
-   
-      
     }
-  } 
- 
+  }
+
   return (
-    <div className="flex flex-col text-sm mb-[35px]   "
-    id={props.id}
-    >
-       {
-            likes && likes.length > 0     &&  likes.includes(props.post.author)
-            && props.author !== props.post.author
-            ? <div className="mb-4 text-sm flex flex-row gap-2 items-center">
-              
-  <svg xmlns="http://www.w3.org/2000/svg" fill="#F13B38" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#F13B38" className="w-4 h-4">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-</svg>
-     
- 
+    <div className="flex flex-col text-sm mb-[35px]   " id={props.id}>
+      {likes &&
+      likes.length > 0 &&
+      likes.includes(props.post.author) &&
+      props.author !== props.post.author ? (
+        <div className="mb-4 text-sm flex flex-row gap-2 items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="#F13B38"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="#F13B38"
+            className="w-4 h-4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+            />
+          </svg>
 
-              
-         
-              <span className="text-xs">
-              by author
-              </span>
-          </div> :  ""
-
-      }
+          <span className="text-xs">by author</span>
+        </div>
+      ) : (
+        ""
+      )}
       <div className="flex flex-row ">
-        
         {props.user.avatar ? (
           <img
             src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.user.id}/${props.user.avatar}`}
@@ -128,7 +133,9 @@ export default function Comment(props) {
             className={`dropdown-content z-[1] menu  absolute right-0  shadow  rounded-box  w-32
             
             ${
-              document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-300 rounded" : "bg-base-100"
+              document.documentElement.getAttribute("data-theme") === "black"
+                ? "bg-base-300 rounded"
+                : "bg-base-100"
             }
             `}
           >
@@ -161,34 +168,28 @@ export default function Comment(props) {
               ""
             )}
             <li>
-              {
-                 props.user.id === api.authStore.model.id ? (
-                    <a
-                    className="cursor-pointer"
-                    onClick={() => {
-                        document.getElementById("delete" + props.id).showModal();
-                    }}
+              {props.user.id === api.authStore.model.id ? (
+                <a
+                  className="cursor-pointer"
+                  onClick={() => {
+                    document.getElementById("delete" + props.id).showModal();
+                  }}
                 >
-                    Delete
+                  Delete
                 </a>
-                ) : (
-                    ""
-                )
-              }
+              ) : (
+                ""
+              )}
             </li>
- 
           </ul>
         </div>
       </div>
 
-
-      
-       
       <p
         className="mt-6 text-sm"
         ref={(el) => {
           if (el) {
-             el.innerHTML = sanitizeHtml(props.text, {
+            el.innerHTML = sanitizeHtml(props.text, {
               allowedTags: ["b", "i", "em", "strong", "a"],
               allowedAttributes: {
                 a: ["href"],
@@ -197,15 +198,18 @@ export default function Comment(props) {
           }
         }}
       ></p>
-      
-     {
-      window.location.pathname === "/u/" + props.user.username ? 
-      <span className="text-xs text-gray-500 mt-2">
-        Replied to <a className="text-sky-500" href={`/p/${props.post.id}`}> @{props.post.expand.author.username}</a>
-      </span> : ""
-     }
-   
-       
+
+      {window.location.pathname === "/u/" + props.user.username ? (
+        <span className="text-xs text-gray-500 mt-2">
+          Replied to{" "}
+          <a className="text-sky-500" href={`/p/${props.post.id}`}>
+            {" "}
+            @{props.post.expand.author.username}
+          </a>
+        </span>
+      ) : (
+        ""
+      )}
 
       <div className="flex flex-row gap-5 mt-6">
         {
@@ -237,10 +241,7 @@ export default function Comment(props) {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
             />
           </svg>
-          <span
-            
-           
-          > {likes.length} </span>
+          <span> {likes.length} </span>
         </div>
 
         {
@@ -270,7 +271,6 @@ export default function Comment(props) {
             />
           </svg>{" "}
         </div>
- 
       </div>
     </div>
   );

@@ -70,15 +70,15 @@ export default function Bookmarks() {
               className="dropdown-content  z-[1] menu  shadow bg-base-100 rounded-box h-12 w-52"
             >
               <li>
-                 {
-                    bookmarks.length > 0 ? <a
+                {bookmarks.length > 0 ? (
+                  <a
                     onClick={() => {
                       bookmarks.forEach((post) => {
                         let bookmarked = post.bookmarked;
                         api.collection("posts").update(post.id, {
                           bookmarked: [
                             ...bookmarked.filter(
-                              (id) => id !== api.authStore.model.id
+                              (id) => id !== api.authStore.model.id,
                             ),
                           ],
                         });
@@ -95,11 +95,9 @@ export default function Bookmarks() {
                   >
                     Clear All Bookmarks
                   </a>
-                  :  <a
-                    >
-                        Clear All Bookmarks 
-                    </a>
-                 }
+                ) : (
+                  <a>Clear All Bookmarks</a>
+                )}
               </li>
             </ul>
           </div>

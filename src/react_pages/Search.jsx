@@ -1,15 +1,15 @@
-import  { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
- 
+
 export default function Search() {
   let [search, setSearch] = useState("");
   let [users, setUsers] = useState([]);
   let [isFollow, setIsFollow] = useState(false);
   let [searchUsers, setSearchUsers] = useState([]);
   let [isSearching, setIsSearching] = useState(false);
-  let inputref = useRef(null)
+  let inputref = useRef(null);
   let [page, setPage] = useState(1);
   let [isLoadMore, setIsLoadMore] = useState(false);
   let [totalUsers, setTotalUsers] = useState(0);
@@ -24,7 +24,7 @@ export default function Search() {
         setUsers((users) => [...users, ...res.items]);
         setTotalUsers(res.totalPages);
         setIsLoadMore(false);
-        console.log(res.totalPages)
+        console.log(res.totalPages);
       });
   }
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Search() {
 
       if (
         window.innerHeight + window.scrollY >=
-        document.documentElement.offsetHeight - 5 &&
+          document.documentElement.offsetHeight - 5 &&
         !isLoadMore
       ) {
         // Increment the page in a callback to ensure proper state update
@@ -57,14 +57,15 @@ export default function Search() {
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
-      if (search.trim() !== '') {
-        api.collection('users')
-          .getFullList('*', {
+      if (search.trim() !== "") {
+        api
+          .collection("users")
+          .getFullList("*", {
             filter: `username ~ "${search}"`,
           })
           .then((res) => {
-            setIsSearching(false)
-            setSearchUsers(res)
+            setIsSearching(false);
+            setSearchUsers(res);
           })
           .catch(() => {
             setSearchUsers([]);
@@ -84,34 +85,32 @@ export default function Search() {
   }, []);
   return (
     <div className=" p-5 flex flex-col  ">
-       <div className="flex justify-between  mb-2  items-center">
-      <span
-            className="flex flex-row items-center gap-2 cursor-pointer
+      <div className="flex justify-between  mb-2  items-center">
+        <span
+          className="flex flex-row items-center gap-2 cursor-pointer
            
           "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            onClick={() => {
+              window.history.back();
+            }}
+            className="w-5 h-5"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              onClick={() => {
-                window.history.back();
-              }}
-              className="w-5 h-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
-                clipRule="evenodd"
-              />
-            </svg>
-          
-          </span>
+            <path
+              fillRule="evenodd"
+              d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
         <h1 className="text-2xl " style={{ fontFamily: "Inter" }}>
-         Search &nbsp;
+          Search &nbsp;
         </h1>
         <div></div>
-        
       </div>
       <div class="form-control mt-2 mb-8">
         <div class="input-group">
@@ -135,7 +134,7 @@ export default function Search() {
             type="text"
             onClick={() => {
               document.getElementById("search").showModal();
-              inputref.current.focus()
+              inputref.current.focus();
             }}
             placeholder="Search…"
             class="
@@ -148,11 +147,8 @@ export default function Search() {
         </div>
 
         {users.map((u) => {
-
           return (
-            <div className="flex flex-col mt-6 mb-6 gap-2"
-            key={u.id}
-            >
+            <div className="flex flex-col mt-6 mb-6 gap-2" key={u.id}>
               <div className="flex flex-row justify-between">
                 <div className="flex flex-row">
                   {u.avatar ? (
@@ -164,49 +160,54 @@ export default function Search() {
                     <div className="avatar placeholder">
                       <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8 h-8">
                         <span className="text-sm">
-                          {u.username
-                            ? u.username.charAt(0).toUpperCase()
-                            : ""}
+                          {u.username ? u.username.charAt(0).toUpperCase() : ""}
                         </span>
                       </div>
                     </div>
                   )}
                   <div className="flex flex-col">
-                    <span className="mx-2 text-sm cursor-pointer"
+                    <span
+                      className="mx-2 text-sm cursor-pointer"
                       onClick={() => {
-                        window.location.href = '/u/' + u.username
+                        window.location.href = "/u/" + u.username;
                       }}
-                    >{u.username}</span>
-                    <span className="mx-2 text-sm text-slate-400">{u.bio.substring(0, 20)}...</span>
-                    
-                    
+                    >
+                      {u.username}
+                    </span>
+                    <span className="mx-2 text-sm text-slate-400">
+                      {u.bio.substring(0, 20)}...
+                    </span>
                   </div>
                   <button
                     className="btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white focus:ring-0 hover:ring-0 hover:bg-transparent focus:bg-transparent"
                     onClick={() => {
-                      const updatedFollowers = u.followers.includes(api.authStore.model.id)
-                        ? u.followers.filter(id => id !== api.authStore.model.id)
+                      const updatedFollowers = u.followers.includes(
+                        api.authStore.model.id,
+                      )
+                        ? u.followers.filter(
+                            (id) => id !== api.authStore.model.id,
+                          )
                         : [...u.followers, api.authStore.model.id];
-                        setIsFollow(!isFollow); // Toggle the isFollow state
-                      api.collection("users")
+                      setIsFollow(!isFollow); // Toggle the isFollow state
+                      api
+                        .collection("users")
                         .update(u.id, {
                           followers: updatedFollowers,
                         })
                         .then(() => {
                           u.followers = updatedFollowers;
-                          
                         })
-                        .catch(error => {
+                        .catch((error) => {
                           console.error("Error updating followers:", error);
                         });
-                    }} 
+                    }}
                   >
-                    {u.followers.includes(api.authStore.model.id) ? "Unfollow" : "Follow"}
+                    {u.followers.includes(api.authStore.model.id)
+                      ? "Unfollow"
+                      : "Follow"}
                   </button>
-
                 </div>
               </div>
- 
             </div>
           );
         })}
@@ -243,9 +244,9 @@ export default function Search() {
               onChange={(e) => {
                 setSearch(e.target.value);
                 if (!isSearching) {
-                  setIsSearching(true)
+                  setIsSearching(true);
                 }
-                setSearchUsers([])
+                setSearchUsers([]);
               }}
               placeholder="Search…"
               class="
@@ -257,90 +258,103 @@ export default function Search() {
             />
           </div>
 
-          {searchUsers.length > 0 ? searchUsers.map((u) => {
-
-            return (
-              <div className="flex flex-col mt-6 gap-2">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row">
-                    {u.avatar ? (
-                      <img
-                        src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${u.id}/${u.avatar}`}
-                        className="w-8  h-8 rounded-full"
-                      />
-                    ) : (
-                      <div className="avatar placeholder">
-                        <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8 h-8">
-                          <span className="text-lg"
-                           onClick={()=>{
-                            window.location.href = "/u/" + u.username
-                           }}
-                           >
-                            {u.username
-                              ? u.username.charAt(0).toUpperCase()
-                              : ""}
-                          </span>
+          {searchUsers.length > 0 ? (
+            searchUsers.map((u) => {
+              return (
+                <div className="flex flex-col mt-6 gap-2">
+                  <div className="flex flex-row justify-between">
+                    <div className="flex flex-row">
+                      {u.avatar ? (
+                        <img
+                          src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${u.id}/${u.avatar}`}
+                          className="w-8  h-8 rounded-full"
+                        />
+                      ) : (
+                        <div className="avatar placeholder">
+                          <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8 h-8">
+                            <span
+                              className="text-lg"
+                              onClick={() => {
+                                window.location.href = "/u/" + u.username;
+                              }}
+                            >
+                              {u.username
+                                ? u.username.charAt(0).toUpperCase()
+                                : ""}
+                            </span>
+                          </div>
                         </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span
+                          className="mx-2 text-sm cursor-pointer"
+                          onClick={() => {
+                            window.location.href = `/u/${u.username}`;
+                          }}
+                        >
+                          {u.username}
+                        </span>
+                        <span className="mx-2 text-sm text-slate-400">
+                          {u.bio.substring(0, 20)}...
+                        </span>
+                        <span className="mx-2 text-sm ">
+                          {u.followers.length} Followers
+                        </span>
                       </div>
-                    )}
-                    <div className="flex flex-col">
-                      <span className="mx-2 text-sm cursor-pointer"
-                        onClick={() => {
-                          window.location.href = `/u/${u.username}`
-                        }}
-                      >{u.username}</span>
-                      <span className="mx-2 text-sm text-slate-400">{u.bio.substring(0, 20)}...</span>
-                      <span className="mx-2 text-sm ">{u.followers.length} Followers</span>
-                    </div>
-                    <span
-                      className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white focus:ring-0 hover:ring-0 hover:bg-transparent focus:bg-transparent"
-                      onClick={debounce(() => {
-
-                        const updatedFollowers = u.followers.includes(api.authStore.model.id)
-                          ? u.followers.filter(id => id !== api.authStore.model.id)
-                          : [...u.followers, api.authStore.model.id];
+                      <span
+                        className="btn btn-ghost rounded btn-sm w-24 end-5 absolute border-slate-200 hover:text-white focus:ring-0 hover:ring-0 hover:bg-transparent focus:bg-transparent"
+                        onClick={debounce(() => {
+                          const updatedFollowers = u.followers.includes(
+                            api.authStore.model.id,
+                          )
+                            ? u.followers.filter(
+                                (id) => id !== api.authStore.model.id,
+                              )
+                            : [...u.followers, api.authStore.model.id];
                           setIsFollow(!isFollow); // Toggle the isFollow state
-                        api.collection("users")
-                          .update(u.id, {
-                            followers: updatedFollowers,
-                          })
-                          .then(() => {
-                            u.followers = updatedFollowers;
-                            
-                          })
-                          .catch(error => {
-                            console.error("Error updating followers:", error);
-                          });
-
-                         
-
-                      })}
-                    >
-                      {u.followers.includes(api.authStore.model.id) ? "Unfollow" : "Follow"}
-                    </span>
-
+                          api
+                            .collection("users")
+                            .update(u.id, {
+                              followers: updatedFollowers,
+                            })
+                            .then(() => {
+                              u.followers = updatedFollowers;
+                            })
+                            .catch((error) => {
+                              console.error("Error updating followers:", error);
+                            });
+                        })}
+                      >
+                        {u.followers.includes(api.authStore.model.id)
+                          ? "Unfollow"
+                          : "Follow"}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="divider  rounded h-1"></div>
-              </div>
-            );
-          })
-            : isSearching ? <div className='flex flex-col gap-2 mx-auto mt-16 justify-center '
-              style={{ marginTop: '50%' }}
+                  <div className="divider  rounded h-1"></div>
+                </div>
+              );
+            })
+          ) : isSearching ? (
+            <div
+              className="flex flex-col gap-2 mx-auto mt-16 justify-center "
+              style={{ marginTop: "50%" }}
             >
               <span className="loading w-6  flex mx-auto mt-16"></span>
-            </div> : <></>
-          }
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       </Modal>
     </div>
   );
-};
+}
 function debounce(fn, time) {
   let timeout;
   if (!time) {
-    time = 1000
+    time = 1000;
   }
   // make sure it only goes once at a time
   return function () {
@@ -349,5 +363,4 @@ function debounce(fn, time) {
     clearTimeout(timeout);
     timeout = setTimeout(functionCall, time);
   };
-
 }

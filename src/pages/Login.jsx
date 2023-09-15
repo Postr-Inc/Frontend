@@ -1,14 +1,13 @@
+import { Image } from "astro:assets";
+import { useState } from "react";
+import { api } from ".";
 
-import { Image } from 'astro:assets';
-import { useState } from 'react';
-import { api } from '.';
- 
-export default function Login(){
- let [btnstate, setBtnstate] = useState("aborted");
- let [isLogin, setIsLogin] = useState(false);
- function login(e) {
+export default function Login() {
+  let [btnstate, setBtnstate] = useState("aborted");
+  let [isLogin, setIsLogin] = useState(false);
+  function login(e) {
     console.log("logging in...");
-    let w = window.open()
+    let w = window.open();
     const data = api
       .collection("users")
       .authWithOAuth2({
@@ -19,20 +18,20 @@ export default function Login(){
         },
         urlCallback: (url) => {
           if (window.matchMedia("(display-mode: standalone)")) {
-             w.location.href = url
+            w.location.href = url;
           } else {
-            console.log(url)
+            console.log(url);
             window.open(url);
           }
         },
       })
       .then((res) => {
         if (!res) {
-            setBtnstate("aborted");
+          setBtnstate("aborted");
           return;
         }
       });
-     
+
     data.then((res) => {
       if (res && res.meta.isNew) {
         let form = new FormData();
@@ -56,7 +55,7 @@ export default function Login(){
       }
     }, 6000);
   }
- return (
+  return (
     <div
       className="hero min-h-screen p-5"
       style={{ backgroundImage: `url('/images/loginback.png')` }}
@@ -73,8 +72,7 @@ export default function Login(){
             position: "absolute",
             top: "65vh",
           }}
-            onClick={login}
-        
+          onClick={login}
           {...(btnstate === "Logging in..."
             ? {
                 style: {
@@ -87,7 +85,7 @@ export default function Login(){
               }
             : {})}
         >
-          <img src='/icons/googleicon.png'className="w-6 h-6" />
+          <img src="/icons/googleicon.png" className="w-6 h-6" />
           {btnstate !== "Logging in..." || btnstate === "aborted" ? (
             <span className="ml-2">Login with Google</span>
           ) : (
@@ -96,5 +94,5 @@ export default function Login(){
         </button>
       </div>
     </div>
- )
+  );
 }

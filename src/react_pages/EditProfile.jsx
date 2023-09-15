@@ -1,5 +1,3 @@
 import { api } from ".";
 
-export default function EditProfile(){
-     
-}
+export default function EditProfile() {}

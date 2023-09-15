@@ -21,7 +21,6 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "top"
           ? "-created,-likes"
           : ""
-          
       }
       `,
       filter: `
@@ -49,45 +48,43 @@ export default function Home() {
   let maxChars = 80;
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  let [scrollPosition, setScrollPosition] = useState("top");  
+  let [scrollPosition, setScrollPosition] = useState("top");
   const [totalPages, setTotalPages] = useState(0);
   const [comments, setComments] = useState([]); // [postid, comments
- 
+
   let [page, setPage] = useState(1);
- 
+
   let [pageSelected, setPageSelected] = useState("posts");
   useEffect(() => {
     setPage(1);
     setPosts([]);
     setComments([]);
     setHasMore(true);
-    if(pageSelected){
-    fetchPosts(1, pageSelected).then((fetchedPosts) => {
-      setPosts(fetchedPosts.items);
-      setTotalPages(fetchedPosts.totalPages);
-    });
+    if (pageSelected) {
+      fetchPosts(1, pageSelected).then((fetchedPosts) => {
+        setPosts(fetchedPosts.items);
+        setTotalPages(fetchedPosts.totalPages);
+      });
     }
   }, [pageSelected]);
- 
 
   useEffect(() => {
-   window.onscroll = () => {
-    // toggle scroll position on doiuble tap
-   window.ontouchstart = (e) => {
-    console.log(e.touches.length)
-      if(e.touches.length === 2){
-        if(scrollPosition === "top"){
-          setScrollPosition("bottom")
-        }else if(e.touches.length === 1){
-          setScrollPosition("top")
+    window.onscroll = () => {
+      // toggle scroll position on doiuble tap
+      window.ontouchstart = (e) => {
+        console.log(e.touches.length);
+        if (e.touches.length === 2) {
+          if (scrollPosition === "top") {
+            setScrollPosition("bottom");
+          } else if (e.touches.length === 1) {
+            setScrollPosition("top");
+          }
         }
-      }
-    }
-  }
- 
+      };
+    };
   }, [scrollPosition]);
   function fetchMorePosts() {
-    if (Number(page)  >= Number(totalPages)) {
+    if (Number(page) >= Number(totalPages)) {
       setHasMore(false);
     } else {
       const nextPage = page + 1;
@@ -101,13 +98,13 @@ export default function Home() {
     }
   }
 
- 
-   
   return (
     <div className="p-5 mt-2    ">
-     
       <div className="flex flex-row justify-between">
-        <h1 className=" text-2xl text-base-900" style={{ fontFamily: "Pacifico" }}>
+        <h1
+          className=" text-2xl text-base-900"
+          style={{ fontFamily: "Pacifico" }}
+        >
           Postr
         </h1>
 
@@ -122,7 +119,7 @@ export default function Home() {
             stroke="currentColor"
             className="w-6 h-6 cursor-pointer"
             onClick={() => {
-              window.location.pathname = "/bookmarks"
+              window.location.pathname = "/bookmarks";
             }}
           >
             <path
@@ -139,9 +136,9 @@ export default function Home() {
             stroke="currentColor"
             className="w-6 h-6 cursor-pointer"
             onClick={() => {
-               if(window.location.pathname !== "/settings"){
-                 window.location.pathname = "/settings"
-               }
+              if (window.location.pathname !== "/settings") {
+                window.location.pathname = "/settings";
+              }
             }}
           >
             <path
@@ -203,24 +200,40 @@ export default function Home() {
             pageSelected === "top" ? "underline underline-offset-[10px]" : ""
           } `}
         >
-         Trending
+          Trending
         </a>
       </div>
-     {
-      scrollPosition === "bottom" ?  <div className="flex justify-center mx-auto">
-      <div className="fixed btn btn-circle btn-sm opacity-25 hover:opacity-80 z-[9999] touch:opacity-80" onClick={()=>{{
-         // scroll to the first post
-          window.scrollTo({top:0, behavior:"smooth"})
-      }}}>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" w-6 h-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
-  </svg>   
-      </div>
-
-     </div> : <></>
-     }
-      <div className="flex flex-row gap-5">
-      </div>
+      {scrollPosition === "bottom" ? (
+        <div className="flex justify-center mx-auto">
+          <div
+            className="fixed btn btn-circle btn-sm opacity-25 hover:opacity-80 z-[9999] touch:opacity-80"
+            onClick={() => {
+              {
+                // scroll to the first post
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className=" w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75"
+              />
+            </svg>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+      <div className="flex flex-row gap-5"></div>
       <InfiniteScroll
         dataLength={posts.length}
         next={fetchMorePosts}
@@ -286,7 +299,7 @@ export default function Home() {
                   </div>
 
                   {post.expand.author.followers.includes(
-                    api.authStore.model.id
+                    api.authStore.model.id,
                   ) ? (
                     <div className="flex gap-5 items-center">
                       {post.expand.author.avatar ? (

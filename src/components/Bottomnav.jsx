@@ -123,31 +123,25 @@ export default function Bottomnav() {
 
   function handleContentInput(e) {
     
-    let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
-    console.log(text)
+    let text =  e.target.innerText;
     let charCount = text.length;
     setChar(charCount);
 
-    if (charCount > maxchar) {
-      setChar(maxchar);
-      text = text.substring(0, maxchar);
-      pRef.current.innerText = text;
-    }
 
-   
-    text = sanitizeHtml(text, {
-      allowedTags: sanitizeHtml.defaults.allowedTag,
+    if(Number(charCount) > Number(maxchar)){
+        pRef.current.innerHTML = text.slice(0, maxchar);
+    }
+     
+    pRef.current.innerHTML = handleEmojis(pRef.current.innerHTML);
+    pRef.current.innerHTML = sanitizeHtml(pRef.current.innerHTML, {
+      allowedTags: ["b", "i", "em", "strong", "a", "p", "img"],
       allowedAttributes: {
         a: ["href"],
-        span: ["class"],
+        img: ["src"],
       },
     });
-
-    
-    pRef.current.innerHTML = text;
     restoreCaretPositionToEnd(pRef.current);
-
-    setPContent(text);
+    setPContent(pRef.current.innerHTML);
   }
   useEffect(() => {
  
@@ -171,7 +165,7 @@ export default function Bottomnav() {
     window.removeEventListener("scroll", bodyScroll);
   }
 
-  }, []);
+  }, [modalisOpen]);
   useEffect(() => {
     if (pContent == "") {
       setChar(0);
@@ -606,7 +600,7 @@ export default function Bottomnav() {
           <div className="flex flex-col">
             <p
               contentEditable="true"
-              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
+              className="w-full  h-[12vh] max-h-[12vh] text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
@@ -641,7 +635,7 @@ export default function Bottomnav() {
               </div>
             ) : null}
 
-            <div className="flex flex-row  mt-8  ">
+            <div className="flex flex-row relative mt-12  ">
               <input
                 type="file"
                 id="file"

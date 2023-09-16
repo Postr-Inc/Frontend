@@ -193,9 +193,10 @@ export default function Bottomnav() {
   }
 
   return (
+    <> 
     <div className=" fixed bottom-8 left-[50%] transform -translate-x-1/2
     w-64">
- 
+     
 
       <div className={` 
       ${
@@ -436,16 +437,18 @@ export default function Bottomnav() {
         </div>
       </div>
 
-      <dialog
+    
+    </div>
+    <dialog
         id="newpost"
-        className="modal text-start     overflow-hidden   focus:outline-none"
+        className="modal text-start   focus:outline-none"
         style={{
           backgroundColor: "white",
 
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  shadow-none fixed top-0 left-0 p-5">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
             <svg 
@@ -488,11 +491,11 @@ export default function Bottomnav() {
               @{api.authStore.model.username}
             </h1>
           </div>
-          <div className="flex flex-col mt-5 ">
+          <div className="flex flex-col">
             <p
               contentEditable="true"
               suppressContentEditableWarning={true}
-              className="z-[9999] w-full  h-[12vh]  text-sm  outline-none resize-none"
+              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
@@ -559,7 +562,7 @@ export default function Bottomnav() {
           </div>
         </div>
       </dialog>
-    </div>
+    </>
   );
 }
 

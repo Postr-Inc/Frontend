@@ -39,6 +39,10 @@ const { title, description, image, theme} = Astro.props;
         content: attr(placeholder);
         color: #aaa;
       }
+     p[placeholder]:empty:after {
+        content: attr(placeholder);
+        color: #aaa;
+      }
       p[placeholderSize]:empty:before {
         font-size: attr(placeholderSize);
       }

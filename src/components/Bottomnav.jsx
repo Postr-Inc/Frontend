@@ -81,7 +81,7 @@ export default function Bottomnav() {
   window.addEventListener("keyup", (e) => {
     setIsTyping(false);
   });
-
+ 
   let themewatcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
@@ -123,16 +123,9 @@ export default function Bottomnav() {
         pRef.current.innerHTML = text.slice(0, maxchar);
     }
      
-    pRef.current.innerHTML = handleEmojis(pRef.current.innerHTML);
-    pRef.current.innerHTML = sanitizeHtml(pRef.current.innerHTML, {
-      allowedTags: ["b", "i", "em", "strong", "a", "p", "img"],
-      allowedAttributes: {
-        a: ["href"],
-        img: ["src"],
-      },
-    });
+    pRef.current.innerHTML = text;
     restoreCaretPositionToEnd(pRef.current);
-    setPContent(pRef.current.innerHTML);
+    setPContent(text);
   }
   useEffect(() => {
  
@@ -156,7 +149,7 @@ export default function Bottomnav() {
     window.removeEventListener("scroll", bodyScroll);
   }
 
-  }, [modalisOpen]);
+  }, []);
   useEffect(() => {
     if (pContent == "") {
       setChar(0);
@@ -545,7 +538,7 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  shadow-none fixed top-0 left-0 p-5">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
             <svg 
@@ -588,21 +581,23 @@ export default function Bottomnav() {
               @{api.authStore.model.username}
             </h1>
           </div>
-          <div className="flex flex-col">
-            <p
+          <p
               contentEditable="true"
-              className="w-full  h-[12vh] max-h-[12vh] text-sm mt-5 outline-none resize-none"
+              className="w-full  h-64 max-h-32 text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
-              onChange={handleContentInput}
-            ></p>
+              onInput={handleContentInput}
+              onPaste={handleContentInput}
+          ></p>
+          <div className="flex flex-col">
+            
 
             {image ? (
               <div className="relative max-w-32">
                 <span
                   className="
-             hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
+             hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm hover:border hover:border-base-300  cursor-pointer"
                   style={{
                     fontSize: ".7rem",
                     position: "absolute",
@@ -630,6 +625,7 @@ export default function Bottomnav() {
                 type="file"
                 id="file"
                 className="hidden"
+                accept="image/*"
                 onChange={(e) => {
                   setImage(URL.createObjectURL(e.target.files[0]));
                   setFile(e.target.files[0]);

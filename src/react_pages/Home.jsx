@@ -244,6 +244,7 @@ export default function Home() {
                   verified={post.expand.author.validVerified}
                   comments={post.expand.comments ? post.expand.comments : []}
                   content={post.content}
+                  tags = {post.tags}
                   id={post.id}
                   created={post.created}
                   bookmarked={post.bookmarked}

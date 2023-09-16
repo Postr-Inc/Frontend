@@ -100,8 +100,11 @@ export default function Profile(props) {
    
     api
       .collection("users")
-      .getFirstListItem(`username="${props.user}"`)
+      .getFirstListItem(`username="${props.user}"`, {
+        expand: "followers",
+      })
       .then((res) => {
+        console.log(res)
         if (res.deactivated) {
           let profile = {
             username: "User not found",
@@ -543,6 +546,7 @@ export default function Profile(props) {
                           pinned={p.pinned}
                           author={p.expand.author}
                           content={p.content}
+                          tags = {p.tags}
                           likes={p.likes}
                           comments={p.comments}
                           created={p.created}
@@ -615,6 +619,7 @@ export default function Profile(props) {
                           author={l.expand.author}
                           content={l.content}
                           likes={l.likes}
+                          tags = {l.tags}
                           comments={l.comments}
                           ondelete={() => {
                             let index = array.indexOf(l);
@@ -652,6 +657,7 @@ export default function Profile(props) {
                           pinned={c.pinned}
                           author={c.expand.author}
                           content={c.content}
+                          tags = {c.tags}
                           likes={c.likes}
                           comments={c.comments}
                         />

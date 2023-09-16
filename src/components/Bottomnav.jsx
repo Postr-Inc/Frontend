@@ -81,7 +81,16 @@ export default function Bottomnav() {
   window.addEventListener("keyup", (e) => {
     setIsTyping(false);
   });
- 
+  window.addEventListener("scroll", (e) => {
+    if(window.scrollY > 0){
+      setIsScrolling(true)
+    }
+    // check if mot scrolling
+    if(window.scrollY === 0){
+      setIsScrolling(false)
+    }
+  });
+
   let themewatcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
@@ -113,44 +122,62 @@ export default function Bottomnav() {
   }
 
   function handleContentInput(e) {
-    e.target.focus();
-    let text =  e.target.innerText;
+    let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
+
     let charCount = text.length;
     setChar(charCount);
 
-
-    if (charCount > maxchar) {
-      e.target.innerText = text.slice(0, maxchar);
+    if (charCount >= maxchar) {
       setChar(maxchar);
+      text = text.substring(0, maxchar);
+      pRef.current.innerText = text;
     }
-     
-    pRef.current.innerHTML = handleEmojis(pRef.current.innerHTML);
+
+    // Process emojis and replace &lt; and &gt;
+    text = handleEmojis(text);
+    text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
+
+    text = sanitizeHtml(text, {
+      allowedTags: sanitizeHtml.defaults.allowedTag,
+      allowedAttributes: {
+        a: ["href"],
+        span: ["class"],
+      },
+    });
+
+    if (text.includes("@")) {
+      // do not process already mentioned users
+      let mentions = text.match(/@(\w+)/g);
+
+      setHasMention(true);
+      if (mentions) {
+        const usernames = mentions.map((mention) => mention.replace("@", ""));
+        api
+          .collection("users")
+          .getFullList("*", {
+            filter: `username ~ "${usernames.join("|")}"`,
+          })
+          .then((res) => {
+            if (res) {
+              setMentionedUsers(res);
+            } else {
+              setMentionedUsers([]);
+            }
+          })
+          .catch((err) => {
+            console.log("Error fetching mentioned users", err);
+          });
+      }
+    } else {
+      setHasMention(false);
+      setMentionedUsers([]);
+    }
+    pRef.current.innerHTML = text;
     restoreCaretPositionToEnd(pRef.current);
+
     setPContent(text);
   }
-  useEffect(() => {
- 
-  var scrollTimer = -1;
 
-  function bodyScroll() {
- 
-
-    if (scrollTimer != -1)
-      clearTimeout(scrollTimer);
-
-    scrollTimer =   setTimeout(scrollFinished, 1000);
-    setIsScrolling(true)
-  }
-  window.addEventListener("scroll", bodyScroll, false);
-  function scrollFinished() {
-    console.log("scrolling finished")
-    setIsScrolling(false)
-  }
-  return () => {
-    window.removeEventListener("scroll", bodyScroll);
-  }
-
-  }, []);
   useEffect(() => {
     if (pContent == "") {
       setChar(0);
@@ -173,9 +200,7 @@ export default function Bottomnav() {
 
     api
       .collection("posts")
-      .create(form, {
-        expand: "author",
-      })
+      .create(form)
       .then((res) => {
         pRef.current.innerHTML = "";
         setChar(0);
@@ -189,23 +214,7 @@ export default function Bottomnav() {
           window.location.href = "/p/" + res.id;
 
           document.getElementById("success").classList.add("hidden");
-          document.getElementById("success").classList.remove("flex");
         };
-        setTimeout(() => {
-          document.getElementById("success").classList.add("hidden");
-          document.getElementById("success").classList.remove("flex");
-        } , 3000)
-        document.activeElement.blur();
-        api.collection('notifications').create({
-          type: 'post',
-          post: res.id,
-          notification_title: `${api.authStore.model.username} justed posted!`,
-          notification_body: `Click to view their post`,
-          url: `/p/${res.id}`,
-          author: api.authStore.model.id,
-          multi_recipients: res.expand.author.followers,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${res.expand.author.id}/${res.expand.author.avatar}`
-        }) 
       })
       .catch((e) => {
         document.getElementById("success").classList.remove("hidden");
@@ -219,42 +228,22 @@ export default function Bottomnav() {
         };
         document.getElementById("newpost").close();
         document.activeElement.blur();
-        setTimeout(() => {
-          document.getElementById("success").classList.add("hidden");
-          document.getElementById("success").classList.remove("flex");
-        } , 3000)
-      })
-
-      
-
-
+      });
   }
 
   return (
-    <> 
-     <div
-          
+    <div className=" fixed  bottom-[5vh]  left-[10vw] flex justify-center mx-auto w-[70vw]">
+      <div className="p-5">
+        <div
           id="success"
           className={`
-          hidden
-         fixed left-1/2
-         top-12
-               transform -translate-x-1/2 -translate-y-1/2
-           rounded-lg cursor-pointer   
-            flex-row gap-2
-             p-2
+          fixed top-12   bg-base-200 flex-row  left-[10vw] cursor-pointer  alert alert-ghost border  border-slate-200   hidden  w-96 
           ${
-            error ? `text-error  font-thin rounded 
-            ${
-              theme === "black" ? "text-white bg-[#ff41334b]" : "text-black  border border-base-200"
-            }
-            `: `text-sky-500  border-base-200 shadow rounded  ${theme === "black" ? "bg-base-300" : "bg-white"}   `   
+            error ? "text-error" : "text-sky-500"
           }
           `}
         >
-          <p
-          className="flex flex-row   gap-2"
-          >
+          <p>
              {
                !error ? <svg
                xmlns="http://www.w3.org/2000/svg"
@@ -282,20 +271,9 @@ export default function Bottomnav() {
             error ?  'Error creating post' : 'Your post was sent!'
            }
         </div>
-    <div className="  fixed bottom-8 left-[50%] transform -translate-x-1/2
-    w-64">
-      <div className="  fixed top-0 left-0"
-     
-      >
-        
       </div>
 
-      <div className={`
-      
-      ${
-        isScrolling ? " bg-opacity-50" : "bg-opacity-100"
-      }
-      ${theme === 'black' ?   "border border-base-300 bg-black" : "bg-white border border-base-200 bg-opacity-100"}  mr-2    rounded-2xl w-full h-12 p-2`}
+      <div className={` border ${theme === 'black' ?   "border-base-300 bg-black" : "bg-white border-base-300"}  mr-2    rounded-2xl w-full h-12 p-2`}
       >
         <div className="flex flex-row     mb-3   justify-between ">
           <div
@@ -539,7 +517,7 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen   shadow-none fixed   p-5">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
             <svg 
@@ -582,23 +560,24 @@ export default function Bottomnav() {
               @{api.authStore.model.username}
             </h1>
           </div>
-          <p
+          <div className="flex flex-col">
+            <p
               contentEditable="true"
-              className="w-full  h-64 max-h-32 text-sm mt-5 outline-none resize-none"
+              suppressContentEditableWarning={true}
+              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
-              onInput={handleContentInput}
+              onInput={debounce(handleContentInput, 100)}
               onPaste={handleContentInput}
-          ></p>
-          <div className="flex flex-col">
-            
+              autoFocus
+            ></p>
 
             {image ? (
               <div className="relative max-w-32">
                 <span
                   className="
-             hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm hover:border hover:border-base-300  cursor-pointer"
+             hover:bg-[#05050555]  text-sm bg-[#05050555] text-white btn btn-circle btn-sm   cursor-pointer"
                   style={{
                     fontSize: ".7rem",
                     position: "absolute",
@@ -621,12 +600,11 @@ export default function Bottomnav() {
               </div>
             ) : null}
 
-            <div className="flex flex-row relative mt-12  ">
+            <div className="flex flex-row  mt-8  ">
               <input
                 type="file"
                 id="file"
                 className="hidden"
-                accept="image/*"
                 onChange={(e) => {
                   setImage(URL.createObjectURL(e.target.files[0]));
                   setFile(e.target.files[0]);
@@ -654,7 +632,6 @@ export default function Bottomnav() {
         </div>
       </dialog>
     </div>
-    </>
   );
 }
 

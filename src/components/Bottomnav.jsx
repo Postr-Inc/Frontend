@@ -488,10 +488,11 @@ export default function Bottomnav() {
               @{api.authStore.model.username}
             </h1>
           </div>
-          <p
+          <div className="flex flex-col mt-5 ">
+            <p
               contentEditable="true"
               suppressContentEditableWarning={true}
-              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
+              className="z-[9999] w-full  h-[12vh]  text-sm  outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
@@ -499,8 +500,6 @@ export default function Bottomnav() {
               onPaste={handleContentInput}
               autoFocus
             ></p>
-          <div className="flex flex-col">
-            
 
             {image ? (
               <div className="relative max-w-32">

@@ -209,15 +209,30 @@ export default function Post(props) {
         className="mt-6 text-sm max-w-full break-words"
         ref={(el) => {
           if (el) { 
-            el.innerHTML = sanitizeHtml(props.content, {
-              allowedTags: ["b", "i", "em", "strong", "a"],
+            let text = props.content;
+            if(props.tags){
+              props.tags.forEach((tag) => {
+                console.log(tag);
+                text =  text.replace(
+                  `<a class="text-sky-500">${tag}</a>`,
+                  `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
+                );
+                console.log(text);
+              });
+            }
+           let t = sanitizeHtml(text, {
+              allowedTags: sanitizeHtml.defaults.allowedTags,
               allowedAttributes: {
-                a: ["href"],
+                a: ["href", "class"],
               },
             });
+            el.innerHTML = t;
+             
           }
         }}
       ></p>
+
+      
 
       {props.file ? (
         <>
@@ -454,6 +469,9 @@ export default function Post(props) {
             : "0 Likes"}
         </span>
       </div>
+    <div className="flex flex-row mt-6">
+    
+    </div>
       <dialog id={`reportmodal${props.id}`} className="  modal modal-bottom h-screen">
         <form method="dialog" className="modal-box p-5  h-96">
           <h3 className="font-bold text-lg">Report {props.author.username}</h3>

@@ -222,26 +222,9 @@ export default function Bottomnav() {
         setImage("");
         setFile("");
         setModalisOpen(false);
-        document.getElementById("success").classList.remove("hidden");
-        document.getElementById("success").classList.add("flex");
-        setError(false);
-        document.getElementById("success").onclick = () => {
-          window.location.href = "/p/" + res.id;
-
-          document.getElementById("success").classList.add("hidden");
-          document.getElementById("success").classList.remove("flex");
-        };
+        document.activeElement.blur();
       })
       .catch((e) => {
-        document.getElementById("success").classList.remove("hidden");
-        document.getElementById("success").classList.add("text-error");
-        setError(true);
-
-        document.getElementById("success").onclick = () => {
-          console.clear();
-          document.getElementById("success").classList.add("hidden");
-          document.getElementById("success").classList.remove("text-error");
-        };
         document.getElementById("newpost").close();
         document.activeElement.blur();
       });

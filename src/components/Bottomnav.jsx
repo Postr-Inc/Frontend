@@ -132,50 +132,10 @@ export default function Bottomnav() {
       text = text.substring(0, maxchar);
       pRef.current.innerText = text;
     }
-
-    // Process emojis and replace &lt; and &gt;
-    text = handleEmojis(text);
-    text = text.replaceAll(/&lt;/g, "<").replaceAll(/&gt;/g, ">");
-
-    text = sanitizeHtml(text, {
-      allowedTags: sanitizeHtml.defaults.allowedTag,
-      allowedAttributes: {
-        a: ["href"],
-        span: ["class"],
-      },
-    });
-
-    if (text.includes("@")) {
-      // do not process already mentioned users
-      let mentions = text.match(/@(\w+)/g);
-
-      setHasMention(true);
-      if (mentions) {
-        const usernames = mentions.map((mention) => mention.replace("@", ""));
-        api
-          .collection("users")
-          .getFullList("*", {
-            filter: `username ~ "${usernames.join("|")}"`,
-          })
-          .then((res) => {
-            if (res) {
-              setMentionedUsers(res);
-            } else {
-              setMentionedUsers([]);
-            }
-          })
-          .catch((err) => {
-            console.log("Error fetching mentioned users", err);
-          });
-      }
-    } else {
-      setHasMention(false);
-      setMentionedUsers([]);
-    }
-    pRef.current.innerHTML = text;
-    restoreCaretPositionToEnd(pRef.current);
-
+  
     setPContent(text);
+    restoreCaretPositionToEnd(pRef.current);
+    pRef.current.focus();
   }
   var scrollTimer = -1;
 
@@ -225,6 +185,7 @@ export default function Bottomnav() {
         document.activeElement.blur();
       })
       .catch((e) => {
+        
         document.getElementById("newpost").close();
         document.activeElement.blur();
       });

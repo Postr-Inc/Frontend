@@ -127,15 +127,16 @@ export default function Bottomnav() {
     let charCount = text.length;
     setChar(charCount);
 
-    if (charCount >= maxchar) {
-      setChar(maxchar);
-      text = text.substring(0, maxchar);
-      pRef.current.innerText = text;
+    if (Number(charCount) >= maxchar) {
+       setChar(maxchar);
+        
+       
     }
   
     setPContent(text);
     restoreCaretPositionToEnd(pRef.current);
     pRef.current.focus();
+   
   }
   var scrollTimer = -1;
 
@@ -194,54 +195,7 @@ export default function Bottomnav() {
   return (
     <div className=" fixed bottom-8 left-[50%] transform -translate-x-1/2
     w-64">
-      <div className="p-2">
-        <div
-          id="success"
-          className={`
-          fixed top-[8vh] left-[50%] transform -translate-x-1/2   
-           rounded-lg cursor-pointer  flex-row justify-center items-center gap-2 
-            hidden
-             p-2
-          ${
-            error ? `text-error  font-thin rounded 
-            ${
-              theme === "black" ? "text-white bg-[#ff41334b]" : "text-black  border border-base-200"
-            }
-            `: `text-sky-500  border-base-200 shadow rounded  ${theme === "black" ? "bg-base-300" : "bg-white"}   `   
-          }
-          `}
-        >
-          <p
-          className="flex flex-row   gap-2"
-          >
-             {
-               !error ? <svg
-               xmlns="http://www.w3.org/2000/svg"
-               fill="none"
-               viewBox="0 0 24 24"
-               strokeWidth={1.5}
-               stroke="currentColor"
-               className="w-6 text-sky-500 h-6"
-             >
-               <path
-                 strokeLinecap="round"
-                 strokeLinejoin="round"
-                 d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-               />
-             </svg>
-             : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6
-             text-error
-             ">
-             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-           </svg>
-           
-             }
-          </p>
-           {
-            error ?  'Error creating post' : 'Your post was sent!'
-           }
-        </div>
-      </div>
+     
 
       <div className={` 
       ${
@@ -542,7 +496,7 @@ export default function Bottomnav() {
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
-              onInput={debounce(handleContentInput, 100)}
+              onInput={handleContentInput}
               onPaste={handleContentInput}
               autoFocus
             ></p>

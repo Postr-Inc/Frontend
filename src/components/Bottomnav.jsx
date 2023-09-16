@@ -119,11 +119,12 @@ export default function Bottomnav() {
     setChar(charCount);
 
 
-    if(Number(charCount) > Number(maxchar)){
-        pRef.current.innerHTML = text.slice(0, maxchar);
+    if (charCount > maxchar) {
+      e.target.innerText = text.slice(0, maxchar);
+      setChar(maxchar);
     }
      
-    pRef.current.innerHTML = text;
+    pRef.current.innerHTML = handleEmojis(pRef.current.innerHTML);
     restoreCaretPositionToEnd(pRef.current);
     setPContent(text);
   }

@@ -68,7 +68,7 @@ export default function Bottomnav() {
   let [hasMention, setHasMention] = useState(false);
   let [error, setError] = useState(false);
   let [theme, setTheme] = useState(localStorage.getItem("theme"));
- 
+  let [tags, setTags] = useState([]);
    
   let [isScrolling, setIsScrolling] = useState(false)
   let pRef = useRef();
@@ -81,16 +81,7 @@ export default function Bottomnav() {
   window.addEventListener("keyup", (e) => {
     setIsTyping(false);
   });
-  window.addEventListener("scroll", (e) => {
-    if(window.scrollY > 0){
-      setIsScrolling(true)
-    }
-    // check if mot scrolling
-    if(window.scrollY === 0){
-      setIsScrolling(false)
-    }
-  });
-
+  
   let themewatcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
@@ -121,23 +112,55 @@ export default function Bottomnav() {
     selection.addRange(range);
   }
 
+  
   function handleContentInput(e) {
-    let text = pRef.current.innerText; // Use innerText instead of innerHTML to get plain text
+    let newText = pRef.current.innerHTML;
 
-    let charCount = text.length;
+    const charCount = newText.length;
     setChar(charCount);
 
-    if (Number(charCount) >= maxchar) {
-       setChar(maxchar);
-        
-       
+    if (charCount >= maxchar) {
+      setChar(maxchar);
     }
-  
-    setPContent(text);
-    restoreCaretPositionToEnd(pRef.current);
-    pRef.current.focus();
+
+    let hashtags = newText.match(/#[a-z0-9]+/gi);
+
+    if (hashtags && hashtags.length > 0) {
+      // If there are hashtags, set tags to the array of hashtags
+      setTags(hashtags);
+      hashtags.forEach((tag) => {
+        // make hashtag blue
+        
+        newText = newText.replace(
+          tag,
+          `<a  class="text-sky-500">${tag}</a>`
+        );
+        pRef.current.innerHTML = newText;
+ 
+        pRef.current.querySelectorAll("a").forEach((a) => {
+          if(a.innerHTML.length < 1){
+            a.remove()
+          }
+        });
+      });
+    } else {
+     
+      if(tags.length > 0){
+        setTags([])
+      }
+    }
+    
+     
    
+    console.log(pRef.current.innerHTML)
+    restoreCaretPositionToEnd(pRef.current);
+    let dup = pRef.current.cloneNode(true);
+    dup.querySelectorAll("a").forEach((a) => {
+      a.remove();
+    });
+    setPContent(dup.innerHTML);
   }
+  
   var scrollTimer = -1;
 
   function bodyScroll() {
@@ -170,13 +193,16 @@ export default function Bottomnav() {
     form.append("content", pRef.current.innerHTML);
     form.append("author", api.authStore.model.id);
     form.append("type", "text");
+    form.append("tags", tags.length > 0 ? JSON.stringify(tags) : JSON.stringify([]));
     form.append("likes", JSON.stringify([]));
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
 
     api
       .collection("posts")
-      .create(form)
+      .create(form, {
+        expand: "author"
+      })
       .then((res) => {
         pRef.current.innerHTML = "";
         setChar(0);
@@ -184,12 +210,29 @@ export default function Bottomnav() {
         setFile("");
         setModalisOpen(false);
         document.activeElement.blur();
+        if(res.expand && res.expand.author){
+          api.collection("notifications").create({
+            author: api.authStore.model.id,
+            type: "post",
+            post: res.id,
+            title: `New post from ${api.authStore.model.username}`,
+            notification_title: `New post from ${api.authStore.model.username}`,
+            notification_body: `View ${api.authStore.model.username}'s post`,
+            url: `/p/${res.id}`,
+            image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+            multi_recipients: JSON.stringify(res.expand.author.followers),
+          }).then((res) => {
+            console.log(res)
+          });
+        }
       })
       .catch((e) => {
         
         document.getElementById("newpost").close();
         document.activeElement.blur();
       });
+
+ 
   }
 
   return (
@@ -451,24 +494,20 @@ export default function Bottomnav() {
         <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
-            <svg 
-            className="w-5 h-5 mt-1  
-            hover:rounded-full hover:bg-[#05050555] hover:text-white
-            "
-             onClick={() => {
-              document.getElementById("newpost").close();
-              setModalisOpen(false);
-              pRef.current.innerHTML = "";
-              setChar(0);
-              setImage("");
-              setFile("");
-              document.activeElement.blur();
-            }}
-            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-              <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clip-rule="evenodd"></path></svg>
-               
-              <span className="mx-5  font-bold" style={{ fontSize:"1rem" }}>
-                Create Postr
+            
+              <span className="  " style={{ fontSize:"1rem" }}
+              
+              onClick={() => {
+                document.getElementById("newpost").close();
+                setModalisOpen(false);
+                pRef.current.innerHTML = "";
+                setChar(0);
+                setImage("");
+                setFile("");
+                document.activeElement.blur();
+              }}
+              >
+                Cancel
               </span>
             </div>
             <button
@@ -503,7 +542,7 @@ export default function Bottomnav() {
               onPaste={handleContentInput}
               autoFocus
             ></p>
-
+ 
             {image ? (
               <div className="relative max-w-32">
                 <span
@@ -531,7 +570,7 @@ export default function Bottomnav() {
               </div>
             ) : null}
 
-            <div className="flex flex-row  mt-8  ">
+            <div className="flex flex-row justify-between mt-8  ">
               <input
                 type="file"
                 id="file"
@@ -558,6 +597,8 @@ export default function Bottomnav() {
                   <path d="M19,2H5C3.3438721,2.0018311,2.0018311,3.3438721,2,5v9.0683594V19c0.0018311,1.6561279,1.3438721,2.9981689,3,3h14c0.182312-0.0002441,0.3621216-0.0219727,0.5395508-0.0549316c0.0661011-0.012085,0.1291504-0.0303345,0.1936646-0.0466919c0.1060181-0.0270996,0.210083-0.0586548,0.3125-0.097229c0.0744629-0.0278931,0.1471558-0.0571289,0.218689-0.0906372c0.0839844-0.0395508,0.1642456-0.0853882,0.2444458-0.1327515c0.0751953-0.0441895,0.1511841-0.0856323,0.2219849-0.1359863c0.0057983-0.0041504,0.0123901-0.006897,0.0181885-0.0111084c0.0074463-0.0053711,0.013855-0.0120239,0.0209961-0.0178223c0.0136719-0.0110474,0.0308228-0.0164795,0.043335-0.0289917c0.0066528-0.0066528,0.008728-0.015564,0.0148926-0.0224609C21.5355225,20.8126221,21.9989624,19.9642944,22,19v-2.9296875V5C21.9981689,3.3438721,20.6561279,2.0018311,19,2z M19.5749512,20.9053955C19.3883667,20.9631958,19.1954956,20.9998779,19,21H5c-1.1040039-0.0014038-1.9985962-0.8959961-2-2v-4.7246094l3.7626953-3.7626953c0.684021-0.6816406,1.7905884-0.6816406,2.4746094,0l3.4048462,3.404541c0.0018921,0.0019531,0.0023804,0.0045776,0.0043335,0.0065308l6.9689941,6.9689941C19.6020508,20.8971558,19.588501,20.9012451,19.5749512,20.9053955z M21,19c-0.0006714,0.5162964-0.2020264,0.9821777-0.5234375,1.3369751l-6.7684326-6.7678223l1.055542-1.055481c0.6912231-0.6621094,1.7814331-0.6621094,2.4726562,0L21,16.2773438V19z M21,14.8632812l-3.0566406-3.0566406c-1.0737305-1.0722656-2.8129883-1.0722656-3.8867188,0l-1.055542,1.055542L9.9443359,9.8056641c-1.0744629-1.0722656-2.814209-1.0722656-3.8886719,0L3,12.8613281V5c0.0014038-1.1040039,0.8959961-1.9985962,2-2h14c1.1040039,0.0014038,1.9985962,0.8959961,2,2V14.8632812z M13.5,6C12.6715698,6,12,6.6715698,12,7.5S12.6715698,9,13.5,9c0.828064-0.0009155,1.4990845-0.671936,1.5-1.5C15,6.6715698,14.3284302,6,13.5,6z M13.5,8C13.223877,8,13,7.776123,13,7.5S13.223877,7,13.5,7c0.2759399,0.0005493,0.4994507,0.2240601,0.5,0.5C14,7.776123,13.776123,8,13.5,8z"></path>
                 </svg>
               </label>
+              
+             
             </div>
           </div>
         </div>

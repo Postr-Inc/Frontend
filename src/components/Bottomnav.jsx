@@ -445,7 +445,7 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen     p-5">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
             <svg 
@@ -488,19 +488,19 @@ export default function Bottomnav() {
               @{api.authStore.model.username}
             </h1>
           </div>
-          <div className="flex flex-col">
-            <p
+          <p
               contentEditable="true"
               suppressContentEditableWarning={true}
-              className="w-full  h-[12vh]  text-sm mt-5 outline-none "
+              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
               onInput={handleContentInput}
-              
               onPaste={handleContentInput}
               autoFocus
             ></p>
+          <div className="flex flex-col">
+            
 
             {image ? (
               <div className="relative max-w-32">

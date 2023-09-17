@@ -57,233 +57,198 @@ export default function Post(props) {
           window.location.href = "/p/" + props.id;
         }
       }}
-    > 
-     {
-      pinned && window.location.pathname === `/u/${props.author.username}` ? <div className="flex mb-6 flex-row gap-2 items-center font-medium text-sm text-slate-500">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="#ffd966" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#ffd966" className="w-4 h-4 ">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-</svg>
-
-    Pinned  
-
-      </div> : ""
-     }
-      <div className="flex flex-row ">
-        {props.author.avatar ? (
-          <img
-            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
-            className="w-8 h-8 rounded-full object-cover"
-            alt="post image"
-          />
-        ) : (
-          <div className="avatar placeholder">
-            <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
-              <span className="text-xs">
-                {props.author.username.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          </div>
-        )}
-
-        <span
-          className="mx-2   cursor-pointer "
-          style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
-          onClick={() => {
-            if (window.location.pathname !== "/u/" + props.author.username) {
-              window.location.href = "/u/" + props.author.username;
-            }
-          }}
-        >
-          {props.author.username}
-        </span>
-        {props.author.validVerified ? (
-          <img
-            src="/icons/verified.png"
-            className="mt-[.3em]"
-            style={{ width: "13px", height: "13px" }}
-          />
-        ) : (
-          ""
-        )}
-        <span className="mx-2 text-slate-300">
-        @{props.author.username}
-        </span>
-
-        <div className="dropdown dropdown-left absolute end-5 ">
-          <div className="flex text-sm flex-row gap-5">
-            <span className="text-gray-500 text-sm">
-              {parseDate(props.created)}
-            </span>
-            <label tabIndex="0" className="flex text-gray-500   cursor-pointer">
-              •••
-            </label>
-          </div>
-          <ul
-            tabIndex="0"
-            className={`dropdown-content rounded z-[1] menu p-2 shadow  h-fit w-52
-            ${
-              theme === "black" ? "bg-base-300" : "bg-base-100"
-            }
-            `}
-            style={{height: "fit-content"}}
+    >
+      {pinned && window.location.pathname === `/u/${props.author.username}` ? (
+        <div className="flex mb-6 flex-row gap-2 items-center font-medium text-sm text-slate-500">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="#ffd966"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="#ffd966"
+            className="w-4 h-4 "
           >
-            {props.author.id !== api.authStore.model.id ? (
-              <li>
-                <a className="cursor-pointer"
-                onClick={() => {
-                  document.getElementById(`reportmodal${props.id}`).showModal();
-                }}
-                >Report</a>
-              </li>
-            ) : (
-              ""
-            )}
-
-            {props.author.id === api.authStore.model.id 
-            &&  window.location.pathname === "/u/" + props.author.username  
-            ? (
-              <li>
-                <a
-                  className="cursor-pointer"
-                  onClick={() => {
-                    props.ondelete();
-                  }}
-                >
-                  Delete
-                </a>
-              </li>
-            ) : (
-              ""
-            )}
-
-            {props.author.id !== api.authStore.model.id &&
-            window.location.pathname === "/" ? (
-              <li>
-                <a
-                  onClick={() => {
-                    document.getElementById("moreinfo" + props.id).showModal();
-                  }}
-                >
-                  Why am I Seeing This?
-                </a>
-              </li>
-            ) : (
-              <></>
-            )}
-             {
-                props.author.id === api.authStore.model.id 
-                
-                ? <li>
-               {
-                  pinned ? <a
-                  
-                  onClick={() => {
-                    setPinned(false);
-                    api.collection("posts").update(props.id, {
-                      pinned: false,
-                    });
-                  }}
-                  >
-                  Unpin
-                  </a>
-                  : <a
-                  onClick={() => {
-                    setPinned(true);
-                    api.collection("posts").update(props.id, {
-                      pinned: true,
-                    });
-                  }}
-                  >
-
-                  Pin
-                  </a>
-               }
-              </li>
-              : <></>
-             }
-          </ul>
-        </div>
-      </div>
-
-      <p
-        className="mt-6 text-sm max-w-full break-words"
-        ref={(el) => {
-          if (el) { 
-            let text = props.content;
-            if(props.tags){
-              props.tags.forEach((tag) => {
-                console.log(tag);
-                text =  text.replace(
-                  `<a class="text-sky-500">${tag}</a>`,
-                  `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
-                );
-                console.log(text);
-              });
-            }
-           let t = sanitizeHtml(text, {
-              allowedTags: sanitizeHtml.defaults.allowedTags,
-              allowedAttributes: {
-                a: ["href", "class"],
-              },
-            });
-            el.innerHTML = t;
-             
-          }
-        }}
-      ></p>
-
-      
-
-      {props.file ? (
-        <>
-          <div>
-            <img
-              src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-              className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
-              alt="post image"
-              onClick={() => {
-                try {
-                  document.getElementById("modal" + props.id).showModal();
-                } catch (error) {
-                  console.log(error);
-                }
-              }}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
             />
-          </div>
-          <dialog
-            id={"modal" + props.id}
-            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
-          >
-            <button
-              className="btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  text-white bg-[#222222]  top-5 left-10
-             focus:outline-none
-             "
-              onClick={() => {
-                document.getElementById("modal" + props.id).close();
-              }}
-            >
-              ✕
-            </button>
-            <form
-              method="dialog"
-              className="modal-box bg-transparent z-[-1]  w-screen"
-            >
-              <img
-                src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
-                alt="post image"
-                width={window.innerWidth}
-                height={window.innerHeight}
-                onClick={() => {
-                  document.getElementById("modal" + props.id).showModal();
-                }}
-              />
-            </form>
-          </dialog>
-        </>
+          </svg>
+          Pinned
+        </div>
       ) : (
         ""
       )}
+
+      <div className="flex flex-col">
+        <div className="flex flex-row ">
+          {props.author.avatar ? (
+            <img
+              src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
+              className="w-8 h-8 rounded-full object-cover"
+              alt="post image"
+            />
+          ) : (
+            <div className="avatar placeholder">
+              <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
+                <span className="text-xs">
+                  {props.author.username.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <span
+            className="mx-2   cursor-pointer "
+            style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
+            onClick={() => {
+              if (window.location.pathname !== "/u/" + props.author.username) {
+                window.location.href = "/u/" + props.author.username;
+              }
+            }}
+          >
+            {props.author.username}
+          </span>
+          {props.author.validVerified ? (
+            <img
+              src="/icons/verified.png"
+              className="mt-[.3em]"
+              style={{ width: "13px", height: "13px" }}
+            />
+          ) : (
+            ""
+          )}
+          <span className="mx-2 text-slate-200">
+            @{props.author.username} _ {props.author.id.slice(0, 10)}
+          </span>
+
+          <div className="dropdown dropdown-left absolute end-5 ">
+            <div className="flex text-sm flex-row gap-5">
+              <span className="text-gray-500 text-sm">
+                {parseDate(props.created)}
+              </span>
+              <label
+                tabIndex="0"
+                className="flex text-gray-500   cursor-pointer"
+              >
+                •••
+              </label>
+            </div>
+            <ul
+              tabIndex="0"
+              className={`dropdown-content rounded z-[1] menu p-2 shadow  h-fit w-52
+            ${theme === "black" ? "bg-base-300" : "bg-base-100"}
+            `}
+              style={{ height: "fit-content" }}
+            >
+              {props.author.id !== api.authStore.model.id ? (
+                <li>
+                  <a
+                    className="cursor-pointer"
+                    onClick={() => {
+                      document
+                        .getElementById(`reportmodal${props.id}`)
+                        .showModal();
+                    }}
+                  >
+                    Report
+                  </a>
+                </li>
+              ) : (
+                ""
+              )}
+
+              {props.author.id === api.authStore.model.id &&
+              window.location.pathname === "/u/" + props.author.username ? (
+                <li>
+                  <a
+                    className="cursor-pointer"
+                    onClick={() => {
+                      props.ondelete();
+                    }}
+                  >
+                    Delete
+                  </a>
+                </li>
+              ) : (
+                ""
+              )}
+
+              {props.author.id !== api.authStore.model.id &&
+              window.location.pathname === "/" ? (
+                <li>
+                  <a
+                    onClick={() => {
+                      document
+                        .getElementById("moreinfo" + props.id)
+                        .showModal();
+                    }}
+                  >
+                    Why am I Seeing This?
+                  </a>
+                </li>
+              ) : (
+                <></>
+              )}
+              {props.author.id === api.authStore.model.id ? (
+                <li>
+                  {pinned ? (
+                    <a
+                      onClick={() => {
+                        setPinned(false);
+                        api.collection("posts").update(props.id, {
+                          pinned: false,
+                        });
+                      }}
+                    >
+                      Unpin
+                    </a>
+                  ) : (
+                    <a
+                      onClick={() => {
+                        setPinned(true);
+                        api.collection("posts").update(props.id, {
+                          pinned: true,
+                        });
+                      }}
+                    >
+                      Pin
+                    </a>
+                  )}
+                </li>
+              ) : (
+                <></>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <p
+          className="mt-6 text-sm max-w-full break-words"
+          ref={(el) => {
+            if (el) {
+              let text = props.content;
+              if (props.tags) {
+                props.tags.forEach((tag) => {
+                  console.log(tag);
+                  text = text.replace(
+                    `<a class="text-sky-500">${tag}</a>`,
+                    `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
+                  );
+                  console.log(text);
+                });
+              }
+              let t = sanitizeHtml(text, {
+                allowedTags: sanitizeHtml.defaults.allowedTags,
+                allowedAttributes: {
+                  a: ["href", "class"],
+                },
+              });
+              el.innerHTML = t;
+            }
+          }}
+        ></p>
+      </div>
 
       <div className="flex flex-row gap-5 mt-6">
         {
@@ -469,10 +434,11 @@ export default function Post(props) {
             : "0 Likes"}
         </span>
       </div>
-    <div className="flex flex-row mt-6">
-    
-    </div>
-      <dialog id={`reportmodal${props.id}`} className="  modal modal-bottom h-screen">
+      <div className="flex flex-row mt-6"></div>
+      <dialog
+        id={`reportmodal${props.id}`}
+        className="  modal modal-bottom h-screen"
+      >
         <form method="dialog" className="modal-box p-5  h-96">
           <h3 className="font-bold text-lg">Report {props.author.username}</h3>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -483,17 +449,17 @@ export default function Post(props) {
             Your report will be reviewed and actioned accordingly. Nobody but
             you will know that you reported this post.
           </p>
-          <div className="divider h-0 mb-5 opacity-50">Please Select A Reason</div>
+          <div className="divider h-0 mb-5 opacity-50">
+            Please Select A Reason
+          </div>
           <select
-          defaultValue="Select a reason"
+            defaultValue="Select a reason"
             className="select select-ghost w-full select-sm"
             onChange={(e) => {
-               setReport(e.target.value);
+              setReport(e.target.value);
             }}
           >
-            <option disabled="disabled"  >
-              Select a reason
-            </option>
+            <option disabled="disabled">Select a reason</option>
             <option value="Inappropriate">Inappropriate</option>
             <option value="spam">Spam</option>
             <option value="hate">Hate Speech</option>
@@ -507,10 +473,10 @@ export default function Post(props) {
                 document.getElementById(`reported`).showModal();
                 api.collection("reports").create({
                   post: props.id,
-                  reason:  report,
+                  reason: report,
                   postid: props.id,
                   PostAuthor: props.author.id,
-                  ReportedBy: api.authStore.model.id
+                  ReportedBy: api.authStore.model.id,
                 });
               }}
             >
@@ -527,11 +493,9 @@ export default function Post(props) {
           </button>
           <div className="divider h-0 mt-2 opacity-50 "></div>
           <p>
-           Thankyou for making Postr a better place. Your report will be reviewed and actioned accordingly.
+            Thankyou for making Postr a better place. Your report will be
+            reviewed and actioned accordingly.
           </p>
-          
-         
-           
         </form>
       </dialog>
     </div>
@@ -557,19 +521,19 @@ function parseDate(data) {
     return Math.round(minutes) + "m";
   }
   if (hours < 24) {
-    return Math.round(hours) + "h";
+    hours > 1 ? Math.round(hours) + "hs" : Math.round(hours) + "h";
   }
   if (days < 7) {
-    return Math.round(days) + "d";
+    return Math.round(days) + "d ago";
   }
   if (weeks < 4) {
-    return Math.round(weeks) + "w";
+    return Math.round(weeks) + "w ago";
   }
   if (months < 12) {
-    return Math.round(months) + "m";
+    return Math.round(months) + "mo ago";
   }
   if (years >= 1) {
-    return Math.round(years) + "y";
+    return Math.round(years) + "y ago";
   }
 }
 function debounce(fn, time) {

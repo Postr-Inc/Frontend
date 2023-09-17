@@ -10,30 +10,33 @@ export default function Settings() {
   let [notificationsOn, setNotificationsOn] = useState(
     localStorage.getItem("notifications") === "true" ? true : false
   );
-  let [recommendation_ratings, setrecommendation_ratings] = useState(localStorage.getItem("recommendation_ratings") === "true" ? true : false);
-  let [theme, setTheme] = useState(localStorage.getItem("theme") === "black" ? true : false);
+  let [recommendation_ratings, setrecommendation_ratings] = useState(
+    localStorage.getItem("recommendation_ratings") === "true" ? true : false
+  );
+  let [theme, setTheme] = useState(
+    localStorage.getItem("theme") === "black" ? true : false
+  );
 
   useEffect(() => {
-    
-    let theme = localStorage.getItem('theme')
-		if(!theme){
-			localStorage.setItem('theme', 'black')
-			document.querySelector('html').setAttribute('data-theme', 'black')
-	
-		}else{
-			document.querySelector('html').setAttribute('data-theme', theme)
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-				if(e.matches){
-					document.querySelector('html').setAttribute('data-theme', 'black')
-					localStorage.setItem('theme', 'black')
-				}else{
-					document.querySelector('html').setAttribute('data-theme', 'white')
-					localStorage.setItem('theme', 'white')
-				}
-			})
-	
-		}
-  }, [theme])
+    let theme = localStorage.getItem("theme");
+    if (!theme) {
+      localStorage.setItem("theme", "black");
+      document.querySelector("html").setAttribute("data-theme", "black");
+    } else {
+      document.querySelector("html").setAttribute("data-theme", theme);
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (e.matches) {
+            document.querySelector("html").setAttribute("data-theme", "black");
+            localStorage.setItem("theme", "black");
+          } else {
+            document.querySelector("html").setAttribute("data-theme", "white");
+            localStorage.setItem("theme", "white");
+          }
+        });
+    }
+  }, [theme]);
   return (
     <>
       <div className="p-2 w-scree font-normal text-sm mb-24">
@@ -58,12 +61,8 @@ export default function Settings() {
                 clipRule="evenodd"
               />
             </svg>
-          
           </span>
-          <span className="font-semibold text-lg">
-            Settings
-               
-          </span>
+          <span className="font-semibold text-lg">Settings</span>
           <div>
             {""}
             {""}
@@ -72,16 +71,19 @@ export default function Settings() {
           </div>
         </div>
         <div className="flex flex-col p-5">
-          <div className={`card card-compact w-full  ${
-
-document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-base-200' : ''
-}   rounded mt-8  shadow`}>
-            
+          <div
+            className={`card card-compact w-full  ${
+              document.querySelector("html").getAttribute("data-theme") ===
+              "black"
+                ? "bg-base-200"
+                : ""
+            }   rounded mt-8  shadow`}
+          >
             <h1
               className="text-md font-bold   p-5 "
               aria-label="General Settings"
             >
-               Account Management
+              Account Management
             </h1>
 
             <div className="card-body flex flex-col">
@@ -93,13 +95,13 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   </span>
                 </div>
                 <a
-                    className="text-sm cursor-pointer text-sky-500 absolute right-5"
-                    onClick={() => {
-                        api.authStore.clear()
-                        window.location.href = "/";
-                    }}
+                  className="text-sm cursor-pointer text-sky-500 absolute right-5"
+                  onClick={() => {
+                    api.authStore.clear();
+                    window.location.href = "/";
+                  }}
                 >
-                    Logout
+                  Logout
                 </a>
               </div>
               <div className="flex flex-row gap-5 mt-6">
@@ -110,12 +112,12 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   </span>
                 </div>
                 <a
-                    className="text-sm cursor-pointer text-error absolute right-5"
-                    onClick={() => {
-                        document.getElementById('delete').showModal();
-                    }}
+                  className="text-sm cursor-pointer text-error absolute right-5"
+                  onClick={() => {
+                    document.getElementById("delete").showModal();
+                  }}
                 >
-                    Delete
+                  Delete
                 </a>
               </div>
               <div className="flex flex-row    ">
@@ -126,22 +128,24 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   </span>
                 </div>
                 <a
-                    className="text-sm cursor-pointer text-warning absolute right-5"
-                    onClick={() => {
-                         if(api.authStore.model.deactivated){
-                          api.collection('users').update(api.authStore.model.id, {deactivated:false})
-                          .then(()=>{
-                            api.collection('users').authRefresh()
-                            window.location.href = "/"
-                          })
-                         }else{
-                          document.getElementById('deactivate').showModal();
-                         }
-                    }}
+                  className="text-sm cursor-pointer text-warning absolute right-5"
+                  onClick={() => {
+                    if (api.authStore.model.deactivated) {
+                      api
+                        .collection("users")
+                        .update(api.authStore.model.id, { deactivated: false })
+                        .then(() => {
+                          api.collection("users").authRefresh();
+                          window.location.href = "/";
+                        });
+                    } else {
+                      document.getElementById("deactivate").showModal();
+                    }
+                  }}
                 >
-                   {
-                    api.authStore.model.deactivated ? 'Reactivate' : 'Deactivate'
-                   }
+                  {api.authStore.model.deactivated
+                    ? "Reactivate"
+                    : "Deactivate"}
                 </a>
               </div>
             </div>
@@ -170,13 +174,12 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                    absolute
                      right-5    
                   `}
-                    {...(recommendation_ratings ? { checked: true } : {})}
+                  {...(recommendation_ratings ? { checked: true } : {})}
                   onChange={(e) => {
                     if (e.target.checked) {
                       // request permission
                       localStorage.setItem("recommendation_ratings", true);
                       setrecommendation_ratings(true);
-                      
                     } else {
                       e.target.checked = false;
                       localStorage.setItem("recommendation_ratings", false);
@@ -189,11 +192,12 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                 <div className="flex flex-col">
                   <p>Theme </p>
                   <span className="text-xs text-gray-500 w-60 text-start">
-                     Change the theme of the app
+                    Change the theme of the app
                   </span>
-                  <div className="badge badge-xs badge-outline
-                   p-2 mt-2 rounded-full"
-                    style={{width:'fit-content'}}
+                  <div
+                    className="badge badge-xs badge-outline rounded-full
+                   p-2 mt-2"
+                    style={{ width: "fit-content" }}
                   >
                     {theme ? "Night" : "Light"}
                   </div>
@@ -203,33 +207,32 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   value=""
                   className={`
                   toggle
-                  ${theme   ? "bg-sky-500" : "bg-slate-200"}
+                  ${theme ? "bg-sky-500" : "bg-slate-200"}
                    border-slate-200
                    rounded-full
                    absolute
                      right-5    
                   `}
-                    {
-                      ...(theme ? { checked: true } : {})
-                    }
+                  {...(theme ? { checked: true } : {})}
                   onChange={(e) => {
                     if (e.target.checked) {
                       // request permission
-                      localStorage.setItem("theme", 'black');
-                      setTheme(true)
-                      document.querySelector('html').setAttribute('data-theme', 'black')
-                     
+                      localStorage.setItem("theme", "black");
+                      setTheme(true);
+                      document
+                        .querySelector("html")
+                        .setAttribute("data-theme", "black");
                     } else {
                       e.target.checked = false;
-                      localStorage.setItem("theme", 'white');
-                      setTheme(false)
-                      document.querySelector('html').setAttribute('data-theme', 'light')
-                       
+                      localStorage.setItem("theme", "white");
+                      setTheme(false);
+                      document
+                        .querySelector("html")
+                        .setAttribute("data-theme", "light");
                     }
                   }}
                 />
               </div>
-              
             </div>
             <h1
               className="text-md font-bold    p-5"
@@ -258,7 +261,7 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                    absolute
                      right-5    
                   `}
-                    {...(notificationsOn ? { checked: true } : {})}
+                  {...(notificationsOn ? { checked: true } : {})}
                   onChange={(e) => {
                     if (e.target.checked && "Notification" in window) {
                       // request permission
@@ -283,15 +286,15 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
               <div className="flex flex-row gap-5 mt-6">
                 <div className="flex flex-col">
                   <p>Email Visibility</p>
-                  
-                  <span className={`badge badge-xs badge-outline
+
+                  <span
+                    className={`badge badge-xs badge-outline
                   
                   p-2 mt-2 
                   rounded-full
-                  ${
-                    emailVisibility ? "badge-error" : "badge-success"
-                  }
-                  `}>
+                  ${emailVisibility ? "badge-error" : "badge-success"}
+                  `}
+                  >
                     {emailVisibility ? "Public" : "Private"}
                   </span>
 
@@ -300,42 +303,41 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   </span>
                 </div>
                 <div className="flex flex-col gap-5">
-                <input
-                  type="checkbox"
-                  value=""
-                  className={`toggle 
+                  <input
+                    type="checkbox"
+                    value=""
+                    className={`toggle 
                   ${emailVisibility ? "bg-sky-500" : "bg-slate-200"}
                    absolute right-5
                    border-slate-200
                     rounded-full
                   `}
-                  {...(emailVisibility ? { checked: true } : {})}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      api
-                        .collection("users")
-                        .update(api.authStore.model.id, {
-                          emailVisibility: true,
-                        })
-                        .then(() => {
-                          api.collection("users").authRefresh();
-                          setEmailVisibility(true);
-                        });
-                    } else {
-                      api
-                        .collection("users")
-                        .update(api.authStore.model.id, {
-                          emailVisibility: false,
-                        })
-                        .then(() => {
-                          api.collection("users").authRefresh();
-                          e.target.checked = false;
-                          setEmailVisibility(false);
-                        });
-                    }
-                  }}
-                />
-               
+                    {...(emailVisibility ? { checked: true } : {})}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        api
+                          .collection("users")
+                          .update(api.authStore.model.id, {
+                            emailVisibility: true,
+                          })
+                          .then(() => {
+                            api.collection("users").authRefresh();
+                            setEmailVisibility(true);
+                          });
+                      } else {
+                        api
+                          .collection("users")
+                          .update(api.authStore.model.id, {
+                            emailVisibility: false,
+                          })
+                          .then(() => {
+                            api.collection("users").authRefresh();
+                            e.target.checked = false;
+                            setEmailVisibility(false);
+                          });
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -359,17 +361,19 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   >
                     View
                   </a>
-                  </div>
-
-                  </div>
-                
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className={`card card-compact w-full  ${
-
-document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-base-200' : ''
-}   rounded mt-8  shadow`}>
+          <div
+            className={`card card-compact w-full  ${
+              document.querySelector("html").getAttribute("data-theme") ===
+              "black"
+                ? "bg-base-200"
+                : ""
+            }   rounded mt-8  shadow`}
+          >
             <h1 className="text-md font-bold  p-5  ">Support</h1>
             <div className="card-body flex flex-col">
               <div className="flex flex-row gap-5">
@@ -384,7 +388,6 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
                   onClick={() => {
                     window.location.href = "mailto:postr-inc@post.com";
                   }}
-                  
                 >
                   Report
                 </a>
@@ -400,7 +403,6 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
 
                   <a
                     href="/privacy"
-                    
                     className="text-sm text-sky-500 cursor-pointer absolute right-5"
                   >
                     View
@@ -418,7 +420,6 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
 
                   <a
                     href="/tos"
- 
                     className="text-sm text-sky-500 cursor-pointer absolute right-5"
                   >
                     View
@@ -429,83 +430,87 @@ document.querySelector('html').getAttribute('data-theme') ===  'black'  ? 'bg-ba
           </div>
         </div>
         <span className="mx-auto text-sm flex justify-center mb-2">
-            v6.0.2 Flying Fox
+          v6.0.4 Flying Fox
         </span>
         <span className="mx-auto text-sm flex justify-center">
-            &copy; 2023 Postr Inc. All Rights Reserved.
+          &copy; 2023 Postr Inc. All Rights Reserved.
         </span>
-
       </div>
 
-      <Modal2 id="delete" height="h-[50vh]"
-      styles="w-72 "
-      >
-        
-
+      <Modal2 id="delete" height="h-[50vh]" styles="w-72 ">
         <div className="flex  text-sm flex-col gap-2">
           <span className="mt-2 ">
-            We recommend you deactivate your account instead of deleting it, if you want to take a break from Postr. If you delete your account, you will lose all your data and will not be able to recover it.
+            We recommend you deactivate your account instead of deleting it, if
+            you want to take a break from Postr. If you delete your account, you
+            will lose all your data and will not be able to recover it.
           </span>
-       
+
           <div className="gap-2 flex-col flex ">
-           
             <button
-            style={{fontSize:'12px'}}
-            className="text-sm btn bg-transparent focus:bg-transparent w-full text-error 
+              style={{ fontSize: "12px" }}
+              className="text-sm btn bg-transparent focus:bg-transparent w-full text-error 
              
-            cursor-pointer" onClick={() => {
-              api.collection('users').delete(api.authStore.model.id)
-              .then(()=>{
-                api.authStore.clear()
-                window.location.href = "/"
-              })
-            }
-            }>
-                Confirm
+            cursor-pointer"
+              onClick={() => {
+                api
+                  .collection("users")
+                  .delete(api.authStore.model.id)
+                  .then(() => {
+                    api.authStore.clear();
+                    window.location.href = "/";
+                  });
+              }}
+            >
+              Confirm
             </button>
-            <button className="text-sm btn focus:bg-transparent bg-transparent w-full btn-md  cursor-pointer"
-           style={{fontSize:'12px'}}
-           onClick={() => {
-                document.getElementById('delete').close()
-            }
-            }>
-                Cancel
+            <button
+              className="text-sm btn focus:bg-transparent bg-transparent w-full btn-md  cursor-pointer"
+              style={{ fontSize: "12px" }}
+              onClick={() => {
+                document.getElementById("delete").close();
+              }}
+            >
+              Cancel
             </button>
           </div>
         </div>
-        </Modal2>
-        <Modal2 id="deactivate" height="h-[50vh]"
-        styles="w-72 "
-        >
-       
-
+      </Modal2>
+      <Modal2 id="deactivate" height="h-[50vh]" styles="w-72 ">
         <div className="flex text-sm flex-col gap-2">
           <span className="mt-2 ">
-           You can still use your account, but no one will be able to interact with you or see your content. You can reactivate your account by reactivating it from settings.
+            You can still use your account, but no one will be able to interact
+            with you or see your content. You can reactivate your account by
+            reactivating it from settings.
           </span>
-       
-          <div >
-           <button className="text-sm text-sky-500 cursor-pointer" onClick={() => {
-                document.getElementById('delete').close()
-            }
-            }>
-                Cancel
+
+          <div>
+            <button
+              className="text-sm text-sky-500 cursor-pointer"
+              onClick={() => {
+                document.getElementById("delete").close();
+              }}
+            >
+              Cancel
             </button>
-            <button className="text-sm text-sky-500 
+            <button
+              className="text-sm text-sky-500 
             fixed right-5
-            cursor-pointer" onClick={() => {
-              api.collection('users').update(api.authStore.model.id, {deactivated:true})
-              .then(()=>{
-                api.collection('users').authRefresh()
-                window.location.href = "/"
-              })
-            }
-            }>
-                Confirm
+            cursor-pointer"
+              onClick={() => {
+                api
+                  .collection("users")
+                  .update(api.authStore.model.id, { deactivated: true })
+                  .then(() => {
+                    api.collection("users").authRefresh();
+                    window.location.href = "/";
+                  });
+              }}
+            >
+              Confirm
             </button>
           </div>
         </div>
-        </Modal2>
+      </Modal2>
       <Bottomnav />
     </>
   );

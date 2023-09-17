@@ -249,6 +249,7 @@ export default function Post(props) {
                   a: ["href", "class"],
                 },
               });
+              el.style.color = props.color
               el.innerHTML = t;
             }
           }}

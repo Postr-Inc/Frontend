@@ -857,19 +857,22 @@ export default function Profile(props) {
                     <div
                       className="tooltip"
                       data-tip={`Profile is ${
-                        edited.Isprivate ? "private" : "public"
+                        edited.Isprivate || profile.Isprivate ? "private" : "public"
                       }`}
                     >
                       <div
                         onClick={() => {
                           if (edited.Isprivate) {
                             setedited({ ...edited, Isprivate: false });
+                            profile.Isprivate = false;
                           } else {
                             setedited({ ...edited, Isprivate: true });
+                            profile.Isprivate = true;
                           }
                         }}
+                        className="cursor-pointer"
                       >
-                        {profile.Isprivate || edited.Isprivate ? (
+                        { edited.Isprivate || profile.Isprivate ? (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"

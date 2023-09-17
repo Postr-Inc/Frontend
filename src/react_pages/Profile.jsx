@@ -795,14 +795,26 @@ export default function Profile(props) {
             </button>
           </div>
 
-          <div className=" w-screen justify-center mx-auto items-center  mt-16  flex flex-col">
-            <div className="card card-compact text-sm  w-[90vw] bg-base-200 rounded mt-8 ">
+          <div className=" w-screen justify-center mx-auto items-center  mt-8 flex flex-col">
+            <div
+              className={`card card-compact text-sm  w-[90vw] 
+            ${
+              document.querySelector("html").getAttribute("data-theme") ===
+              "black"
+                ? " bg-base-300"
+                : "bg-white"
+            }
+            
+            rounded   `}
+            >
               <div className="card-body">
                 <div className="indicator  ">
                   <span
-                    className="indicator-item bg-base-300 rounded-full p-1 mt-2 mr-2
+                    className={`indicator-item
+                    bg-base-300
+                    rounded-full p-1 mt-2 mr-2
               hover:text-sky-500 hover:cursor-pointer flex justify-start
-              "
+              `}
                   >
                     <label htmlFor="avatar">
                       <svg
@@ -900,7 +912,15 @@ export default function Profile(props) {
                   <input
                     id="username"
                     type="text"
-                    className="input text-sm border-none focus:bg-base-100 bg-base-100  focus:outline-none rounded input-bordered mt-4"
+                    className={`input text-sm   focus:bg-base-100
+                    ${
+                      document
+                        .querySelector("html")
+                        .getAttribute("data-theme") === "black"
+                        ? " bg-base-100 border-none"
+                        : "border border-slate-200"
+                    }
+                    focus:outline-none rounded input-bordered mt-4`}
                     placeholder={profile.username}
                     value={edited.username ? edited.username : ""}
                     onInput={(e) => {
@@ -950,7 +970,15 @@ export default function Profile(props) {
 
                 <div className="flex flex-col relative">
                   <textarea
-                    className="textarea tet-sm h-[10rem] focus:outline-none  resize-none rounded mt-4"
+                    className={`textarea tet-sm h-[10rem] focus:outline-none  
+                    ${
+                      document
+                        .querySelector("html")
+                        .getAttribute("data-theme") === "black"
+                        ? "border-none"
+                        : "border border-slate-200"
+                    }
+                    resize-none rounded mt-4`}
                     placeholder={profile.bio}
                     value={edited.bio ? edited.bio : ""}
                     onChange={(e) => {
@@ -995,7 +1023,7 @@ export default function Profile(props) {
 
       <dialog id="discard" className="modal">
         <div
-          className={`modal-box text-sm w-96 rounded ${
+          className={`modal-box text-sm w-[80vw] rounded ${
             document.querySelector("html").getAttribute("data-theme") ===
             "black"
               ? "bg-[#121212] text-white"
@@ -1009,7 +1037,7 @@ export default function Profile(props) {
 
           <div className="flex flex-col w-full mt-8 gap-5">
             <button
-              className="btn h-min-[.5em] h-[.5em] bg-primary btn-sm    rounded w-full capitalize "
+              className="btn h-min-[.5em] h-[.5em] bg-primary btn-sm text-white    rounded w-full capitalize "
               onClick={() => {
                 document.getElementById("editprofile").close();
                 document.getElementById("discard").close();

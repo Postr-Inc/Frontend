@@ -33,13 +33,9 @@ export default function Download(){
 
   if ('getInstalledRelatedApps' in window.navigator) {
     const relatedApps =  navigator.getInstalledRelatedApps();
-     
+    console.log(relatedApps)
   }
-function isStandaloneApp() {
-  return window.matchMedia("(display-mode: standalone)").matches;
-} if(isStandaloneApp()){
-  window.location.href = "/"
-}
+
   window.matchMedia('(display-mode: standalone)')
   .addEventListener('change', (event) => {
       if (event.matches) {
@@ -54,22 +50,24 @@ function isStandaloneApp() {
        <button className="flex   justify-center mx-auto focus:outline-none">
           <div className="divider  text-slate-400 w-12 mt-0"></div>
         </button>
-        <span className='text-md' >🥳 You have Added Postr To Your {
-            isAndroid ? 'Home Screen' : isIOS ? 'Home Screen' : isMac ? 'Dock' : isWindows ? 'Taskbar' : isLinux ? 'Desktop' : 'Desktop'
+        <span className='text-md' > {
+            isAndroid ? '🥳 You have downloaded the apk follow the steps below to use postr!' : isIOS ? '🥳 You have Added Postr To Your Home Screen' : isMac ? '🥳 You have Added Postr To Your Dock' : 
+            isWindows ? '🥳 You have Added Postr To Your Taskbar' : isLinux ? '🥳 You have Added Postr To Your Desktop' : '🥳 You have Added Postr To Your Desktop'
         }</span>
         <div className="divider"></div>
        
         <div className='flex flex-col gap-2'>
         <span className='mt-2 '>
         
-        You can now open Postr from your {
-            isAndroid ? 'Home Screen' : isIOS ? 'Home Screen' : isMac ? 'Dock' : isWindows ? 'Taskbar' : isLinux ? 'Desktop' : 'Desktop'
+          {
+            isAndroid ? 'Go to the downloads folder or click downloads in your browser and install the apk!' : isIOS ? 'You can now open Postr from your Home Screen' : isMac ? 'You can now open Postr from your Dock' :
+             isWindows ? 'You can now open Postr from your Taskbar' : isLinux ? 'You can now open Postr from your Desktop' : 'You can now open Postr from your Desktop'
         }.
          
  
         </span>
         {
-          !isAndroid && !isIOS && isMac || isWindows || isLinux ?  
+            isMac || isWindows || isLinux ?  
          <button className='btn btn-ghost rounded-full border-slate-200 hover:ring-2 hover:ring-rose-500 hover:bg-rose-500 hover:textwhite' onClick={()=>{
             document.getElementById('installed').close()
              
@@ -121,7 +119,7 @@ function isStandaloneApp() {
         </div>
       </Modal>
 
-      <div className="h-[30vw] p-5 hero">
+      <div className="h-[30vw] p-5 hero bg-base-100">
         <div className="hero-content text-center flex flex-col lg:flex-row">
           {
             isWindows || isLinux || isMac ?  <img src='/images/feed.png' className=" max-w-md   rounded-lg" /> : <></>
@@ -136,7 +134,16 @@ function isStandaloneApp() {
                 if (isIOS && isSafari) {
                   document.getElementById('ios').showModal();
                 } else if (deferredPrompt) {
-                  deferredPrompt.prompt() 
+                  if(isAndroid){
+                    let a = document.createElement('a');
+                    a.href = 'https://github.com/Postr-Inc/Postr-Pwa/releases/download/v6.0.2-android/Postr.apk';
+                    a.download = 'Postr.apk';
+                    a.click();
+                    alert(`Downloaded Postr.apk to your downloads folder`)
+                    document.getElementById('installed').showModal();
+                  }else if(isWindows){
+                    deferredPrompt.prompt();
+                  }
                    
                 } else {
                   document.getElementById('installed').showModal();

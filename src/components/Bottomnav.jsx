@@ -69,7 +69,9 @@ export default function Bottomnav() {
   let [error, setError] = useState(false);
   let [theme, setTheme] = useState(localStorage.getItem("theme"));
   let [tags, setTags] = useState([]);
-
+  let [color, setColor] = useState("black");
+  let [colorvalue, setColorValue] = useState("black");
+  console.log(colorvalue)
   let [isScrolling, setIsScrolling] = useState(false);
   let pRef = useRef();
 
@@ -154,6 +156,7 @@ export default function Bottomnav() {
     dup.querySelectorAll("a").forEach((a) => {
       a.remove();
     });
+    
     setPContent(dup.innerHTML);
   }
 
@@ -180,7 +183,7 @@ export default function Bottomnav() {
     document.getElementById("newpost").close();
     setModalisOpen(false);
     let form = new FormData();
-    if (image) {
+    if (file !== "") {
       form.append("file", file);
     }
     form.append("content", pRef.current.innerHTML);
@@ -193,7 +196,7 @@ export default function Bottomnav() {
     form.append("likes", JSON.stringify([]));
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
-
+    form.append("textColor", colorvalue) 
     api
       .collection("posts")
       .create(form, {
@@ -561,7 +564,8 @@ export default function Bottomnav() {
               </div>
             ) : null}
 
-            <div className="flex flex-row justify-between mt-8  ">
+
+<div className="flex flex-row justify-between mt-8  ">
               <input
                 type="file"
                 id="file"
@@ -579,7 +583,7 @@ export default function Bottomnav() {
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className={`w-6 h-6 ${
-                    theme === "black" ? "fill-slate-200" : "fill-base-300"
+                    theme === "black" ? "fill-slate-200" : "fill-base-400"
                   }`}
                   enableBackground="new 0 0 24 24"
                   viewBox="0 0 24 24"
@@ -588,6 +592,121 @@ export default function Bottomnav() {
                 </svg>
               </label>
             </div>
+            <div className="flex flex-row justify-between sticky left-2  mt-8  ">
+            <span
+            onClick={() => {
+              setColor("black");
+              document.getElementById("post").style.color = "black";
+              setColorValue("black");
+            }}
+               className={`btn btn-circle hover:bg-black btn-sm bg-black
+               ${
+                  color === "black" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+               <span
+               onClick={() => {
+                setColor("red");
+                document.getElementById("post").style.color = "rgb(239 68 68 )";
+                setColorValue("rgb(239 68 68 )");
+               }}
+               className={`btn btn-circle hover:bg-red-500 btn-sm bg-red-500
+               ${
+                  color === "red" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+               <span
+                onClick={() => {
+                  setColor("orange");
+                  document.getElementById("post").style.color = "rgb(249 115 22 )";
+                  setColorValue("rgb(249 115 22 )");
+                }}
+               className={`btn btn-circle hover:bg-orange-500 btn-sm  bg-orange-500
+               ${
+                  color === "orange" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+               <span
+               onClick={() => {
+                setColor("yellow");
+                document.getElementById("post").style.color = "rgb(250 204 21 )";
+                setColorValue("rgb(250 204 21 )");
+               }}
+               className={`btn btn-circle hover:bg-yellow-400 btn-sm bg-yellow-400
+               ${
+                  color === "yellow" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+               <span
+               onClick={() => {
+                setColor("green");
+                document.getElementById("post").style.color = "rgb(34 197 94 )"
+                setColorValue("rgb(34 197 94 )");
+               }}
+               className={`btn btn-circle hover:bg-green-400 btn-sm bg-green-500
+               ${
+                  color === "green" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+               <span
+               onClick={() => {
+                setColor("purple");
+                document.getElementById("post").style.color = "rgb(168 85 247 )"
+                setColorValue("rgb(168 85 247 )");
+               }}
+               className={`btn btn-circle hover:bg-purple-500 btn-sm bg-purple-500
+               ${
+                  color === "purple" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+              <span
+              onClick={() => {
+                setColor("blue");
+                document.getElementById("post").style.color = "rgb(14 165 233 )"
+                setColorValue("rgb(14 165 233 )");
+              }}
+               className={`btn btn-circle hover:bg-sky-500 btn-sm bg-sky-500
+               ${
+                  color === "blue" ? `
+                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
+                  `
+                    : ``
+               }
+               `}>
+
+               </span>
+            </div>
+ 
           </div>
         </div>
       </dialog>

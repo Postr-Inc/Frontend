@@ -150,6 +150,7 @@ export default function Vpost(props) {
               comments={post.expand.comments ? post.expand.comments : []}
               file={post.file ? post.file : ""}
               bookmarked={post.bookmarked}
+              color={post.textColor}
             />
 
             <div className="divider mt-0 h-2  opacity-[30%]"></div>

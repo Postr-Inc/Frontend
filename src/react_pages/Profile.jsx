@@ -1023,7 +1023,7 @@ export default function Profile(props) {
 
       <dialog id="discard" className="modal">
         <div
-          className={`modal-box text-sm w-[80vw] rounded ${
+          className={`modal-box  text-sm w-[80vw] rounded ${
             document.querySelector("html").getAttribute("data-theme") ===
             "black"
               ? "bg-[#121212] text-white"
@@ -1031,7 +1031,9 @@ export default function Profile(props) {
           }`}
         >
           <h3 className="font-bold">Discard Unsaved Changes?</h3>
-          <p className="mt-2 text-slate-300">
+          <p className={`mt-2 ${
+            document.querySelector("html").getAttribute("data-theme") === "black" ? "text-slate-300" : "text-slate-500"
+          }`}>
             Are you sure you want to discard your unsaved changes?
           </p>
 

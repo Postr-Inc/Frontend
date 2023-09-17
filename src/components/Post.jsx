@@ -119,7 +119,7 @@ export default function Post(props) {
             ""
           )}
           <span className="mx-2 text-slate-200">
-            @{props.author.username} _ {props.author.id.slice(0, 10)}
+            @{props.author.username} 
           </span>
 
           <div className="dropdown dropdown-left absolute end-5 ">

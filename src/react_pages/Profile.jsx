@@ -796,7 +796,7 @@ export default function Profile(props) {
           </div>
 
           <div className=" w-screen justify-center mx-auto items-center  mt-16  flex flex-col">
-            <div className="card card-compact text-sm w-5/6 bg-base-200 rounded mt-8 shadow-xl">
+            <div className="card card-compact text-sm  w-[90vw] bg-base-200 rounded mt-8 ">
               <div className="card-body">
                 <div className="indicator  ">
                   <span

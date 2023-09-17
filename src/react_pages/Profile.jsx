@@ -4,11 +4,11 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import * as sanitizeHtml from "sanitize-html";
 
 api.autoCancellation(false);
-import Modal from "../components/Modal";
 import Bottomnav from "../components/Bottomnav";
 import Post from "../components/Post";
 import Comment from "../components/Comments";
 import { useEffect, useState } from "react";
+import Alert from "../components/Alert";
 
 export default function Profile(props) {
   let [profile, setProfile] = useState({});
@@ -18,10 +18,13 @@ export default function Profile(props) {
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
-   let [loading, setLoading] = useState(true)
+  let [loading, setLoading] = useState(true);
   let [hasMore, setHasMore] = useState(true);
   let [edited, setedited] = useState({});
   const [totalPages, setTotalPages] = useState(0);
+  let [saved, setSaved] = useState(false);
+  let [error, seterror] = useState("");
+  let biomax = 190;
   function follow() {
     if (followers.includes(api.authStore.model.id)) {
       let index = followers.indexOf(api.authStore.model.id);
@@ -63,8 +66,11 @@ export default function Profile(props) {
             ? `author.username="${props.user}" && file != ""`
             : `author.username != "${props.user}" && likes ~ "${profile.id}"`,
         sort: `${
-          pageSelected === "comments" ? "-created,-likes" : pageSelected === "posts" ? "-pinned,-created" : "-created"
-          
+          pageSelected === "comments"
+            ? "-created,-likes"
+            : pageSelected === "posts"
+            ? "-pinned,-created"
+            : "-created"
         }`,
         expand: "author,post,user,post.author",
       })
@@ -73,38 +79,38 @@ export default function Profile(props) {
       });
   }
   useEffect(() => {
-    let theme = localStorage.getItem('theme')
-	 
-    if(!theme){
-      localStorage.setItem('theme', 'black')
-      document.querySelector('html').setAttribute('data-theme', 'black')
-  
-    }else{
-      document.querySelector('html').setAttribute('data-theme', theme)
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if(e.matches){
-          document.querySelector('html').setAttribute('data-theme', 'black')
-          localStorage.setItem('theme', 'black')
-        }else{
-          document.querySelector('html').setAttribute('data-theme', 'white')
-          localStorage.setItem('theme', 'white')
-        }
-      })
-  
+    let theme = localStorage.getItem("theme");
+
+    if (!theme) {
+      localStorage.setItem("theme", "black");
+      document.querySelector("html").setAttribute("data-theme", "black");
+    } else {
+      document.querySelector("html").setAttribute("data-theme", theme);
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (e.matches) {
+            document.querySelector("html").setAttribute("data-theme", "black");
+            localStorage.setItem("theme", "black");
+          } else {
+            document.querySelector("html").setAttribute("data-theme", "white");
+            localStorage.setItem("theme", "white");
+          }
+        });
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    setarray([])
-    setTotalPages(null)
-   
+    setarray([]);
+    setTotalPages(null);
+
     api
       .collection("users")
       .getFirstListItem(`username="${props.user}"`, {
         expand: "followers",
       })
       .then((res) => {
-        console.log(res)
+        console.log(res);
         if (res.deactivated) {
           let profile = {
             username: "User not found",
@@ -120,7 +126,7 @@ export default function Profile(props) {
         setProfile(res);
         setFollowers(res.followers ? res.followers : []);
       });
-      
+
     if (
       (profile.followers &&
         profile.followers.includes(api.authStore.model.id) &&
@@ -128,81 +134,83 @@ export default function Profile(props) {
       (!profile.Isprivate && !profile.deactivated)
     ) {
       fetchInfo("posts", 1).then(function (fetchedPosts) {
-        if(fetchedPosts.items.length < 10){
-          setHasMore(false)
-        }else if (fetchedPosts.items > 1){
-          setLoading(true)
+        if (fetchedPosts.items.length < 10) {
+          setHasMore(false);
+        } else if (fetchedPosts.items > 1) {
+          setLoading(true);
         }
         setarray(fetchedPosts.items);
         setTotalPages(fetchedPosts.totalPages);
-   
       });
     }
-    
   }, [props.user]);
 
   let [page, setPage] = useState(1);
   useEffect(() => {
-    setTotalPages([])
+    setTotalPages([]);
     setarray([]);
     setPage(1);
-    if(pageSelected){
-     
+    if (pageSelected) {
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
-      if(fetchedPosts.items.length < 10){
-        setHasMore(false)
-      }else if (fetchedPosts.items > 1){
-        setLoading(true)
-      }else if (fetchedPosts.items.length < 1){
-        setLoading(false)
-      }
-      setarray(fetchedPosts.items);
-      setTotalPages(fetchedPosts.totalPages);
-    });
+        if (fetchedPosts.items.length < 10) {
+          setHasMore(false);
+        } else if (fetchedPosts.items > 1) {
+          setLoading(true);
+        } else if (fetchedPosts.items.length < 1) {
+          setLoading(false);
+        }
+        setarray(fetchedPosts.items);
+        setTotalPages(fetchedPosts.totalPages);
+      });
     }
-   
   }, [pageSelected]);
 
   function fetchMore() {
-    
-      
-      fetchInfo(pageSelected, page + 1).then(function (fetchedPosts) {
-        setPage(page + 1);
-        setarray([...array, ...fetchedPosts.items]);
-        setTotalPages(fetchedPosts.totalPages);
-      });
-     
+    fetchInfo(pageSelected, page + 1).then(function (fetchedPosts) {
+      setPage(page + 1);
+      setarray([...array, ...fetchedPosts.items]);
+      setTotalPages(fetchedPosts.totalPages);
+    });
   }
-  
+
   function edit() {
-    if(edited !== '{}'){
-        
-    let form = new FormData();
-    form.append(
-      "username",
-      edited.username ? edited.username : profile.username
-    );
-    form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
-    form.append(
-      "Isprivate",
-      edited.Isprivate ? edited.Isprivate : profile.Isprivate
-    );
-    form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
-    api
-      .collection("users")
-      .update(profile.id, form)
-      .then((res) => {
-        setProfile(res);
-        if(edited.username){
-          window.location.href = `/u/${edited.username}`
-        }
-        setedited({});
-      })
-      .catch((e) => {
-        alert(e);
-      });
-    document.getElementById("editprofile").close();
-    
+    if (edited !== "{}") {
+      let form = new FormData();
+      form.append(
+        "username",
+        edited.username ? edited.username : profile.username
+      );
+      form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
+      form.append(
+        "Isprivate",
+        edited.Isprivate ? edited.Isprivate : profile.Isprivate
+      );
+      form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
+      api
+        .collection("users")
+        .update(profile.id, form)
+        .then((res) => {
+          setProfile(res);
+          if (edited.username) {
+            window.location.href = `/u/${edited.username}`;
+          }
+          setedited({});
+        })
+        .catch((e) => {
+          seterror(
+            e.data.data.username
+              ? e.data.data.username.message
+              : e.data.data.bio
+              ? e.data.data.bio.message
+              : e.data.data.avatar
+              ? e.data.data.avatar.message
+              : e.data.data.Isprivate
+              ? e.data.data.Isprivate.message
+              : ""
+          );
+          setedited({});
+        });
+      document.getElementById("editprofile").close();
     }
   }
 
@@ -326,7 +334,11 @@ export default function Profile(props) {
                   <button
                     className={`btn btn-sm btn-ghost w-full uppercase border-slate-200
                     ${
-                      document.querySelector('html').getAttribute('data-theme') === 'black' ? 'text-white' : 'text-[#121212]'
+                      document
+                        .querySelector("html")
+                        .getAttribute("data-theme") === "black"
+                        ? "text-white"
+                        : "text-[#121212]"
                     }
                     rounded-md `}
                     onClick={() => {
@@ -350,13 +362,18 @@ export default function Profile(props) {
                           hasRequested
                             ? `
                              ${
-                                document.querySelector('html').getAttribute('data-theme') === 'black' ? ` uppercase text-white btn-ghost border-slate-200 ` :
-                                ` text-[#12121212] btn-ghost border-slate-200 `
+                               document
+                                 .querySelector("html")
+                                 .getAttribute("data-theme") === "black"
+                                 ? ` uppercase text-white btn-ghost border-slate-200 `
+                                 : ` text-[#12121212] btn-ghost border-slate-200 `
                              }
                             `
-                            : 
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? `uppercase bg-[#121212] text-white` :
-                            `bg-white text-[#121212]`
+                            : document
+                                .querySelector("html")
+                                .getAttribute("data-theme") === "black"
+                            ? `uppercase bg-[#121212] text-white`
+                            : `bg-white text-[#121212]`
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={() => {
                           alert("Request sent!");
@@ -367,8 +384,11 @@ export default function Profile(props) {
                       <button
                         className={`
                          btn btn-sm btn-ghost w-full  ${
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border border-white' :
-                             'text-[#121212]'
+                           document
+                             .querySelector("html")
+                             .getAttribute("data-theme") === "black"
+                             ? "uppercase text-white rounded border border-white"
+                             : "text-[#121212]"
                          }
                         
                         `}
@@ -388,8 +408,11 @@ export default function Profile(props) {
                         className={`${
                           followers &&
                           followers.includes(api.authStore.model.id)
-                            ?    document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border ' :
-                            'text-white bg-black hover:bg-black focus:bg-black'
+                            ? document
+                                .querySelector("html")
+                                .getAttribute("data-theme") === "black"
+                              ? "uppercase text-white rounded border "
+                              : "text-white bg-black hover:bg-black focus:bg-black"
                             : ""
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={debounce(follow, 1000)}
@@ -401,8 +424,11 @@ export default function Profile(props) {
                       <button
                         className={`
                           btn btn-sm btn-ghost w-full  ${
-                            document.querySelector('html').getAttribute('data-theme') === 'black' ? 'uppercase text-white rounded border border-white' :
-                              'text-[#121212] border-slate-200'
+                            document
+                              .querySelector("html")
+                              .getAttribute("data-theme") === "black"
+                              ? "uppercase text-white rounded border border-white"
+                              : "text-[#121212] border-slate-200"
                           }
 
                         `}
@@ -492,9 +518,9 @@ export default function Profile(props) {
 
         <div className="flex flex-col gap-5 mt-12">
           {profile.followers &&
+          profile.Isprivate &&
           !profile.followers.includes(api.authStore.model.id) &&
-          profile.$dead === true &&
-          profile.Isprivate ? (
+          profile.id !== api.authStore.model.id ? (
             <div className="flex flex-col justify-center  items-center mx-auto mt-8 gap-5">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -527,8 +553,6 @@ export default function Profile(props) {
               dataLength={array.length}
               next={fetchMore}
               hasMore={hasMore}
-          
-
             >
               {pageSelected === "posts" &&
               profile.$dead === undefined &&
@@ -536,17 +560,14 @@ export default function Profile(props) {
                 array.map((p) => {
                   if (p.expand && p.expand.author) {
                     return (
-                      <div className="mb-16"
-                      key={p.id}
-                      >
+                      <div className="mb-16" key={p.id}>
                         <Post
-                          
                           id={p.id}
                           file={p.file}
                           pinned={p.pinned}
                           author={p.expand.author}
                           content={p.content}
-                          tags = {p.tags}
+                          tags={p.tags}
                           likes={p.likes}
                           comments={p.comments}
                           created={p.created}
@@ -582,7 +603,6 @@ export default function Profile(props) {
                         }}
                       >
                         <Comment
-                        
                           id={c.id}
                           text={c.text}
                           likes={c.likes}
@@ -619,7 +639,7 @@ export default function Profile(props) {
                           author={l.expand.author}
                           content={l.content}
                           likes={l.likes}
-                          tags = {l.tags}
+                          tags={l.tags}
                           comments={l.comments}
                           ondelete={() => {
                             let index = array.indexOf(l);
@@ -657,7 +677,7 @@ export default function Profile(props) {
                           pinned={c.pinned}
                           author={c.expand.author}
                           content={c.content}
-                          tags = {c.tags}
+                          tags={c.tags}
                           likes={c.likes}
                           comments={c.comments}
                         />
@@ -667,158 +687,380 @@ export default function Profile(props) {
                 })
               ) : (
                 <div className="flex    mt-0">
-                <h1 className="font-bold  ">
-                   {profile.$dead ? 
-                   
-              
-                   "This account is private"
-                   
-                 :  
-                 pageSelected === "collections" && array.length < 1
-               
-                 
-                 ? 
-                 <>
-                 <h1 className="text-2xl  w-64">
-                  Likes ❤️ Cameras ....  action! 🎬
-                 </h1>
-                 <p className="mt-4 text-slate-300 font-normal">
-                   {
-                    props.user === api.authStore.model.username ?
-                    ` Your photo and video posts will show up here.`
-                    : `  When ${props.user} posts a image or video post, it'll show up here.`
-                   }
-                 </p>
-                 </>
-                 : pageSelected === "likes" && array.length < 1
-                 && !loading
-                 ?
-                 <>
-                 <h1 className="text-2xl w-64">
-                  {
-                    props.user === api.authStore.model.username ?
-                    ` Go like some posts!`
-                    : `  ${props.user}f hasn't liked any posts yet.`
-                  }
-                 </h1>
-                 <p className="mt-4 text-slate-800 font-normal">
-                   {
-                    props.user === api.authStore.model.username ?
-                    `  When you like a post, it'll show up here.`
-                    : `  When ${props.user} likes a post, it'll show up here.`
-                   }
-                 </p>
-                 </>
-                 :  pageSelected === "comments" && array.length < 1
-                  
-                  ?
-                  <>
-                  <h1 className="text-2xl w-96">
-                    {
-                      props.user === api.authStore.model.username ?
-                      ` Go comment on some posts!`
-                      : `  ${props.user} hasn't commented on any posts yet.`
-
-                    }
+                  <h1 className="font-bold  ">
+                    {profile.$dead ? (
+                      "This account is private"
+                    ) : pageSelected === "collections" && array.length < 1 ? (
+                      <>
+                        <h1 className="text-2xl  w-64">
+                          Likes ❤️ Cameras .... action! 🎬
+                        </h1>
+                        <p className="mt-4 text-slate-300 font-normal">
+                          {props.user === api.authStore.model.username
+                            ? ` Your photo and video posts will show up here.`
+                            : `  When ${props.user} posts a image or video post, it'll show up here.`}
+                        </p>
+                      </>
+                    ) : pageSelected === "likes" &&
+                      array.length < 1 &&
+                      !loading ? (
+                      <>
+                        <h1 className="text-2xl w-64">
+                          {props.user === api.authStore.model.username
+                            ? ` Go like some posts!`
+                            : `  ${props.user}f hasn't liked any posts yet.`}
+                        </h1>
+                        <p className="mt-4 text-slate-800 font-normal">
+                          {props.user === api.authStore.model.username
+                            ? `  When you like a post, it'll show up here.`
+                            : `  When ${props.user} likes a post, it'll show up here.`}
+                        </p>
+                      </>
+                    ) : pageSelected === "comments" && array.length < 1 ? (
+                      <>
+                        <h1 className="text-2xl w-96">
+                          {props.user === api.authStore.model.username
+                            ? ` Go comment on some posts!`
+                            : `  ${props.user} hasn't commented on any posts yet.`}
+                        </h1>
+                        <p className="mt-4 text-slate-300 font-normal">
+                          {props.user === api.authStore.model.username
+                            ? `  When you comment on a post, it'll show up here.`
+                            : `  When ${props.user} comments on a post, it'll show up here.`}
+                        </p>
+                      </>
+                    ) : (
+                      ""
+                    )}
                   </h1>
-                  <p className="mt-4 text-slate-300 font-normal">
-                    {
-                      props.user === api.authStore.model.username ?
-                      `  When you comment on a post, it'll show up here.`
-                      : `  When ${props.user} comments on a post, it'll show up here.`
-                    }
-                  </p>
-                  </>
-                  : ""
-                 } 
-                 
-                </h1>
-               </div>
+                </div>
               )}
             </InfiniteScroll>
           )}
-            
         </div>
       </div>
 
-      <Modal id="editprofile" height={`
-      h-screen ${
-        document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-200 rounded' : 'bg-white'
-      }
-      `}>
-        <button className="flex justify-center mx-auto focus:outline-none">
-          <div className="divider  text-slate-400  w-12   mt-0"></div>
-        </button>
-        <div className="flex-col text-sm mt-8 flex">
-          <div className="form-control w-full ">
-            <label className="label flex flex-row">
-              <span className="label-text font-bold text-sm">Name</span>
-              <label htmlFor="profileinput">
-                <img
-                  src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`}
-                  id="profilepicin"
-                  className="rounded-full w-12 h-12 absolute end-5 "
-                  alt="Avatar"
-                />
-              </label>
+      <dialog
+        id="editprofile"
+        className="modal text-start   focus:outline-none"
+        style={{
+          backgroundColor: "white",
 
-              <input
-                type="file"
-                className="hidden"
-                id="profileinput"
-                accept="image/*"
-                onChange={(e) => {
-                  setedited({ ...edited, avatar: e.target.files[0] });
-                  document.getElementById("profilepicin").src =
-                    URL.createObjectURL(e.target.files[0]);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            <input
-              type="text"
-              placeholder={profile.username}
-              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300  bg-transparent  focus:outline-none focus:ring-0"
-              onInput={(e) => {
-                setedited({ ...edited, username: e.target.value });
-              }}
-              name="username"
-            />
-            <label className="label mt-5">
-              <span className="label-text font-bold text-sm">Bio</span>
-            </label>
-            <input
-              type="text"
-              placeholder={profile.bio}
-              className="border-t-0 p-2 border-r-0 border-l-0 border-b-2 border-slate-300   bg-transparent focus:outline-none focus:ring-0"
-              onInput={(e) => {
-                setedited({ ...edited, bio: e.target.value });
-              }}
-            />
-            <div className="form-control   mt-5">
-              <label className="label cursor-pointer">
-                <span className="label-text">Private Profile</span>
-                <input
-                  type="checkbox"
-                  className={`toggle rounded-full`}
-                  {...edited.Isprivate ? "checked" : ""}
-                  onInput={(e) => {
-                    setedited({ ...edited, Isprivate: e.target.checked });
+          fontSize: "16px",
+        }}
+      >
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
+          <div className="flex flex-row justify-between">
+            <div className="flex cursor-pointer">
+              <span className="  " style={{ fontSize: "1rem" }}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                  onClick={() => {
+                    if (Object.keys(edited).length > 0) {
+                      document.getElementById("discard").showModal();
+                    } else {
+                      document.getElementById("editprofile").close();
+                    }
                   }}
-                />
-              </label>
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75"
+                  />
+                </svg>
+              </span>
+            </div>
+
+            <p className="text-xl font-bold">Edit Profile</p>
+            <button
+              className={`
+              ${
+                Object.keys(edited).length > 0
+                  ? "text-blue-500"
+                  : "text-gray-500"
+              }
+              `}
+              style={{ fontSize: ".8rem" }}
+              {...(Object.keys(edited).length > 0
+                ? { onClick: edit }
+                : { disabled: true })}
+            >
+              Save
+            </button>
+          </div>
+
+          <div className=" w-screen hero  mt-16  flex flex-col">
+            <div className="card card-compact text-sm w-5/6 bg-base-200 rounded mt-8 shadow-xl">
+              <div className="card-body">
+                <div className="indicator  ">
+                  <span
+                    className="indicator-item bg-base-300 rounded-full p-1 mt-2 mr-2
+              hover:text-sky-500 hover:cursor-pointer flex justify-start
+              "
+                  >
+                    <label htmlFor="avatar">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-3   h-3 cursor-pointer"
+                      >
+                        <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+                      </svg>
+                    </label>
+                  </span>
+
+                  <img
+                    src={
+                      edited.avatar
+                        ? URL.createObjectURL(edited.avatar)
+                        : profile.avatar
+                        ? `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`
+                        : ""
+                    }
+                    className="w-16 h-16 rounded-full border border-1 border-base-300 avatar"
+                  />
+
+                  <input
+                    type="file"
+                    id="avatar"
+                    className="hidden"
+                    onChange={(e) => {
+                      setedited({ ...edited, avatar: e.target.files[0] });
+                      e.target.value = null;
+                    }}
+                  />
+                </div>
+                <h2 className="card-title">
+                  <div className="flex flex-row gap-5 justify-between">
+                    {edited.username ? edited.username : profile.username}
+                    <div
+                      className="tooltip"
+                      data-tip={`Profile is ${
+                        edited.Isprivate ? "private" : "public"
+                      }`}
+                    >
+                      <div
+                        onClick={() => {
+                          if (edited.Isprivate) {
+                            setedited({ ...edited, Isprivate: false });
+                          } else {
+                            setedited({ ...edited, Isprivate: true });
+                          }
+                        }}
+                      >
+                        {profile.Isprivate || edited.Isprivate ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </h2>
+                <p className="text-sm ">
+                  @
+                  {edited.username
+                    ? edited.username + "_" + profile.id
+                    : profile.username + "_" + profile.id}
+                </p>
+                <div className="relative flex flex-col">
+                  <input
+                    id="username"
+                    type="text"
+                    className="input text-sm border-none focus:bg-base-100 bg-base-100  focus:outline-none rounded input-bordered mt-4"
+                    placeholder={profile.username}
+                    value={edited.username ? edited.username : ""}
+                    onInput={(e) => {
+                      if (e.target.value < 1) {
+                        // remove username key from object
+                        let { username, ...rest } = edited;
+                        setedited(rest);
+                      } else {
+                        setedited({ ...edited, username: e.target.value });
+                      }
+                    }}
+                  />
+                  <label
+                    className={`
+                  absolute bottom-4 right-4
+                  ${
+                    edited.username
+                      ? edited.username.length < 5
+                        ? "hidden"
+                        : ""
+                      : profile.username
+                      ? profile.username.length < 20
+                        ? "hidden"
+                        : ""
+                      : ""
+                  }
+                 `}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="cursor-pointer w-5 h-5"
+                      onClick={() => {
+                        setedited({ ...edited, username: undefined });
+                        document.getElementById("username").value = "";
+                      }}
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </label>
+                </div>
+
+                <div className="flex flex-col relative">
+                  <textarea
+                    className="textarea tet-sm h-[10rem] focus:outline-none  resize-none rounded mt-4"
+                    placeholder={profile.bio}
+                    value={edited.bio ? edited.bio : ""}
+                    onChange={(e) => {
+                      if (e.target.value < 1) {
+                        // remove bio from keys
+                        let { bio, ...rest } = edited;
+                        setedited(rest);
+                      } else {
+                        setedited({ ...edited, bio: e.target.value });
+                      }
+                    }}
+                  ></textarea>
+                  <label
+                    className={`
+                  absolute bottom-4 right-4
+                  text-sm ${
+                    edited.bio
+                      ? edited.bio.length > biomax
+                        ? "text-red-500"
+                        : "text-gray-500"
+                      : profile.bio
+                      ? profile.bio.length > biomax
+                        ? "text-red-500"
+                        : "text-gray-500"
+                      : "text-gray-500"
+                  } 
+                  `}
+                  >
+                    {edited.bio
+                      ? biomax - edited.bio.length
+                      : profile.bio
+                      ? biomax - profile.bio.length
+                      : biomax}
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="absolute bottom-12 flex flex-row gap-5  ">
+        </div>
+      </dialog>
+      {/* Open the modal using document.getElementById('ID').showModal() method */}
+
+      <dialog id="discard" className="modal">
+        <div
+          className={`modal-box text-sm w-96 rounded ${
+            document.querySelector("html").getAttribute("data-theme") ===
+            "black"
+              ? "bg-[#121212] text-white"
+              : "bg-white text-black"
+          }`}
+        >
+          <h3 className="font-bold">Discard Unsaved Changes?</h3>
+          <p className="mt-2 text-slate-300">
+            Are you sure you want to discard your unsaved changes?
+          </p>
+
+          <div className="flex flex-col w-full mt-8 gap-5">
             <button
-              onClick={edit}
-              className="  text-sky-500 text-sm end-5 cusor-pointer"
+              className="btn h-min-[.5em] h-[.5em] bg-primary btn-sm    rounded w-full capitalize "
+              onClick={() => {
+                document.getElementById("editprofile").close();
+                document.getElementById("discard").close();
+                setedited({});
+              }}
             >
-              Done
+              Discard
+            </button>
+            <button
+              className="btn btn-ghost border btn-sm hover:bg-transparent hover:border foucs:border border-slate-200 w-full rounded capitalize"
+              onClick={() => {
+                document.getElementById("discard").close();
+              }}
+            >
+              Keep Editing
             </button>
           </div>
         </div>
-      </Modal>
+      </dialog>
+
+      {error ? (
+        <div className="flex justify-center fixed top-0   transform  translate-x-[15vw] mt-8  ">
+          <Alert className=" alert w-fit rounded bg-[#ff5454d1] flex">
+            <div
+              className="flex flex-row gap-2 items-center hover:cursor-pointer"
+              onClick={() => {
+                seterror("");
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6  h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+
+              {error}
+            </div>
+          </Alert>
+        </div>
+      ) : (
+        ""
+      )}
       <div className="mt-8">
         <Bottomnav />
       </div>

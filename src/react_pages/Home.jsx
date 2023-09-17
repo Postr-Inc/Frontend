@@ -266,6 +266,7 @@ export default function Home() {
                   id={post.id}
                   created={post.created}
                   bookmarked={post.bookmarked}
+                  color={post.textColor}
                 />
 
                 <Modal id={"moreinfo" + post.id} height="h-75 modal-box">

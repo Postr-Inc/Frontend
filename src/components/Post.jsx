@@ -248,8 +248,59 @@ export default function Post(props) {
             }
           }}
         ></p>
-      </div>
 
+       
+      </div>
+      {props.file ? (
+        <>
+          <div>
+            <img
+              src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+              className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
+              alt="post image"
+              onClick={() => {
+                try {
+                  document.getElementById("modal" + props.id).showModal();
+                } catch (error) {
+                  console.log(error);
+                }
+              }}
+            />
+          </div>
+          <dialog
+            id={"modal" + props.id}
+            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
+          >
+            <button
+              className="btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  text-white bg-[#222222]  top-5 left-10
+             focus:outline-none
+             "
+              onClick={() => {
+                document.getElementById("modal" + props.id).close();
+              }}
+            >
+              ✕
+            </button>
+            <form
+              method="dialog"
+              className="modal-box bg-transparent z-[-1]  w-screen"
+            >
+              <img
+                src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
+                alt="post image"
+                width={window.innerWidth}
+                height={window.innerHeight}
+                onClick={() => {
+                  document.getElementById("modal" + props.id).showModal();
+                }}
+              />
+            </form>
+          </dialog>
+        </>
+      ) : (
+        ""
+      )}
       <div className="flex flex-row gap-5 mt-6">
         {
           /**

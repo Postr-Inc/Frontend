@@ -742,15 +742,15 @@ export default function Profile(props) {
 
       <dialog
         id="editprofile"
-        className="modal text-start   focus:outline-none"
+        className="modal text-start  fixed top-0 left-0  focus:outline-none"
         style={{
           backgroundColor: "white",
 
           fontSize: "16px",
         }}
       >
-        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
-          <div className="flex  flex-row justify-between">
+        <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none   ">
+          <div className="flex p-5 flex-row justify-between">
             <div className="flex cursor-pointer">
               <span className="  " style={{ fontSize: "1rem" }}>
                 <svg

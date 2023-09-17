@@ -118,7 +118,12 @@ export default function Post(props) {
           ) : (
             ""
           )}
-          <span className="mx-2 text-slate-200">
+          <span className={`
+          ${
+            document.documentElement.getAttribute("data-theme") === "black"  ? "text-[#717171]" : "text-[#b2b2b2]" 
+          }
+          mx-1 
+          `}>
             @{props.author.username} 
           </span>
 

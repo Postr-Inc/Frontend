@@ -573,6 +573,7 @@ export default function Profile(props) {
                           created={p.created}
                           image={p.image}
                           post={p}
+                          color={p.textColor}
                           ondelete={() => {
                             let index = array.indexOf(p);
                             array.splice(index, 1);
@@ -639,6 +640,7 @@ export default function Profile(props) {
                           author={l.expand.author}
                           content={l.content}
                           likes={l.likes}
+                          color={post.textColor}
                           tags={l.tags}
                           comments={l.comments}
                           ondelete={() => {

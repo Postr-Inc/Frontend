@@ -1,7 +1,8 @@
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
-export const api = new Pocketbase('https://postrapi.pockethost.io')
+export const api = new Pocketbase('https://cunning-elk-locally.ngrok-free.app')
+console.log(api.baseUrl)
 import { useEffect, useState } from "react";
 let init = false
 window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -16,6 +17,9 @@ export function oneSignal(){
 		 
 			if(localStorage.getItem('notifications') === 'true'){
 				OneSignal.login(api.authStore.model.id)
+				setInterval(() => {
+					OneSignal.login(api.authStore.model.id)
+				}, 8000)
 		 
 			}else{
 				OneSignal.logout(api.authStore.model.id)
@@ -49,12 +53,10 @@ export default function App() {
             api.collection("users").authRefresh()
             oneSignal()
 
-        } 
+        } else if (window.matchMedia("(display-mode: browser)").matches) {
+            window.location.href = "/download"
 
-	if(!window.matchMedia("(display-mode: standalone)").matches){
-		window.location.href = "/download"
-	}
-	
+        }
 
         window.onerror = (e) =>{
             alert(e)
@@ -174,13 +176,16 @@ export default function App() {
 	  };
 	
   
-	if(api.authStore.isValid){
+	if(api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
 		return (
 			<Home/>
 		)
-	}else if (!api.authStore.isValid){
+	}else if (!api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
 		return (
 			<Login/>
 		)
+	}else {
+		console.log(window.location.pathname)
+		 window.location.pathname = "/download"
 	}
 }

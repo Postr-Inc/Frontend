@@ -164,9 +164,9 @@ export default function Vpost(props) {
         >
           {post.author && comments.length > 0 ? (
             comments.map((comment) => {
-              let key = Math.random();
+         
               return (
-                <div key={key} 
+                <div key={Math.random()} 
                 
                 id={comment.id}
                 >
@@ -179,7 +179,7 @@ export default function Vpost(props) {
                     created={comment.created}
                     post={post}
                   />
-                   <div className="divider mt-0 h-2  opacity-[30%]"></div>
+                  
                   <Modal id={"delete" + comment.id} height="h-96">
                     <button className="flex justify-center mx-auto focus:outline-none">
                       <div className="divider  text-slate-400  w-12   mt-0"></div>
@@ -236,7 +236,7 @@ export default function Vpost(props) {
              }}
               >
                 <img
-                  src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                  src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="w-6 h-6 absolute left-8 rounded-full bg-transparent object-cover"
                   alt="post image"
                 />

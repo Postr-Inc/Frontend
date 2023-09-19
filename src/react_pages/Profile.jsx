@@ -43,7 +43,7 @@ export default function Profile(props) {
         author: api.authStore.model.id,
         type: "follow",
         title: `${api.authStore.model.username} followed you`,
-        image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+        image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
         url: `/u/${api.authStore.model.username}`,
         notification_title: `${api.authStore.model.username} followed you`,
         notification_body: `Open Postr to see more`,
@@ -286,7 +286,7 @@ export default function Profile(props) {
           <div className="indicator  absolute  end-5">
             {profile.avatar ? (
               <img
-                src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`}
+                src={`${api.baseUrl}/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`}
                 alt="Avatar"
                 className="w-16 h-16 rounded-full  avatar"
               />
@@ -835,7 +835,7 @@ export default function Profile(props) {
                       edited.avatar
                         ? URL.createObjectURL(edited.avatar)
                         : profile.avatar
-                        ? `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`
+                        ? `${api.baseUrl}/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`
                         : ""
                     }
                     className="w-16 h-16 rounded-full border border-1 border-base-300 avatar"

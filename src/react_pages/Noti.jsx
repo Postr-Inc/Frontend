@@ -167,7 +167,7 @@ export default function Noti() {
               <div className="flex flex-row gap-2">
                 <img
                   src={`
-            https://postrapi.pockethost.io/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
+            ${api.baseUrl}/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="flex flex-col gap-1">
@@ -265,7 +265,7 @@ export default function Noti() {
                         onClick={() => {
                           window.location.pathname = `/p/${noti.expand.post.id}`;
                         }}
-                        src={`https://postrapi.pockethost.io/api/files/w5qr8xrcpxalcx6/${noti.expand.post.id}/${noti.expand.post.file}`}
+                        src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${noti.expand.post.id}/${noti.expand.post.file}`}
                         className="w-10 h-10 cursor-pointer rounded absolute end-5"
                       />
                     ) : (

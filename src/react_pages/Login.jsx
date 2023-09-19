@@ -1,6 +1,6 @@
 
 import { Image } from 'astro:assets';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '.';
  
  
@@ -56,6 +56,9 @@ export default function Login(){
       }
     }, 6000);
   }
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "light");
+  }, [])
  return (
     <div
       className="hero min-h-screen p-5"

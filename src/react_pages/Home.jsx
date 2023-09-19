@@ -266,7 +266,7 @@ export default function Home() {
                   id={post.id}
                   created={post.created}
                   bookmarked={post.bookmarked}
-                  color={post.textColor}
+                  color={post.textColor }
                 />
 
                 <Modal id={"moreinfo" + post.id} height="h-75 modal-box">
@@ -311,7 +311,7 @@ export default function Home() {
                     <div className="flex gap-5 items-center">
                       {post.expand.author.avatar ? (
                         <img
-                          src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${post.expand.author.id}/${post.expand.author.avatar}`}
+                          src={`${api.baseUrl}/api/files/_pb_users_auth_/${post.expand.author.id}/${post.expand.author.avatar}`}
                           className="w-12 h-12 rounded-full object-cover mt-5"
                         />
                       ) : (

@@ -295,7 +295,7 @@ export default function Profile(props) {
                 <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
                   <span className="text-lg">
                     {profile.username
-                      ? profile.username.charAt(0).toUpperCase()
+                      ? profile.username.charAt(0).tocapitalize()
                       : ""}
                   </span>
                 </div>
@@ -324,7 +324,7 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  uppercase"
+                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  capitalize"
                     onClick={() => {
                       document.getElementById("editprofile").showModal();
                     }}
@@ -332,7 +332,7 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`btn btn-sm btn-ghost w-full uppercase border-slate-200
+                    className={`btn btn-sm btn-ghost w-full capitalize border-slate-200
                     ${
                       document
                         .querySelector("html")
@@ -365,14 +365,14 @@ export default function Profile(props) {
                                document
                                  .querySelector("html")
                                  .getAttribute("data-theme") === "black"
-                                 ? ` uppercase text-white btn-ghost border-slate-200 `
+                                 ? ` capitalize text-white btn-ghost border-slate-200 `
                                  : ` text-[#12121212] btn-ghost border-slate-200 `
                              }
                             `
                             : document
                                 .querySelector("html")
                                 .getAttribute("data-theme") === "black"
-                            ? `uppercase bg-[#121212] text-white`
+                            ? `capitalize bg-[#121212] text-white`
                             : `bg-white text-[#121212]`
                         } w-full btn btn-sm   rounded-md  `}
                         onClick={() => {
@@ -387,7 +387,7 @@ export default function Profile(props) {
                            document
                              .querySelector("html")
                              .getAttribute("data-theme") === "black"
-                             ? "uppercase text-white rounded border border-white"
+                             ? "capitalize text-white rounded border border-white"
                              : "text-[#121212]"
                          }
                         
@@ -411,10 +411,10 @@ export default function Profile(props) {
                             ? document
                                 .querySelector("html")
                                 .getAttribute("data-theme") === "black"
-                              ? "uppercase text-white rounded border "
+                              ? " text-white rounded border "
                               : "text-white bg-black hover:bg-black focus:bg-black"
                             : ""
-                        } w-full btn btn-sm   rounded-md  `}
+                        } w-full btn btn-sm   rounded-md  capitalize`}
                         onClick={debounce(follow, 1000)}
                       >
                         {followers && followers.includes(api.authStore.model.id)
@@ -427,7 +427,7 @@ export default function Profile(props) {
                             document
                               .querySelector("html")
                               .getAttribute("data-theme") === "black"
-                              ? "uppercase text-white rounded border border-white"
+                              ? "capitalize text-white rounded border border-white"
                               : "text-[#121212] border-slate-200"
                           }
 
@@ -763,7 +763,7 @@ export default function Profile(props) {
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-6 h-6"
+                  className="w-6 fill-white text-white h-6"
                   onClick={() => {
                     if (Object.keys(edited).length > 0) {
                       document.getElementById("discard").showModal();
@@ -781,13 +781,13 @@ export default function Profile(props) {
               </span>
             </div>
 
-            <p className="text-xl font-bold">Edit Profile</p>
+            <p className="text-xl text-white font-bold">Edit Profile</p>
             <button
               className={`
               ${
                 Object.keys(edited).length > 0
                   ? "text-blue-500"
-                  : "text-gray-500"
+                  : "opacity-50 cursor-not-allowed"
               }
               `}
               style={{ fontSize: ".8rem" }}
@@ -801,11 +801,11 @@ export default function Profile(props) {
 
           <div className=" w-screen justify-center mx-auto items-center  mt-8 flex flex-col">
             <div
-              className={`card card-compact text-sm  w-[90vw] 
+              className={`card card-compact bg-base-100 text-sm  w-[90vw] 
             ${
               document.querySelector("html").getAttribute("data-theme") ===
               "black"
-                ? " bg-base-300"
+                ? " bg-base-100"
                 : "bg-white"
             }
             
@@ -832,16 +832,28 @@ export default function Profile(props) {
                     </label>
                   </span>
 
-                  <img
-                    src={
-                      edited.avatar
-                        ? URL.createObjectURL(edited.avatar)
-                        : profile.avatar
-                        ? `${api.baseUrl}/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`
-                        : ""
-                    }
-                    className="w-16 h-16 rounded-full border border-1 border-base-300 avatar"
-                  />
+                  {profile.avatar || edited.avatar ? (
+                    <img
+                      src={
+                        edited.avatar
+                          ? URL.createObjectURL(edited.avatar)
+                          : profile.avatar
+                          ? `${api.baseUrl}/api/files/_pb_users_auth_/${profile.id}/${profile.avatar}`
+                          : ""
+                      }
+                      className="w-16 h-16 rounded-full border border-1 border-base-300 avatar"
+                    />
+                  ) : (
+                    <div className="avatar placeholder">
+                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
+                        <span className="text-lg">
+                          {profile.username
+                            ? profile.username.charAt(0).tocapitalize()
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <input
                     type="file"
@@ -921,12 +933,14 @@ export default function Profile(props) {
                   <input
                     id="username"
                     type="text"
-                    className={`input text-sm   focus:bg-base-100
+                    className={`input text-sm   focus:bg-transparent
+                    bg-transparent
+                    focus:ring-0
                     ${
                       document
                         .querySelector("html")
                         .getAttribute("data-theme") === "black"
-                        ? " bg-base-100 border-none"
+                        ? " border-base-200"
                         : "border border-slate-200"
                     }
                     focus:outline-none rounded input-bordered mt-4`}
@@ -984,7 +998,7 @@ export default function Profile(props) {
                       document
                         .querySelector("html")
                         .getAttribute("data-theme") === "black"
-                        ? "border-none"
+                        ? "border  border-base-200"
                         : "border border-slate-200"
                     }
                     resize-none rounded mt-4`}
@@ -1044,7 +1058,7 @@ export default function Profile(props) {
             className={`mt-2 ${
               document.querySelector("html").getAttribute("data-theme") ===
               "black"
-                ? "text-slate-300"
+                ? "opacity-50"
                 : "text-slate-500"
             }`}
           >

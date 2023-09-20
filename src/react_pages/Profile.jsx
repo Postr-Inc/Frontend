@@ -866,7 +866,7 @@ export default function Profile(props) {
                     >
                       <div
                         onClick={() => {
-                          if (edited.Isprivate) {
+                          if (edited.Isprivate || profile.Isprivate) {
                             setedited({ ...edited, Isprivate: false });
                             profile.Isprivate = false;
                           } else {

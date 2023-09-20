@@ -763,7 +763,11 @@ export default function Profile(props) {
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-6 fill-white text-white h-6"
+                  className={`w-6 fill-white
+                  ${
+                    document.querySelector("html").getAttribute("data-theme") === "black" ? "text-white" : "text-black"
+                  }
+                  h-6`}
                   onClick={() => {
                     if (Object.keys(edited).length > 0) {
                       document.getElementById("discard").showModal();

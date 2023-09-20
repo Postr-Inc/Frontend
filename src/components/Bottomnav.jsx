@@ -3,6 +3,7 @@ import sanitizeHtml from "sanitize-html";
 import Modal from "./Modal";
 import { api } from "../react_pages";
 import Modal2 from "./Modal2";
+import Alert from "./Alert";
 function handleEmojis(html) {
   let parser = new DOMParser();
   let defaults = {
@@ -71,9 +72,10 @@ export default function Bottomnav() {
   let [tags, setTags] = useState([]);
   let [color, setColor] = useState("black");
   let [colorvalue, setColorValue] = useState("black");
-  console.log(colorvalue)
+  console.log(colorvalue);
   let [isScrolling, setIsScrolling] = useState(false);
   let pRef = useRef();
+   
 
   let [isTyping, setIsTyping] = useState(false);
 
@@ -156,11 +158,10 @@ export default function Bottomnav() {
     dup.querySelectorAll("a").forEach((a) => {
       a.remove();
     });
-    
+
     setPContent(dup.innerHTML);
   }
 
-  
   useEffect(() => {
     if (pContent == "") {
       setChar(0);
@@ -174,6 +175,9 @@ export default function Bottomnav() {
     if (file !== "") {
       form.append("file", file);
     }
+    if(Pref.current.innerHTML == "") {
+      return;
+    }
     form.append("content", pRef.current.innerHTML);
     form.append("author", api.authStore.model.id);
     form.append("type", "text");
@@ -184,7 +188,7 @@ export default function Bottomnav() {
     form.append("likes", JSON.stringify([]));
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
-    form.append("textColor", colorvalue) 
+    form.append("textColor", colorvalue);
     api
       .collection("posts")
       .create(form, {
@@ -268,7 +272,11 @@ export default function Bottomnav() {
                 <svg
                   className={`
                 w-7 h-7
-                 ${theme === "black" ? "fill-[#434242] hover:fill-white" : "fill-gray-500 hover:fill-black"}
+                 ${
+                   theme === "black"
+                     ? "fill-[#434242] hover:fill-white"
+                     : "fill-gray-500 hover:fill-black"
+                 }
                   
                  cursor-pointer
                 `}
@@ -316,7 +324,11 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]  hover:text-white" : "text-gray-500  hover:text-black"}
+              ${
+                theme === "black"
+                  ? "text-[#434242]  hover:text-white"
+                  : "text-gray-500  hover:text-black"
+              }
               
               `}
                 xmlns="http://www.w3.org/2000/svg"
@@ -370,7 +382,11 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]  hover:text-white" : "text-gray-500  hover:text-black"}
+              ${
+                theme === "black"
+                  ? "text-[#434242]  hover:text-white"
+                  : "text-gray-500  hover:text-black"
+              }
               
               `}
                 onClick={() => {
@@ -421,7 +437,11 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]  hover:text-white  hover:fill-white" : "text-gray-500  hover:fill-black hover:text-black"}
+              ${
+                theme === "black"
+                  ? "text-[#434242]  hover:text-white  hover:fill-white"
+                  : "text-gray-500  hover:fill-black hover:text-black"
+              }
               
               
               `}
@@ -444,28 +464,35 @@ export default function Bottomnav() {
                 }
               }}
             >
-               {
-                api.authStore.model.avatar ?  <div>
+              {api.authStore.model.avatar ? (
+                <div>
                   {window.location.origin + window.location.pathname ===
-              window.location.origin + "/u/" + api.authStore.model.username ? (
-                <img
-                  src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                  className="rounded-full w-7 h-7  "
-                  alt={api.authStore.model.username + "'s avatar"}
-                />
-              ) : (
-                <img
-                  src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
-                  className="rounded-full w-7 h-7
+                  window.location.origin +
+                    "/u/" +
+                    api.authStore.model.username ? (
+                    <img
+                      src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                      className="rounded-full w-7 h-7  "
+                      alt={api.authStore.model.username + "'s avatar"}
+                    />
+                  ) : (
+                    <img
+                      src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                      className="rounded-full w-7 h-7
                 opacity-50
                 hover:opacity-100
                 "
-                  alt={api.authStore.model.username + "'s avatar"}
-                />
-              )}
-                </div>: <div>
-                  {window.location.origin + window.location.pathname === window.location.origin + "/u/" + api.authStore.model.username ? (
-                      <div className="avatar placeholder">
+                      alt={api.authStore.model.username + "'s avatar"}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div>
+                  {window.location.origin + window.location.pathname ===
+                  window.location.origin +
+                    "/u/" +
+                    api.authStore.model.username ? (
+                    <div className="avatar placeholder">
                       <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-7">
                         <span className="text-xs">
                           {api.authStore.model.username.charAt(0).toUpperCase()}
@@ -474,15 +501,15 @@ export default function Bottomnav() {
                     </div>
                   ) : (
                     <div className="avatar placeholder">
-                    <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-7 opacity-50 hover:opacity-100">
-                      <span className="text-xs">
-                        {api.authStore.model.username.charAt(0).toUpperCase()}
-                      </span>
+                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-7 opacity-50 hover:opacity-100">
+                        <span className="text-xs">
+                          {api.authStore.model.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
                   )}
                 </div>
-               }
+              )}
             </div>
           </div>
         </div>
@@ -497,6 +524,7 @@ export default function Bottomnav() {
         }}
       >
         <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
+          
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span
@@ -575,8 +603,7 @@ export default function Bottomnav() {
               </div>
             ) : null}
 
-
-<div className="flex flex-row justify-between mt-8  ">
+            <div className="flex flex-row justify-between mt-8  ">
               <input
                 type="file"
                 id="file"
@@ -604,120 +631,153 @@ export default function Bottomnav() {
               </label>
             </div>
             <div className="flex flex-row justify-between sticky left-2  mt-8  ">
-            <span
-            onClick={() => {
-              setColor("black");
-              document.getElementById("post").style.color = "black";
-              setColorValue("black");
-            }}
-               className={`btn btn-circle hover:bg-black btn-sm bg-black
+              <span
+                onClick={() => {
+                  setColor("black");
+                  document.getElementById("post").style.color = "black";
+                  setColorValue("black");
+                }}
+                className={`btn btn-circle hover:bg-black btn-sm bg-black
                ${
-                  color === "black" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                 color === "black"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-300 border-4"
+                  }
                   `
-                    : ``
+                   : ``
                }
-               `}>
-
-               </span>
-               <span
-               onClick={() => {
-                setColor("red");
-                document.getElementById("post").style.color = "rgb(239 68 68 )";
-                setColorValue("rgb(239 68 68 )");
-               }}
-               className={`btn btn-circle hover:bg-red-500 btn-sm bg-red-500
+               `}
+              ></span>
+              <span
+                onClick={() => {
+                  setColor("red");
+                  document.getElementById("post").style.color =
+                    "rgb(239 68 68 )";
+                  setColorValue("rgb(239 68 68 )");
+                }}
+                className={`btn btn-circle hover:bg-red-500 btn-sm bg-red-500
                ${
-                  color === "red" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                 color === "red"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-300 border-4"
+                  }
                   `
-                    : ``
+                   : ``
                }
-               `}>
-
-               </span>
-               <span
+               `}
+              ></span>
+              <span
                 onClick={() => {
                   setColor("orange");
-                  document.getElementById("post").style.color = "rgb(249 115 22 )";
+                  document.getElementById("post").style.color =
+                    "rgb(249 115 22 )";
                   setColorValue("rgb(249 115 22 )");
                 }}
-               className={`btn btn-circle hover:bg-orange-500 btn-sm  bg-orange-500
+                className={`btn btn-circle hover:bg-orange-500 btn-sm  bg-orange-500
                ${
-                  color === "orange" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-300 border-4"}
+                 color === "orange"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-300 border-4"
+                  }
                   `
-                    : ``
+                   : ``
                }
-               `}>
-
-               </span>
-               <span
-               onClick={() => {
-                setColor("yellow");
-                document.getElementById("post").style.color = "rgb(250 204 21 )";
-                setColorValue("rgb(250 204 21 )");
-               }}
-               className={`btn btn-circle hover:bg-yellow-400 btn-sm bg-yellow-400
-               ${
-                  color === "yellow" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
-                  `
-                    : ``
-               }
-               `}>
-
-               </span>
-               <span
-               onClick={() => {
-                setColor("green");
-                document.getElementById("post").style.color = "rgb(34 197 94 )"
-                setColorValue("rgb(34 197 94 )");
-               }}
-               className={`btn btn-circle hover:bg-green-400 btn-sm bg-green-500
-               ${
-                  color === "green" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
-                  `
-                    : ``
-               }
-               `}>
-
-               </span>
-               <span
-               onClick={() => {
-                setColor("purple");
-                document.getElementById("post").style.color = "rgb(168 85 247 )"
-                setColorValue("rgb(168 85 247 )");
-               }}
-               className={`btn btn-circle hover:bg-purple-500 btn-sm bg-purple-500
-               ${
-                  color === "purple" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
-                  `
-                    : ``
-               }
-               `}>
-
-               </span>
+               `}
+              ></span>
               <span
-              onClick={() => {
-                setColor("blue");
-                document.getElementById("post").style.color = "rgb(14 165 233 )"
-                setColorValue("rgb(14 165 233 )");
-              }}
-               className={`btn btn-circle hover:bg-sky-500 btn-sm bg-sky-500
+                onClick={() => {
+                  setColor("yellow");
+                  document.getElementById("post").style.color =
+                    "rgb(250 204 21 )";
+                  setColorValue("rgb(250 204 21 )");
+                }}
+                className={`btn btn-circle hover:bg-yellow-400 btn-sm bg-yellow-400
                ${
-                  color === "blue" ? `
-                  border ${theme === "black" ? "border-white" : "border-base-400 border-4"}
+                 color === "yellow"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-400 border-4"
+                  }
                   `
-                    : ``
+                   : ``
                }
-               `}>
-
-               </span>
+               `}
+              ></span>
+              <span
+                onClick={() => {
+                  setColor("green");
+                  document.getElementById("post").style.color =
+                    "rgb(34 197 94 )";
+                  setColorValue("rgb(34 197 94 )");
+                }}
+                className={`btn btn-circle hover:bg-green-400 btn-sm bg-green-500
+               ${
+                 color === "green"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-400 border-4"
+                  }
+                  `
+                   : ``
+               }
+               `}
+              ></span>
+              <span
+                onClick={() => {
+                  setColor("purple");
+                  document.getElementById("post").style.color =
+                    "rgb(168 85 247 )";
+                  setColorValue("rgb(168 85 247 )");
+                }}
+                className={`btn btn-circle hover:bg-purple-500 btn-sm bg-purple-500
+               ${
+                 color === "purple"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-400 border-4"
+                  }
+                  `
+                   : ``
+               }
+               `}
+              ></span>
+              <span
+                onClick={() => {
+                  setColor("blue");
+                  document.getElementById("post").style.color =
+                    "rgb(14 165 233 )";
+                  setColorValue("rgb(14 165 233 )");
+                }}
+                className={`btn btn-circle hover:bg-sky-500 btn-sm bg-sky-500
+               ${
+                 color === "blue"
+                   ? `
+                  border ${
+                    theme === "black"
+                      ? "border-white"
+                      : "border-base-400 border-4"
+                  }
+                  `
+                   : ``
+               }
+               `}
+              ></span>
             </div>
- 
           </div>
         </div>
       </dialog>

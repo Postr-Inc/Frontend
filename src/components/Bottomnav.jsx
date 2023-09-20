@@ -234,7 +234,7 @@ export default function Bottomnav() {
       ${
         theme === "black"
           ? "border border-base-300 bg-black"
-          : "bg-white border border-base-200 bg-opacity-100"
+          : "bg-white border border-base-300  shadow bg-opacity-100"
       }  mr-2    rounded-2xl w-full h-12 p-2`}
         >
           <div className="flex flex-row     mb-3   justify-between ">
@@ -268,8 +268,8 @@ export default function Bottomnav() {
                 <svg
                   className={`
                 w-7 h-7
-                 ${theme === "black" ? "fill-[#434242]" : "fill-gray-500"}
-                 hover:fill-sky-500
+                 ${theme === "black" ? "fill-[#434242] hover:fill-white" : "fill-gray-500 hover:fill-black"}
+                  
                  cursor-pointer
                 `}
                   xmlns="http://www.w3.org/2000/svg"
@@ -316,8 +316,8 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
-              hover:text-sky-500
+              ${theme === "black" ? "text-[#434242]  hover:text-white" : "text-gray-500  hover:text-black"}
+              
               `}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -370,8 +370,8 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
-              hover:text-sky-500
+              ${theme === "black" ? "text-[#434242]  hover:text-white" : "text-gray-500  hover:text-black"}
+              
               `}
                 onClick={() => {
                   document.getElementById("newpost").showModal();
@@ -421,8 +421,9 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
-              hover:text-sky-500
+              ${theme === "black" ? "text-[#434242]  hover:text-white  hover:fill-white" : "text-gray-500  hover:fill-black hover:text-black"}
+              
+              
               `}
               >
                 <path

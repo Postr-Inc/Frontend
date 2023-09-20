@@ -449,13 +449,13 @@ export default function Bottomnav() {
                   {window.location.origin + window.location.pathname ===
               window.location.origin + "/u/" + api.authStore.model.username ? (
                 <img
-                  src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                  src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="rounded-full w-7 h-7  "
                   alt={api.authStore.model.username + "'s avatar"}
                 />
               ) : (
                 <img
-                  src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+                  src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="rounded-full w-7 h-7
                 opacity-50
                 hover:opacity-100

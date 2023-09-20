@@ -59,20 +59,21 @@ export default function Post(props) {
       }}
     >
       {pinned && window.location.pathname === `/u/${props.author.username}` ? (
-        <div className="flex mb-6 flex-row gap-2 items-center font-medium text-sm text-slate-500">
+        <div
+          className={`flex mb-6 flex-row gap-2 items-center font-medium text-sm ${
+            theme === "black" ? "text-white" : "text-gray-500"
+          }`}
+        >
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="#ffd966"
             viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="#ffd966"
-            className="w-4 h-4 "
+            aria-hidden="true"
+            className={`w-4 h-4
+        ${theme === "black" ? "fill-white" : "fill-gray-500"}
+        `}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
-            />
+            <g>
+              <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
+            </g>
           </svg>
           Pinned
         </div>
@@ -118,13 +119,17 @@ export default function Post(props) {
           ) : (
             ""
           )}
-          <span className={`
+          <span
+            className={`
           ${
-            document.documentElement.getAttribute("data-theme") === "black"  ? "text-[#717171]" : "text-[#b2b2b2]" 
+            document.documentElement.getAttribute("data-theme") === "black"
+              ? "text-[#717171]"
+              : "text-[#b2b2b2]"
           }
           mx-1 
-          `}>
-            @{props.author.username} 
+          `}
+          >
+            @{props.author.username}
           </span>
 
           <div className="dropdown dropdown-left absolute end-5 ">
@@ -249,13 +254,11 @@ export default function Post(props) {
                   a: ["href", "class"],
                 },
               });
-              el.style.color = props.color
+              el.style.color = props.color;
               el.innerHTML = t;
             }
           }}
         ></p>
-
-       
       </div>
       {props.file ? (
         <>

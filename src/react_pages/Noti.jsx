@@ -165,11 +165,20 @@ export default function Noti() {
           return (
             <div className="flex flex-col gap-2 mt-8" key={noti.id}>
               <div className="flex flex-row gap-2">
-                <img
+                {
+                  noti.expand.author && noti.expand.author.avatar ?  <img
                   src={`
-            ${api.baseUrl}/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
+                 ${api.baseUrl}/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
                   className="w-10 h-10 rounded-full"
                 />
+                : <div className="avatar placeholder">
+                   <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
+                  <span className="text-xs">
+                    {noti.expand.author.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+                }
                 <div className="flex flex-col gap-1">
                   <span
                     className="text-sm   cursor-pointer"

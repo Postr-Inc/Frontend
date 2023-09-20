@@ -51,8 +51,8 @@ export default function Search() {
     setType('posts')
   }, []);
   return (
-    <div className=" flex flex-col   ">
-      <div className="flex p-2 flex-row justify-between  ">
+    <div className=" flex flex-col  p-4  ">
+      <div className="flex  flex-row justify-between  ">
         <span className=" btn btn-sm bg-transparent border-none focus:bg-transparent hover:bg-transparent " style={{ fontSize: "1rem" }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -113,8 +113,8 @@ export default function Search() {
        
 
       </div>
-      <h1 className="font-bold text-xl  p-5 ">For You</h1>
-      <div className="flex flex-col gap-2 p-5">
+      <h1 className="font-bold text-xl    mt-2 mb-2 p-2">For You</h1>
+      <div className="flex flex-col gap-2 p-2   ">
        
        <InfiniteScroll 
         dataLength={items.length}

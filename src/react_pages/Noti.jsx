@@ -172,7 +172,7 @@ export default function Noti() {
                   className="w-10 h-10 rounded-full"
                 />
                 : <div className="avatar placeholder">
-                   <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
+                   <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
                   <span className="text-xs">
                     {noti.expand.author.username.charAt(0).toUpperCase()}
                   </span>

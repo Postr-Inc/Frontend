@@ -160,7 +160,13 @@ export default function Bottomnav() {
     setPContent(dup.innerHTML);
   }
 
- 
+  
+  useEffect(() => {
+    if (pContent == "") {
+      setChar(0);
+    }
+  }, [pContent]);
+
   function createPost() {
     document.getElementById("newpost").close();
     setModalisOpen(false);
@@ -262,7 +268,7 @@ export default function Bottomnav() {
                 <svg
                   className={`
                 w-7 h-7
-                 ${theme === "black" ? "fill-[#434242]" : "fill-slate-300"}
+                 ${theme === "black" ? "fill-[#434242]" : "fill-gray-500"}
                  hover:fill-sky-500
                  cursor-pointer
                 `}
@@ -310,7 +316,7 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-slate-300"}
+              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
               hover:text-sky-500
               `}
                 xmlns="http://www.w3.org/2000/svg"
@@ -364,7 +370,7 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-slate-300"}
+              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
               hover:text-sky-500
               `}
                 onClick={() => {
@@ -415,7 +421,7 @@ export default function Bottomnav() {
                 className={`
               w-7 h-7
               cursor-pointer
-              ${theme === "black" ? "text-[#434242]" : "text-slate-300"}
+              ${theme === "black" ? "text-[#434242]" : "text-gray-500"}
               hover:text-sky-500
               `}
               >
@@ -437,7 +443,9 @@ export default function Bottomnav() {
                 }
               }}
             >
-              {window.location.origin + window.location.pathname ===
+               {
+                api.authStore.model.avatar ?  <div>
+                  {window.location.origin + window.location.pathname ===
               window.location.origin + "/u/" + api.authStore.model.username ? (
                 <img
                   src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
@@ -454,6 +462,26 @@ export default function Bottomnav() {
                   alt={api.authStore.model.username + "'s avatar"}
                 />
               )}
+                </div>: <div>
+                  {window.location.origin + window.location.pathname === window.location.origin + "/u/" + api.authStore.model.username ? (
+                      <div className="avatar placeholder">
+                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-7">
+                        <span className="text-xs">
+                          {api.authStore.model.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="avatar placeholder">
+                    <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-7 opacity-50 hover:opacity-100">
+                      <span className="text-xs">
+                        {api.authStore.model.username.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  )}
+                </div>
+               }
             </div>
           </div>
         </div>

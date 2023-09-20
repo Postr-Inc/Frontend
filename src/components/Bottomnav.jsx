@@ -160,25 +160,7 @@ export default function Bottomnav() {
     setPContent(dup.innerHTML);
   }
 
-  var scrollTimer = -1;
-
-  function bodyScroll() {
-    if (scrollTimer != -1) clearTimeout(scrollTimer);
-
-    scrollTimer = setTimeout(scrollFinished, 1000);
-    setIsScrolling(true);
-  }
-  window.addEventListener("scroll", bodyScroll, false);
-  function scrollFinished() {
-    console.log("scrolling finished");
-    setIsScrolling(false);
-  }
-  useEffect(() => {
-    if (pContent == "") {
-      setChar(0);
-    }
-  }, [pContent]);
-
+ 
   function createPost() {
     document.getElementById("newpost").close();
     setModalisOpen(false);

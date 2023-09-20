@@ -212,7 +212,7 @@ export default function Bottomnav() {
               notification_title: `New post from ${api.authStore.model.username}`,
               notification_body: `View ${api.authStore.model.username}'s post`,
               url: `/p/${res.id}`,
-              image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+              image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
               multi_recipients: JSON.stringify(res.expand.author.followers),
             })
             .then((res) => {
@@ -554,7 +554,7 @@ export default function Bottomnav() {
 
           <div className="flex flex-row relative    gap-5 mt-8">
             <img
-              src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
+              src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
               className="rounded-full w-8 h-8"
               alt={api.authStore.model.username + "'s avatar"}
             />

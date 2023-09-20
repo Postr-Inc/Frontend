@@ -234,7 +234,7 @@ export default function Bottomnav() {
       ${
         theme === "black"
           ? "border border-base-300 bg-black"
-          : "bg-white border border-base-300  shadow bg-opacity-100"
+          : "bg-white border border-base-300   bg-opacity-100"
       }  mr-2    rounded-2xl w-full h-12 p-2`}
         >
           <div className="flex flex-row     mb-3   justify-between ">

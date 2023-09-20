@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { api } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
-import Post from "../components/Post";
+import Post from '../components/Post'
 import InfiniteScroll from "react-infinite-scroll-component";
-import Loading from "../components/Loading";
+import Loading from '../components/Loading'
 export default function Search() {
   let [search, setSearch] = useState("");
   let [items, setItems] = useState([]);
@@ -18,26 +18,14 @@ export default function Search() {
   function loadMoreItems() {
     setIsLoadMore(true);
     api
-      .collection(
-        type === "tags"
-          ? "posts"
-          : type === "keywords"
-          ? "posts"
-          : type === "users"
-          ? "users"
-          : "posts"
-      )
+      .collection(type === 'tags' ? 'posts' : type === 'keywords' ? 'posts' : type === 'users' ? 'users' : 'posts')
       .getList(page, 10, {
-        expand: "author",
+        expand: 'author',
         sort: "+likes:length,-comments:length,created",
-        filter:
-          type === "tags"
-            ? `tags ~ "${search}"  && author.Isprivate != true && author.deactivated != true`
-            : type === "keywords"
-            ? `content ~ "${search}"  && author.Isprivate != true && author.deactivated != true`
-            : type === "users"
-            ? `username ~ "${search}"  && author.Isprivate != true && author.deactivated != true`
-            : `author.id != "${api.authStore.model.id}" && author.deactivated != true
+         filter:  type === 'tags' ? `tags ~ "${search}"  && author.Isprivate != true && author.deactivated != true` :  
+         type === 'keywords' ? `content ~ "${search}"  && author.Isprivate != true && author.deactivated != true` 
+         : type === 'users'  ? `username ~ "${search}"  && author.Isprivate != true && author.deactivated != true` 
+         : `author.id != "${api.authStore.model.id}" && author.deactivated != true
          && author.Isprivate != true && author.followers !~ "${api.authStore.model.id}" 
          `,
       })
@@ -46,23 +34,27 @@ export default function Search() {
         res.items.sort((a, b) => {
           return new Date(b.created) - new Date(a.created);
         });
-
+        
         setItems([...items, ...res.items]);
         setTotal(res.totalPages);
         setIsLoadMore(false);
       });
   }
+  
 
-  function handleSearch(e) {}
 
+  function handleSearch(e) {
+
+  }
+ 
   useEffect(() => {
     loadMoreItems();
-    setType("posts");
+    setType('posts')
   }, []);
   return (
     <div className=" flex flex-col   p-5  ">
       <div className="flex  flex-row  gap-5 justify-between  ">
-        <span className=" p-1  w-1 mr-5 bg-transparent border-none focus:bg-transparent hover:bg-transparent ">
+        <span className=" p-1  w-1 mr-5 bg-transparent border-none focus:bg-transparent hover:bg-transparent "  >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -105,6 +97,7 @@ export default function Search() {
                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
               />
             </svg>
+            
           </div>
 
           <input
@@ -115,51 +108,56 @@ export default function Search() {
         rounded-full
         input-sm
         "
-            onFocus={() => {
-              searchIconREF.current.style.color = "#3b82f6";
-            }}
-            onBlur={() => {
-              searchIconREF.current.style.color = "#9CA3AF";
-            }}
+        onFocus={()=>{
+           
+          searchIconREF.current.style.color = '#3b82f6'
+        }}
+        onBlur={()=>{
+           
+          searchIconREF.current.style.color = '#9CA3AF'
+        }}
             placeholder="Search #tags, @Users, or keywords"
             required
           />
         </div>
-        <div></div>
+       <h1 className="font-bold  text-rose-500 btn btn-sm  text-md p-0 mr-2 bg-transparent focus:bg-transparent hover:bg-transparent  border-none hover:cursor-pointer ">Search</h1>
+    
+       
+
       </div>
       <h1 className="font-bold text-xl    mt-5 mb-2 ">For You</h1>
       <div className="flex flex-col gap-2   mt-5 ">
-        <InfiniteScroll
-          dataLength={items.length}
-          next={loadMoreItems}
-          hasMore={isLoadMore}
-          loader={
-            <div className="flex flex-col gap-5">
-              <Loading />
-              <Loading />
-              <Loading />
-            </div>
-          }
+       
+       <InfiniteScroll 
+        dataLength={items.length}
+        next={loadMoreItems}
+        hasMore={isLoadMore}
+        loader={
+          <div className="flex flex-col gap-5">
+            <Loading />
+            <Loading />
+            <Loading />
+          </div>
+        }
         >
-          {items.map((item) => {
-            return type === "tags" || "keywords" || "posts" ? (
-              <Post
-                key={item.id}
-                content={item.content}
-                author={item.expand.author}
-                id={item.id}
-                tags={item.tags}
-                likes={item.likes}
-                comments={item.comments}
-                created={item.created}
-              />
-            ) : (
-              <></>
-            );
-          })}
+      {items.map((item) => {
+          return (
+            type === "tags" || "keywords"  || "posts" ?
+             <Post key={item.id} content={item.content} author={item.expand.author}
+              id={item.id}
+              tags={item.tags}
+             likes={item.likes} comments={item.comments}
+             created={item.created}
+             
+             />
+           :<></>
+           
+          );
+        })}
         </InfiniteScroll>
+         
       </div>
-
+       
       <div className="mt-12">
         <Bottomnav />
       </div>

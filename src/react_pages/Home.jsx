@@ -19,7 +19,7 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "recommended"
           ? "author.followers:length,-likes:length,-created"
           : "" || pageSelected === "top"
-          ? "-created,-likes"
+          ? "-created,likes:length"
           : ""
       }
       `,
@@ -30,7 +30,7 @@ function fetchPosts(page, pageSelected) {
           : "" || pageSelected === "recommended"
           ? `  author.id != "${api.authStore.model.id}" && author.followers !~ "${api.authStore.model.id}" && author.deactivated != true  && author.Isprivate != true`
           : "" || pageSelected === "top"
-          ? ` author.id != "${api.authStore.model.id}" && author.deactivated != true && author.Isprivate != true`
+          ? ` author.id != "${api.authStore.model.id}" && author.deactivated != true && author.Isprivate != true && author.followers !~ "${api.authStore.model.id}"`
           : ""
       }
 
@@ -205,7 +205,7 @@ export default function Home() {
             pageSelected === "top" ? "underline underline-offset-[10px]" : ""
           } `}
         >
-          Trending
+          Explore
         </a>
       </div>
       {scrollPosition === "bottom" ? (

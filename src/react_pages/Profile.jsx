@@ -67,7 +67,7 @@ export default function Profile(props) {
             : `author.username != "${props.user}" && likes ~ "${profile.id}"`,
         sort: `${
           pageSelected === "comments"
-            ? "-created,-likes"
+            ? "-created"
             : pageSelected === "posts"
             ? "-pinned,-created"
             : "-created"
@@ -306,7 +306,7 @@ export default function Profile(props) {
               <span className="">
                 <img
                   src="/icons/verified.png"
-                  className="w-5 h-5 absolute border-white border-1 bg-base-300  bottom-0  left-0
+                  className="w-5 h-5 absolute border-white border-1 bg-base-100  bottom-0  left-0
           rounded-full
            
           "
@@ -642,6 +642,7 @@ export default function Profile(props) {
                           likes={l.likes}
                           color={post.textColor}
                           tags={l.tags}
+                          created={l.created}
                           comments={l.comments}
                           ondelete={() => {
                             let index = array.indexOf(l);
@@ -679,6 +680,7 @@ export default function Profile(props) {
                           pinned={c.pinned}
                           author={c.expand.author}
                           content={c.content}
+                          created={c.created}
                           tags={c.tags}
                           likes={c.likes}
                           comments={c.comments}
@@ -857,7 +859,9 @@ export default function Profile(props) {
                     <div
                       className="tooltip"
                       data-tip={`Profile is ${
-                        edited.Isprivate || profile.Isprivate ? "private" : "public"
+                        edited.Isprivate || profile.Isprivate
+                          ? "private"
+                          : "public"
                       }`}
                     >
                       <div
@@ -872,7 +876,7 @@ export default function Profile(props) {
                         }}
                         className="cursor-pointer"
                       >
-                        { edited.Isprivate || profile.Isprivate ? (
+                        {edited.Isprivate || profile.Isprivate ? (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -1036,9 +1040,14 @@ export default function Profile(props) {
           }`}
         >
           <h3 className="font-bold">Discard Unsaved Changes?</h3>
-          <p className={`mt-2 ${
-            document.querySelector("html").getAttribute("data-theme") === "black" ? "text-slate-300" : "text-slate-500"
-          }`}>
+          <p
+            className={`mt-2 ${
+              document.querySelector("html").getAttribute("data-theme") ===
+              "black"
+                ? "text-slate-300"
+                : "text-slate-500"
+            }`}
+          >
             Are you sure you want to discard your unsaved changes?
           </p>
 

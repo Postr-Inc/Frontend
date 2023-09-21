@@ -221,8 +221,10 @@ export default function Search() {
               tags={item.tags}
               likes={item.likes} comments={item.comments}
               created={item.created}
-               file={item.file}
-             
+              file={item.file}
+              verified={item.expand.author.validVerified}
+              bookmarked={item.bookmarked}
+              color={item.textColor }
              />
            :<></>
            

@@ -5,6 +5,7 @@ import Modal from "../components/Modal";
 import Post from "../components/Post";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
+
 export default function Search() {
   const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);
@@ -16,18 +17,10 @@ export default function Search() {
   const [type, setType] = useState("posts");
   const searchIconRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
-
-  // Debounce search input
-  const debouncedSearch = useRef(
-    debounce((value) => {
-      setSearch(value);
-      handleSearch(value);
-    }, 500)
-  ).current;
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   // Handle different search types
   function handleSearch(value) {
-    console.log(value);
     if (value === "") {
       setType("posts");
       setPage(0);
@@ -37,36 +30,46 @@ export default function Search() {
     }
     setSearch(value);
 
-    console.log;
-    switch (value[0]) {
-      case "#":
-        setPage(1);
-        setType("tags");
-        fetchData(value.slice(1)); // Exclude the "#" character
-        setIsSearching(true);
-        break;
-      case "@":
-        // check if just @ is typed
-        if (value.trim().length > 1) {
-          setType("users");
-          setPage(0);
-          fetchData(value.slice(1)); // Exclude the "@" character
-        }
-
-        break;
-      case " ":
-        setPage(1);
-        setType("posts");
-        fetchData(value);
-        setIsSearching(true);
-        break;
-      default:
-        setPage(1);
-        setType("keywords");
-        fetchData(value);
-        setIsSearching(true);
-        break;
+    // Clear the previous search timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
+
+    // Create a new search timeout
+    const timeout = setTimeout(() => {
+      switch (value[0]) {
+        case "#":
+          setPage(1);
+          setType("tags");
+          fetchData(value.slice(1)); // Exclude the "#" character
+          setIsSearching(true);
+          break;
+        case "@":
+          // check if just @ is typed
+          if (value.trim().length > 1) {
+            setItems([]);
+            setType("users");
+            setPage(0);
+            fetchData(value.slice(1)); // Exclude the "@" character
+          }
+          break;
+        case " ":
+          setPage(1);
+          setType("posts");
+          fetchData(value);
+          setIsSearching(true);
+          break;
+        default:
+          setPage(1);
+          setType("keywords");
+          fetchData(value);
+          setIsSearching(true);
+          break;
+      }
+    }, 600); // Adjust the delay as needed (e.g., 500 milliseconds)
+
+    // Set the new search timeout
+    setSearchTimeout(timeout);
   }
 
   // Fetch data based on search type
@@ -108,7 +111,6 @@ export default function Search() {
       })
       .then((res) => {
         // sort by date
-        console.log(res);
         res.items.sort((a, b) => {
           return new Date(b.created) - new Date(a.created);
         });
@@ -127,6 +129,13 @@ export default function Search() {
 
   useEffect(() => {
     setPage(0);
+    setItems([]);
+    if (search === "") {
+      setType("posts");
+      fetchData();
+      setIsSearching(false);
+      return;
+    }
     handleSearch(search);
   }, [search]);
 
@@ -191,11 +200,12 @@ export default function Search() {
             onInput={(e) => {
               if (!isTyping) {
                 setIsTyping(true);
-                debouncedSearch(e.target.value);
+                setSearch(e.target.value);
                 setIsSearching(true);
               }
 
-              debouncedSearch(e.target.value);
+              setIsTyping(true);
+              setSearch(e.target.value);
             }}
             onKeyUp={(e) => {
               setIsTyping(false);
@@ -249,87 +259,87 @@ export default function Search() {
                   color={item.textColor}
                 />
               ) : (
-                <div className="flex flex-row justify-between items-center p-2 mb-8">
-                  <div className="flex flex-row   gap-2">
-                    {item.avatar ? (
-                      <img
-                        src={
-                          api.baseUrl +
-                          "/api/files/_pb_users_auth_/" +
-                          item.id +
-                          "/" +
-                          item.avatar
-                        }
-                        alt=""
-                        className="w-12 h-12 rounded-full"
-                      />
-                    ) : (
-                      <div className="avatar placeholder">
-                        <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
-                          <span className="text-lg">
-                            {item.username
-                              ? item.username.charAt(0).toUpperCase()
-                              : ""}
-                          </span>
+                item.username && item.followers && item.bio ? (
+                  <div className="flex flex-row justify-between items-center p-2 mb-8">
+                    <div className="flex flex-row   gap-2">
+                      {item.avatar ? (
+                        <img
+                          src={
+                            api.baseUrl +
+                            "/api/files/_pb_users_auth_/" +
+                            item.id +
+                            "/" +
+                            item.avatar
+                          }
+                          alt=""
+                          className="w-12 h-12 rounded-full"
+                        />
+                      ) : (
+                        <div className="avatar placeholder">
+                          <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
+                            <span className="text-lg">
+                              {item.username[0].toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-col  mr-5">
+                        <a
+                          className="  text-lg capitalize"
+                          href={`/u/${item.username}`}
+                        >
+                          {item.username}
+                        </a>
+                        <h1 className="text-gray-500 text-sm">{item.name}</h1>
+                        <p className="text-gray-500 text-sm">
+                          {item.bio ? item.bio : ""}
+                        </p>
+                        <div className="flex flex-row gap-2 mt-2">
+                          <p className="text-gray-500 text-sm">
+                            {item.followers ? item.followers.length : 0} Followers
+                          </p>
                         </div>
                       </div>
-                    )}
-                    <div className="flex flex-col  mr-5">
-                      <a
-                        className="  text-lg capitalize"
-                        href={`/u/${item.username}`}
-                      >
-                        {item.username}
-                      </a>
-                      <h1 className="text-gray-500 text-sm">{item.name}</h1>
-                      <p className="text-gray-500 text-sm">
-                        {item.bio
-                          ? item.bio.length > 100
-                            ? item.bio.slice(0, 100) + "..."
-                            : item.bio
-                          : ""}
-                      </p>
-                      <div className="flex flex-row gap-2 mt-2">
-                        <p className="text-gray-500 text-sm">
-                          {item.followers ? item.followers.length : 0} Followers
-                        </p>
-                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                        Message
+                      </button>
+                      {item.followers &&
+                      !JSON.parse(
+                        JSON.stringify(item.followers)
+                      ).includes(api.authStore.model.id) ? (
+                        <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                          Follow
+                        </button>
+                      ) : (
+                        <button
+                          className={`bg-base-100 btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
+
+                    ${
+                      document.documentElement.getAttribute("data-theme") ===
+                      "black"
+                        ? "boder border-gray-500"
+                        : " border border-slate-200"
+                    }
+                    
+                  `}
+                        >
+                          Following
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  <div className="flex flex-col gap-2">
-                    <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
-                      Message
-                    </button>
-                    {item.followers &&
-                    !JSON.parse(JSON.stringify(item.followers)).includes(
-                      api.authStore.model.id
-                    ) ? (
-                      <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
-                        Follow
-                      </button>
-                    ) : (
-                      <button
-                        className={`bg-base-100 btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
-
-                      ${
-                        document.documentElement.getAttribute("data-theme") ===
-                        "black"
-                          ? "boder border-gray-500"
-                          : " border border-slate-200"
-                      }
-                      
-                    `}
-                      >
-                        Following
-                      </button>
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  ""
+                )
               );
             })
           ) : (
-            <Loading />
+            <div>
+              {!isSearching ? <Loading /> : ""}
+            </div>
           )}
         </InfiniteScroll>
       </div>
@@ -339,12 +349,4 @@ export default function Search() {
       </div>
     </div>
   );
-}
-function debounce(fn, time) {
-  let timeout;
-  return function () {
-    const functionCall = () => fn.apply(this, arguments);
-    clearTimeout(timeout);
-    timeout = setTimeout(functionCall, time);
-  };
 }

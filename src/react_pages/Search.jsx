@@ -6,51 +6,109 @@ import Post from '../components/Post'
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from '../components/Loading'
 export default function Search() {
-  let [search, setSearch] = useState("");
-  let [items, setItems] = useState([]);
-  let [isSearching, setIsSearching] = useState(false);
-  let inputref = useRef(null);
-  let [page, setPage] = useState(1);
-  let [isLoadMore, setIsLoadMore] = useState(false);
-  let [total, setTotal] = useState(0);
-  let [type, setType] = useState("posts");
-  let searchIconREF = useRef(null);
-  function loadMoreItems() {
-    setIsLoadMore(true);
+  const [search, setSearch] = useState("");
+  const [items, setItems] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const inputRef = useRef(null);
+  const [page, setPage] = useState(1);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [type, setType] = useState("posts");
+  const searchIconRef = useRef(null);
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Debounce search input
+  const debouncedSearch = useRef(
+    debounce((value) => {
+      setSearch(value);
+      handleSearch(value);
+    }, 500)
+  ).current;
+
+  // Handle different search types
+  function handleSearch(value) {
+    console.log(value);
+    if (value === "") {
+      setType("posts");
+      setPage(0)
+      fetchData();
+      setIsSearching(false);
+      return;
+    }
+   setSearch(value)
+
+    switch (value[0]) {
+      case "#":
+        setPage(1);
+        setType("tags");
+        fetchData(value.slice(1)); // Exclude the "#" character
+        setIsSearching(true);
+        break;
+      case "@":
+        setSearch(value.slice(1)); // Exclude the "@" character
+        setType("users");
+        break;
+      case " ":
+        setPage(1);
+        setType("posts");
+        fetchData(value);
+        setIsSearching(true);
+        break;
+      default:
+        setPage(1);
+        setType("keywords");
+        fetchData(value);
+        setIsSearching(true);
+        break;
+    }
+  }
+
+  // Fetch data based on search type
+  function fetchData(query) {
+     
+ 
+    setPage(0);
+    setItems([]);
     api
-      .collection(type === 'tags' ? 'posts' : type === 'keywords' ? 'posts' : type === 'users' ? 'users' : 'posts')
+      .collection(
+        type === "tags" || type === "keywords" ? "posts" : type === "users" ? "users" : "posts"
+      )
       .getList(page, 10, {
-        expand: 'author',
+        expand: "author",
         sort: "+likes:length,-comments:length,created",
-         filter:  type === 'tags' ? `tags ~ "${search}"  && author.Isprivate != true && author.deactivated != true` :  
-         type === 'keywords' ? `content ~ "${search}"  && author.Isprivate != true && author.deactivated != true` 
-         : type === 'users'  ? `username ~ "${search}"  && author.Isprivate != true && author.deactivated != true` 
-         : `author.id != "${api.authStore.model.id}" && author.deactivated != true
-         && author.Isprivate != true && author.followers !~ "${api.authStore.model.id}" 
-         `,
+        filter:
+          type === "tags"
+            ? `tags ~ "${query}" && author.Isprivate != true && author.deactivated != true`
+            : type === "keywords"
+            ? `content ~ "${query}" && author.Isprivate != true && author.deactivated != true`
+            : type === "users"
+            ? `username ~ "${query}" && author.Isprivate != true && author.deactivated != true`
+            : `author.id != "${api.authStore.model.id}" && author.deactivated != true && author.Isprivate != true && author.followers !~ "${api.authStore.model.id}"`,
       })
       .then((res) => {
         // sort by date
+        console.log(res);
         res.items.sort((a, b) => {
           return new Date(b.created) - new Date(a.created);
         });
-        
-        setItems([...items, ...res.items]);
+
+        setItems(res.items);
         setTotal(res.totalPages);
         setIsLoadMore(false);
       });
   }
-  
 
-
-  function handleSearch(e) {
-
+  function loadMoreItems() {
+    setIsLoadMore(true);
+    setPage(page + 1);
+    fetchData(search);
   }
- 
+
   useEffect(() => {
-    loadMoreItems();
-    setType('posts')
-  }, []);
+    setPage(1);
+    fetchData(search);
+  }, [search]);
+  
   return (
     <div className=" flex flex-col   p-5  ">
       <div className="flex  flex-row  gap-5 justify-between  ">
@@ -61,13 +119,9 @@ export default function Search() {
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className="w-6 h-6 hover:cursor-pointer"
             onClick={() => {
-              if (Object.keys(edited).length > 0) {
-                document.getElementById("discard").showModal();
-              } else {
-                document.getElementById("editprofile").close();
-              }
+              window.history.back();
             }}
           >
             <path
@@ -87,7 +141,7 @@ export default function Search() {
               fill="none"
               viewBox="0 0 20 20"
               id="search-icon"
-              ref={searchIconREF}
+              ref={searchIconRef}
             >
               <path
                 stroke="currentColor"
@@ -110,22 +164,40 @@ export default function Search() {
         "
         onFocus={()=>{
            
-          searchIconREF.current.style.color = '#3b82f6'
+          searchIconRef.current.style.color = '#3b82f6'
         }}
         onBlur={()=>{
            
-          searchIconREF.current.style.color = '#9CA3AF'
+          searchIconRef.current.style.color = '#9CA3AF'
         }}
+        onInput={(e)=>{
+          if(!isTyping){
+            setIsTyping(true)
+            debouncedSearch(e.target.value)
+            setIsSearching(true)
+          }
+
+          debouncedSearch(e.target.value)
+
+        }}
+        onKeyUp={(e)=>{
+          setIsTyping(false)
+        }}
+
             placeholder="Search #tags, @Users, or keywords"
             required
           />
         </div>
-       <h1 className="font-bold  text-rose-500 btn btn-sm  text-md p-0 mr-2 bg-transparent focus:bg-transparent hover:bg-transparent  border-none hover:cursor-pointer ">Search</h1>
-    
+ 
+       <div></div>
        
 
       </div>
-      <h1 className="font-bold text-xl    mt-5 mb-2 ">For You</h1>
+      <h1 className="font-bold text-xl    mt-5 mb-2 ">
+        {
+          isSearching  && search !== "" ? `Search results for ${type === "tags" ? "" : type === "users" ? "" : "Keyword"} ${search}` : "For You"
+        }
+      </h1>
       <div className="flex flex-col gap-2   mt-5 ">
        
        <InfiniteScroll 
@@ -166,13 +238,8 @@ export default function Search() {
 }
 function debounce(fn, time) {
   let timeout;
-  if (!time) {
-    time = 1000;
-  }
-  // make sure it only goes once at a time
   return function () {
     const functionCall = () => fn.apply(this, arguments);
-
     clearTimeout(timeout);
     timeout = setTimeout(functionCall, time);
   };

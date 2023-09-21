@@ -413,7 +413,7 @@ export default function Post(props) {
           />
         </svg>
 
-        {window.location.pathname === "/p/" + props.id ? (
+        {window.location.pathname === "/p/" + props.id || window.location.pathname === "/q/" ? (
           <div>
             {bookmarked.includes(api.authStore.model.id) ? (
               <svg

@@ -11,8 +11,8 @@ export default function Search() {
   const [items, setItems] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef(null);
-  const [page, setPage] = useState(1);
-  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
   const [type, setType] = useState("posts");
   const searchIconRef = useRef(null);
@@ -21,61 +21,41 @@ export default function Search() {
 
   // Handle different search types
   function handleSearch(value) {
-    if (value === "") {
-      setType("posts");
-      setPage(0);
-      fetchData();
-      setIsSearching(false);
-      return;
-    }
+    console.log(value)
+    setItems([]);
     setSearch(value);
-
-    // Clear the previous search timeout
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
+ if (value.startsWith("@") && value.trim().length > 1) {
+      // Handle "@" followed by username
+      setType("users");
+      setPage(0);
+      fetchData(value.slice(1)); // Exclude the "@" character
+    } else if(value.startsWith('$') && value.trim().length > 1) {
+      // Handle other keywords
+      setPage(1);
+      setType("keywords");
+      fetchData(value.slice(1)); // Exclude the "$" character
+      setIsSearching(true);
     }
+    else if (value.startsWith('#') && value.trim().length > 1) {
+      setPage(1);
+      setType("tags");
+      fetchData(value.slice(1)); // Exclude the "#" character
+      setIsSearching(true);
 
-    // Create a new search timeout
-    const timeout = setTimeout(() => {
-      switch (value[0]) {
-        case "#":
-          setPage(1);
-          setType("tags");
-          fetchData(value.slice(1)); // Exclude the "#" character
-          setIsSearching(true);
-          break;
-        case "@":
-          // check if just @ is typed
-          if (value.trim().length > 1) {
-            setItems([]);
-            setType("users");
-            setPage(0);
-            fetchData(value.slice(1)); // Exclude the "@" character
-          }
-          break;
-        case " ":
-          setPage(1);
-          setType("posts");
-          fetchData(value);
-          setIsSearching(true);
-          break;
-        default:
-          setPage(1);
-          setType("keywords");
-          fetchData(value);
-          setIsSearching(true);
-          break;
-      }
-    }, 600); // Adjust the delay as needed (e.g., 500 milliseconds)
-
-    // Set the new search timeout
-    setSearchTimeout(timeout);
+    }
+    else{ 
+      setItems([]);
+      setPage(0);
+      setType("posts");
+      fetchData(value);
+      setIsSearching(true);
+    }
   }
-
+  
   // Fetch data based on search type
   function fetchData(query) {
-    setPage(0);
-    setItems([]);
+    
+    
     if (type === "users") {
       api
         .collection("users")
@@ -85,7 +65,9 @@ export default function Search() {
           expand: "followers",
         })
         .then((res) => {
-          setItems(res.items);
+          const uniqueItems = res.items.filter((i) => !items.find((item) => item.id === i.id));
+          setItems([...items, ...uniqueItems]); // Append new items to the existing items
+          setTotal(res.totalPages);
         });
       return;
     }
@@ -99,7 +81,7 @@ export default function Search() {
       )
       .getList(page, 10, {
         expand: "author",
-        sort: "+likes:length,-comments:length,created",
+        sort: "-created",
         filter:
           type === "tags"
             ? `tags ?~ "${query}" && author.Isprivate != true && author.deactivated != true`
@@ -111,33 +93,35 @@ export default function Search() {
       })
       .then((res) => {
         // sort by date
-        res.items.sort((a, b) => {
+       
+        // remove dupe by id
+        const uniqueItems = res.items.filter((i) => !items.find((item) => item.id === i.id));
+        // sort by date
+       uniqueItems.sort((a, b) => {
           return new Date(b.created) - new Date(a.created);
         });
-
-        setItems(res.items);
+        
+        setItems([...items, ...uniqueItems]); // Append new items to the existing items
         setTotal(res.totalPages);
-        setIsLoadMore(false);
+        
+     
       });
   }
 
   function loadMoreItems() {
-    setIsLoadMore(true);
+    console.log(page, total)
+    if(Number(page) >= Number(total)) {
+      setHasMore(false);
+      return
+    }
+    setHasMore(true);
     setPage(page + 1);
     fetchData(search);
   }
 
   useEffect(() => {
-    setPage(0);
-    setItems([]);
-    if (search === "") {
-      setType("posts");
-      fetchData();
-      setIsSearching(false);
-      return;
-    }
-    handleSearch(search);
-  }, [search]);
+   fetchData();
+  }, []);
 
   return (
     <div className=" flex flex-col   p-5  ">
@@ -197,16 +181,7 @@ export default function Search() {
             onBlur={() => {
               searchIconRef.current.style.color = "#9CA3AF";
             }}
-            onInput={(e) => {
-              if (!isTyping) {
-                setIsTyping(true);
-                setSearch(e.target.value);
-                setIsSearching(true);
-              }
-
-              setIsTyping(true);
-              setSearch(e.target.value);
-            }}
+            onInput={(e) => {handleSearch(e.target.value)}}
             onKeyUp={(e) => {
               setIsTyping(false);
             }}
@@ -230,34 +205,37 @@ export default function Search() {
         <InfiniteScroll
           dataLength={items.length}
           next={loadMoreItems}
-          hasMore={isLoadMore}
-          loader={
-            <div className="flex flex-col gap-5">
-              <Loading />
-              <Loading />
-              <Loading />
-            </div>
-          }
+          hasMore={hasMore}
+          
         >
           {items.length > 0 ? (
             items.map((item) => {
               return type === "tags" ||
                 type === "keywords" ||
-                type === "posts" ? (
-                <Post
-                  key={item.id}
-                  content={item.content}
-                  author={item.expand.author}
-                  id={item.id}
-                  tags={item.tags}
-                  likes={item.likes}
-                  comments={item.comments}
-                  created={item.created}
-                  file={item.file}
-                  verified={item.expand.author.validVerified}
-                  bookmarked={item.bookmarked}
-                  color={item.textColor}
-                />
+                type === "posts" ?
+               
+                (
+                 
+                <div>
+                  {
+                    item.content ?  <Post
+                    key={item.id}
+                    content={item.content}
+                    author={item.expand ? item.expand.author : ""}
+                    id={item.id}
+                    tags={item.tags}
+                    likes={item.likes}
+                    comments={item.comments}
+                    created={item.created}
+                    file={item.file}
+                    verified={item.expand ? item.expand.author.validVerified : ""}
+                    bookmarked={item.bookmarked}
+                    color={item.textColor}
+                  />
+                  : ""
+                  }
+                </div>
+              
               ) : (
                 item.username && item.followers && item.bio ? (
                   <div className="flex flex-row justify-between items-center p-2 mb-8">
@@ -277,7 +255,7 @@ export default function Search() {
                       ) : (
                         <div className="avatar placeholder">
                           <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
-                            <span className="text-lg">
+                            <span className="text-sm">
                               {item.username[0].toUpperCase()}
                             </span>
                           </div>
@@ -285,7 +263,7 @@ export default function Search() {
                       )}
                       <div className="flex flex-col  mr-5">
                         <a
-                          className="  text-lg capitalize"
+                          className="  text-sm capitalize"
                           href={`/u/${item.username}`}
                         >
                           {item.username}
@@ -303,19 +281,31 @@ export default function Search() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                      <button className={`
+                      ${
+                        document.documentElement.getAttribute("data-theme") === "black" ? "bg-blue-500 border-none" : "bg-base-100 border border-slate-200 text-black"
+                      }
+                      btn btn-sm    rounded-full px-8 capitalize py-1 text-sm `}>
                         Message
                       </button>
                       {item.followers &&
                       !JSON.parse(
                         JSON.stringify(item.followers)
                       ).includes(api.authStore.model.id) ? (
-                        <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                        <button className={`
+                        ${
+                          document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-200 border-none" : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
+                        }
+                        btn btn-sm   rounded-full px-8 capitalize py-1 text-sm `}>
                           Follow
                         </button>
                       ) : (
                         <button
-                          className={`bg-base-100 btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
+                          className={`
+                          ${
+                            document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-200 border-none" : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
+                          }
+                          btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
 
                     ${
                       document.documentElement.getAttribute("data-theme") ===

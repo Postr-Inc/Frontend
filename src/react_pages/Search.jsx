@@ -78,7 +78,7 @@ export default function Search() {
         sort: "+likes:length,-comments:length,created",
         filter:
           type === "tags"
-            ? `tags ~ "${query}" && author.Isprivate != true && author.deactivated != true`
+            ? `tags ?~ "${query}" && author.Isprivate != true && author.deactivated != true`
             : type === "keywords"
             ? `content ~ "${query}" && author.Isprivate != true && author.deactivated != true`
             : type === "users"
@@ -193,9 +193,9 @@ export default function Search() {
        
 
       </div>
-      <h1 className="font-bold text-xl    mt-5 mb-2 ">
+      <h1 className="font-bold text-xl     text-sky-500   mt-5 mb-2 ">
         {
-          isSearching  && search !== "" ? `Search results for ${type === "tags" ? "" : type === "users" ? "" : "Keyword"} ${search}` : "For You"
+          type === "tags" ? `${search}` : type === "keywords" ?  '' : type === "users" ? `${search}` : "Posts"
         }
       </h1>
       <div className="flex flex-col gap-2   mt-5 ">
@@ -212,7 +212,8 @@ export default function Search() {
           </div>
         }
         >
-      {items.map((item) => {
+      {
+        items.length > 0 ? items.map((item) => {
           return (
             type === "tags" || "keywords"  || "posts" ?
              <Post key={item.id} content={item.content} author={item.expand.author}
@@ -225,7 +226,8 @@ export default function Search() {
            :<></>
            
           );
-        })}
+        }):  <Loading />
+      }
         </InfiniteScroll>
          
       </div>

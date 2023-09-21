@@ -219,8 +219,9 @@ export default function Search() {
              <Post key={item.id} content={item.content} author={item.expand.author}
               id={item.id}
               tags={item.tags}
-             likes={item.likes} comments={item.comments}
-             created={item.created}
+              likes={item.likes} comments={item.comments}
+              created={item.created}
+               file={item.file}
              
              />
            :<></>

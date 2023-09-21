@@ -27,7 +27,7 @@ export default function Comment(props) {
           title: `hearted your comment`,
           comment: props.id,
           post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           notification_title: `${api.authStore.model.username} hearted your comment`,
           notification_body: props.text.slice(0, 300),
           url: `/p/${props.post.id}`
@@ -40,7 +40,7 @@ export default function Comment(props) {
           title: `${api.authStore.model.username} hearted your comment`,
           comment: props.id,
           post: props.post.id,
-          image: `https://postrapi.pockethost.io/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           notification_title: `${api.authStore.model.username} hearted your comment`,
           notification_body: props.text.slice(0, 300),
           url: `/p/${props.post.id}`
@@ -79,7 +79,7 @@ export default function Comment(props) {
         
         {props.user.avatar ? (
           <img
-            src={`https://postrapi.pockethost.io/api/files/_pb_users_auth_/${props.user.id}/${props.user.avatar}`}
+            src={`${api.baseUrl}/api/files/_pb_users_auth_/${props.user.id}/${props.user.avatar}`}
             className="w-8 h-8 rounded-full object-cover"
             alt="post image"
           />

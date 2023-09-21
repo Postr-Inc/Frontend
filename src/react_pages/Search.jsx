@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { api } from ".";
 import Bottomnav from "../components/Bottomnav";
 import Modal from "../components/Modal";
-import Post from '../components/Post'
+import Post from "../components/Post";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Loading from '../components/Loading'
+import Loading from "../components/Loading";
 export default function Search() {
   const [search, setSearch] = useState("");
   const [items, setItems] = useState([]);
@@ -30,13 +30,14 @@ export default function Search() {
     console.log(value);
     if (value === "") {
       setType("posts");
-      setPage(0)
+      setPage(0);
       fetchData();
       setIsSearching(false);
       return;
     }
-   setSearch(value)
+    setSearch(value);
 
+    console.log;
     switch (value[0]) {
       case "#":
         setPage(1);
@@ -45,8 +46,13 @@ export default function Search() {
         setIsSearching(true);
         break;
       case "@":
-        setSearch(value.slice(1)); // Exclude the "@" character
-        setType("users");
+        // check if just @ is typed
+        if (value.trim().length > 1) {
+          setType("users");
+          setPage(0);
+          fetchData(value.slice(1)); // Exclude the "@" character
+        }
+
         break;
       case " ":
         setPage(1);
@@ -65,13 +71,28 @@ export default function Search() {
 
   // Fetch data based on search type
   function fetchData(query) {
-     
- 
     setPage(0);
     setItems([]);
+    if (type === "users") {
+      api
+        .collection("users")
+        .getList(page, 10, {
+          sort: `+followers:length,-following:length,created`,
+          filter: `username ~ "${query}"`,
+          expand: "followers",
+        })
+        .then((res) => {
+          setItems(res.items);
+        });
+      return;
+    }
     api
       .collection(
-        type === "tags" || type === "keywords" ? "posts" : type === "users" ? "users" : "posts"
+        type === "tags" || type === "keywords"
+          ? "posts"
+          : type === "users"
+          ? "users"
+          : "posts"
       )
       .getList(page, 10, {
         expand: "author",
@@ -82,7 +103,7 @@ export default function Search() {
             : type === "keywords"
             ? `content ~ "${query}" && author.Isprivate != true && author.deactivated != true`
             : type === "users"
-            ? `username ~ "${query}" && author.Isprivate != true && author.deactivated != true`
+            ? `username ?~ "${query}" `
             : `author.id != "${api.authStore.model.id}" && author.deactivated != true && author.Isprivate != true && author.followers !~ "${api.authStore.model.id}"`,
       })
       .then((res) => {
@@ -105,14 +126,14 @@ export default function Search() {
   }
 
   useEffect(() => {
-    setPage(1);
-    fetchData(search);
+    setPage(0);
+    handleSearch(search);
   }, [search]);
-  
+
   return (
     <div className=" flex flex-col   p-5  ">
       <div className="flex  flex-row  gap-5 justify-between  ">
-        <span className=" p-1  w-1 mr-5 bg-transparent border-none focus:bg-transparent hover:bg-transparent "  >
+        <span className=" p-1  w-1 mr-5 bg-transparent border-none focus:bg-transparent hover:bg-transparent ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -151,7 +172,6 @@ export default function Search() {
                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
               />
             </svg>
-            
           </div>
 
           <input
@@ -162,79 +182,158 @@ export default function Search() {
         rounded-full
         input-sm
         "
-        onFocus={()=>{
-           
-          searchIconRef.current.style.color = '#3b82f6'
-        }}
-        onBlur={()=>{
-           
-          searchIconRef.current.style.color = '#9CA3AF'
-        }}
-        onInput={(e)=>{
-          if(!isTyping){
-            setIsTyping(true)
-            debouncedSearch(e.target.value)
-            setIsSearching(true)
-          }
+            onFocus={() => {
+              searchIconRef.current.style.color = "#3b82f6";
+            }}
+            onBlur={() => {
+              searchIconRef.current.style.color = "#9CA3AF";
+            }}
+            onInput={(e) => {
+              if (!isTyping) {
+                setIsTyping(true);
+                debouncedSearch(e.target.value);
+                setIsSearching(true);
+              }
 
-          debouncedSearch(e.target.value)
-
-        }}
-        onKeyUp={(e)=>{
-          setIsTyping(false)
-        }}
-
+              debouncedSearch(e.target.value);
+            }}
+            onKeyUp={(e) => {
+              setIsTyping(false);
+            }}
             placeholder="Search #tags, @Users, or keywords"
             required
           />
         </div>
- 
-       <div></div>
-       
 
+        <div></div>
       </div>
       <h1 className="font-bold text-xl     text-sky-500   mt-5 mb-2 ">
-        {
-          type === "tags" ? `${search}` : type === "keywords" ?  '' : type === "users" ? `${search}` : "For You"
-        }
+        {type === "tags"
+          ? `${search}`
+          : type === "keywords"
+          ? ""
+          : type === "users"
+          ? `${search}`
+          : "For You"}
       </h1>
       <div className="flex flex-col gap-2   mt-5 ">
-       
-       <InfiniteScroll 
-        dataLength={items.length}
-        next={loadMoreItems}
-        hasMore={isLoadMore}
-        loader={
-          <div className="flex flex-col gap-5">
-            <Loading />
-            <Loading />
-            <Loading />
-          </div>
-        }
+        <InfiniteScroll
+          dataLength={items.length}
+          next={loadMoreItems}
+          hasMore={isLoadMore}
+          loader={
+            <div className="flex flex-col gap-5">
+              <Loading />
+              <Loading />
+              <Loading />
+            </div>
+          }
         >
-      {
-        items.length > 0 ? items.map((item) => {
-          return (
-            type === "tags" || "keywords"  || "posts" ?
-             <Post key={item.id} content={item.content} author={item.expand.author}
-              id={item.id}
-              tags={item.tags}
-              likes={item.likes} comments={item.comments}
-              created={item.created}
-              file={item.file}
-              verified={item.expand.author.validVerified}
-              bookmarked={item.bookmarked}
-              color={item.textColor }
-             />
-           :<></>
-           
-          );
-        }):  <Loading />
-      }
+          {items.length > 0 ? (
+            items.map((item) => {
+              return type === "tags" ||
+                type === "keywords" ||
+                type === "posts" ? (
+                <Post
+                  key={item.id}
+                  content={item.content}
+                  author={item.expand.author}
+                  id={item.id}
+                  tags={item.tags}
+                  likes={item.likes}
+                  comments={item.comments}
+                  created={item.created}
+                  file={item.file}
+                  verified={item.expand.author.validVerified}
+                  bookmarked={item.bookmarked}
+                  color={item.textColor}
+                />
+              ) : (
+                <div className="flex flex-row justify-between items-center p-2 mb-8">
+                  <div className="flex flex-row   gap-2">
+                    {item.avatar ? (
+                      <img
+                        src={
+                          api.baseUrl +
+                          "/api/files/_pb_users_auth_/" +
+                          item.id +
+                          "/" +
+                          item.avatar
+                        }
+                        alt=""
+                        className="w-12 h-12 rounded-full"
+                      />
+                    ) : (
+                      <div className="avatar placeholder">
+                        <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
+                          <span className="text-lg">
+                            {item.username
+                              ? item.username.charAt(0).toUpperCase()
+                              : ""}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-col  mr-5">
+                      <a
+                        className="  text-lg capitalize"
+                        href={`/u/${item.username}`}
+                      >
+                        {item.username}
+                      </a>
+                      <h1 className="text-gray-500 text-sm">{item.name}</h1>
+                      <p className="text-gray-500 text-sm">
+                        {item.bio
+                          ? item.bio.length > 100
+                            ? item.bio.slice(0, 100) + "..."
+                            : item.bio
+                          : ""}
+                      </p>
+                      <div className="flex flex-row gap-2 mt-2">
+                        <p className="text-gray-500 text-sm">
+                          {item.followers ? item.followers.length : 0} Followers
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                      Message
+                    </button>
+                    {item.followers &&
+                    !JSON.parse(JSON.stringify(item.followers)).includes(
+                      api.authStore.model.id
+                    ) ? (
+                      <button className="bg-base-200 btn btn-sm text-white  rounded-full px-8 capitalize py-1 text-sm ">
+                        Follow
+                      </button>
+                    ) : (
+                      <button
+                        className={`bg-base-100 btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
+
+                      ${
+                        document.documentElement.getAttribute("data-theme") ===
+                        "black"
+                          ? "boder border-gray-500"
+                          : " border border-slate-200"
+                      }
+                      
+                    `}
+                      >
+                        Following
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <Loading />
+          )}
         </InfiniteScroll>
-         
       </div>
-       
+
       <div className="mt-12">
         <Bottomnav />
       </div>

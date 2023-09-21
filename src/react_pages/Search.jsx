@@ -195,7 +195,7 @@ export default function Search() {
       </div>
       <h1 className="font-bold text-xl     text-sky-500   mt-5 mb-2 ">
         {
-          type === "tags" ? `${search}` : type === "keywords" ?  '' : type === "users" ? `${search}` : "Posts"
+          type === "tags" ? `${search}` : type === "keywords" ?  '' : type === "users" ? `${search}` : "For You"
         }
       </h1>
       <div className="flex flex-col gap-2   mt-5 ">

@@ -24,7 +24,6 @@ export default function Post(props) {
         likes: [...likes, api.authStore.model.id],
       });
       if (props.author.id !== api.authStore.model.id) {
-        
         api.collection("notifications").create({
           image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           author: api.authStore.model.id,
@@ -244,29 +243,24 @@ export default function Post(props) {
               let text = props.content;
               if (props.tags) {
                 props.tags.forEach((tag) => {
-                 
                   text = text.replace(
                     `<a class="text-sky-500">${tag}</a>`,
                     `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
                   );
-                 
                 });
               }
-              console.log(text)
+              console.log(text);
               el.innerHTML = sanitizeHtml(text, {
-                allowedTags: [
-                  "a",
-                  "b",
-                  "i",
-                  "em",
-                  "strong",
-                ],
+                allowedTags: ["a", "b", "i", "em", "strong"],
                 allowedAttributes: {
                   a: ["href", "class"],
-                }
+                },
               });
-              el.style.color = props.color === "black" && document.documentElement.getAttribute('data-theme') === 'black' ? "white" : props.color
-              
+              el.style.color =
+                props.color === "black" &&
+                document.documentElement.getAttribute("data-theme") === "black"
+                  ? "white"
+                  : props.color;
             }
           }}
         ></p>
@@ -372,8 +366,8 @@ export default function Post(props) {
             onClick={() => {
               if (window.location.pathname !== "/p/" + props.id) {
                 window.location.href = "/p/" + props.id;
-              }else if (window.location.pathname === "/p/" + props.id){
-                    props.ReplyTo()
+              } else if (window.location.pathname === "/p/" + props.id) {
+                props.ReplyTo();
               }
             }}
           >
@@ -594,19 +588,19 @@ function parseDate(data) {
     return Math.round(minutes) + "m";
   }
   if (hours < 24) {
-    hours > 1 ? Math.round(hours) + "hs" : Math.round(hours) + "h";
+    return Math.round(hours) + "h";
   }
   if (days < 7) {
-    return Math.round(days) + "d ago";
+    return Math.round(days) + "d";
   }
   if (weeks < 4) {
-    return Math.round(weeks) + "w ago";
+    return Math.round(weeks) + "w";
   }
   if (months < 12) {
-    return Math.round(months) + "mo ago";
+    return Math.round(months) + "m";
   }
   if (years >= 1) {
-    return Math.round(years) + "y ago";
+    return Math.round(years) + "y";
   }
 }
 function debounce(fn, time) {

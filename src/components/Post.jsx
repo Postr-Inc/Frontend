@@ -24,7 +24,7 @@ export default function Post(props) {
         likes: [...likes, api.authStore.model.id],
       });
       if (props.author.id !== api.authStore.model.id) {
-        console.log("creating notification");
+        
         api.collection("notifications").create({
           image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           author: api.authStore.model.id,
@@ -244,22 +244,28 @@ export default function Post(props) {
               let text = props.content;
               if (props.tags) {
                 props.tags.forEach((tag) => {
-                  console.log(tag);
+                 
                   text = text.replace(
                     `<a class="text-sky-500">${tag}</a>`,
                     `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
                   );
-                  console.log(text);
+                 
                 });
               }
-              let t = sanitizeHtml(text, {
-                allowedTags: sanitizeHtml.defaults.allowedTags,
+              el.innerHTML = sanitizeHtml(text, {
+                allowedTags: [
+                  "a",
+                  "b",
+                  "i",
+                  "em",
+                  "strong",
+                ],
                 allowedAttributes: {
-                  a: ["href", "class"],
-                },
+                  a: ["href"],
+                }
               });
-              el.style.color = props.color;
-              el.innerHTML = t;
+              el.style.color = props.color === "black" && document.documentElement.getAttribute('data-theme') === 'black' ? "white" : props.color
+              
             }
           }}
         ></p>
@@ -413,7 +419,7 @@ export default function Post(props) {
           />
         </svg>
 
-        {window.location.pathname === "/p/" + props.id || window.location.pathname === "/q" ? (
+        {window.location.pathname === "/p/" + props.id ? (
           <div>
             {bookmarked.includes(api.authStore.model.id) ? (
               <svg

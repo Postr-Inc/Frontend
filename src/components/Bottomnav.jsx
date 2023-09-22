@@ -245,7 +245,7 @@ export default function Bottomnav() {
     <>
       {alert.alert ? (
         <Alert
-          className={`fixed top-5  p-5 left-[50%]   w-96 rounded -translate-x-1/2  first-letter:
+          className={`fixed top-5  p-5 left-[50%]   w-[70vw] rounded -translate-x-1/2  first-letter:
       
         ${alert.error ? "bg-red-500 text-white" : "bg-green-500 text-white"}
         `}

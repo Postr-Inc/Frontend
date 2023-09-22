@@ -146,6 +146,9 @@ export default function Vpost(props) {
               file={post.file ? post.file : ""}
               bookmarked={post.bookmarked}
               color={post.textColor}
+              ReplyTo={()=>{
+                       commentRef.current.placeholder = `Reply To ${post.expand.author.username}`
+               }}
             />
           </>
         ) : (

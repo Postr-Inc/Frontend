@@ -192,7 +192,7 @@ export default function Comment(props) {
             el.innerHTML = sanitizeHtml(props.text, {
               allowedTags: ["b", "i", "em", "strong", "a"],
               allowedAttributes: {
-                a: ["href", "class"],
+                a: ["href"],
               },
             });
           }
@@ -270,6 +270,7 @@ export default function Comment(props) {
           </svg>{" "}
         </div>
       </div>
+      <div className="divider before:bg-base-200 after:bg-base-200 opacity-50 before:rounded after:rounded mt-5 h-0 mb-2 "></div>
     </div>
   );
 }

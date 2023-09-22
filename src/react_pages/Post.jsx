@@ -164,6 +164,9 @@ export default function Vpost(props) {
                       text={comment.text}
                       created={comment.created}
                       post={post}
+                      ReplyTo{(user)=>{
+                        commentRef.current.placeholder = `Reply To ${user}`
+                      }}
                     />
 
                     <Modal id={"delete" + comment.id} height="h-96">

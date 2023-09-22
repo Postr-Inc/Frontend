@@ -67,7 +67,10 @@ export default function Bottomnav() {
   let [modalisOpen, setModalisOpen] = useState(false);
   let [mentionedUsers, setMentionedUsers] = useState([]);
   let [hasMention, setHasMention] = useState(false);
-  let [error, setError] = useState(false);
+  let [alert, setAlert] = useState({
+    alert: false,
+    message: "Invalid username or password",
+  });
   let [theme, setTheme] = useState(localStorage.getItem("theme"));
   let [tags, setTags] = useState([]);
   let [color, setColor] = useState("black");
@@ -75,7 +78,6 @@ export default function Bottomnav() {
   console.log(colorvalue);
   let [isScrolling, setIsScrolling] = useState(false);
   let pRef = useRef();
-   
 
   let [isTyping, setIsTyping] = useState(false);
 
@@ -159,7 +161,9 @@ export default function Bottomnav() {
       a.remove();
     });
 
-    setPContent(dup.innerHTML);
+    console.log(dup.innerHTML);
+
+   setPContent(dup.innerHTML);
   }
 
   useEffect(() => {
@@ -175,10 +179,10 @@ export default function Bottomnav() {
     if (file !== "") {
       form.append("file", file);
     }
-    if(Pref.current.innerHTML == "") {
+    if (pContent === "") {
       return;
     }
-    form.append("content", pRef.current.innerHTML);
+    form.append("content",  pContent);
     form.append("author", api.authStore.model.id);
     form.append("type", "text");
     form.append(
@@ -200,6 +204,11 @@ export default function Bottomnav() {
         setImage("");
         setFile("");
         setModalisOpen(false);
+        setAlert({
+          alert: true,
+          message: "Post created successfully",
+          post: res.id,
+        });
         document.activeElement.blur();
         if (res.expand && res.expand.author) {
           api
@@ -223,11 +232,74 @@ export default function Bottomnav() {
       .catch((e) => {
         document.getElementById("newpost").close();
         document.activeElement.blur();
+        setModalisOpen(false);
+        setAlert({
+          alert: true,
+          message: "An error occured",
+          error: true,
+        });
       });
   }
 
   return (
     <>
+      {alert.alert ? (
+        <Alert
+          className={`fixed top-5  p-5 left-[50%]   w-96 rounded -translate-x-1/2  first-letter:
+      
+        ${alert.error ? "bg-red-500 text-white" : "bg-green-500 text-white"}
+        `}
+        >
+          <div
+            className="flex flex-row gap-5 cursor-pointer"
+            onClick={() => {
+              if(alert.message === "Post created successfully"){
+                window.location.pathname = "/p/" + alert.post;
+              }
+              setAlert({
+                alert: false,
+                message: "",
+              });
+             
+            }}
+          >
+            {alert.error ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="fill-error text-white w-7 h-7"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                />
+              </svg>
+            )}
+            <p className="text-white ">{alert.message ? alert.message : ""}</p>
+          </div>
+        </Alert>
+      ) : (
+        ""
+      )}
       <div
         className=" fixed bottom-8 left-[50%] transform -translate-x-1/2
     w-64"
@@ -524,7 +596,6 @@ export default function Bottomnav() {
         }}
       >
         <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
-          
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span

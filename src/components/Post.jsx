@@ -261,7 +261,7 @@ export default function Post(props) {
                   "strong",
                 ],
                 allowedAttributes: {
-                  a: ["href"],
+                  a: ["href", "class"],
                 }
               });
               el.style.color = props.color === "black" && document.documentElement.getAttribute('data-theme') === 'black' ? "white" : props.color

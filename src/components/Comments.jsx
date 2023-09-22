@@ -261,7 +261,7 @@ export default function Comment(props) {
             stroke="currentColor"
             className="w-4 h-4 cursor-pointer "
             onClick={() => {
-              document.getElementById("comment" + props.id).showModal();
+              props.ReplyTo(props.user.username)
             }}
           >
             <path

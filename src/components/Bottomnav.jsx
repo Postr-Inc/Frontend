@@ -159,7 +159,7 @@ export default function Bottomnav() {
     let dup = pRef.current.cloneNode(true);
     // remove empty a tags
     dup.querySelectorAll("a").forEach((a) => {
-     if(a.innnerHTML.length < 1){
+     if(a.innerHTML.length < 1){
          a.remove();
      }
     });

@@ -147,7 +147,7 @@ export default function Vpost(props) {
               bookmarked={post.bookmarked}
               color={post.textColor}
               ReplyTo={()=>{
-                       commentRef.current.placeholder = `Reply To ${post.expand.author.username}`
+                       commentRef.current.placeholder =  post.author == api.authStore.model.id ? `Add new post` : `Reply To ${post.expand.author.username}`
                }}
             />
           </>
@@ -320,8 +320,8 @@ export default function Vpost(props) {
               <input
                 type="text"
                 id="reply-input"
-                placeholder={`Reply To ${
-                  post.author ? post.expand.author.username : ""
+                placeholder={`${
+                 post.author && post.author == api.authStore.model.id ? 'Add a new post' : `Reply To ${post.expand.author.username}`
                 }`}
                 className={`
                 

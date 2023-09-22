@@ -372,6 +372,8 @@ export default function Post(props) {
             onClick={() => {
               if (window.location.pathname !== "/p/" + props.id) {
                 window.location.href = "/p/" + props.id;
+              }else if (window.location.pathname === "/p/ + props.id){
+                    props.ReplyTo()
               }
             }}
           >

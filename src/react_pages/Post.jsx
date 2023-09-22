@@ -147,8 +147,6 @@ export default function Vpost(props) {
               bookmarked={post.bookmarked}
               color={post.textColor}
             />
-
-            <div className="divider mt-0 h-2  opacity-[30%]"></div>
           </>
         ) : (
           <Loading />

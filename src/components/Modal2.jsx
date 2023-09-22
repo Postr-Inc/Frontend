@@ -5,7 +5,7 @@ export default function Modal2(props) {
               `}
             
             >
-                <form method="dialog" className={`modal-box  stickt rounded-non bg-white  
+                <form method="dialog" className={`modal-box  stickt rounded-none 
                  ${props.styles ? props.styles : ''}
                 `}
                 

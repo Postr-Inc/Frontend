@@ -320,7 +320,7 @@ export default function Vpost(props) {
               <input
                 type="text"
                 id="reply-input"
-                placeholder={`Reply to ${
+                placeholder={`Reply To ${
                   post.author ? post.expand.author.username : ""
                 }`}
                 className={`

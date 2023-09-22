@@ -321,7 +321,7 @@ export default function Vpost(props) {
                 type="text"
                 id="reply-input"
                 placeholder={`${
-                 post.author && post.author == api.authStore.model.id ? 'Add a new post' : `Reply To ${post.expand.author.username}`
+                 post.author && post.author == api.authStore.model.id && post.expand ? 'Add a new post' : `Reply To ${post.expand.author.username}`
                 }`}
                 className={`
                 

@@ -157,11 +157,13 @@ export default function Bottomnav() {
     console.log(pRef.current.innerHTML);
     restoreCaretPositionToEnd(pRef.current);
     let dup = pRef.current.cloneNode(true);
+    // remove empty a tags
     dup.querySelectorAll("a").forEach((a) => {
-      a.remove();
+     if(a.innnerHTML.length < 1){
+         a.remove();
+     }
     });
-
-    console.log(dup.innerHTML);
+ 
 
    setPContent(dup.innerHTML);
   }

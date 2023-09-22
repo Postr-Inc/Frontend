@@ -15,17 +15,38 @@ export default function Vpost(props) {
   let [comments, setComments] = useState([]); // [postid, comments
   let [comment, setComment] = useState("");
   let commentRef = useRef();
+  let [mentioned, setMentioned] = useState(post.author ? post.author : "");
+
+  let [mentionedUser, setMentionedUser] = useState(null);
   let max = 200;
 
+  useEffect(() => {
+    setMentioned(post.author ? post.author : "");
+    setMentionedUser(post.expand ? post.expand.author : null);
+  }, [post]);
   async function createComment() {
     if (chars > 0 && chars <= max) {
+      let form = new FormData();
+      // add mention to comment text
+      if (
+        mentioned !== "" &&
+        setMentionedUser !== null &&
+        mentioned !== post.author.id &&
+        mentioned !== api.authStore.model.id
+      ) {
+        comment = `<a href="/u/${mentioned}" class="text-blue-500">@${mentionedUser.username}</a> ${comment}`;
+      }
+      form.append("text", comment);
+      form.append("user", api.authStore.model.id);
+      form.append("post", props.id);
+      form.append("likes", JSON.stringify([]));
+
+      if (mentioned !== "" && mentioned !== post.author.id) {
+        form.append("mentions", mentioned);
+      }
       let c = await api.collection("comments").create(
-        {
-          user: api.authStore.model.id,
-          text: comment,
-          post: props.id,
-          likes: JSON.stringify([]),
-        },
+        form,
+
         {
           expand: "user",
         }
@@ -38,15 +59,35 @@ export default function Vpost(props) {
         comments: JSON.stringify([...post.comments, c.id]),
       });
 
-      if (post.expand.author.id !== api.authStore.model.id) {
+      if (
+        post.expand.author.id !== api.authStore.model.id &&
+        mentioned === post.expand.author.id
+      ) {
         await api.collection("notifications").create({
           recipient: post.expand.author.id,
           type: "comment",
           author: api.authStore.model.id,
-          title: `${api.authStore.model.username} commented on your post`,
-          post: props.id,
-          body: `${comment.substring(0, 50)}...`,
-          notification_title: `${api.authStore.model.username} commented on your post`,
+          title: `${api.authStore.model.username}  commented on your post`,
+          comment: c.id,
+          body: `${comment}`,
+          image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          notification_title: `${api.authStore.model.username} commented on your  post`,
+          notification_body: santizeHtml(comment, {
+            allowedTags: [],
+            allowedAttributes: {},
+          }),
+          url: `/p/${props.id}`,
+        });
+      } else if (post.expand.author.id !== api.authStore.model.id) {
+        await api.collection("notifications").create({
+          recipient: mentionedId,
+          type: "comment",
+          author: api.authStore.model.id,
+          title: `${api.authStore.model.username} replied to your comment`,
+          comment: c.id,
+          body: `${comment}`,
+          image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+          notification_title: `${api.authStore.model.username} replied to your  comment`,
           notification_body: `${comment}`,
           url: `/p/${props.id}`,
         });
@@ -72,6 +113,7 @@ export default function Vpost(props) {
         setComments(res.expand.comments ? res.expand.comments : []);
       });
   }, [props.id]);
+
   useEffect(() => {
     if (comments.length > 0) {
       api.collection("comments").subscribe("*", (msg) => {
@@ -146,9 +188,16 @@ export default function Vpost(props) {
               file={post.file ? post.file : ""}
               bookmarked={post.bookmarked}
               color={post.textColor}
-              ReplyTo={()=>{
-                       commentRef.current.placeholder =  post.author == api.authStore.model.id ? `Add new post` : `Reply To ${post.expand.author.username}`
-               }}
+              created={post.created}
+              ReplyTo={() => {
+                commentRef.current.placeholder =
+                  post.author == api.authStore.model.id
+                    ? `Add new post`
+                    : `Reply To ${post.expand.author.username}`;
+                commentRef.current.focus();
+                setMentioned(post.expand.author.id);
+                setMentionedUser(post.expand.author);
+              }}
             />
           </>
         ) : (
@@ -167,8 +216,24 @@ export default function Vpost(props) {
                       text={comment.text}
                       created={comment.created}
                       post={post}
-                      ReplyTo={(user)=>{
-                        commentRef.current.placeholder = `Reply To ${user}`
+                      ReplyTo={(user, id) => {
+                        console.log(user, id);
+                        commentRef.current.placeholder = `Reply To ${user}`;
+                        commentRef.current.focus();
+                        if (id !== api.authStore.model.id) {
+                          setMentioned(id);
+                          setMentionedUser(user);
+                        } else {
+                          setMentioned(
+                            post.expand ? post.expand.author.id : null
+                          );
+                          setMentionedUser(
+                            post.expand ? post.expand.author : null
+                          );
+                          commentRef.current.placeholder = `Reply To ${
+                            post.expand ? post.expand.author.username : ""
+                          }`;
+                        }
                       }}
                     />
 
@@ -321,7 +386,11 @@ export default function Vpost(props) {
                 type="text"
                 id="reply-input"
                 placeholder={`${
-                 post.author && post.author == api.authStore.model.id && post.expand ? 'Add a new post' : `Reply To ${post.expand.author.username}`
+                  post.author
+                    ? post.author.id == api.authStore.model.id
+                      ? `Add new post`
+                      : `Reply To ${post.expand.author.username}`
+                    : `Add new post`
                 }`}
                 className={`
                 
@@ -386,17 +455,32 @@ export default function Vpost(props) {
             ></progress>
           </div>
         </div>
-        <Modal2 id="invalidcharmodal" styles="rounded">
+        <Modal2
+          id="invalidcharmodal"
+          styles={`
+         h-[20vh] overflow-hidden 
+         rounded ${
+           document.documentElement.getAttribute("data-theme") === "black"
+             ? "bg-base-200 text-white"
+             : "bg-white text-black"
+         }
+          
+        `}
+        >
           <div className="flex flex-col">
             <div className="flex flex-row gap-5">
-              <div className="btn btn-circle btn-ghost cursor-none bg-[#fae4e4] hover:bg-[#fae4e4] focus:bg-[#fae4e4]  ">
+              <div
+                className={`
+                    
+               `}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-6 h-6 text-[#f44c4c]"
+                  className="w-8 h-8 text-[#f44c4c]"
                 >
                   <path
                     strokeLinecap="round"
@@ -412,7 +496,7 @@ export default function Vpost(props) {
             </div>
             <div className="modal-action  ">
               <form method="dialog">
-                <button className="btn btn-sm btn-ghost bg-transparent hover:bg-transparent hover:border-base-300 focus:border-base-300 focus:bg-transparent border-base-300">
+                <button className="btn  rounded-full btn-sm btn-ghost bg-transparent hover:bg-blue-500 bg-blue-500  text-white capitalize px-5 focus:bg-blue-500 ">
                   Ok
                 </button>
               </form>

@@ -706,6 +706,7 @@ export default function Profile(props) {
                           created={c.created}
                           tags={c.tags}
                           likes={c.likes}
+                          color={c.textColor}
                           comments={c.comments}
                         />
                       </div>

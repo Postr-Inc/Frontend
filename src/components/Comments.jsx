@@ -192,7 +192,7 @@ export default function Comment(props) {
             el.innerHTML = sanitizeHtml(props.text, {
               allowedTags: ["b", "i", "em", "strong", "a"],
               allowedAttributes: {
-                a: ["href"],
+                a: ["href", "class"],
               },
             });
           }

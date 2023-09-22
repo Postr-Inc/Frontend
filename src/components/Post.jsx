@@ -252,6 +252,7 @@ export default function Post(props) {
                  
                 });
               }
+              console.log(text)
               el.innerHTML = sanitizeHtml(text, {
                 allowedTags: [
                   "a",

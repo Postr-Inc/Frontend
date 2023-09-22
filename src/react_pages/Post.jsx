@@ -164,7 +164,7 @@ export default function Vpost(props) {
                       text={comment.text}
                       created={comment.created}
                       post={post}
-                      ReplyTo{(user)=>{
+                      ReplyTo={(user)=>{
                         commentRef.current.placeholder = `Reply To ${user}`
                       }}
                     />

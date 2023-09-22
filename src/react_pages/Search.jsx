@@ -185,7 +185,7 @@ export default function Search() {
             onKeyUp={(e) => {
               setIsTyping(false);
             }}
-            placeholder="Search #tags, @Users, or keywords"
+            placeholder="Search #hashtags, @Postr"
             required
           />
         </div>

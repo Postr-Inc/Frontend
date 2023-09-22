@@ -565,6 +565,7 @@ export default function Post(props) {
           </p>
         </form>
       </dialog>
+      <div className="divider before:bg-base-200 after:bg-base-200  opacity-50  before:rounded after:rounded mt-0 h-0 mb-2 "></div>
     </div>
   );
 }

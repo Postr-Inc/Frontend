@@ -318,7 +318,7 @@ export default function Profile(props) {
                 <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
                   <span className="text-lg">
                     {profile.username
-                      ? profile.username.charAt(0).tocapitalize()
+                      ? props.author.username.charAt(0).toUpperCase()
                       : ""}
                   </span>
                 </div>

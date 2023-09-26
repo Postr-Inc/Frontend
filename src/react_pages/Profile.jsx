@@ -316,10 +316,8 @@ export default function Profile(props) {
             ) : (
               <div className="avatar placeholder">
                 <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
-                  <span className="text-lg">
-                    {profile.username
-                      ? props.author.username.charAt(0).toUpperCase()
-                      : ""}
+                  <span className="text-lg capitalize">
+                    {profile.username}
                   </span>
                 </div>
               </div>

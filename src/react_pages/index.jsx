@@ -74,8 +74,8 @@ export default function App() {
 					document.querySelector('html').setAttribute('data-theme', 'black')
 					localStorage.setItem('theme', 'black')
 				}else{
-					document.querySelector('html').setAttribute('data-theme', 'white')
-					localStorage.setItem('theme', 'white')
+					document.querySelector('html').setAttribute('data-theme', 'light')
+					localStorage.setItem('theme', 'light')
 				}
 			})
 	
@@ -92,7 +92,7 @@ export default function App() {
 		// calculate time the app was open each day
 		let lastOpened = localStorage.getItem('lastOpened');
 		let dailyUsageData = JSON.parse(localStorage.getItem('dailyUsageData')) || {};
-	
+	        console.log(dailyUsageData)
 		if (lastOpened) {
 		  let now = new Date();
 		  let last = new Date(lastOpened);

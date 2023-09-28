@@ -58,10 +58,6 @@ export default function App() {
 
         }
 
-        window.onerror = (e) =>{
-            alert(e)
-        }
-		// create a custom event
 		 
 		 
 		document.querySelector('html').setAttribute ('data-theme', 'black')

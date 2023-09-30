@@ -1,7 +1,7 @@
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
-export const api = new Pocketbase('https://cunning-elk-locally.ngrok-free.app')
+export const api = new Pocketbase('https://postrapi.pockethost.io')
 console.log(api.baseUrl)
 import { useEffect, useState } from "react";
 let init = false

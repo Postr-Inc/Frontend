@@ -1,8 +1,7 @@
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
-export const api = new Pocketbase('https://postrapi.pockethost.io')
-console.log(api.baseUrl)
+export const api = new Pocketbase('https://serious-monkey-18.telebit.io')
 import { useEffect, useState } from "react";
 let init = false
 window.OneSignalDeferred = window.OneSignalDeferred || [];

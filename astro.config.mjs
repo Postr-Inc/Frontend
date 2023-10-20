@@ -7,5 +7,6 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   site: 'https://d0c4af2f.v6-0.pages.dev/',
   integrations: [react(), tailwind()],
-  adapter: cloudflare()
+  adapter: cloudflare(),
+  output:'server'
 });

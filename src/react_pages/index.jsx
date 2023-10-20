@@ -1,7 +1,7 @@
 import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
-export const api = new Pocketbase('https://serious-monkey-18.telebit.io')
+export const api = new Pocketbase('https://bird-meet-rationally.ngrok-free.app')
 import { useEffect, useState } from "react";
 let init = false
 window.OneSignalDeferred = window.OneSignalDeferred || [];

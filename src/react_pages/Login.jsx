@@ -19,6 +19,7 @@ export default function Login(){
           followers: [],
         },
         urlCallback: (url) => {
+         console.log(url)
           if (window.matchMedia("(display-mode: standalone)")) {
              w.location.href = url
           } else {

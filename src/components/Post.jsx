@@ -24,6 +24,7 @@ export default function Post(props) {
         likes: [...likes, api.authStore.model.id],
       });
       if (props.author.id !== api.authStore.model.id) {
+        console.log("creating notification");
         api.collection("notifications").create({
           image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           author: api.authStore.model.id,
@@ -243,24 +244,22 @@ export default function Post(props) {
               let text = props.content;
               if (props.tags) {
                 props.tags.forEach((tag) => {
+                 
                   text = text.replace(
                     `<a class="text-sky-500">${tag}</a>`,
                     `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
                   );
+                  
                 });
               }
-              console.log(text);
-              el.innerHTML = sanitizeHtml(text, {
-                allowedTags: ["a", "b", "i", "em", "strong"],
+              let t = sanitizeHtml(text, {
+                allowedTags: sanitizeHtml.defaults.allowedTags,
                 allowedAttributes: {
                   a: ["href", "class"],
                 },
               });
-              el.style.color =
-                props.color === "black" &&
-                document.documentElement.getAttribute("data-theme") === "black"
-                  ? "white"
-                  : props.color;
+              el.style.color = props.color;
+              el.innerHTML = t;
             }
           }}
         ></p>
@@ -366,8 +365,6 @@ export default function Post(props) {
             onClick={() => {
               if (window.location.pathname !== "/p/" + props.id) {
                 window.location.href = "/p/" + props.id;
-              } else if (window.location.pathname === "/p/" + props.id) {
-                props.ReplyTo();
               }
             }}
           >
@@ -416,7 +413,7 @@ export default function Post(props) {
           />
         </svg>
 
-        {window.location.pathname === "/p/" + props.id ? (
+        {window.location.pathname === "/p/" + props.id || window.location.pathname === "/q" ? (
           <div>
             {bookmarked.includes(api.authStore.model.id) ? (
               <svg
@@ -565,7 +562,6 @@ export default function Post(props) {
           </p>
         </form>
       </dialog>
-      <div className="divider before:bg-base-200 after:bg-base-200  opacity-50  before:rounded after:rounded mt-0 h-0 mb-2 "></div>
     </div>
   );
 }
@@ -589,19 +585,19 @@ function parseDate(data) {
     return Math.round(minutes) + "m";
   }
   if (hours < 24) {
-    return Math.round(hours) + "h";
+    hours > 1 ? Math.round(hours) + "hs" : Math.round(hours) + "h";
   }
   if (days < 7) {
-    return Math.round(days) + "d";
+    return Math.round(days) + "d ago";
   }
   if (weeks < 4) {
-    return Math.round(weeks) + "w";
+    return Math.round(weeks) + "w ago";
   }
   if (months < 12) {
-    return Math.round(months) + "m";
+    return Math.round(months) + "mo ago";
   }
   if (years >= 1) {
-    return Math.round(years) + "y";
+    return Math.round(years) + "y ago";
   }
 }
 function debounce(fn, time) {

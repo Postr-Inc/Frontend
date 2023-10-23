@@ -1,6 +1,6 @@
 export  default function TermsOfService() {
     return (
-      <div className=" p-5 ">
+      <div className=" p-5 lg:justify-center flex mx-auto flex-col">
         <h1 className="text-xl  justify-center mx-auto flex">Postr Terms of Service</h1>
         <p className="mt-8 text-md">Effective: August 27th, 2023</p>
         <p className="mt-2">Last Updated: August 27th, 2023</p>

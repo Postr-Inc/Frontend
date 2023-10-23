@@ -1,14 +1,20 @@
-# Postr 6.0
- 
- <div style="dispay:flex; flex-direction:row; gap:5px">
- <img src="https://github.com/Postr-Inc/Postr-Pwa/assets/65188863/f018bca0-766e-4e56-8d85-eb687f7d215e" width="500px"> 
- <img src="https://github.com/Postr-Inc/Postr-Pwa/assets/65188863/358cfe77-e0de-42a7-ba8c-f838568a87c7" width="500px"> 
- <img src="https://github.com/Postr-Inc/Postr-Pwa/assets/65188863/358cfe77-e0de-42a7-ba8c-f838568a87c7" width="500px"> 
- <img src="https://github.com/Postr-Inc/Postr-Pwa/assets/65188863/079fcbea-47b3-48dc-a4ca-005213d2905a" width="500px"> 
- <img src="https://github.com/Postr-Inc/Postr-Pwa/assets/65188863/b65159c5-c377-4a47-b3a0-6b9c0087f533" width="500px"> 
- </div>
+# Astro Starter Kit: Basics
+
+```
+npm create astro@latest -- --template basics
+```
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
+[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+
 ## 🚀 Project Structure
- 
+
+Inside of your Astro project, you'll see the following folders and files:
 
 ```
 /
@@ -16,17 +22,19 @@
 │   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   └── Post.jsx
-|   |   └── Bottomnav.jsx
+│   │   └── Card.astro
 │   ├── layouts/
 │   │   └── Layout.astro
 │   └── pages/
 │       └── index.astro
-└── react_pages/
-│       └── index.jsx
 └── package.json
 ```
- 
+
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+
+There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+
+Any static assets, like images, can be placed in the `public/` directory.
 
 ## 🧞 Commands
 
@@ -41,4 +49,6 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
- 
+## 👀 Want to learn more?
+
+Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

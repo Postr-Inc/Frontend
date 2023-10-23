@@ -253,7 +253,7 @@ export default function Profile(props) {
               window.location.pathname ===
               "/u/" + api.authStore.model.username
             ) {
-              window.location.href = "/settings";
+              window.location.href = "/settings/home";
             } else {
               window.options.showModal();
             }
@@ -272,14 +272,14 @@ export default function Profile(props) {
               </h1>
             </div>
             <span
-              className="text-gray-500 
+              className="
       w-[80vw] max-w-[80vw]  
       "
             >
               {profile.bio ? profile.bio : ""}
             </span>
             <div className="flex flex-col mt-2">
-              <span className="text-gray-500 text-sm  flex flex-row">
+              <span className=" text-sm  flex flex-row">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -300,7 +300,7 @@ export default function Profile(props) {
                   : "Loading..."}
               </span>
 
-              <span className="text-gray-500 text-sm mt-2">
+              <span className=" text-sm mt-2">
                 Followed by {followers ? followers.length : 0}{" "}
                 {followers.length === 1 ? "person" : "people"}
               </span>

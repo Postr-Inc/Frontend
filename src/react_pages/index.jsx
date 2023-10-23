@@ -2,6 +2,7 @@ import Pocketbase from 'pocketbase'
 import Login from "./Login";
 import Home from "./Home";
 export const api = new Pocketbase('https://bird-meet-rationally.ngrok-free.app')
+console.log(api.baseUrl)
 import { useEffect, useState } from "react";
 let init = false
 window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -57,6 +58,10 @@ export default function App() {
 
         }
 
+        window.onerror = (e) =>{
+            alert(e)
+        }
+		// create a custom event
 		 
 		 
 		document.querySelector('html').setAttribute ('data-theme', 'black')
@@ -73,8 +78,8 @@ export default function App() {
 					document.querySelector('html').setAttribute('data-theme', 'black')
 					localStorage.setItem('theme', 'black')
 				}else{
-					document.querySelector('html').setAttribute('data-theme', 'light')
-					localStorage.setItem('theme', 'light')
+					document.querySelector('html').setAttribute('data-theme', 'white')
+					localStorage.setItem('theme', 'white')
 				}
 			})
 	
@@ -91,7 +96,7 @@ export default function App() {
 		// calculate time the app was open each day
 		let lastOpened = localStorage.getItem('lastOpened');
 		let dailyUsageData = JSON.parse(localStorage.getItem('dailyUsageData')) || {};
-	        console.log(dailyUsageData)
+	
 		if (lastOpened) {
 		  let now = new Date();
 		  let last = new Date(lastOpened);

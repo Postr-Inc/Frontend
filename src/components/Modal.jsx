@@ -5,7 +5,7 @@ export default function Modal(props) {
               `}
             
             >
-                <form method="dialog" className={`modal-box  sticky rounded-non bg-base-100  
+                <form method="dialog" className={`modal-box    rounded-non bg-base-100
                 
                    ${props.height ? props.height : 'h-[100vh]'}
                 `}

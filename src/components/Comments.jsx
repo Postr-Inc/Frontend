@@ -56,7 +56,6 @@ export default function Comment(props) {
 
   return (
     <div className="flex flex-col text-sm mb-[35px]   " id={props.id}>
-      {" "}
       {likes &&
       likes.length > 0 &&
       likes.includes(props.post.author) &&
@@ -168,8 +167,8 @@ export default function Comment(props) {
             ) : (
               ""
             )}
-            <li>
-              {props.user.id === api.authStore.model.id ? (
+            {props.user.id === api.authStore.model.id ? (
+              <li>
                 <a
                   className="cursor-pointer"
                   onClick={() => {
@@ -178,13 +177,14 @@ export default function Comment(props) {
                 >
                   Delete
                 </a>
-              ) : (
-                ""
-              )}
-            </li>
+              </li>
+            ) : (
+              ""
+            )}
           </ul>
         </div>
       </div>
+
       <p
         className="mt-6 text-sm"
         ref={(el) => {
@@ -198,6 +198,7 @@ export default function Comment(props) {
           }
         }}
       ></p>
+
       {window.location.pathname === "/u/" + props.user.username ? (
         <span className="text-xs text-gray-500 mt-2">
           Replied to{" "}
@@ -209,6 +210,7 @@ export default function Comment(props) {
       ) : (
         ""
       )}
+
       <div className="flex flex-row gap-5 mt-6">
         {
           /**
@@ -259,7 +261,7 @@ export default function Comment(props) {
             stroke="currentColor"
             className="w-4 h-4 cursor-pointer "
             onClick={() => {
-              props.ReplyTo(props.user.username, props.user.id);
+              document.getElementById("comment" + props.id).showModal();
             }}
           >
             <path
@@ -270,7 +272,6 @@ export default function Comment(props) {
           </svg>{" "}
         </div>
       </div>
-      <div className="divider before:bg-base-200 after:bg-base-200 opacity-50 before:rounded after:rounded mt-5 h-0 mb-2 "></div>
     </div>
   );
 }

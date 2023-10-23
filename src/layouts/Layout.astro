@@ -10,7 +10,7 @@ const { title, description, image, theme} = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" data-theme={theme || 'light'}>
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -27,11 +27,11 @@ const { title, description, image, theme} = Astro.props;
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image} />
-     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/icons/logo.png" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="dns-prefetch preconnect" href="https://cunning-elk-locally.ngrok-free.app/" />
-    <link rel="preconnect" href="https://postr-inc.me" />
+    <link rel="dns-prefetch preconnect" href="https://postrapi.pockethost.io" />
+    <link rel="preconnect" href="https://v6-0.pages.dev" />
     <link rel="manifest" href="/manifest.json" />
     <title>{title}</title>
     <style is:global>
@@ -39,13 +39,12 @@ const { title, description, image, theme} = Astro.props;
         content: attr(placeholder);
         color: #aaa;
       }
-   
+      
       p[placeholderSize]:empty:before {
         font-size: attr(placeholderSize);
       }
       
     </style>
-    
     <script is:inline>
        if(localStorage.getItem('theme') == 'black'){
         document.documentElement.setAttribute('data-theme', 'black');

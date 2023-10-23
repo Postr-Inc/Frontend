@@ -16,8 +16,10 @@ export default function Bookmarks() {
       });
   }, []);
 
+  console.log(api.authStore.model)
+
   return (
-    <div className="p-5">
+    <div className="p-5 mb-6">
       <div className="flex flex-row justify-between">
         <div>
           <svg
@@ -71,7 +73,7 @@ export default function Bookmarks() {
             >
               <li>
                  {
-                    bookmarks.length > 0 ? <a
+                    bookmarks.length > 0 || api.authStore.model.bookmarks > 0 ? <a
                     onClick={() => {
                       bookmarks.forEach((post) => {
                         let bookmarked = post.bookmarked;
@@ -106,7 +108,7 @@ export default function Bookmarks() {
         </div>
       </div>
 
-      {bookmarks.length < 1 ? (
+      {api.authStore.model.bookmarks  < 1 ? (
         <div className="p-5 flex flex-col mt-8 ">
           <span className="  font-bold text-2xl ">
             Save posts to view them here

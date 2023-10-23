@@ -107,7 +107,7 @@ export default function Home() {
     <div className="p-5 mt-2    ">
       <div className="flex flex-row justify-between">
         <h1
-          className=" text-2xl text-base-900"
+          className=" text-2xl "
           style={{ fontFamily: "Pacifico" }}
         >
           Postr
@@ -141,8 +141,8 @@ export default function Home() {
             stroke="currentColor"
             className="w-6 h-6 cursor-pointer"
             onClick={() => {
-              if (window.location.pathname !== "/settings") {
-                window.location.pathname = "/settings";
+              if (window.location.pathname !== "/settings/home") {
+                window.location.pathname = "/settings/home";
               }
             }}
           >

@@ -8,11 +8,10 @@ function getNotifications(page) {
     .collection("notifications")
     .getList(page, 10, {
       filter: `recipient.id = "${api.authStore.model.id}"`,
-      expand: "author, post.author, comment.user",
+      expand: "author, post.author",
       sort: "-created",
     })
     .then((res) => {
-      console.log(res);
       return {
         items: res.items,
         totalPages: res.totalPages,
@@ -166,21 +165,20 @@ export default function Noti() {
           return (
             <div className="flex flex-col gap-2 mt-8" key={noti.id}>
               <div className="flex flex-row gap-2">
-                {noti.expand.author && noti.expand.author.avatar ? (
-                  <img
-                    src={`
+                {
+                  noti.expand.author && noti.expand.author.avatar ?  <img
+                  src={`
                  ${api.baseUrl}/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
-                    className="w-10 h-10 rounded-full"
-                  />
-                ) : (
-                  <div className="avatar placeholder">
-                    <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
-                      <span className="text-xs">
-                        {noti.expand.author.username.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                  className="w-10 h-10 rounded-full"
+                />
+                : <div className="avatar placeholder">
+                   <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
+                  <span className="text-xs">
+                    {noti.expand.author.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+                }
                 <div className="flex flex-col gap-1">
                   <span
                     className="text-sm   cursor-pointer"
@@ -258,9 +256,7 @@ export default function Noti() {
                     {noti.type === "like" ? (
                       <span className="text-sm">liked your post</span>
                     ) : noti.type === "comment" ? (
-                      <span className="text-sm">
-                        {noti.title ? noti.title : `commented on your post`}
-                      </span>
+                      <span className="text-sm">commented on your post</span>
                     ) : (
                         <span className="text-sm">
                           mentioned you in a comment
@@ -276,11 +272,7 @@ export default function Noti() {
                     {noti.expand.post && noti.expand.post.file ? (
                       <img
                         onClick={() => {
-                          window.location.pathname = `/p/${
-                            noti.expand.post
-                              ? noti.expand.post.id
-                              : noti.expand.comment.post
-                          }`;
+                          window.location.pathname = `/p/${noti.expand.post.id}`;
                         }}
                         src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${noti.expand.post.id}/${noti.expand.post.file}`}
                         className="w-10 h-10 cursor-pointer rounded absolute end-5"
@@ -315,20 +307,12 @@ export default function Noti() {
                   <span
                     className="cursor-pointer  text-sm"
                     onClick={() => {
-                      window.location.pathname = `/p/${
-                        noti.expand.post
-                          ? noti.expand.post.id
-                          : noti.expand.comment.post
-                      }`;
+                      window.location.pathname = `/p/${noti.expand.post.id}`;
                     }}
                     ref={(el) => {
-                      if (el && noti.expand) {
-                        let content = noti.expand.post
-                          ? noti.expand.post.content
-                          : noti.expand.comment
-                          ? noti.expand.comment.text
-                          : noti.notification_body;
-                        el.innerHTML = content;
+                      if (el && noti.expand && noti.expand.post) {
+                        el.innerHTML =
+                          noti.expand.post.content || noti.notification_body;
                       }
                     }}
                   ></span>

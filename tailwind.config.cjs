@@ -8,7 +8,13 @@ module.exports = {
 		 
     themes: [
 	 
-      "light",
+       {
+         "light":{
+              "base-100":"#ffffff",
+              "dark":"#5a5a5a",
+         },
+        
+       },
       "dark",
       "cupcake",
       "bumblebee",

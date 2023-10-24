@@ -37,13 +37,28 @@ export default function Settings_account() {
               api.authStore.model.id.substring(0, 7)}
           </span>
         </div>
- 
       </div>
       <p className="text-sm">
         See information about your account, download your data or
         delete/deactivate your account.
       </p>
       <div className="flex hero justify-between gap-5">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+            />
+          </svg>
+        </div>
         <div className="flex flex-col focus:bg-base-300">
           <p className="text-lg font-bold text-base-content">
             Account Information
@@ -71,14 +86,33 @@ export default function Settings_account() {
         </a>
       </div>
       <div className="flex hero justify-between gap-5">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"
+            />
+          </svg>
+        </div>
         <div className="flex flex-col focus:bg-base-300">
           <p className="text-lg font-bold text-base-content">
-             Download your account data
+            Download your account data
           </p>
-          <p className="text-sm">
-            Request an archive of your account history.
-          </p>
+          <p className="text-sm">Request an archive of your account history.</p>
         </div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
         <a href="/settings/archive">
           <svg
             xmlns="http://www.w3.org/2000/svg"

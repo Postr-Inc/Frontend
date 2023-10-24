@@ -4,7 +4,7 @@ import { api } from "../..";
 export default function Settings_accessibility_display(){
     console.log('e')
     return <>
-    <div className="p-5 flex flex-col  gap-8 mb-24">
+    <div className="p-4 flex flex-col  gap-8 mb-24">
     <div className="flex   flex-row justify-between">
         <span
           className="flex flex-row items-center gap-2 cursor-pointer

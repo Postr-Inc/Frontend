@@ -7,7 +7,6 @@ import Settings_my_accessibility from "./accessibility&display/accessibility.jsx
 import Settings_my_accessibility_display from "./accessibility&display/Display.jsx";
 export default function Settings() {
     let page = window.location.pathname.split("/")[2];
-    console.log(page)
     if(page === 'home'){
         return <Settings_home />
     }else if (page === 'account'){

@@ -134,8 +134,8 @@ export default function Noti() {
             stroke="currentColor"
             className="w-6 h-6 cursor-pointer"
             onClick={() => {
-              if (window.location.pathname !== "/settings") {
-                window.location.pathname = "/settings";
+              if (window.location.pathname !== "/settings/home") {
+                window.location.pathname = "/settings/home";
               }
             }}
           >
@@ -153,175 +153,192 @@ export default function Noti() {
         </div>{" "}
       </div>
 
-      <InfiniteScroll
-        dataLength={notifications.length}
-        next={getMoreNotifications}
-        hasMore={hasMore}
-        loader={<Loading />}
-        className="flex flex-col gap-5   mb-16 mt-7"
-      >
-        {notifications.map((noti) => {
-          console.log(noti.type);
-          return (
-            <div className="flex flex-col gap-2 mt-8" key={noti.id}>
-              <div className="flex flex-row gap-2">
-                {
-                  noti.expand.author && noti.expand.author.avatar ?  <img
-                  src={`
+      {notifications.length > 0 ? (
+        <InfiniteScroll
+          dataLength={notifications.length}
+          next={getMoreNotifications}
+          hasMore={hasMore}
+          loader={<Loading />}
+          className="flex flex-col gap-5   mb-16 mt-7"
+        >
+          {notifications.map((noti) => {
+            console.log(noti.type);
+            return (
+              <div className="flex flex-col gap-2 mt-8" key={noti.id}>
+                <div className="flex flex-row gap-2">
+                  {noti.expand.author && noti.expand.author.avatar ? (
+                    <img
+                      src={`
                  ${api.baseUrl}/api/files/_pb_users_auth_/${noti.author}/${noti.expand.author.avatar}`}
-                  className="w-10 h-10 rounded-full"
-                />
-                : <div className="avatar placeholder">
-                   <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
-                  <span className="text-xs">
-                    {noti.expand.author.username.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              </div>
-                }
-                <div className="flex flex-col gap-1">
-                  <span
-                    className="text-sm   cursor-pointer"
-                    onClick={() => {
-                      window.location.pathname = `/u/${noti.expand.author.username}`;
-                    }}
-                  >
-                    @{noti.expand.author.username}
-                  </span>
-                  <div className="flex flex-row gap-2 mt-2 mb-2 ">
-                    {noti.type === "like" ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 text-yellow-500 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-                        />
-                      </svg>
-                    ) : noti.type === "comment" ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-                        />
-                      </svg>
-                    ) : noti.type === "comment_like" ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="#F13B38"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="#F13B38"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                        />
-                      </svg>
-                    ) : noti.type === "follow" ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="text-sky-500 w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
-                        />
-                      </svg>
-                    ) : (
-                      ""
-                    )}
-
-                    {noti.type === "like" ? (
-                      <span className="text-sm">liked your post</span>
-                    ) : noti.type === "comment" ? (
-                      <span className="text-sm">commented on your post</span>
-                    ) : (
-                        <span className="text-sm">
-                          mentioned you in a comment
+                      className="w-10 h-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="avatar placeholder">
+                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
+                        <span className="text-xs">
+                          {noti.expand.author.username.charAt(0).toUpperCase()}
                         </span>
-                      ) || noti.type === "comment_like" ? (
-                      <span className="text-sm">{noti.title}</span>
-                    ) : noti.type === "follow" ? (
-                      <span className="text-sm">followed you</span>
-                    ) : (
-                      ""
-                    )}
-
-                    {noti.expand.post && noti.expand.post.file ? (
-                      <img
-                        onClick={() => {
-                          window.location.pathname = `/p/${noti.expand.post.id}`;
-                        }}
-                        src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${noti.expand.post.id}/${noti.expand.post.file}`}
-                        className="w-10 h-10 cursor-pointer rounded absolute end-5"
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                  <div className="text-sm absolute end-5 flex flex-row gap-5">
-                    <span className="text-sm ">{parseDate(noti.created)}</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 cursor-pointer h-5 mx-"
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    <span
+                      className="text-sm   cursor-pointer"
                       onClick={() => {
-                        api
-                          .collection("notifications")
-                          .delete(noti.id)
-                          .then(() => {
-                            setNotifications(
-                              notifications.filter((n) => {
-                                return n.id !== noti.id;
-                              })
-                            );
-                          });
+                        window.location.pathname = `/u/${noti.expand.author.username}`;
                       }}
                     >
-                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                    </svg>
+                      @{noti.expand.author.username}
+                    </span>
+                    <div className="flex flex-row gap-2 mt-2 mb-2 ">
+                      {noti.type === "like" ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 text-yellow-500 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                          />
+                        </svg>
+                      ) : noti.type === "comment" ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                          />
+                        </svg>
+                      ) : noti.type === "comment_like" ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="#F13B38"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="#F13B38"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                          />
+                        </svg>
+                      ) : noti.type === "follow" ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="text-sky-500 w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+                          />
+                        </svg>
+                      ) : (
+                        ""
+                      )}
+
+                      {noti.type === "like" ? (
+                        <span className="text-sm">liked your post</span>
+                      ) : noti.type === "comment" ? (
+                        <span className="text-sm">commented on your post</span>
+                      ) : (
+                          <span className="text-sm">
+                            mentioned you in a comment
+                          </span>
+                        ) || noti.type === "comment_like" ? (
+                        <span className="text-sm">{noti.title}</span>
+                      ) : noti.type === "follow" ? (
+                        <span className="text-sm">followed you</span>
+                      ) : (
+                        ""
+                      )}
+
+                      {noti.expand.post && noti.expand.post.file ? (
+                        <img
+                          onClick={() => {
+                            window.location.pathname = `/p/${noti.expand.post.id}`;
+                          }}
+                          src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${noti.expand.post.id}/${noti.expand.post.file}`}
+                          className="w-10 h-10 cursor-pointer rounded absolute end-5"
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                    <div className="text-sm absolute end-5 flex flex-row gap-5">
+                      <span className="text-sm ">
+                        {parseDate(noti.created)}
+                      </span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 cursor-pointer h-5 mx-"
+                        onClick={() => {
+                          api
+                            .collection("notifications")
+                            .delete(noti.id)
+                            .then(() => {
+                              setNotifications(
+                                notifications.filter((n) => {
+                                  return n.id !== noti.id;
+                                }),
+                              );
+                            });
+                        }}
+                      >
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </div>
+                    <span
+                      className="cursor-pointer  text-sm"
+                      onClick={() => {
+                        window.location.pathname = `/p/${noti.expand.post.id}`;
+                      }}
+                      ref={(el) => {
+                        if (el && noti.expand && noti.expand.post) {
+                          el.innerHTML =
+                            noti.expand.post.content || noti.notification_body;
+                        }
+                      }}
+                    ></span>
                   </div>
-                  <span
-                    className="cursor-pointer  text-sm"
-                    onClick={() => {
-                      window.location.pathname = `/p/${noti.expand.post.id}`;
-                    }}
-                    ref={(el) => {
-                      if (el && noti.expand && noti.expand.post) {
-                        el.innerHTML =
-                          noti.expand.post.content || noti.notification_body;
-                      }
-                    }}
-                  ></span>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </InfiniteScroll>
+            );
+          })}
+        </InfiniteScroll>
+      ) : (
+        <div className="flex mx-auto justify-center gap-5 mt-32  ">
+          <p className="flex hero gap- mx-auto justify-center w-full">
+            <p>
+              When someone interacts or follows you - you will be notified you
+              can turn off notifications from{" "}
+              <a href="/settings/home" className="link">
+                settings
+              </a>
+            </p>
+          </p>
+        </div>
+      )}
 
       <div className="mt-8">
         <Bottomnav />

@@ -2,6 +2,7 @@ import React from  'react'
 import Bottomnav from "../../../components/Bottomnav";
 import { api } from "../..";
 export default function Settings_accessibility_display(){
+    console.log('e')
     return <>
     <div className="p-4 flex flex-col  gap-8 mb-24">
     <div className="flex   flex-row justify-between">
@@ -15,7 +16,7 @@ export default function Settings_accessibility_display(){
             onClick={() => {
               window.history.back();
             }}
-            className="w-6 h-6"
+            className="w-6 h-6 cursor-pointer"
           >
             <path
               fillRule="evenodd"

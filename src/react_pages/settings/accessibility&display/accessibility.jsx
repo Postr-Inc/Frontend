@@ -30,7 +30,26 @@ export default function Settings_my_accessibility(){
           <span className="font-semibold text-lg">Accessibility</span>
            
         </div>
+         
       </div>
+       <div className="mt-2">
+        <p>
+          Customize postr to your needs to be more accessible to you
+        </p>
+       
+       </div>
+       <div className="divider"></div>
+       <div className="flex flex-col">
+        <h1 className="text-xl font-bold">Visibility</h1>
+        <div className="flex justify-between mt-5">
+         <p>  Increase contrast.</p>
+          <input type="checkbox" className="toggle rounded-full" />
+        </div>
+        <p className="mt-2">
+          Improves legibility by increasing the contrast and lowering saturation between text and images
+          </p>
+       
+       </div>
    </div>
      
     <Bottomnav />

@@ -327,12 +327,15 @@ export default function Noti() {
           })}
         </InfiniteScroll>
       ) : (
-        <div className="flex mx-auto justify-center gap-5 mt-32  ">
+        <div className="flex mx-auto justify-center gap-5 mt-16 ">
           <p className="flex hero gap- mx-auto justify-center w-full">
             <p>
               When someone interacts or follows you - you will be notified you
               can turn off notifications from{" "}
-              <a href="/settings/home" className="link">
+              <a
+                href="/settings/home"
+                className="link underline-offset-4 text-blue-500"
+              >
                 settings
               </a>
             </p>

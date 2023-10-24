@@ -25,7 +25,10 @@ export default function Settings_accessibility_display(){
             />
           </svg>
            <span className="font-semibold text-lg">Accessibility, display, and languages</span>
-           <div></div>
+            {
+              screen.width
+               > 1024 ? <div></div> : ''
+            }
            </div>
           <span className="text-[12px] text-base-900">
             @

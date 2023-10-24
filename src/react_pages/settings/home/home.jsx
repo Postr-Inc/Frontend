@@ -271,7 +271,7 @@ export default function Settings_home() {
               font size and color mode.
             </p>
           </div>
-          <a href="/settings/additional">
+          <a href="/settings/accessibility">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

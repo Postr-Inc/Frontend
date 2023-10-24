@@ -38,7 +38,7 @@ export default function Settings_home() {
   }, [theme]);
   return (
     <>
-      <div className="p-5 flex flex-col  gap-8 mb-24">
+      <div className="p-2 flex flex-col  gap-8 mb-24">
         <div className="flex   flex-row justify-between">
           <span
             className="flex flex-row items-center gap-2 cursor-pointer

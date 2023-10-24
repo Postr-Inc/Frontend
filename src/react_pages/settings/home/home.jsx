@@ -38,7 +38,7 @@ export default function Settings_home() {
   }, [theme]);
   return (
     <>
-      <div className="p-2 flex flex-col  gap-8 mb-24">
+      <div className="p-4 flex flex-col  gap-8 mb-24">
         <div className="flex   flex-row justify-between">
           <span
             className="flex flex-row items-center gap-2 cursor-pointer
@@ -271,7 +271,7 @@ export default function Settings_home() {
               font size and color mode.
             </p>
           </div>
-          <a href="/settings/accessibility">
+          <a href="/settings/accessbility_home">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

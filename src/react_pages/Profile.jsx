@@ -11,10 +11,14 @@ import { useEffect, useState } from "react";
 import Alert from "../components/Alert";
 
 export default function Profile(props) {
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   let [profile, setProfile] = useState({});
   let [array, setarray] = useState([]);
   let [followers, setFollowers] = useState(
-    profile.followers ? profile.followers : []
+    profile.followers ? profile.followers : [],
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
@@ -178,12 +182,12 @@ export default function Profile(props) {
       let form = new FormData();
       form.append(
         "username",
-        edited.username ? edited.username : profile.username
+        edited.username ? edited.username : profile.username,
       );
       form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
       form.append(
         "Isprivate",
-        edited.Isprivate ? edited.Isprivate : profile.Isprivate
+        edited.Isprivate ? edited.Isprivate : profile.Isprivate,
       );
       form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
       api
@@ -206,7 +210,7 @@ export default function Profile(props) {
               ? e.data.data.avatar.message
               : e.data.data.Isprivate
               ? e.data.data.Isprivate.message
-              : ""
+              : "",
           );
           setedited({});
         });
@@ -234,7 +238,19 @@ export default function Profile(props) {
             onClick={() => {
               window.history.back();
             }}
-            className="w-5 h-5"
+            className={`w-5 h-5
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           >
             <path
               fillRule="evenodd"
@@ -243,11 +259,38 @@ export default function Profile(props) {
             />
           </svg>
         </span>
-        <span className="text-xl " style={{ fontFamily: "pacifico" }}>
+        <span
+          className={`text-xl
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+          style={{ fontFamily: "pacifico" }}
+        >
           {profile.username ? "@" + profile.username : "Loading..."}
         </span>
         <div
-          className="hover:cursor-pointer"
+          className={`cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           onClick={() => {
             if (
               window.location.pathname ===
@@ -267,26 +310,76 @@ export default function Profile(props) {
         <div className="flex flex-row  justify-between gap-5">
           <div className="flex flex-col gap-2s">
             <div className="flex flex-col gap-2">
-              <h1 className="text-xl font-bold pb-2">
+              <h1
+                className={`text-xl pb-2 font-bold
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 {profile.username ? profile.username : "Loading..."}
               </h1>
             </div>
             <span
-              className="
-      w-[80vw] max-w-[80vw]  
-      "
+              className={`w-[80vw] max-w-[80vw]
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               {profile.bio ? profile.bio : ""}
             </span>
             <div className="flex flex-col mt-2">
-              <span className=" text-sm  flex flex-row">
+              <span
+                className={`text-sm flex
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4 mr-2 mt-0"
+                  className={`w-4 h-4 mr-2
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                 >
                   <path
                     strokeLinecap="round"
@@ -300,7 +393,21 @@ export default function Profile(props) {
                   : "Loading..."}
               </span>
 
-              <span className=" text-sm mt-2">
+              <span
+                className={`text-sm mt-2
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 Followed by {followers ? followers.length : 0}{" "}
                 {followers.length === 1 ? "person" : "people"}
               </span>
@@ -316,8 +423,24 @@ export default function Profile(props) {
             ) : (
               <div className="avatar placeholder">
                 <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
-                  <span className="text-lg capitalize">
-                    {profile.username ? profile.username.charAt(0).toUpperCase() : "😃"}
+                  <span
+                    className={`text-lg capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+                  >
+                    {profile.username
+                      ? profile.username.charAt(0).toUpperCase()
+                      : "😃"}
                   </span>
                 </div>
               </div>
@@ -345,7 +468,19 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  capitalize"
+                    className={`bg-[#121212] w-full btn btn-sm  h-text-s rounded-md  capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                     onClick={() => {
                       document.getElementById("editprofile").showModal();
                     }}
@@ -353,15 +488,19 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`btn btn-sm btn-ghost w-full capitalize border-slate-200
-                    ${
-                      document
-                        .querySelector("html")
-                        .getAttribute("data-theme") === "black"
-                        ? "text-white"
-                        : "text-[#121212]"
-                    }
-                    rounded-md `}
+                    className={`bg-transparent  w-full btn btn-sm  h-text-s rounded-md  capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white border-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black border-black antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                     onClick={() => {
                       navigator.share({
                         title: `Follow ${profile.username} on Postr!`,
@@ -386,8 +525,8 @@ export default function Profile(props) {
                                document
                                  .querySelector("html")
                                  .getAttribute("data-theme") === "black"
-                                 ? ` capitalize text-white btn-ghost border-slate-200 `
-                                 : ` text-[#12121212] btn-ghost border-slate-200 `
+                                 ? ` capitalize text-white btn-ghost border-black `
+                                 : ` text-[#12121212] btn-ghost border-white `
                              }
                             `
                             : document
@@ -416,7 +555,7 @@ export default function Profile(props) {
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post"
+                            "post",
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -449,14 +588,14 @@ export default function Profile(props) {
                               .querySelector("html")
                               .getAttribute("data-theme") === "black"
                               ? "capitalize text-white rounded border border-white"
-                              : "text-[#121212] border-slate-200"
+                              : "text-[#121212] border-white"
                           }
 
                         `}
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post"
+                            "post",
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -472,7 +611,19 @@ export default function Profile(props) {
           )}
         </div>
         <div
-          className=" font-medium p-2 flex flex-row justify-between mt-6 "
+          className={`font-medium p-2 flex flex-row justify-between mt-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           style={{ fontFamily: "Inter", fontSize: "14px" }}
         >
           <a

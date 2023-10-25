@@ -476,7 +476,7 @@ export default function Profile(props) {
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-black  antialiased   drop-shadow-md not-sr-only 
+                 text-white antialiased   drop-shadow-md not-sr-only 
                 `
                   : ""
               }
@@ -496,7 +496,7 @@ export default function Profile(props) {
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-black border-black antialiased   drop-shadow-md not-sr-only 
+                 text-white border-black antialiased   drop-shadow-md not-sr-only 
                 `
                   : ""
               }

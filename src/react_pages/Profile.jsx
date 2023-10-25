@@ -105,8 +105,8 @@ export default function Profile(props) {
   }, []);
 
   useEffect(() => {
-    setarray([]);
-    setTotalPages(null);
+    
+    
 
     api
       .collection("users")
@@ -151,8 +151,7 @@ export default function Profile(props) {
 
   let [page, setPage] = useState(1);
   useEffect(() => {
-    setTotalPages([]);
-    setarray([]);
+     
     setPage(1);
     if (pageSelected) {
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
@@ -688,7 +687,7 @@ export default function Profile(props) {
           </a>
         </div>
 
-        <div className="flex flex-col gap-5 mt-12">
+        <div className="flex flex-col gap-5 mt-12 mb-16">
           {profile.followers &&
           profile.Isprivate &&
           !profile.followers.includes(api.authStore.model.id) &&
@@ -861,7 +860,7 @@ export default function Profile(props) {
                             };
                           }}
                         >
-                          <div class="card w-96   shadow-xl">
+                          <div  s>
                             <figure>
                               <img
                                 className="rounded cursor-pointer"
@@ -879,31 +878,12 @@ export default function Profile(props) {
                                 }`}
                               />
                             </figure>
-                            <div class="card-body">
-                              <p
-                                className={`
-                              ${
-                                accessbile && theme === "black"
-                                  ? `
-                                text-white antialiased   drop-shadow-md not-sr-only  
-                                `
-                                  : accessbile && theme === "light"
-                                  ? `
-                                 text-black  antialiased   drop-shadow-md not-sr-only 
-                                `
-                                  : ""
-                              }
-                              `}
-                              >
-                                Taken by {c.expand.author.username} on{" "}
-                                {new Date(c.created).toLocaleDateString()}
-                              </p>
-                            </div>
+                            
                           </div>
 
                           <dialog
                             id={"modal" + c.id}
-                            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
+                            className={`modal  w-screen     h-screen bg-[#000000]   z-[999] `}
                           >
                             <button
                               className="absolute top-5 left-5"
@@ -928,14 +908,14 @@ export default function Profile(props) {
                             </button>
                             <form
                               method="dialog"
-                              className="modal-box bg-transparent z-[-1]  w-screen"
+                              className="modal-box bg-transparent mt-12 z-[-1] h-screen w-screen"
                             >
                               <img
                                 src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`}
-                                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
+                                className="w-full  justify-center flex rounded object-cover  mt-5 cursor-pointer"
                                 alt="post image"
-                                width={window.innerWidth}
-                                height={window.innerHeight}
+                                width={window.innerWidth - 100}
+                                height={window.innerHeight - 100}
                                 onClick={() => {
                                   document
                                     .getElementById("modal" + c.id)
@@ -944,13 +924,18 @@ export default function Profile(props) {
                               />
                             </form>
                             <button
-                              className="btn btn-sm rounded-full absolute bottom-5 left-5 bg-blue-500   hover:bg-blue-500 p-2 capitalize text-white  "
+                              className="btn btn-sm mt-6 
+                              border-none focus:border-none
+                              rounded-full fixed top-0 right-5 bg-blue-500   hover:bg-blue-500 p-2 capitalize text-white  
+                              bg-[#00000]
+                              "
                               onClick={() => {
                                 window.location.href = `/p/${c.id}`;
                               }}
                             >
                               View Post
                             </button>
+                            
                           </dialog>
                         </div>
                       );

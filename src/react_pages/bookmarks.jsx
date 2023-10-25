@@ -5,6 +5,10 @@ import Post from "../components/Post";
 
 export default function Bookmarks() {
   let [bookmarks, setBookmarks] = useState([]);
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   useEffect(() => {
     api
       .collection("users")
@@ -16,7 +20,7 @@ export default function Bookmarks() {
       });
   }, []);
 
-  console.log(api.authStore.model)
+  console.log(api.authStore.model);
 
   return (
     <div className="p-5 mb-6">
@@ -28,7 +32,19 @@ export default function Bookmarks() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
+            className={`w-6 h-6 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             onClick={() => {
               window.history.back();
             }}
@@ -41,7 +57,19 @@ export default function Bookmarks() {
           </svg>
         </div>
         <h1
-          className=" text-2xl flex mx-auto justify-center items-center"
+          className={`text-2xl flex mx-auto justify-center items-center
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           style={{ fontFamily: "Inter" }}
         >
           Bookmarks
@@ -58,7 +86,19 @@ export default function Bookmarks() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6 cursor-pointer"
+                className={`w-6 h-6 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
               >
                 <path
                   strokeLinecap="round"
@@ -69,18 +109,30 @@ export default function Bookmarks() {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content  z-[1] menu  shadow bg-base-100 rounded-box h-12 w-52"
+              className={`dropdown-content p-2 z-[1] menu  shadow rounded   w-52
+              ${
+                accessbile && theme === "black"
+                  ? `
+                bg-base-300    text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 bg-black  text-white antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <li>
-                 {
-                    bookmarks.length > 0 || api.authStore.model.bookmarks > 0 ? <a
+                {bookmarks.length > 0 || api.authStore.model.bookmarks > 0 ? (
+                  <a
                     onClick={() => {
                       bookmarks.forEach((post) => {
                         let bookmarked = post.bookmarked;
                         api.collection("posts").update(post.id, {
                           bookmarked: [
                             ...bookmarked.filter(
-                              (id) => id !== api.authStore.model.id
+                              (id) => id !== api.authStore.model.id,
                             ),
                           ],
                         });
@@ -97,19 +149,31 @@ export default function Bookmarks() {
                   >
                     Clear All Bookmarks
                   </a>
-                  :  <a
-                    >
-                        Clear All Bookmarks 
-                    </a>
-                 }
+                ) : (
+                  <a>Clear All Bookmarks</a>
+                )}
               </li>
             </ul>
           </div>
         </div>
       </div>
 
-      {api.authStore.model.bookmarks  < 1 ? (
-        <div className="p-5 flex flex-col mt-8 ">
+      {api.authStore.model.bookmarks < 1 ? (
+        <div
+          className={`p-5 flex flex-col mt-8 
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+        >
           <span className="  font-bold text-2xl ">
             Save posts to view them here
           </span>

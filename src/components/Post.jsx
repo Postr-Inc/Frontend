@@ -6,14 +6,14 @@ export default function Post(props) {
   let [accessbile, setaccessible] = useState(
     JSON.parse(localStorage.getItem("accessbile")),
   );
-
+  let theme = document.documentElement.getAttribute("data-theme");
   let [likes, setLikes] = useState(props.likes);
   let [hidden, setHidden] = useState(false);
   let [bookmarked, setBookmarked] = useState(props.bookmarked || []);
   let [reported, setReported] = useState(false);
   let [report, setReport] = useState("");
   let [pinned, setPinned] = useState(props.pinned ? true : false);
-  let theme = document.documentElement.getAttribute("data-theme");
+ 
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -639,7 +639,7 @@ export default function Post(props) {
           <></>
         )}
       </div>
-      <div className="flex flex-row font-normal text-gray-400 gap-2 mt-6">
+      <div className="flex flex-row font-normal  gap-2 mt-6">
         <span
           className={`
         ${

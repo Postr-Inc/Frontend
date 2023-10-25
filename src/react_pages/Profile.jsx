@@ -12,13 +12,13 @@ import Alert from "../components/Alert";
 
 export default function Profile(props) {
   let [accessbile, setaccessible] = useState(
-    JSON.parse(localStorage.getItem("accessbile")),
+    JSON.parse(localStorage.getItem("accessbile"))
   );
   let theme = document.documentElement.getAttribute("data-theme");
   let [profile, setProfile] = useState({});
   let [array, setarray] = useState([]);
   let [followers, setFollowers] = useState(
-    profile.followers ? profile.followers : [],
+    profile.followers ? profile.followers : []
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
@@ -182,12 +182,12 @@ export default function Profile(props) {
       let form = new FormData();
       form.append(
         "username",
-        edited.username ? edited.username : profile.username,
+        edited.username ? edited.username : profile.username
       );
       form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
       form.append(
         "Isprivate",
-        edited.Isprivate ? edited.Isprivate : profile.Isprivate,
+        edited.Isprivate ? edited.Isprivate : profile.Isprivate
       );
       form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
       api
@@ -210,7 +210,7 @@ export default function Profile(props) {
               ? e.data.data.avatar.message
               : e.data.data.Isprivate
               ? e.data.data.Isprivate.message
-              : "",
+              : ""
           );
           setedited({});
         });
@@ -555,7 +555,7 @@ export default function Profile(props) {
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post",
+                            "post"
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -595,7 +595,7 @@ export default function Profile(props) {
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post",
+                            "post"
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -725,9 +725,6 @@ export default function Profile(props) {
               dataLength={array.length}
               next={fetchMore}
               hasMore={hasMore}
-              loader={
-                loading
-              }
             >
               {pageSelected === "posts" &&
               profile.$dead === undefined &&
@@ -761,6 +758,15 @@ export default function Profile(props) {
                     );
                   }
                 })
+              ) : array.length < 1 ? (
+                <>
+                  <div className="flex flex-col gap-5">
+                    <Loading />
+                    <Loading />
+                    <Loading />
+                    <Loading />
+                  </div>
+                </>
               ) : pageSelected === "comments" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
@@ -834,46 +840,132 @@ export default function Profile(props) {
               ) : pageSelected === "collections" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
-                array.map((c) => {
-                  let id = c.id;
-                  if (c.expand && c.expand.author) {
-                    return (
-                      <div
-                        className="mb-16"
-                        key={id}
-                        onClick={() => {
-                          window.location.href = `/p/${c.expand.post.id}`;
-                          window.onpopstate = function () {
-                            document.getElementById(id).scrollIntoView();
-                          };
-                        }}
-                      >
-                        <Post
+                <div className="flex flex-row flex-wrap gap-2 justify-evenly   w-full">
+                  {array.map((c) => {
+                    let id = c.id;
+                    if (c.expand && c.expand.author && c.file) {
+                      let img = new Image();
+                      img.src = `${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`;
+                      img.onload = function () {
+                        document.getElementById(id).classList.remove("hidden");
+                      };
+                      return (
+                        <div
+                          id={id}
+                          className="hidden"
                           key={id}
-                          id={c.id}
-                          file={c.file}
-                          pinned={c.pinned}
-                          author={c.expand.author}
-                          content={c.content}
-                          created={c.created}
-                          tags={c.tags}
-                          likes={c.likes}
-                          color={c.textColor}
-                          comments={c.comments}
-                        />
-                      </div>
-                    );
-                  }
-                })
+                          onClick={() => {
+                            window.location.href = `/p/${c.expand.post.id}`;
+                            window.onpopstate = function () {
+                              document.getElementById(id).scrollIntoView();
+                            };
+                          }}
+                        >
+                          <div class="card w-96   shadow-xl">
+                            <figure>
+                              <img
+                                className="rounded cursor-pointer"
+                                onClick={() => {
+                                  document
+                                    .getElementById("modal" + c.id)
+                                    .showModal();
+                                }}
+                                src={`${
+                                  api.baseUrl +
+                                  "/api/files/w5qr8xrcpxalcx6/" +
+                                  c.id +
+                                  "/" +
+                                  c.file
+                                }`}
+                              />
+                            </figure>
+                            <div class="card-body">
+                              <p
+                                className={`
+                              ${
+                                accessbile && theme === "black"
+                                  ? `
+                                text-white antialiased   drop-shadow-md not-sr-only  
+                                `
+                                  : accessbile && theme === "light"
+                                  ? `
+                                 text-black  antialiased   drop-shadow-md not-sr-only 
+                                `
+                                  : ""
+                              }
+                              `}
+                              >
+                                Taken by {c.expand.author.username} on{" "}
+                                {new Date(c.created).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+
+                          <dialog
+                            id={"modal" + c.id}
+                            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
+                          >
+                            <button
+                              className="absolute top-5 left-5"
+                              onClick={() => {
+                                document.getElementById("modal" + c.id).close();
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6 focus:outline-none"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                                />
+                              </svg>
+                            </button>
+                            <form
+                              method="dialog"
+                              className="modal-box bg-transparent z-[-1]  w-screen"
+                            >
+                              <img
+                                src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`}
+                                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
+                                alt="post image"
+                                width={window.innerWidth}
+                                height={window.innerHeight}
+                                onClick={() => {
+                                  document
+                                    .getElementById("modal" + c.id)
+                                    .showModal();
+                                }}
+                              />
+                            </form>
+                            <button
+                              className="btn btn-sm rounded-full absolute bottom-5 left-5 bg-blue-500   hover:bg-blue-500 p-2 capitalize text-white  "
+                              onClick={() => {
+                                window.location.href = `/p/${c.id}`;
+                              }}
+                            >
+                              View Post
+                            </button>
+                          </dialog>
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
               ) : (
                 <div className="flex    mt-0">
                   <h1 className="font-bold  ">
                     {profile.$dead ? (
                       "This account is private"
-                    ) : pageSelected === "collections" && 
-                    totalPages === 0 ? (
+                    ) : pageSelected === "collections" && totalPages === 0 ? (
                       <>
-                        <h1 className={`text-2xl  w-64
+                        <h1
+                          className={`text-2xl  w-64
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -886,10 +978,12 @@ export default function Profile(props) {
                               : ""
                           }
                         
-                        `}>
+                        `}
+                        >
                           Likes ❤️ Cameras .... action! 🎬
                         </h1>
-                        <p className={`mt-4   font-normal
+                        <p
+                          className={`mt-4   font-normal
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -902,17 +996,19 @@ export default function Profile(props) {
                               : ""
                           }
                            
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Your photo and video posts will show up here.`
                             : `  When ${props.user} posts a image or video post, it'll show up here.`}
                         </p>
                       </>
                     ) : pageSelected === "likes" &&
-                       totalPages === 0 &&
+                      totalPages === 0 &&
                       !loading ? (
                       <>
-                        <h1 className={`text-2xl w-64
+                        <h1
+                          className={`text-2xl w-64
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -925,12 +1021,14 @@ export default function Profile(props) {
                               : ""
                           }
                            
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Go like some posts!`
                             : `  ${props.user}f hasn't liked any posts yet.`}
                         </h1>
-                        <p className={`mt-4 font-normal
+                        <p
+                          className={`mt-4 font-normal
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -943,15 +1041,17 @@ export default function Profile(props) {
                               : ""
                           }
                           
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  When you like a post, it'll show up here.`
                             : `  When ${props.user} likes a post, it'll show up here.`}
                         </p>
                       </>
-                    ) : pageSelected === "comments" &&  totalPages === 0 ? (
+                    ) : pageSelected === "comments" && totalPages === 0 ? (
                       <>
-                        <h1 className={`text-2xl w-96
+                        <h1
+                          className={`text-2xl w-96
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -964,12 +1064,14 @@ export default function Profile(props) {
                               : ""
                           }
                           
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Go comment on some posts!`
                             : `  ${props.user} hasn't commented on any posts yet.`}
                         </h1>
-                        <p className={`mt-4 text-slate-300 font-normal
+                        <p
+                          className={`mt-4 text-slate-300 font-normal
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -982,16 +1084,17 @@ export default function Profile(props) {
                               : ""
                           }
                           
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  When you comment on a post, it'll show up here.`
                             : `  When ${props.user} comments on a post, it'll show up here.`}
                         </p>
                       </>
-                    )
-                      : pageSelected === "likes" && totalPages === 0 ? (
-                        <>
-                        <h1 className={`text-2xl w-96
+                    ) : pageSelected === "likes" && totalPages === 0 ? (
+                      <>
+                        <h1
+                          className={`text-2xl w-96
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -1004,12 +1107,14 @@ export default function Profile(props) {
                               : ""
                           }
                           
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  Go like some posts!`
                             : `  ${props.user} hasn't  liked any posts yet.`}
                         </h1>
-                        <p className={`mt-4 text-slate-300 font-normal
+                        <p
+                          className={`mt-4 text-slate-300 font-normal
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -1022,14 +1127,14 @@ export default function Profile(props) {
                               : ""
                           }
                           
-                        `}>
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  When you like a post, it'll show up here.`
                             : `  When ${props.user}  likes a post, it'll show up here.`}
                         </p>
                       </>
-                      )
-                     : (
+                    ) : (
                       ""
                     )}
                   </h1>

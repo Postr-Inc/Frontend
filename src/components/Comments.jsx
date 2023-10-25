@@ -324,7 +324,7 @@ export default function Comment(props) {
           Replied to{" "}
           <a className="text-sky-500" href={`/p/${props.post.id}`}>
             {" "}
-            @{props.post.expand.author.username}
+            @{props.post.expand && props.post.expand.author ? props.post.expand.author.username : ''}
           </a>
         </span>
       ) : (

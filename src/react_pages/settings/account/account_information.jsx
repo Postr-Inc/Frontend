@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Bottomnav from "../../../components/Bottomnav";
 import { api } from "../..";
 
 export default function Settings_account_information() {
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   return (
     <div className="p-5 flex flex-col  gap-8 mb-24">
       <div className="flex   flex-row justify-between">
@@ -18,7 +22,17 @@ export default function Settings_account_information() {
             onClick={() => {
               window.history.back();
             }}
-            className="w-6 h-6"
+            className={`w-6 h-6  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
           >
             <path
               fillRule="evenodd"
@@ -28,8 +42,34 @@ export default function Settings_account_information() {
           </svg>
         </span>
         <div className="flex flex-col hero">
-          <span className="font-semibold text-lg">Account</span>
-          <span className="text-[12px] text-base-900">
+          <span
+            className={`text-lg font-semibold  ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }`}
+          >
+            Account
+          </span>
+          <span
+            className={`text-[12px]  ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }`}
+          >
             @
             {api.authStore.model.username +
               "_" +
@@ -40,16 +80,54 @@ export default function Settings_account_information() {
       <div className="flex flex-col gap-5">
         <ul className="flex flex-col gap-5">
           <li className="flex justify-between">
-            <p className="text-md">Username</p>
+            <p
+              className={`text-md  ${
+                accessbile && theme === "black"
+                  ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                  : accessbile && theme === "light"
+                  ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                  : ""
+              }`}
+            >
+              Username
+            </p>
             <div className="flex gap-2">
-              <p className="text-lg">@{api.authStore.model.username}</p>
+              <p
+                className={`text-lg  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
+              >
+                @{api.authStore.model.username}
+              </p>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className={`w-6 h-6  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
               >
                 <path
                   strokeLinecap="round"
@@ -60,9 +138,35 @@ export default function Settings_account_information() {
             </div>
           </li>
           <li className="flex justify-between">
-            <p className="text-md">Phone</p>
+            <p
+              className={`text-md  ${
+                accessbile && theme === "black"
+                  ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                  : accessbile && theme === "light"
+                  ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                  : ""
+              }`}
+            >
+              Phone
+            </p>
             <div className="flex gap-2  ">
-              <p className="text-lg">
+              <p
+                className={`text-lg  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
+              >
                 {api.authStore.model.phone_number
                   ? api.authStore.model.phone_number
                   : "Not set"}
@@ -73,7 +177,17 @@ export default function Settings_account_information() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className={`w-6 h-6  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
               >
                 <path
                   strokeLinecap="round"
@@ -84,16 +198,54 @@ export default function Settings_account_information() {
             </div>
           </li>
           <li className="flex justify-between">
-            <p className="text-md">Email</p>
+            <p
+              className={`text-md  ${
+                accessbile && theme === "black"
+                  ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                  : accessbile && theme === "light"
+                  ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                  : ""
+              }`}
+            >
+              Email
+            </p>
             <div className="flex gap-2">
-              <p className="text-lg">{api.authStore.model.email}</p>
+              <p
+                className={`text-lg  ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
+              >
+                {api.authStore.model.email}
+              </p>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className={`w-6 h-6 ${
+                  accessbile && theme === "black"
+                    ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                    : accessbile && theme === "light"
+                    ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                    : ""
+                }`}
               >
                 <path
                   strokeLinecap="round"
@@ -104,11 +256,22 @@ export default function Settings_account_information() {
             </div>
           </li>
         </ul>
-        <button className=" mt-8 text-red-500 capitalize font-bold text-[18px]"
-        onClick={()=>{
-            api.authStore.clear()
-            window.location.href = "/"
-        }}
+        <button
+          className={` mt-8  ${
+            accessbile && theme === "black"
+              ? `
+              text-red-500 antialiased   drop-shadow-md not-sr-only  
+              `
+              : accessbile && theme === "light"
+              ? `
+               text-red-500 antialiased   drop-shadow-md not-sr-only 
+              `
+              : ""
+          }  capitalize font-bold text-[18px]`}
+          onClick={() => {
+            api.authStore.clear();
+            window.location.href = "/";
+          }}
         >
           Logout
         </button>

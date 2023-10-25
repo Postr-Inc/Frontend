@@ -46,6 +46,10 @@ function fetchPosts(page, pageSelected) {
 }
 export default function Home() {
   let maxChars = 80;
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   let [scrollPosition, setScrollPosition] = useState("top");
@@ -107,7 +111,19 @@ export default function Home() {
     <div className="p-5 mt-2    ">
       <div className="flex flex-row justify-between">
         <h1
-          className=" text-2xl "
+          className={`text-2xl
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           style={{ fontFamily: "Pacifico" }}
         >
           Postr
@@ -122,7 +138,19 @@ export default function Home() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
+            className={`w-6 h-6 cursor-pointer
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
             onClick={() => {
               window.location.pathname = "/bookmarks";
             }}
@@ -139,7 +167,19 @@ export default function Home() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
+            className={`w-6 h-6 cursor-pointer
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
             onClick={() => {
               if (window.location.pathname !== "/settings/home") {
                 window.location.pathname = "/settings/home";
@@ -160,7 +200,19 @@ export default function Home() {
         </div>
       </div>
       <div
-        className=" font-medium   mb-6 flex flex-row justify-between mt-4 gap-1"
+        className={`font-medium   mb-6 flex flex-row justify-between mt-4 gap-1
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
         style={{ fontFamily: "Inter", fontSize: "14px" }}
       >
         <a
@@ -266,7 +318,7 @@ export default function Home() {
                   id={post.id}
                   created={post.created}
                   bookmarked={post.bookmarked}
-                  color={post.textColor }
+                  color={post.textColor}
                 />
 
                 <Modal id={"moreinfo" + post.id} height="h-75 modal-box">
@@ -306,7 +358,7 @@ export default function Home() {
                   </div>
 
                   {post.expand.author.followers.includes(
-                    api.authStore.model.id
+                    api.authStore.model.id,
                   ) ? (
                     <div className="flex gap-5 items-center">
                       {post.expand.author.avatar ? (

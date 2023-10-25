@@ -1,8 +1,9 @@
-import React from  'react'
+import React, {useState} from  'react'
 import Bottomnav from "../../../components/Bottomnav";
 import { api } from "../..";
 export default function Settings_accessibility_display(){
-    console.log('e')
+  let [accessbile, setaccessible] = useState(JSON.parse(localStorage.getItem('accessbile')))
+    let theme = document.documentElement.getAttribute('data-theme')
     return <>
     <div className="p-4 flex flex-col  gap-8 mb-24">
     <div className="flex   flex-row justify-between">
@@ -16,7 +17,15 @@ export default function Settings_accessibility_display(){
             onClick={() => {
               window.history.back();
             }}
-            className="w-6 h-6 cursor-pointer"
+            className={`w-6 h-6 cursor-pointer
+            ${
+              accessbile  && theme === 'black' ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              ` : accessbile && theme === 'light' ?  `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              ` : ''
+            }
+            `}
           >
             <path
               fillRule="evenodd"
@@ -24,13 +33,29 @@ export default function Settings_accessibility_display(){
               clipRule="evenodd"
             />
           </svg>
-           <span className="font-semibold text-lg">Accessibility, display, and languages</span>
+           <span className={`font-semibold text-lg
+           ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+           `}>Accessibility, display, and languages</span>
             {
               screen.width
                > 1024 ? <div></div> : ''
             }
            </div>
-          <span className="text-[12px] text-base-900">
+          <span className={`text-[12px] text-base-900
+           ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>
             @
             {api.authStore.model.username +
               "_" +
@@ -41,16 +66,40 @@ export default function Settings_accessibility_display(){
       </div>
       <div className="flex hero justify-between gap-5">
         <div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`w-6 h-6
+         ${
+          accessbile  && theme === 'black' ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          ` : accessbile && theme === 'light' ?  `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          ` : ''
+        }
+        `}>
   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
 </svg>
 
 </div>
         <div className="flex flex-col focus:bg-base-300">
-          <p className="text-lg font-bold text-base-content">
+          <p className={`text-lg font-bold 
+          ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>
             Accessibility
           </p>
-          <p className="text-sm">
+          <p className={`text-sm
+          ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>
            Fine tune postr to be more accessible. Like color mode, font varientation.
           </p>
         </div>
@@ -61,7 +110,15 @@ export default function Settings_accessibility_display(){
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile  && theme === 'black' ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              ` : accessbile && theme === 'light' ?  `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              ` : ''
+            }
+            `}
           >
             <path
               strokeLinecap="round"
@@ -79,10 +136,26 @@ export default function Settings_accessibility_display(){
 
           </div>
         <div className="flex flex-col focus:bg-base-300">
-          <p className="text-lg font-bold text-base-content">
+          <p className={`text-lg font-bold text-base-content
+          ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>
             Display and languages
           </p>
-          <p className="text-sm">
+          <p className={`text-sm
+          ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>
            Change content languages, font size, background, and theme. These only affect the current device
           </p>
         </div>
@@ -93,7 +166,15 @@ export default function Settings_accessibility_display(){
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile  && theme === 'black' ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              ` : accessbile && theme === 'light' ?  `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              ` : ''
+            }
+            `}
           >
             <path
               strokeLinecap="round"

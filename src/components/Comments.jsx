@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Comment(props) {
   let [likes, setLikes] = useState(props.likes);
-
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -67,7 +70,20 @@ export default function Comment(props) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="#F13B38"
-            className="w-4 h-4"
+            className={`w-4 h-4
+          
+           ${
+             accessbile && theme === "black"
+               ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+               : accessbile && theme === "light"
+               ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+               : ""
+           }
+          `}
           >
             <path
               strokeLinecap="round"
@@ -76,7 +92,24 @@ export default function Comment(props) {
             />
           </svg>
 
-          <span className="text-xs">by author</span>
+          <span
+            className={`text-xs
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+              : accessbile && theme === "light"
+              ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+              : ""
+          }
+         `}
+          >
+            by author
+          </span>
         </div>
       ) : (
         ""
@@ -91,7 +124,22 @@ export default function Comment(props) {
         ) : (
           <div className="avatar placeholder">
             <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
-              <span className="text-xs">
+              <span
+                className={`text-sm
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+              : accessbile && theme === "light"
+              ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+              : ""
+          }
+         `}
+              >
                 {props.user.username.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -99,7 +147,20 @@ export default function Comment(props) {
         )}
 
         <span
-          className="mx-2   cursor-pointer "
+          className={`mx-2 cursor-pointer
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+              : accessbile && theme === "light"
+              ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+              : ""
+          }
+         `}
           style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
           onClick={() => {
             if (window.location.pathname !== "/u/" + props.user.username) {
@@ -121,10 +182,41 @@ export default function Comment(props) {
 
         <div className="dropdown dropdown-left absolute end-5 ">
           <div className="flex text-sm flex-row gap-5">
-            <span className="text-gray-500 text-sm">
+            <span
+              className={`text-sm
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+              : accessbile && theme === "light"
+              ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+              : ""
+          }
+         `}
+            >
               {parseDate(props.created)}
             </span>
-            <label tabIndex="0" className="flex text-gray-500   cursor-pointer">
+            <label
+              tabIndex="0"
+              className={`text-sm cursor-pointer
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+              : accessbile && theme === "light"
+              ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+              : ""
+          }
+         `}
+            >
               •••
             </label>
           </div>
@@ -186,7 +278,20 @@ export default function Comment(props) {
       </div>
 
       <p
-        className="mt-6 text-sm"
+        className={`mt-6 text-sm
+          
+         ${
+           accessbile && theme === "black"
+             ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          `
+             : accessbile && theme === "light"
+             ? `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          `
+             : ""
+         }
+        `}
         ref={(el) => {
           if (el) {
             el.innerHTML = sanitizeHtml(props.text, {
@@ -200,7 +305,22 @@ export default function Comment(props) {
       ></p>
 
       {window.location.pathname === "/u/" + props.user.username ? (
-        <span className="text-xs text-gray-500 mt-2">
+        <span
+          className={`text-xs   mt-2
+          
+        ${
+          accessbile && theme === "black"
+            ? `
+         text-white antialiased   drop-shadow-md not-sr-only  
+         `
+            : accessbile && theme === "light"
+            ? `
+          text-black  antialiased   drop-shadow-md not-sr-only 
+         `
+            : ""
+        }
+       `}
+        >
           Replied to{" "}
           <a className="text-sky-500" href={`/p/${props.post.id}`}>
             {" "}
@@ -233,7 +353,20 @@ export default function Comment(props) {
                 ? "#F13B38"
                 : "currentColor"
             }
-            className="w-4 h-4 cursor-pointer"
+            className={`w-4 h-4 cursor-pointer
+          
+            ${
+              accessbile && theme === "black"
+                ? `
+             text-white antialiased   drop-shadow-md not-sr-only  
+             `
+                : accessbile && theme === "light"
+                ? `
+              text-black  antialiased   drop-shadow-md not-sr-only 
+             `
+                : ""
+            }
+           `}
           >
             <path
               strokeLinecap="round"
@@ -259,7 +392,20 @@ export default function Comment(props) {
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="w-4 h-4 cursor-pointer "
+            className={`w-4 h-4 cursor-pointer
+          
+            ${
+              accessbile && theme === "black"
+                ? `
+             text-white antialiased   drop-shadow-md not-sr-only  
+             `
+                : accessbile && theme === "light"
+                ? `
+              text-black  antialiased   drop-shadow-md not-sr-only 
+             `
+                : ""
+            }
+           `}
             onClick={() => {
               document.getElementById("comment" + props.id).showModal();
             }}

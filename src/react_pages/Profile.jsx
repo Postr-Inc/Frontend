@@ -725,6 +725,9 @@ export default function Profile(props) {
               dataLength={array.length}
               next={fetchMore}
               hasMore={hasMore}
+              loader={
+                loading
+              }
             >
               {pageSelected === "posts" &&
               profile.$dead === undefined &&
@@ -867,46 +870,166 @@ export default function Profile(props) {
                   <h1 className="font-bold  ">
                     {profile.$dead ? (
                       "This account is private"
-                    ) : pageSelected === "collections" && array.length < 1 ? (
+                    ) : pageSelected === "collections" && 
+                    totalPages === 0 ? (
                       <>
-                        <h1 className="text-2xl  w-64">
+                        <h1 className={`text-2xl  w-64
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                        
+                        `}>
                           Likes ❤️ Cameras .... action! 🎬
                         </h1>
-                        <p className="mt-4 text-slate-300 font-normal">
+                        <p className={`mt-4   font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                           
+                        `}>
                           {props.user === api.authStore.model.username
                             ? ` Your photo and video posts will show up here.`
                             : `  When ${props.user} posts a image or video post, it'll show up here.`}
                         </p>
                       </>
                     ) : pageSelected === "likes" &&
-                      array.length < 1 &&
+                       totalPages === 0 &&
                       !loading ? (
                       <>
-                        <h1 className="text-2xl w-64">
+                        <h1 className={`text-2xl w-64
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                           
+                        `}>
                           {props.user === api.authStore.model.username
                             ? ` Go like some posts!`
                             : `  ${props.user}f hasn't liked any posts yet.`}
                         </h1>
-                        <p className="mt-4 text-slate-800 font-normal">
+                        <p className={`mt-4 font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}>
                           {props.user === api.authStore.model.username
                             ? `  When you like a post, it'll show up here.`
                             : `  When ${props.user} likes a post, it'll show up here.`}
                         </p>
                       </>
-                    ) : pageSelected === "comments" && array.length < 1 ? (
+                    ) : pageSelected === "comments" &&  totalPages === 0 ? (
                       <>
-                        <h1 className="text-2xl w-96">
+                        <h1 className={`text-2xl w-96
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}>
                           {props.user === api.authStore.model.username
                             ? ` Go comment on some posts!`
                             : `  ${props.user} hasn't commented on any posts yet.`}
                         </h1>
-                        <p className="mt-4 text-slate-300 font-normal">
+                        <p className={`mt-4 text-slate-300 font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}>
                           {props.user === api.authStore.model.username
                             ? `  When you comment on a post, it'll show up here.`
                             : `  When ${props.user} comments on a post, it'll show up here.`}
                         </p>
                       </>
-                    ) : (
+                    )
+                      : pageSelected === "likes" && totalPages === 0 ? (
+                        <>
+                        <h1 className={`text-2xl w-96
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}>
+                          {props.user === api.authStore.model.username
+                            ? `  Go like some posts!`
+                            : `  ${props.user} hasn't  liked any posts yet.`}
+                        </h1>
+                        <p className={`mt-4 text-slate-300 font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}>
+                          {props.user === api.authStore.model.username
+                            ? `  When you like a post, it'll show up here.`
+                            : `  When ${props.user}  likes a post, it'll show up here.`}
+                        </p>
+                      </>
+                      )
+                     : (
                       ""
                     )}
                   </h1>

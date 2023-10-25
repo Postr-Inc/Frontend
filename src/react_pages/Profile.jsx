@@ -468,7 +468,7 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className={`bg-[#121212] w-full btn btn-sm  h-text-s rounded-md  capitalize
+                    className={`bg-[#121212] w-full btn btn-sm   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `

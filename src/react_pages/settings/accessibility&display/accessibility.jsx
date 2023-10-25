@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Bottomnav from "../../../components/Bottomnav";
 import { api } from "../..";
 export default function Settings_my_accessibility(){
+  
+    let [accessbile, setaccessible] = useState(JSON.parse(localStorage.getItem('accessbile')))
+    let [theme, setTheme] = useState(document.documentElement.getAttribute('data-theme'))
+ 
     return <>
    <div className="flex flex-col gap-5 p-5">
    <div className="flex   flex-row justify-between">
@@ -17,7 +21,15 @@ export default function Settings_my_accessibility(){
             onClick={() => {
               window.history.back();
             }}
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile  && theme === 'black' ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              ` : accessbile && theme === 'light' ?  `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              ` : ''
+            }
+            `}
           >
             <path
               fillRule="evenodd"
@@ -27,26 +39,76 @@ export default function Settings_my_accessibility(){
           </svg>
         </span>
         <div className="flex flex-col hero">
-          <span className="font-semibold text-lg">Accessibility</span>
+          <span className={`font-semibold text-lg
+           ${
+            accessbile  && theme === 'black' ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            ` : accessbile && theme === 'light' ?  `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            ` : ''
+          }
+          `}>Accessibility</span>
            
         </div>
          
       </div>
        <div className="mt-2">
-        <p>
+        <p className={` 
+         ${
+          accessbile  && theme === 'black' ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          ` : accessbile && theme === 'light' ?  `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          ` : ''
+        }
+        `}>
           Customize postr to your needs to be more accessible to you
         </p>
        
        </div>
-       <div className="divider"></div>
+       <div className="divider h-0 p-0"></div>
        <div className="flex flex-col">
-        <h1 className="text-xl font-bold">Visibility</h1>
-        <div className="flex justify-between mt-5">
-         <p>  Increase contrast.</p>
-          <input type="checkbox" className="toggle rounded-full" />
+        <h1 className={`text-xl font-bold
+         ${
+          accessbile  && theme === 'black' ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          ` : accessbile && theme === 'light' ?  `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          ` : ''
+        }
+        
+        `}>Visibility</h1>
+        <div className="flex justify-between mt-2">
+         <p
+         className={`
+         ${
+          accessbile  && theme === 'black' ? `
+          text-white antialiased font-normal drop-shadow-md not-sr-only  
+          ` : accessbile && theme === 'light' ?  `
+           text-black  antialiased font-normal drop-shadow-md not-sr-only 
+          ` : ''
+        }
+         `}
+         >  Increase text contrast for increased readability.</p>
+          <input data-name="accessibility checker" type="checkbox" className="toggle rounded-full   "
+              {...{checked:accessbile}}
+              onChange={(v)=>{
+                console.log(v.value)
+                 setaccessible(accessbile === true ? false : true)
+                 localStorage.setItem('accessbile', !accessbile)
+              }}
+           />
         </div>
-        <p className="mt-2">
-          Improves legibility by increasing the contrast and lowering saturation between text and images
+        <p className={`mt-2
+        ${
+          accessbile  && theme === 'black' ? `
+          text-white antialiased font-normal drop-shadow-md not-sr-only  
+          ` : accessbile && theme === 'light' ?  `
+           text-black  antialiased font-normal drop-shadow-md not-sr-only 
+          ` : ''
+        }
+        `}>
+          Improves legibility by increasing the contrast  applying antialiased optimizing for screenreaders, and dropping background shadows.
           </p>
        
        </div>

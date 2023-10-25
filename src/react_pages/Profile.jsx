@@ -151,9 +151,11 @@ export default function Profile(props) {
 
   let [page, setPage] = useState(1);
   useEffect(() => {
-     
-    setPage(1);
+   
     if (pageSelected) {
+      setPage(1);
+      setHasMore(true);
+      setarray([]);
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
         if (fetchedPosts.items.length < 10) {
           setHasMore(false);

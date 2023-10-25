@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { api } from "../..";
 import Bottomnav from "../../../components/Bottomnav";
 
 export default function Settings_account() {
   document.title = "Account Info";
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   return (
     <div className="p-5 flex flex-col  gap-8 mb-24">
       <div className="flex   flex-row justify-between">
@@ -19,7 +23,19 @@ export default function Settings_account() {
             onClick={() => {
               window.history.back();
             }}
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
           >
             <path
               fillRule="evenodd"
@@ -29,8 +45,38 @@ export default function Settings_account() {
           </svg>
         </span>
         <div className="flex flex-col hero">
-          <span className="font-semibold text-lg">Your account</span>
-          <span className="text-[12px] text-base-900">
+          <span
+            className={`font-semibold text-lg
+           ${
+             accessbile && theme === "black"
+               ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+               : accessbile && theme === "light"
+               ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+               : ""
+           }
+          `}
+          >
+            Your account
+          </span>
+          <span
+            className={`text-[12px]  
+           ${
+             accessbile && theme === "black"
+               ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+               : accessbile && theme === "light"
+               ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+               : ""
+           }
+          `}
+          >
             @
             {api.authStore.model.username +
               "_" +
@@ -38,7 +84,21 @@ export default function Settings_account() {
           </span>
         </div>
       </div>
-      <p className="text-sm">
+      <p
+        className={`text-sm
+       ${
+         accessbile && theme === "black"
+           ? `
+       text-white antialiased   drop-shadow-md not-sr-only  
+       `
+           : accessbile && theme === "light"
+           ? `
+        text-black  antialiased   drop-shadow-md not-sr-only 
+       `
+           : ""
+       }
+      `}
+      >
         See information about your account, download your data or
         delete/deactivate your account.
       </p>
@@ -50,7 +110,19 @@ export default function Settings_account() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile && theme === "black"
+                ? `
+             text-white antialiased   drop-shadow-md not-sr-only  
+             `
+                : accessbile && theme === "light"
+                ? `
+              text-black  antialiased   drop-shadow-md not-sr-only 
+             `
+                : ""
+            }
+            `}
           >
             <path
               strokeLinecap="round"
@@ -60,10 +132,36 @@ export default function Settings_account() {
           </svg>
         </div>
         <div className="flex flex-col focus:bg-base-300">
-          <p className="text-lg font-bold text-base-content">
+          <p
+            className={`text-lg font-bold  ${
+              accessbile && theme === "black"
+                ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+                : accessbile && theme === "light"
+                ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+                : ""
+            }`}
+          >
             Account Information
           </p>
-          <p className="text-sm">
+          <p
+            className={`text-sm
+           ${
+             accessbile && theme === "black"
+               ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+               : accessbile && theme === "light"
+               ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+               : ""
+           }
+          `}
+          >
             See your account information, like your email address, phone number
             and username.
           </p>
@@ -75,7 +173,19 @@ export default function Settings_account() {
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className={`w-6 h-6
+            ${
+              accessbile && theme === "black"
+                ? `
+             text-white antialiased   drop-shadow-md not-sr-only  
+             `
+                : accessbile && theme === "light"
+                ? `
+              text-black  antialiased   drop-shadow-md not-sr-only 
+             `
+                : ""
+            }
+            `}
           >
             <path
               strokeLinecap="round"
@@ -93,7 +203,19 @@ export default function Settings_account() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6"
+            className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+               text-white antialiased   drop-shadow-md not-sr-only  
+               `
+                  : accessbile && theme === "light"
+                  ? `
+                text-black  antialiased   drop-shadow-md not-sr-only 
+               `
+                  : ""
+              }
+              `}
           >
             <path
               strokeLinecap="round"
@@ -103,16 +225,50 @@ export default function Settings_account() {
           </svg>
         </div>
         <div className="flex flex-col focus:bg-base-300">
-          <p className="text-lg font-bold text-base-content">
+          <p
+            className={`text-lg font-bold ${
+              accessbile && theme === "black"
+                ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+                : accessbile && theme === "light"
+                ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+                : ""
+            } `}
+          >
             Download your account data
           </p>
-          <p className="text-sm">Request an archive of your account history.</p>
+          <p
+            className={`text-sm
+           ${
+             accessbile && theme === "black"
+               ? `
+           text-white antialiased   drop-shadow-md not-sr-only  
+           `
+               : accessbile && theme === "light"
+               ? `
+            text-black  antialiased   drop-shadow-md not-sr-only 
+           `
+               : ""
+           }
+          `}
+          >
+            Request an archive of your account history.
+          </p>
         </div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+        {screen.width > 1024 ? (
+          <>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </>
+        ) : (
+          ""
+        )}
         <a href="/settings/archive">
           <svg
             xmlns="http://www.w3.org/2000/svg"

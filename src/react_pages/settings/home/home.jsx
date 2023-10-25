@@ -3,6 +3,10 @@ import { api, oneSignal } from "../..";
 import Bottomnav from "../../../components/Bottomnav";
 import Modal2 from "../../../components/Modal2";
 export default function Settings_home() {
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   let [emailVisibility, setEmailVisibility] = useState(
     api.authStore.model.emailVisibility,
   );
@@ -11,9 +15,6 @@ export default function Settings_home() {
   );
   let [recommendation_ratings, setrecommendation_ratings] = useState(
     localStorage.getItem("recommendation_ratings") === "true" ? true : false,
-  );
-  let [theme, setTheme] = useState(
-    localStorage.getItem("theme") === "black" ? true : false,
   );
 
   useEffect(() => {
@@ -52,7 +53,19 @@ export default function Settings_home() {
               onClick={() => {
                 window.history.back();
               }}
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 fillRule="evenodd"
@@ -62,8 +75,38 @@ export default function Settings_home() {
             </svg>
           </span>
           <div className="flex flex-col hero">
-            <span className="font-semibold text-lg">Settings</span>
-            <span className="text-[12px] text-base-900">
+            <span
+              className={`font-bold text-lg
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Settings
+            </span>
+            <span
+              className={`text-[12px]
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               @
               {api.authStore.model.username +
                 "_" +
@@ -86,7 +129,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -96,8 +151,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">Your account</p>
-            <p className="text-sm">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Your account
+            </p>
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               See information about your account, download your data, or view
               the deactivation process.
             </p>
@@ -109,7 +194,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -127,7 +224,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -137,8 +246,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">Security</p>
-            <p className="text-sm">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Security
+            </p>
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Manage your account security, track and manage account usage from
               different devices, aswell as view apps that you have allowed to
               access your account info.
@@ -151,7 +290,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -169,7 +320,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -179,10 +342,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Privacy and safety
             </p>
-            <p className="text-sm">
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Manage what content you see, who can see your content, and what
               data is used to enhance your experience.
             </p>
@@ -194,7 +385,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -212,7 +415,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -222,8 +437,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">Notifications</p>
-            <p className="text-sm">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Notifications
+            </p>
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Manage what notifications you want to recieve, based on your
               interests, recommendations, and activities.
             </p>
@@ -235,7 +480,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -253,7 +510,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -263,10 +532,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Accessibility, display, and languages
             </p>
-            <p className="text-sm">
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Manage how content is displayed on your device, change contrast,
               font size and color mode.
             </p>
@@ -278,7 +575,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -296,7 +605,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"
@@ -306,10 +627,38 @@ export default function Settings_home() {
             </svg>
           </div>
           <div className="flex flex-col focus:bg-base-300">
-            <p className="text-lg font-bold text-base-content">
+            <p
+              className={`text-lg font-bold
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Version, support, legal
             </p>
-            <p className="text-sm">
+            <p
+              className={`text-sm
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               Manage your app version, get support, and view our legal policies.
             </p>
           </div>
@@ -320,7 +669,19 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               <path
                 strokeLinecap="round"

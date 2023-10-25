@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Bottomnav from "../components/Bottomnav";
 import { api } from ".";
 import Post from "../components/Post";
+import Loading from "../components/Loading";
 
 export default function Bookmarks() {
   let [bookmarks, setBookmarks] = useState([]);
@@ -183,7 +184,9 @@ export default function Bookmarks() {
             find it later.
           </span>
         </div>
-      ) : (
+      ) : 
+      bookmarks.length > 0 ?
+      (
         bookmarks.map((post) => {
           let key = Math.random();
           return (
@@ -202,7 +205,14 @@ export default function Bookmarks() {
             </div>
           );
         })
-      )}
+      ) : <>
+       <div className="flex flex-col gap-5  mt-5">
+       <Loading />
+       <Loading />
+       
+       </div>
+      </>
+      }
       <div className="mt-8">
         <Bottomnav />
       </div>

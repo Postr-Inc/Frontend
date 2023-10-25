@@ -3,6 +3,10 @@ import Modal from "./Modal";
 import { useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Post(props) {
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile")),
+  );
+
   let [likes, setLikes] = useState(props.likes);
   let [hidden, setHidden] = useState(false);
   let [bookmarked, setBookmarked] = useState(props.bookmarked || []);
@@ -60,9 +64,20 @@ export default function Post(props) {
     >
       {pinned && window.location.pathname === `/u/${props.author.username}` ? (
         <div
-          className={`flex mb-6 flex-row gap-2 items-center font-medium text-sm ${
-            theme === "black" ? "text-white" : "text-gray-500"
-          }`}
+          className={`flex mb-6 flex-row gap-2 items-center font-medium text-sm  first-letter:
+          
+           ${
+             accessbile && theme === "black"
+               ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+               : accessbile && theme === "light"
+               ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+               : ""
+           }
+          `}
         >
           <svg
             viewBox="0 0 24 24"
@@ -81,7 +96,21 @@ export default function Post(props) {
         ""
       )}
 
-      <div className="flex flex-col">
+      <div
+        className={`flex flex-col
+      ${
+        accessbile && theme === "black"
+          ? `
+        text-white antialiased   drop-shadow-md not-sr-only  
+        `
+          : accessbile && theme === "light"
+          ? `
+         text-black  antialiased   drop-shadow-md not-sr-only 
+        `
+          : ""
+      }
+      `}
+      >
         <div className="flex flex-row ">
           {props.author.avatar ? (
             <img
@@ -92,7 +121,22 @@ export default function Post(props) {
           ) : (
             <div className="avatar placeholder">
               <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
-                <span className="text-xs">
+                <span
+                  className={`
+                  text-sm
+                ${
+                  accessbile && theme === "black"
+                    ? `
+                  text-white antialiased   drop-shadow-md not-sr-only  
+                  `
+                    : accessbile && theme === "light"
+                    ? `
+                   text-black  antialiased   drop-shadow-md not-sr-only 
+                  `
+                    : ""
+                }
+                `}
+                >
                   {props.author.username.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -100,7 +144,20 @@ export default function Post(props) {
           )}
 
           <span
-            className="mx-2   cursor-pointer "
+            className={`
+           mx-2 cursor-pointer
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
             style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
             onClick={() => {
               if (window.location.pathname !== "/u/" + props.author.username) {
@@ -121,12 +178,18 @@ export default function Post(props) {
           )}
           <span
             className={`
-          ${
-            document.documentElement.getAttribute("data-theme") === "black"
-              ? "text-[#717171]"
-              : "text-[#b2b2b2]"
-          }
-          mx-1 
+            mx-2 cursor-pointer
+           ${
+             accessbile && theme === "black"
+               ? `
+             text-white antialiased   drop-shadow-md not-sr-only  
+             `
+               : accessbile && theme === "light"
+               ? `
+              text-black  antialiased   drop-shadow-md not-sr-only 
+             `
+               : ""
+           }
           `}
           >
             @{props.author.username}
@@ -134,12 +197,40 @@ export default function Post(props) {
 
           <div className="dropdown dropdown-left absolute end-5 ">
             <div className="flex text-sm flex-row gap-5">
-              <span className="text-gray-500 text-sm">
+              <span
+                className={`
+            text-sm
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+         `}
+              >
                 {parseDate(props.created)}
               </span>
               <label
                 tabIndex="0"
-                className="flex text-gray-500   cursor-pointer"
+                className={`
+                flex
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
               >
                 •••
               </label>
@@ -244,12 +335,10 @@ export default function Post(props) {
               let text = props.content;
               if (props.tags) {
                 props.tags.forEach((tag) => {
-                 
                   text = text.replace(
                     `<a class="text-sky-500">${tag}</a>`,
-                    `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
+                    `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`,
                   );
-                  
                 });
               }
               let t = sanitizeHtml(text, {
@@ -258,7 +347,11 @@ export default function Post(props) {
                   a: ["href", "class"],
                 },
               });
-              el.style.color = props.color;
+              let color = props.color;
+              props.color === "black" && theme === "black"
+                ? (color = "white")
+                : "";
+              el.style.color = color;
               el.innerHTML = t;
             }
           }}
@@ -285,9 +378,23 @@ export default function Post(props) {
             className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
           >
             <button
-              className="btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  text-white bg-[#222222]  top-5 left-10
+              className={`btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  
+          
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+         
+              bg-[#222222]  top-5 left-10
              focus:outline-none
-             "
+             `}
               onClick={() => {
                 document.getElementById("modal" + props.id).close();
               }}
@@ -361,7 +468,20 @@ export default function Post(props) {
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="w-5 h-5 cursor-pointer "
+            className={`
+            w-5 h-5 cursor-pointer
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
             onClick={() => {
               if (window.location.pathname !== "/p/" + props.id) {
                 window.location.href = "/p/" + props.id;
@@ -390,7 +510,20 @@ export default function Post(props) {
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="cursor-pointer w-5 h-5"
+          className={`
+          w-5 h-5 cursor-pointer
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
           onClick={() => {
             navigator.share({
               title: `
@@ -413,7 +546,8 @@ export default function Post(props) {
           />
         </svg>
 
-        {window.location.pathname === "/p/" + props.id || window.location.pathname === "/q" ? (
+        {window.location.pathname === "/p/" + props.id ||
+        window.location.pathname === "/q" ? (
           <div>
             {bookmarked.includes(api.authStore.model.id) ? (
               <svg
@@ -422,7 +556,20 @@ export default function Post(props) {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="#3d85c6"
-                className="w-5 h-5 cursor-pointer"
+                className={`
+               w-5 h-5 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                 onClick={() => {
                   setBookmarked([
                     ...bookmarked.filter((id) => id !== api.authStore.model.id),
@@ -430,7 +577,7 @@ export default function Post(props) {
                   api.collection("posts").update(props.id, {
                     bookmarked: [
                       ...bookmarked.filter(
-                        (id) => id !== api.authStore.model.id
+                        (id) => id !== api.authStore.model.id,
                       ),
                     ],
                   });
@@ -454,7 +601,20 @@ export default function Post(props) {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-5 h-5 cursor-pointer"
+                className={`
+                w-5 h-5 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                 onClick={() => {
                   let bookmarks = api.authStore.model.bookmarks;
                   api.collection("users").update(api.authStore.model.id, {
@@ -480,7 +640,21 @@ export default function Post(props) {
         )}
       </div>
       <div className="flex flex-row font-normal text-gray-400 gap-2 mt-6">
-        <span>
+        <span
+          className={`
+        ${
+          accessbile && theme === "black"
+            ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          `
+            : accessbile && theme === "light"
+            ? `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          `
+            : ""
+        }
+        `}
+        >
           {" "}
           {props.comments.length
             ? props.comments.length > 1
@@ -488,8 +662,39 @@ export default function Post(props) {
               : props.comments.length + " Reply"
             : 0 + " Replies"}
         </span>
-        <span className="text-gray-400">•</span>
-        <span>
+        <span
+          className={`
+            text-sm
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
+        >
+          •
+        </span>
+        <span
+          className={`
+        ${
+          accessbile && theme === "black"
+            ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          `
+            : accessbile && theme === "light"
+            ? `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          `
+            : ""
+        }
+        `}
+        >
           {" "}
           {likes.length
             ? likes.length > 1
@@ -504,33 +709,127 @@ export default function Post(props) {
         className="  modal modal-bottom h-screen"
       >
         <form method="dialog" className="modal-box p-5  h-96">
-          <h3 className="font-bold text-lg">Report {props.author.username}</h3>
+          <h3
+            className={`
+           font-bold text-lg
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
+          >
+            Report {props.author.username}
+          </h3>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
           </button>
           <div className="divider h-0 mt-2 opacity-50 "></div>
-          <p>
+          <p
+            className={`
+            text-sm
+          ${
+            accessbile && theme === "black"
+              ? `
+            text-white antialiased   drop-shadow-md not-sr-only  
+            `
+              : accessbile && theme === "light"
+              ? `
+             text-black  antialiased   drop-shadow-md not-sr-only 
+            `
+              : ""
+          }
+          `}
+          >
             Your report will be reviewed and actioned accordingly. Nobody but
             you will know that you reported this post.
           </p>
-          <div className="divider h-0 mb-5 opacity-50">
+          <div className={`divider h-0 mb-5 opacity-30 `}>
             Please Select A Reason
           </div>
           <select
             defaultValue="Select a reason"
-            className="select select-ghost w-full select-sm"
+            className={`select rounded p-1  select-ghost w-full select-sm
+            
+            ${
+              accessbile && theme === "black"
+                ? `
+              border-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               border-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+        
+            `}
             onChange={(e) => {
               setReport(e.target.value);
             }}
           >
-            <option disabled="disabled">Select a reason</option>
-            <option value="Inappropriate">Inappropriate</option>
+            <option
+              disabled="disabled"
+              className={`
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Select a reason
+            </option>
+            <option
+              value="Inappropriate"
+              className={`
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
+              Inappropriate
+            </option>
             <option value="spam">Spam</option>
             <option value="hate">Hate Speech</option>
           </select>
           <div className="modal-action">
             <button
-              className="btn btn-ghost border border-slate-500 btn-sm w-full"
+              className={`btn btn-ghost border  rounded btn-sm w-full
+            
+            ${
+              accessbile && theme === "black"
+                ? `
+              border-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               border-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+           
+              `}
               id="reportbtn-{{pid}}"
               onClick={() => {
                 document.getElementById(`reportmodal${props.id}`).close();

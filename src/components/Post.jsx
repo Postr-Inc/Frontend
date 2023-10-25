@@ -4,7 +4,7 @@ import { useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Post(props) {
   let [accessbile, setaccessible] = useState(
-    JSON.parse(localStorage.getItem("accessbile")),
+    JSON.parse(localStorage.getItem("accessbile"))
   );
   let theme = document.documentElement.getAttribute("data-theme");
   let [likes, setLikes] = useState(props.likes);
@@ -13,7 +13,7 @@ export default function Post(props) {
   let [reported, setReported] = useState(false);
   let [report, setReport] = useState("");
   let [pinned, setPinned] = useState(props.pinned ? true : false);
- 
+
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -337,7 +337,7 @@ export default function Post(props) {
                 props.tags.forEach((tag) => {
                   text = text.replace(
                     `<a class="text-sky-500">${tag}</a>`,
-                    `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`,
+                    `<a href="/q/${tag}" class="text-blue-500">${tag}</a>`
                   );
                 });
               }
@@ -378,28 +378,25 @@ export default function Post(props) {
             className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
           >
             <button
-              className={`btn btn-sm text-lg btn-circle btn-ghost absolute z-[9999]  
-          
-          ${
-            accessbile && theme === "black"
-              ? `
-            text-white antialiased   drop-shadow-md not-sr-only  
-            `
-              : accessbile && theme === "light"
-              ? `
-             text-black  antialiased   drop-shadow-md not-sr-only 
-            `
-              : ""
-          }
-         
-              bg-[#222222]  top-5 left-10
-             focus:outline-none
-             `}
+              className="absolute top-5 left-5 focus:outline-none"
               onClick={() => {
                 document.getElementById("modal" + props.id).close();
               }}
             >
-              ✕
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6 focus:outline-none"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
             </button>
             <form
               method="dialog"
@@ -577,7 +574,7 @@ export default function Post(props) {
                   api.collection("posts").update(props.id, {
                     bookmarked: [
                       ...bookmarked.filter(
-                        (id) => id !== api.authStore.model.id,
+                        (id) => id !== api.authStore.model.id
                       ),
                     ],
                   });

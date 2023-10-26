@@ -623,14 +623,15 @@ export default function Post(props) {
           <></>
         )}
       </div>
-      <div className="avatar-group mt-2 mx-0 mb-0 p-0 pl-0 -space-x-[20px]">
+      <div className="avatar-group mt-2 mx-0  -space-x-[10px]">
      {
         props.expandedlikes ? props.expandedlikes.map((like) => {
         if(api.authStore.model.id !== like.id
           && api.authStore.model.followers.includes(like.id) ||
           like.followers.includes(api.authStore.model.id)
           ){
-            return  <div className="  mt-1 mb-1 pl-0 relative"
+            return   <>
+            <div className="  mt-1 mb-1 pl-0 relative"
             
             >
             <div className="w-7 h-7 pl-0   
@@ -639,11 +640,13 @@ export default function Post(props) {
             >
               <img src={`${api.baseUrl}/api/files/_pb_users_auth_/${like.id}/${like.avatar}`} 
               className="rounded-full  border-2 w-full h-full "
-              data-tip={like.username}
+             
               /> 
             </div>
              
           </div>
+           
+            </>
           }
          
         }) : ''

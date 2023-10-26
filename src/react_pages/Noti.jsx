@@ -25,6 +25,8 @@ export default function Noti() {
   let [hasMore, setHasMore] = useState(true);
   let [notifications, setNotifications] = useState([]);
   let [totalPages, setTotalPages] = useState(0);
+  let theme = document.documentElement.getAttribute("data-theme");
+  let accessbile = JSON.parse(localStorage.getItem("accessbile"));
   useEffect(() => {
     getNotifications(1).then((res) => {
       setNotifications(res.items);
@@ -113,7 +115,19 @@ export default function Noti() {
             onClick={() => {
               window.history.back();
             }}
-            className="w-5 h-5"
+            className={`w-5 h-5
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           >
             <path
               fillRule="evenodd"
@@ -122,7 +136,22 @@ export default function Noti() {
             />
           </svg>
         </span>
-        <h1 className="text-2xl  " style={{ fontFamily: "Inter" }}>
+        <h1
+          className={`text-2xl
+        ${
+          accessbile && theme === "black"
+            ? `
+          text-white antialiased   drop-shadow-md not-sr-only  
+          `
+            : accessbile && theme === "light"
+            ? `
+           text-black  antialiased   drop-shadow-md not-sr-only 
+          `
+            : ""
+        }
+        `}
+          style={{ fontFamily: "Inter" }}
+        >
           Notifications
         </h1>
         <div className="flex justify-between flex-row gap-5">
@@ -132,7 +161,19 @@ export default function Noti() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
+            className={`w-6 h-6 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             onClick={() => {
               if (window.location.pathname !== "/settings/home") {
                 window.location.pathname = "/settings/home";
@@ -162,7 +203,6 @@ export default function Noti() {
           className="flex flex-col gap-5   mb-16 mt-7"
         >
           {notifications.map((noti) => {
-            console.log(noti.type);
             return (
               <div className="flex flex-col gap-2 mt-8" key={noti.id}>
                 <div className="flex flex-row gap-2">
@@ -174,8 +214,22 @@ export default function Noti() {
                     />
                   ) : (
                     <div className="avatar placeholder">
-                      <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-10 h-10">
-                        <span className="text-xs">
+                      <div className="bg-neutral-focus   border-slate-200 rounded-full w-10 h-10">
+                        <span
+                          className={`text-xsm
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+                        >
                           {noti.expand.author.username.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -183,7 +237,19 @@ export default function Noti() {
                   )}
                   <div className="flex flex-col gap-1">
                     <span
-                      className="text-sm   cursor-pointer"
+                      className={`text-sm cursor-pointer
+                       ${
+                         accessbile && theme === "black"
+                           ? `
+                         text-white antialiased   drop-shadow-md not-sr-only  
+                         `
+                           : accessbile && theme === "light"
+                           ? `
+                          text-black  antialiased   drop-shadow-md not-sr-only 
+                         `
+                           : ""
+                       }
+                       `}
                       onClick={() => {
                         window.location.pathname = `/u/${noti.expand.author.username}`;
                       }}
@@ -213,7 +279,19 @@ export default function Noti() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-6 h-6"
+                          className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                         >
                           <path
                             strokeLinecap="round"
@@ -228,7 +306,19 @@ export default function Noti() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="#F13B38"
-                          className="w-6 h-6"
+                          className={`w-6 h-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                         >
                           <path
                             strokeLinecap="round"
@@ -256,17 +346,95 @@ export default function Noti() {
                       )}
 
                       {noti.type === "like" ? (
-                        <span className="text-sm">liked your post</span>
+                        <span
+                          className={`text-sm
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+                        >
+                          liked your post
+                        </span>
                       ) : noti.type === "comment" ? (
-                        <span className="text-sm">commented on your post</span>
+                        <span
+                          className={`text-sm
+                        ${
+                          accessbile && theme === "black"
+                            ? `
+                          text-white antialiased   drop-shadow-md not-sr-only  
+                          `
+                            : accessbile && theme === "light"
+                            ? `
+                           text-black  antialiased   drop-shadow-md not-sr-only 
+                          `
+                            : ""
+                        }
+                        `}
+                        >
+                          commented on your post
+                        </span>
                       ) : (
-                          <span className="text-sm">
+                          <span
+                            className={`text-sm
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          `}
+                          >
                             mentioned you in a comment
                           </span>
                         ) || noti.type === "comment_like" ? (
-                        <span className="text-sm">{noti.title}</span>
+                        <span
+                          className={`text-sm
+                        ${
+                          accessbile && theme === "black"
+                            ? `
+                          text-white antialiased   drop-shadow-md not-sr-only  
+                          `
+                            : accessbile && theme === "light"
+                            ? `
+                           text-black  antialiased   drop-shadow-md not-sr-only 
+                          `
+                            : ""
+                        }
+                        `}
+                        >
+                          {noti.title}
+                        </span>
                       ) : noti.type === "follow" ? (
-                        <span className="text-sm">followed you</span>
+                        <span
+                          className={`text-sm
+                        ${
+                          accessbile && theme === "black"
+                            ? `
+                          text-white antialiased   drop-shadow-md not-sr-only  
+                          `
+                            : accessbile && theme === "light"
+                            ? `
+                           text-black  antialiased   drop-shadow-md not-sr-only 
+                          `
+                            : ""
+                        }
+                        `}
+                        >
+                          followed you
+                        </span>
                       ) : (
                         ""
                       )}
@@ -284,14 +452,40 @@ export default function Noti() {
                       )}
                     </div>
                     <div className="text-sm absolute end-5 flex flex-row gap-5">
-                      <span className="text-sm ">
+                      <span
+                        className={`text-sm
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+                      >
                         {parseDate(noti.created)}
                       </span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        className="w-5 cursor-pointer h-5 mx-"
+                        className={`w-5 h-5 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                         onClick={() => {
                           api
                             .collection("notifications")
@@ -300,7 +494,7 @@ export default function Noti() {
                               setNotifications(
                                 notifications.filter((n) => {
                                   return n.id !== noti.id;
-                                }),
+                                })
                               );
                             });
                         }}
@@ -309,7 +503,19 @@ export default function Noti() {
                       </svg>
                     </div>
                     <span
-                      className="cursor-pointer  text-sm"
+                      className={`text-sm cursor-pointer
+                    ${
+                      accessbile && theme === "black"
+                        ? `
+                      text-white antialiased   drop-shadow-md not-sr-only  
+                      `
+                        : accessbile && theme === "light"
+                        ? `
+                       text-black  antialiased   drop-shadow-md not-sr-only 
+                      `
+                        : ""
+                    }
+                    `}
                       onClick={() => {
                         window.location.pathname = `/p/${noti.expand.post.id}`;
                       }}
@@ -329,7 +535,21 @@ export default function Noti() {
       ) : (
         <div className="flex mx-auto justify-center gap-5 mt-16 ">
           <p className="flex hero gap- mx-auto justify-center w-full">
-            <p>
+            <p
+              className={`
+            ${
+              accessbile && theme === "black"
+                ? `
+              text-white antialiased   drop-shadow-md not-sr-only  
+              `
+                : accessbile && theme === "light"
+                ? `
+               text-black  antialiased   drop-shadow-md not-sr-only 
+              `
+                : ""
+            }
+            `}
+            >
               When someone interacts or follows you - you will be notified you
               can turn off notifications from{" "}
               <a

@@ -181,7 +181,7 @@ export default function Bottomnav() {
     if (file !== "") {
       form.append("file", file);
     }
-    if (Pref.current.innerHTML == "") {
+    if (pRef.current.innerHTML == "") {
       return;
     }
     form.append("content", pRef.current.innerHTML);

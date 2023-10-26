@@ -223,55 +223,52 @@ export default function Bottomnav() {
         }
         setError(false);
         setNotification_message("Post created");
-        document.getElementById("notchalert").classList.remove("invisible");
+        
       })
       .catch((e) => {
         document.getElementById("newpost").close();
         document.activeElement.blur();
         setError(true);
         setNotification_message("Error creating post");
-        document.getElementById("notchalert").classList.remove("invisible");
+        
       });
   }
 
   return (
     <>
-      <div className="fixed top-0  w-full  mx-0 flex justify-center mt-9">
-        <div
-          id="notchalert"
-          className="alert alert-primary w-4/6 cursor-pointer rounded-full  text-start  flex invisible  bg-base-300"
-          onClick={(e) => {
-            if (
-              !document
-                .getElementById("notchalert")
-                .classList.contains("invisible")
-            ) {
-              document.getElementById("notchalert").classList.add("invisible");
-            }
-          }}
-        >
-          {!error ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-              />
-            </svg>
-          ) : (
-            ""
-          )}
+    {
+      notification_message ?    <div className="fixed top-0  w-full  mx-0 flex justify-center mt-9">
+      <div
+        id="notchalert"
+        className="alert alert-primary w-4/6 cursor-pointer rounded-full  text-start  flex   bg-base-300"
+        onClick={(e) => {
+          setNotification_message("");
+        }}
+      >
+        {!error ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+            />
+          </svg>
+        ) : (
+          ""
+        )}
 
-          <h1>{notification_message}</h1>
-        </div>
+        <h1>{notification_message}</h1>
       </div>
+    </div>
+    : ""
+    }
 
       <div
         className=" fixed bottom-8 left-[50%] transform -translate-x-1/2

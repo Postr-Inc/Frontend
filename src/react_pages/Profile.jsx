@@ -497,7 +497,7 @@ export default function Profile(props) {
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-white border-black antialiased   drop-shadow-md not-sr-only 
+                 text-black border-black antialiased   drop-shadow-md not-sr-only 
                 `
                   : ""
               }

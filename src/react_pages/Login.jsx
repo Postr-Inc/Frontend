@@ -9,7 +9,6 @@ export default function Login(){
  let [btnstate, setBtnstate] = useState("aborted");
  let [isLogin, setIsLogin] = useState(false);
  function login(e) {
-    console.log("logging in...");
     setBtnstate("loading");
     let w = window.open()
     const data = api
@@ -65,9 +64,7 @@ export default function Login(){
       }
     }, 6000);
   }
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", "light");
-  }, [])
+  
  return (
      <div>
  
@@ -89,7 +86,7 @@ export default function Login(){
         <button  
         onClick={login}
         ref={button} className={`btn btn-ghost w-5/6 ${
-        document.documentElement.getAttribute('data-theme') === 'black'
+        document.documentElement.getAttribute('data-theme') === 'black' 
         ? 'bg-white hover:bg-white text-black'
         : 'bg-black hover:bg-black text-white'
     } capitalize   rounded-full font-bold `}>
@@ -103,8 +100,7 @@ export default function Login(){
         <button 
          
         className={`btn btn-ghost text-md  w-5/6 ${
-        theme == 'black'
-        && document.documentElement.getAttribute('data-theme') === 'black'
+        document.documentElement.getAttribute('data-theme') === 'black'
             ? 'bg-white hover:bg-white text-black'
             : 'bg-black hover:bg-black text-white'
     } capitalize   rounded-full font-bold`}>

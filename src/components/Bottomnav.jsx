@@ -73,6 +73,7 @@ export default function Bottomnav() {
   let [color, setColor] = useState("black");
   let [colorvalue, setColorValue] = useState("black");
   let accessbile = JSON.parse(localStorage.getItem("accessbile"));
+  let [notification_message, setNotification_message] = useState("");
   let [isScrolling, setIsScrolling] = useState(false);
   let pRef = useRef();
 
@@ -117,13 +118,13 @@ export default function Bottomnav() {
     selection.removeAllRanges();
     selection.addRange(range);
   }
-  
+
   window.onscroll = function () {
-    if(modalisOpen){
-      console.log("modal is open")
-      return
+    if (modalisOpen) {
+      console.log("modal is open");
+      return;
     }
-  }
+  };
   function handleContentInput(e) {
     let newText = pRef.current.innerHTML;
 
@@ -191,7 +192,6 @@ export default function Bottomnav() {
       "tags",
       tags.length > 0 ? JSON.stringify(tags) : JSON.stringify([])
     );
-    form.append("likes", JSON.stringify([]));
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
     form.append("textColor", colorvalue);
@@ -208,32 +208,71 @@ export default function Bottomnav() {
         setModalisOpen(false);
         document.activeElement.blur();
         if (res.expand && res.expand.author) {
-          api
-            .collection("notifications")
-            .create({
-              author: api.authStore.model.id,
-              type: "post",
-              post: res.id,
-              title: `New post from ${api.authStore.model.username}`,
-              notification_title: `New post from ${api.authStore.model.username}`,
-              notification_body: `View ${api.authStore.model.username}'s post`,
-              url: `/p/${res.id}`,
-              image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
-              multi_recipients: JSON.stringify(res.expand.author.followers),
-            })
-            .then((res) => {
-              console.log(res);
-            });
+          console.log(res.expand.author);
+          api.collection("notifications").create({
+            author: api.authStore.model.id,
+            type: "post",
+            post: res.id,
+            title: `New post from ${api.authStore.model.username}`,
+            notification_title: `New post from ${api.authStore.model.username}`,
+            notification_body: `View ${api.authStore.model.username}'s post`,
+            url: `/p/${res.id}`,
+            image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
+            multi_recipients: res.expand.author.followers,
+          });
         }
+        setError(false);
+        setNotification_message("Post created");
+        document.getElementById("notchalert").classList.remove("invisible");
       })
       .catch((e) => {
         document.getElementById("newpost").close();
         document.activeElement.blur();
+        setError(true);
+        setNotification_message("Error creating post");
+        document.getElementById("notchalert").classList.remove("invisible");
       });
   }
 
   return (
     <>
+      <div className="fixed top-0  w-full  mx-0 flex justify-center mt-9">
+        <div
+          id="notchalert"
+          className="alert alert-primary w-4/6 cursor-pointer rounded-full  text-start  flex invisible  bg-base-300"
+          onClick={(e) => {
+            if (
+              !document
+                .getElementById("notchalert")
+                .classList.contains("invisible")
+            ) {
+              document.getElementById("notchalert").classList.add("invisible");
+            }
+          }}
+        >
+          {!error ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+              />
+            </svg>
+          ) : (
+            ""
+          )}
+
+          <h1>{notification_message}</h1>
+        </div>
+      </div>
+
       <div
         className=" fixed bottom-8 left-[50%] transform -translate-x-1/2
     w-64"
@@ -529,9 +568,11 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className="   h-full bg-base-100  w-full 
+        <div
+          className="   h-full bg-base-100  w-full 
         overflow-y-none overscroll-x-none
-        shadow-none fixed top-0 left-0 p-5">
+        shadow-none fixed top-0 left-0 p-5"
+        >
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span
@@ -634,7 +675,6 @@ export default function Bottomnav() {
               onInput={handleContentInput}
               onPaste={handleContentInput}
               autoFocus
-          
             ></p>
 
             {image ? (

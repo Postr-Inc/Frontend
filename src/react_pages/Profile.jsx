@@ -473,7 +473,7 @@ export default function Profile(props) {
                 `
                   : accessbile && theme === "light"
                   ? `
-                   text-black  bg-black  antialiased   not-sr-only 
+                   text-white hover:bg-black bg-black  antialiased   not-sr-only 
                 `
                   : ""
               }

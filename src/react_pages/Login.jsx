@@ -36,7 +36,7 @@ export default function Login(){
             setBtnstate("aborted");
           return;
         }
-        alert(w.location.origin)
+        window.location.href = "/"
       });
      
     data.then((res) => {

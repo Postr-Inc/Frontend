@@ -1084,7 +1084,7 @@ export default function Profile(props) {
                             : `  ${props.user} hasn't commented on any posts yet.`}
                         </h1>
                         <p
-                          className={`mt-4 text-slate-300 font-normal
+                          className={`mt-4   font-normal
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -1127,7 +1127,7 @@ export default function Profile(props) {
                             : `  ${props.user} hasn't  liked any posts yet.`}
                         </h1>
                         <p
-                          className={`mt-4 text-slate-300 font-normal
+                          className={`mt-4   font-normal
                           ${
                             accessbile && theme === "black"
                               ? `

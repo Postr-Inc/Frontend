@@ -469,7 +469,7 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className={`  w-full btn-primary btn btn-sm bg-[#121212]   rounded-md  capitalize
+                    className={`  w-full  btn btn-sm bg-[#121212]   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
@@ -489,7 +489,7 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`bg-transparent btn-primary  w-full btn btn-sm   rounded-md  capitalize
+                    className={`  btn-primary  w-full btn btn-sm   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
@@ -497,7 +497,7 @@ export default function Profile(props) {
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-black border-black hover:bg-transparent antialiased   drop-shadow-md not-sr-only 
+                 text-black  hover:bg-transparent antialiased   drop-shadow-md not-sr-only 
                 `
                   : ""
               }

@@ -53,18 +53,12 @@ export default function App() {
             api.collection("users").authRefresh()
             oneSignal()
 
-        } else if (window.matchMedia("(display-mode: browser)").matches) {
-            window.location.href = "/download"
-
-        }
+        }  
 
         window.onerror = (e) =>{
             alert(e)
         }
-		// create a custom event
-		 
-		 
-		document.querySelector('html').setAttribute ('data-theme', 'black')
+	 
 
        let theme = localStorage.getItem('theme')
 		if(!theme){
@@ -73,15 +67,6 @@ export default function App() {
 	
 		}else{
 			document.querySelector('html').setAttribute('data-theme', theme)
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-				if(e.matches){
-					document.querySelector('html').setAttribute('data-theme', 'black')
-					localStorage.setItem('theme', 'black')
-				}else{
-					document.querySelector('html').setAttribute('data-theme', 'light')
-					localStorage.setItem('theme', 'light')
-				}
-			})
 	
 		}
     }, [])
@@ -185,7 +170,6 @@ export default function App() {
 			<Login/>
 		)
 	}else {
-		console.log(window.location.pathname)
 		 window.location.pathname = "/download"
 	}
 }

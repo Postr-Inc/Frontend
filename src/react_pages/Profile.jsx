@@ -820,6 +820,7 @@ export default function Profile(props) {
                           id={l.id}
                           file={l.file}
                           pinned={l.pinned}
+                          expandedLikes={p.expand.likes}
                           author={l.expand.author}
                           content={l.content}
                           likes={l.likes}

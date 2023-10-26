@@ -469,11 +469,11 @@ export default function Profile(props) {
               ${
                 accessbile && theme === "black"
                   ? `
-                text-white antialiased   drop-shadow-md not-sr-only  
+                text-white antialiased   selection: not-sr-only  
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-white antialiased   drop-shadow-md not-sr-only 
+                   text-black  bg-black  antialiased   not-sr-only 
                 `
                   : ""
               }
@@ -489,11 +489,11 @@ export default function Profile(props) {
               ${
                 accessbile && theme === "black"
                   ? `
-                text-white  antialiased   drop-shadow-md not-sr-only  
+                text-black hover:bg-white bg-white antialiased    not-sr-only  
                 `
                   : accessbile && theme === "light"
                   ? `
-                 text-black  hover:bg-transparent antialiased   drop-shadow-md not-sr-only 
+                 text-black  bg-transparent hover:bg-transparent drop-shadow-sm antialiased     not-sr-only 
                 `
                   : ""
               }

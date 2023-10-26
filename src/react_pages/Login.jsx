@@ -1,3 +1,4 @@
+
 import { Image } from 'astro:assets';
 import { useState, useEffect, useRef } from 'react';
 import { api } from '.';
@@ -21,8 +22,11 @@ export default function Login(){
         redirectUrl:`${window.location.origin}/`,
         urlCallback: (url) => {
           if (window.matchMedia("(display-mode: standalone)")) {
+             w.location.href = url
+          } else {
+           
             window.open(url);
-          }  
+          }
         },
       })
       .then((res) => {

@@ -838,7 +838,18 @@ export default function Profile(props) {
                     );
                   }
                 })
-              ) : pageSelected === "collections" &&
+                
+              ) 
+              
+              
+              : pageSelected === "likes" && profile.$dead === undefined && array.length < 1 ? <>
+               <div className="flex flex-col gap-5">
+               <Loading />
+              <Loading />
+               </div>
+              </> :
+               
+              pageSelected === "collections" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
                 <div className="flex flex-row flex-wrap gap-2 justify-evenly   w-full">
@@ -885,10 +896,25 @@ export default function Profile(props) {
 
                           <dialog
                             id={"modal" + c.id}
-                            className={`modal  w-screen     h-screen bg-[#000000]   z-[999] `}
+                            className={`modal  w-screen   h-screen bg-[#000000]   z-[999] `}
                           >
                             <button
-                              className="absolute top-5 left-5"
+                              className={`absolute top-5 left-5
+                              
+                              focus:outline-none
+
+                              ${
+                                accessbile && theme === "black"
+                                  ? `
+                              text-white antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : accessbile && theme === "light"
+                                  ? `
+                              text-black  antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : "antialiased   drop-shadow-md not-sr-only"
+                              }
+                              `}
                               onClick={() => {
                                 document.getElementById("modal" + c.id).close();
                               }}

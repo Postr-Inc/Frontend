@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import { useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Post(props) {
+  console.log(props)
   let [accessbile, setaccessible] = useState(
     JSON.parse(localStorage.getItem("accessbile"))
   );
@@ -14,6 +15,7 @@ export default function Post(props) {
   let [report, setReport] = useState("");
   let [pinned, setPinned] = useState(props.pinned ? true : false);
 
+  
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -358,66 +360,51 @@ export default function Post(props) {
         ></p>
       </div>
       {props.file ? (
-        <>
-          <div>
-            <img
-              src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-              className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
-              alt="post image"
-              onClick={() => {
-                try {
-                  document.getElementById("modal" + props.id).showModal();
-                } catch (error) {
-                  console.log(error);
-                }
-              }}
-            />
-          </div>
-          <dialog
-            id={"modal" + props.id}
-            className={`modal  w-screen     h-screen bg-[#000000]   z-[-1] `}
-          >
-            <button
-              className="absolute top-5 left-5 focus:outline-none"
-              onClick={() => {
-                document.getElementById("modal" + props.id).close();
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6 focus:outline-none"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
-            <form
-              method="dialog"
-              className="modal-box bg-transparent z-[-1]  w-screen"
-            >
-              <img
-                src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-                className="w-full  justify-center flex object-cover  mt-5 cursor-pointer"
-                alt="post image"
-                width={window.innerWidth}
-                height={window.innerHeight}
-                onClick={() => {
-                  document.getElementById("modal" + props.id).showModal();
-                }}
-              />
-            </form>
-          </dialog>
-        </>
-      ) : (
-        ""
-      )}
+  <>
+     
+    <div >
+      <img
+        src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+        className="w-full h-96 object-cover rounded-md mt-5 cursor-pointer"
+        alt="post image"
+        onClick={() => {
+          try {
+            document.getElementById("modal" + props.id).showModal();
+          } catch (error) {
+            console.log(error);
+          }
+        }}
+      />
+    </div>
+    <dialog id={"modal" + props.id} className={`modal w-screen h-screen bg-[#000000] z-[-1] `}>
+      <button
+        className="absolute top-5 left-5 focus:outline-none"
+        onClick={() => {
+          document.getElementById("modal" + props.id).close();
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 focus:outline-none">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <form method="dialog" className="modal-box bg-transparent z-[-1] w-screen">
+        <img
+          src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+          className="w-full justify-center flex object-cover mt-5 cursor-pointer"
+          alt="post image"
+          width={window.innerWidth}
+          height={window.innerHeight}
+          onClick={() => {
+            document.getElementById("modal" + props.id).showModal();
+          }}
+        />
+      </form>
+    </dialog>
+  </>
+) : (
+  ""
+)}
+
       <div className="flex flex-row gap-5 mt-6">
         {
           /**
@@ -636,7 +623,25 @@ export default function Post(props) {
           <></>
         )}
       </div>
-      <div className="flex flex-row font-normal  gap-2 mt-6">
+      <div className="avatar-group mt-2 mb-0 p-0 -space-x-[15px]">
+     {
+        props.expandedlikes ? props.expandedlikes.map((like) => {
+        if(api.authStore.model.id !== like.id
+          && api.authStore.model.followers.includes(like.id)
+          ){
+            return  <div className="avatar relative">
+            <div className="w-7 h-7  ">
+              <img src={`${api.baseUrl}/api/files/_pb_users_auth_/${like.id}/${like.avatar}`} 
+              className="rounded-full border-2 w-full h-full border-white"/> 
+            </div>
+             
+          </div>
+          }
+         
+        }) : ''
+     }
+</div>
+      <div className="flex flex-row font-normal mt-2 gap-2 ">
         <span
           className={`
         ${
@@ -677,6 +682,7 @@ export default function Post(props) {
         >
           •
         </span>
+       
         <span
           className={`
         ${

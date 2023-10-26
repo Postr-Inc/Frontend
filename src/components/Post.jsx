@@ -638,7 +638,7 @@ export default function Post(props) {
              
             >
               <img src={`${api.baseUrl}/api/files/_pb_users_auth_/${like.id}/${like.avatar}`} 
-              className="rounded-full tooltip  border-2 w-full h-full "
+              className="rounded-full  border-2 w-full h-full "
               data-tip={like.username}
               /> 
             </div>

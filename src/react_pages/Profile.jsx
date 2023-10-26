@@ -76,7 +76,7 @@ export default function Profile(props) {
             ? "-pinned,-created"
             : "-created"
         }`,
-        expand: "author,post,user,post.author",
+        expand: "author,post,user,post.author,likes",
       })
       .then((res) => {
         return res;
@@ -738,6 +738,7 @@ export default function Profile(props) {
                           id={p.id}
                           file={p.file}
                           pinned={p.pinned}
+                          expandedLikes={p.expand.likes}
                           author={p.expand.author}
                           content={p.content}
                           tags={p.tags}

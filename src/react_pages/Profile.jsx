@@ -11,6 +11,10 @@ import { useEffect, useState } from "react";
 import Alert from "../components/Alert";
 
 export default function Profile(props) {
+  let [accessbile, setaccessible] = useState(
+    JSON.parse(localStorage.getItem("accessbile"))
+  );
+  let theme = document.documentElement.getAttribute("data-theme");
   let [profile, setProfile] = useState({});
   let [array, setarray] = useState([]);
   let [followers, setFollowers] = useState(
@@ -72,7 +76,7 @@ export default function Profile(props) {
             ? "-pinned,-created"
             : "-created"
         }`,
-        expand: "author,post,user,post.author",
+        expand: "author,post,user,post.author,likes",
       })
       .then((res) => {
         return res;
@@ -85,7 +89,7 @@ export default function Profile(props) {
       localStorage.setItem("theme", "black");
       document.querySelector("html").setAttribute("data-theme", "black");
     } else {
-      document.querySelector("html").setAttribute("data-theme", theme);
+      document.querySelector("html").setAttribute("data-theme",  theme);
       window
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", (e) => {
@@ -93,16 +97,16 @@ export default function Profile(props) {
             document.querySelector("html").setAttribute("data-theme", "black");
             localStorage.setItem("theme", "black");
           } else {
-            document.querySelector("html").setAttribute("data-theme", "white");
-            localStorage.setItem("theme", "white");
+            document.querySelector("html").setAttribute("data-theme", "light");
+            localStorage.setItem("theme", "light");
           }
         });
     }
   }, []);
 
   useEffect(() => {
-    setarray([]);
-    setTotalPages(null);
+    
+    
 
     api
       .collection("users")
@@ -147,10 +151,11 @@ export default function Profile(props) {
 
   let [page, setPage] = useState(1);
   useEffect(() => {
-    setTotalPages([]);
-    setarray([]);
-    setPage(1);
+   
     if (pageSelected) {
+      setPage(1);
+      setHasMore(true);
+      setarray([]);
       fetchInfo(pageSelected, 1).then(function (fetchedPosts) {
         if (fetchedPosts.items.length < 10) {
           setHasMore(false);
@@ -234,7 +239,19 @@ export default function Profile(props) {
             onClick={() => {
               window.history.back();
             }}
-            className="w-5 h-5"
+            className={`w-5 h-5
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           >
             <path
               fillRule="evenodd"
@@ -243,17 +260,44 @@ export default function Profile(props) {
             />
           </svg>
         </span>
-        <span className="text-xl " style={{ fontFamily: "pacifico" }}>
+        <span
+          className={`text-xl
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+          style={{ fontFamily: "pacifico" }}
+        >
           {profile.username ? "@" + profile.username : "Loading..."}
         </span>
         <div
-          className="hover:cursor-pointer"
+          className={`cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           onClick={() => {
             if (
               window.location.pathname ===
               "/u/" + api.authStore.model.username
             ) {
-              window.location.href = "/settings";
+              window.location.href = "/settings/home";
             } else {
               window.options.showModal();
             }
@@ -267,26 +311,76 @@ export default function Profile(props) {
         <div className="flex flex-row  justify-between gap-5">
           <div className="flex flex-col gap-2s">
             <div className="flex flex-col gap-2">
-              <h1 className="text-xl font-bold pb-2">
+              <h1
+                className={`text-xl pb-2 font-bold
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 {profile.username ? profile.username : "Loading..."}
               </h1>
             </div>
             <span
-              className="text-gray-500 
-      w-[80vw] max-w-[80vw]  
-      "
+              className={`w-[80vw] max-w-[80vw]
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
             >
               {profile.bio ? profile.bio : ""}
             </span>
             <div className="flex flex-col mt-2">
-              <span className="text-gray-500 text-sm  flex flex-row">
+              <span
+                className={`text-sm flex
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4 mr-2 mt-0"
+                  className={`w-4 h-4 mr-2
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                 >
                   <path
                     strokeLinecap="round"
@@ -300,7 +394,21 @@ export default function Profile(props) {
                   : "Loading..."}
               </span>
 
-              <span className="text-gray-500 text-sm mt-2">
+              <span
+                className={`text-sm mt-2
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+              >
                 Followed by {followers ? followers.length : 0}{" "}
                 {followers.length === 1 ? "person" : "people"}
               </span>
@@ -316,8 +424,24 @@ export default function Profile(props) {
             ) : (
               <div className="avatar placeholder">
                 <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-16">
-                  <span className="text-lg capitalize">
-                    {profile.username ? profile.username.charAt(0).toUpperCase() : "😃"}
+                  <span
+                    className={`text-lg capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
+                  >
+                    {profile.username
+                      ? profile.username.charAt(0).toUpperCase()
+                      : "😃"}
                   </span>
                 </div>
               </div>
@@ -345,7 +469,19 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className="bg-[#121212] w-full btn btn-sm  h-text-sm text-white rounded-md  capitalize"
+                    className={`  w-full  btn btn-sm    rounded-md  capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-white antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                     onClick={() => {
                       document.getElementById("editprofile").showModal();
                     }}
@@ -353,15 +489,19 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`btn btn-sm btn-ghost w-full capitalize border-slate-200
-                    ${
-                      document
-                        .querySelector("html")
-                        .getAttribute("data-theme") === "black"
-                        ? "text-white"
-                        : "text-[#121212]"
-                    }
-                    rounded-md `}
+                    className={`    w-full btn btn-sm   rounded-md  capitalize
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white  antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  hover:bg-transparent antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
                     onClick={() => {
                       navigator.share({
                         title: `Follow ${profile.username} on Postr!`,
@@ -386,8 +526,8 @@ export default function Profile(props) {
                                document
                                  .querySelector("html")
                                  .getAttribute("data-theme") === "black"
-                                 ? ` capitalize text-white btn-ghost border-slate-200 `
-                                 : ` text-[#12121212] btn-ghost border-slate-200 `
+                                 ? ` capitalize text-white btn-ghost border-black `
+                                 : ` text-[#12121212] btn-ghost border-white `
                              }
                             `
                             : document
@@ -449,7 +589,7 @@ export default function Profile(props) {
                               .querySelector("html")
                               .getAttribute("data-theme") === "black"
                               ? "capitalize text-white rounded border border-white"
-                              : "text-[#121212] border-slate-200"
+                              : "text-[#121212] border-white"
                           }
 
                         `}
@@ -472,7 +612,19 @@ export default function Profile(props) {
           )}
         </div>
         <div
-          className=" font-medium p-2 flex flex-row justify-between mt-6 "
+          className={`font-medium p-2 flex flex-row justify-between mt-6
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only  
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black  antialiased   drop-shadow-md not-sr-only 
+                `
+                  : ""
+              }
+              `}
           style={{ fontFamily: "Inter", fontSize: "14px" }}
         >
           <a
@@ -537,7 +689,7 @@ export default function Profile(props) {
           </a>
         </div>
 
-        <div className="flex flex-col gap-5 mt-12">
+        <div className="flex flex-col gap-5 mt-12 mb-16">
           {profile.followers &&
           profile.Isprivate &&
           !profile.followers.includes(api.authStore.model.id) &&
@@ -586,10 +738,10 @@ export default function Profile(props) {
                           id={p.id}
                           file={p.file}
                           pinned={p.pinned}
+                          expandedLikes={p.expand.likes}
                           author={p.expand.author}
                           content={p.content}
                           tags={p.tags}
-                          expandedlikes={p.expand.likes}
                           likes={p.likes}
                           comments={p.comments}
                           created={p.created}
@@ -608,6 +760,15 @@ export default function Profile(props) {
                     );
                   }
                 })
+              ) : array.length < 1 ? (
+                <>
+                  <div className="flex flex-col gap-5">
+                    <Loading />
+                    <Loading />
+                    <Loading />
+                    <Loading />
+                  </div>
+                </>
               ) : pageSelected === "comments" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
@@ -659,10 +820,10 @@ export default function Profile(props) {
                           id={l.id}
                           file={l.file}
                           pinned={l.pinned}
+                          expandedLikes={l.expand.likes}
                           author={l.expand.author}
                           content={l.content}
                           likes={l.likes}
-                          expandedlikes={p.expand.likes}
                           color={post.textColor}
                           tags={l.tags}
                           created={l.created}
@@ -679,83 +840,313 @@ export default function Profile(props) {
                     );
                   }
                 })
-              ) : pageSelected === "collections" &&
+                
+              ) 
+              
+              
+              : pageSelected === "likes" && profile.$dead === undefined && array.length < 1 ? <>
+               <div className="flex flex-col gap-5">
+               <Loading />
+              <Loading />
+               </div>
+              </> :
+               
+              pageSelected === "collections" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
-                array.map((c) => {
-                  let id = c.id;
-                  if (c.expand && c.expand.author) {
-                    return (
-                      <div
-                        className="mb-16"
-                        key={id}
-                        onClick={() => {
-                          window.location.href = `/p/${c.expand.post.id}`;
-                          window.onpopstate = function () {
-                            document.getElementById(id).scrollIntoView();
-                          };
-                        }}
-                      >
-                        <Post
+                <div className="flex flex-row flex-wrap gap-2 justify-evenly   w-full">
+                  {array.map((c) => {
+                    let id = c.id;
+                    if (c.expand && c.expand.author && c.file) {
+                      let img = new Image();
+                      img.src = `${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`;
+                      img.onload = function () {
+                        document.getElementById(id).classList.remove("hidden");
+                      };
+                      return (
+                        <div
+                          id={id}
+                          className="hidden"
                           key={id}
-                          id={c.id}
-                          file={c.file}
-                          pinned={c.pinned}
-                          expandedlikes={p.expand.likes}
-                          author={c.expand.author}
-                          content={c.content}
-                          created={c.created}
-                          tags={c.tags}
-                          likes={c.likes}
-                          color={c.textColor}
-                          comments={c.comments}
-                        />
-                      </div>
-                    );
-                  }
-                })
+                          onClick={() => {
+                            window.location.href = `/p/${c.expand.post.id}`;
+                            window.onpopstate = function () {
+                              document.getElementById(id).scrollIntoView();
+                            };
+                          }}
+                        >
+                          <div  s>
+                            <figure>
+                              <img
+                                className="rounded cursor-pointer"
+                                onClick={() => {
+                                  document
+                                    .getElementById("modal" + c.id)
+                                    .showModal();
+                                }}
+                                src={`${
+                                  api.baseUrl +
+                                  "/api/files/w5qr8xrcpxalcx6/" +
+                                  c.id +
+                                  "/" +
+                                  c.file
+                                }`}
+                              />
+                            </figure>
+                            
+                          </div>
+
+                          <dialog
+                            id={"modal" + c.id}
+                            className={`modal  w-screen   h-screen bg-[#000000]   z-[999] `}
+                          >
+                            <button
+                              className={`absolute top-5 left-5
+                              
+                              focus:outline-none
+
+                              ${
+                                accessbile && theme === "black"
+                                  ? `
+                              text-white antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : accessbile && theme === "light"
+                                  ? `
+                              text-black  antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : "antialiased   drop-shadow-md not-sr-only"
+                              }
+                              `}
+                              onClick={() => {
+                                document.getElementById("modal" + c.id).close();
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6 focus:outline-none"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                                />
+                              </svg>
+                            </button>
+                            <form
+                              method="dialog"
+                              className="modal-box bg-transparent mt-12 z-[-1] h-screen w-screen"
+                            >
+                              <img
+                                src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`}
+                                className="w-full  justify-center flex rounded object-cover  mt-5 cursor-pointer"
+                                alt="post image"
+                                width={window.innerWidth - 100}
+                                height={window.innerHeight - 100}
+                                onClick={() => {
+                                  document
+                                    .getElementById("modal" + c.id)
+                                    .showModal();
+                                }}
+                              />
+                            </form>
+                            <button
+                              className="btn btn-sm mt-6 
+                              border-none focus:border-none
+                              rounded-full fixed top-0 right-5 bg-blue-500   hover:bg-blue-500 p-2 capitalize text-white  
+                              bg-[#00000]
+                              "
+                              onClick={() => {
+                                window.location.href = `/p/${c.id}`;
+                              }}
+                            >
+                              View Post
+                            </button>
+                            
+                          </dialog>
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
               ) : (
                 <div className="flex    mt-0">
                   <h1 className="font-bold  ">
                     {profile.$dead ? (
                       "This account is private"
-                    ) : pageSelected === "collections" && array.length < 1 ? (
+                    ) : pageSelected === "collections" && totalPages === 0 ? (
                       <>
-                        <h1 className="text-2xl  w-64">
+                        <h1
+                          className={`text-2xl  w-64
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                        
+                        `}
+                        >
                           Likes ❤️ Cameras .... action! 🎬
                         </h1>
-                        <p className="mt-4 text-slate-300 font-normal">
+                        <p
+                          className={`mt-4   font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                           
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Your photo and video posts will show up here.`
                             : `  When ${props.user} posts a image or video post, it'll show up here.`}
                         </p>
                       </>
                     ) : pageSelected === "likes" &&
-                      array.length < 1 &&
+                      totalPages === 0 &&
                       !loading ? (
                       <>
-                        <h1 className="text-2xl w-64">
+                        <h1
+                          className={`text-2xl w-64
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                           
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Go like some posts!`
                             : `  ${props.user}f hasn't liked any posts yet.`}
                         </h1>
-                        <p className="mt-4 text-slate-800 font-normal">
+                        <p
+                          className={`mt-4 font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  When you like a post, it'll show up here.`
                             : `  When ${props.user} likes a post, it'll show up here.`}
                         </p>
                       </>
-                    ) : pageSelected === "comments" && array.length < 1 ? (
+                    ) : pageSelected === "comments" && totalPages === 0 ? (
                       <>
-                        <h1 className="text-2xl w-96">
+                        <h1
+                          className={`text-2xl w-96
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? ` Go comment on some posts!`
                             : `  ${props.user} hasn't commented on any posts yet.`}
                         </h1>
-                        <p className="mt-4 text-slate-300 font-normal">
+                        <p
+                          className={`mt-4   font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}
+                        >
                           {props.user === api.authStore.model.username
                             ? `  When you comment on a post, it'll show up here.`
                             : `  When ${props.user} comments on a post, it'll show up here.`}
+                        </p>
+                      </>
+                    ) : pageSelected === "likes" && totalPages === 0 ? (
+                      <>
+                        <h1
+                          className={`text-2xl w-96
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}
+                        >
+                          {props.user === api.authStore.model.username
+                            ? `  Go like some posts!`
+                            : `  ${props.user} hasn't  liked any posts yet.`}
+                        </h1>
+                        <p
+                          className={`mt-4   font-normal
+                          ${
+                            accessbile && theme === "black"
+                              ? `
+                            text-white antialiased   drop-shadow-md not-sr-only  
+                            `
+                              : accessbile && theme === "light"
+                              ? `
+                             text-black  antialiased   drop-shadow-md not-sr-only 
+                            `
+                              : ""
+                          }
+                          
+                        `}
+                        >
+                          {props.user === api.authStore.model.username
+                            ? `  When you like a post, it'll show up here.`
+                            : `  When ${props.user}  likes a post, it'll show up here.`}
                         </p>
                       </>
                     ) : (

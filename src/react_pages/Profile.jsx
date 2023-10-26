@@ -489,11 +489,11 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`  btn-primary  w-full btn btn-sm   rounded-md  capitalize
+                    className={`  bg-[#121212]  w-full btn btn-sm   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
-                text-white border-white antialiased   drop-shadow-md not-sr-only  
+                text-white  antialiased   drop-shadow-md not-sr-only  
                 `
                   : accessbile && theme === "light"
                   ? `

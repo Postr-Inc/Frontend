@@ -17,26 +17,7 @@ export default function Settings_home() {
     localStorage.getItem("recommendation_ratings") === "true" ? true : false,
   );
 
-  useEffect(() => {
-    let theme = localStorage.getItem("theme");
-    if (!theme) {
-      localStorage.setItem("theme", "black");
-      document.querySelector("html").setAttribute("data-theme", "black");
-    } else {
-      document.querySelector("html").setAttribute("data-theme", theme);
-      window
-        .matchMedia("(prefers-color-scheme: dark)")
-        .addEventListener("change", (e) => {
-          if (e.matches) {
-            document.querySelector("html").setAttribute("data-theme", "black");
-            localStorage.setItem("theme", "black");
-          } else {
-            document.querySelector("html").setAttribute("data-theme", "white");
-            localStorage.setItem("theme", "white");
-          }
-        });
-    }
-  }, [theme]);
+   
   return (
     <>
       <div className="p-4 flex flex-col  gap-8 mb-24">

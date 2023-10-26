@@ -3,7 +3,7 @@ import Modal from "./Modal";
 import { useState } from "react";
 import sanitizeHtml from "sanitize-html";
 export default function Post(props) {
-  console.log(props)
+  
   let [accessbile, setaccessible] = useState(
     JSON.parse(localStorage.getItem("accessbile"))
   );
@@ -30,7 +30,7 @@ export default function Post(props) {
         likes: [...likes, api.authStore.model.id],
       });
       if (props.author.id !== api.authStore.model.id) {
-        console.log("creating notification");
+    
         api.collection("notifications").create({
           image: `${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`,
           author: api.authStore.model.id,
@@ -626,9 +626,10 @@ export default function Post(props) {
       <div className="avatar-group mt-2 mx-0  -space-x-[10px]">
      {
         props.expandedlikes ? props.expandedlikes.map((like) => {
-        if(api.authStore.model.id !== like.id
-          && api.authStore.model.followers.includes(like.id) ||
-          like.followers.includes(api.authStore.model.id)
+          
+        if(like.id !== api.authStore.model.id 
+          && like.followers.includes(api.authStore.model.id) 
+          || like.id !== api.authStore.model.id && api.authStore.model.followers.includes(like.id)
           ){
             return   <>
             <div className="  mt-1 mb-1 pl-0 relative"

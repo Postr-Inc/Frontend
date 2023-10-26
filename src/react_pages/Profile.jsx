@@ -89,7 +89,7 @@ export default function Profile(props) {
       localStorage.setItem("theme", "black");
       document.querySelector("html").setAttribute("data-theme", "black");
     } else {
-      document.querySelector("html").setAttribute("data-theme", theme);
+      document.querySelector("html").setAttribute("data-theme",  theme);
       window
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", (e) => {
@@ -97,8 +97,8 @@ export default function Profile(props) {
             document.querySelector("html").setAttribute("data-theme", "black");
             localStorage.setItem("theme", "black");
           } else {
-            document.querySelector("html").setAttribute("data-theme", "white");
-            localStorage.setItem("theme", "white");
+            document.querySelector("html").setAttribute("data-theme", "light");
+            localStorage.setItem("theme", "light");
           }
         });
     }
@@ -469,7 +469,7 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className={`  w-full btn btn-sm   rounded-md  capitalize
+                    className={`  w-full btn-primary btn btn-sm bg-[#121212]   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
@@ -489,7 +489,7 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`bg-transparent  w-full btn btn-sm   rounded-md  capitalize
+                    className={`bg-transparent btn-primary  w-full btn btn-sm   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `

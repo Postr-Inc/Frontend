@@ -60,15 +60,7 @@ export default function App() {
         }
 	 
 
-       let theme = localStorage.getItem('theme')
-		if(!theme){
-			localStorage.setItem('theme', 'black')
-			document.querySelector('html').setAttribute('data-theme', 'black')
-	
-		}else{
-			document.querySelector('html').setAttribute('data-theme', theme)
-	
-		}
+       
     }, [])
 
 	const [dailyUsage, setDailyUsage] = useState({

@@ -29,7 +29,7 @@ export default function Vpost(props) {
           likes: JSON.stringify([]),
         },
         {
-          expand: "user",
+          expand: "user,likes",
         }
       );
       setComments([...comments, c]);
@@ -69,7 +69,7 @@ export default function Vpost(props) {
       api
         .collection("posts")
         .getOne(props.id, {
-          expand: "author, comments.user",
+          expand: "author, comments.user,likes",
         }).then((res) => {
           setPost(res);
           setComments(res.expand.comments ? res.expand.comments : []);
@@ -176,6 +176,7 @@ export default function Vpost(props) {
             <Post
               id={post.id}
               author={post.expand.author}
+              expandedlikes={post.expand.likes}
               likes={post.likes}
               content={post.content}
               comments={post.expand.comments ? post.expand.comments : []}

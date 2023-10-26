@@ -1,91 +1,175 @@
----
-interface Props {
-  title: string;
-  description: string;
-  image: string;
-  theme: string;
+import Pocketbase from 'pocketbase'
+import Login from "./Login";
+import Home from "./Home";
+export const api = new Pocketbase('https://bird-meet-rationally.ngrok-free.app')
+console.log(api.baseUrl)
+import { useEffect, useState } from "react";
+let init = false
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+export function oneSignal(){
+	 
+ if(!init){
+	return OneSignalDeferred.push(function (OneSignal) {
+		OneSignal.init({
+			appId: "b1beca0d-bf7b-4767-9637-7e345fff7710",
+			allowLocalhostAsSecureOrigin: true
+		}).then(() => {
+		 
+			if(localStorage.getItem('notifications') === 'true'){
+				OneSignal.login(api.authStore.model.id)
+				setInterval(() => {
+					OneSignal.login(api.authStore.model.id)
+				}, 8000)
+		 
+			}else{
+				OneSignal.logout(api.authStore.model.id)
+				 
+			}
+		})
+		 
+		init = true
+		return OneSignal
+	});
+ }else{
+	 if(localStorage.getItem('notifications') === 'true'){
+		OneSignal.login(api.authStore.model.id)
+	 }
+	 else{
+		OneSignal.logout(api.authStore.model.id)
+	 }
+ }
 }
+ 
+ 
+export default function App() {
+	 
+	 
+	 
+	api.authStore.onChange((user) => {
+		oneSignal()
+	})
+    useEffect(() => {
+        if (api.authStore.isValid) {
+            api.collection("users").authRefresh()
+            oneSignal()
 
-const { title, description, image, theme} = Astro.props;
----
+        }  
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={image} />
-    <meta name="theme-color" content="#fff" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={image} />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/icons/logo.png" />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="dns-prefetch preconnect" href="https://postrapi.pockethost.io" />
-    <link rel="preconnect" href="https://v6-0.pages.dev" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>{title}</title>
-    <style is:global>
-      p[placeholder]:empty:before {
-        content: attr(placeholder);
-        color: #aaa;
-      }
-      
-      p[placeholderSize]:empty:before {
-        font-size: attr(placeholderSize);
-      }
-      
-    </style>
-    <script is:inline>
-       if(localStorage.getItem('theme') == 'black'){
-        document.documentElement.setAttribute('data-theme', 'black');
-      }else{
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    </script>
- <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,400&display=swap');
-  </style>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=Pacifico&family=Poppins:ital,wght@0,300;1,400&display=swap');
-  </style>
+        window.onerror = (e) =>{
+            alert(e)
+        }
+	 
+
+       let theme = localStorage.getItem('theme')
+		if(!theme){
+			localStorage.setItem('theme', 'black')
+			document.querySelector('html').setAttribute('data-theme', 'black')
+	
+		}else{
+			document.querySelector('html').setAttribute('data-theme', theme)
+	
+		}
+    }, [])
+
+	const [dailyUsage, setDailyUsage] = useState({
+		hours: 0,
+		minutes: 0,
+		seconds: 0,
+	  });
+	
+	  useEffect(() => {
+		// calculate time the app was open each day
+		let lastOpened = localStorage.getItem('lastOpened');
+		let dailyUsageData = JSON.parse(localStorage.getItem('dailyUsageData')) || {};
+	
+		if (lastOpened) {
+		  let now = new Date();
+		  let last = new Date(lastOpened);
+		  let diff = now - last;
+		  let days = diff / (1000 * 60 * 60 * 24);
+	
+		  if (days >= 1) {
+			// Calculate daily usage and update state
+			const seconds = Math.floor(days) * 24 * 60 * 60;
+			const hours = Math.floor(seconds / 3600);
+			const minutes = Math.floor((seconds % 3600) / 60);
+			const remainingSeconds = seconds % 60;
+	
+			setDailyUsage({
+			  hours,
+			  minutes,
+			  seconds: remainingSeconds,
+			});
+	
+			// Save daily usage for the current day
+			const currentDate = now.toDateString();
+			dailyUsageData[currentDate] = dailyUsageData[currentDate] || 0;
+			dailyUsageData[currentDate] += seconds;
+	
+			// Update the 'lastOpened' timestamp and daily usage data
+			localStorage.setItem('lastOpened', now);
+			localStorage.setItem('dailyUsageData', JSON.stringify(dailyUsageData));
+		  }
+		} else {
+		  // If 'lastOpened' doesn't exist in localStorage, set it now.
+		  localStorage.setItem('lastOpened', new Date());
+		}
+	
+		// Add an event listener for beforeunload
+		window.addEventListener('beforeunload', handleBeforeUnload);
+	
+		// Cleanup the event listener when the component unmounts
+		return () => {
+		  window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
+	  }, []);
+	
+	  const handleBeforeUnload = () => {
+		let now = new Date();
+		let lastOpened = localStorage.getItem('lastOpened');
+		let dailyUsageData = JSON.parse(localStorage.getItem('dailyUsageData')) || {};
+	
+		if (lastOpened) {
+		  let last = new Date(lastOpened);
+		  let diff = now - last;
+		  let days = diff / (1000 * 60 * 60 * 24);
+	
+		  if (days >= 1) {
+			// Calculate daily usage and update state
+			const seconds = Math.floor(days) * 24 * 60 * 60;
+			const hours = Math.floor(seconds / 3600);
+			const minutes = Math.floor((seconds % 3600) / 60);
+			const remainingSeconds = seconds % 60;
+	
+			setDailyUsage({
+			  hours,
+			  minutes,
+			  seconds: remainingSeconds,
+			});
+	
+			// Save daily usage for the current day
+			const currentDate = now.toDateString();
+			dailyUsageData[currentDate] = dailyUsageData[currentDate] || 0;
+			dailyUsageData[currentDate] += seconds;
+	
+			// Update the 'lastOpened' timestamp and daily usage data
+			localStorage.setItem('lastOpened', now);
+			localStorage.setItem('dailyUsageData', JSON.stringify(dailyUsageData));
+		  }
+		  console.log(dailyUsageData)
+		}
+	  };
+	
   
- 
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" 
-  async is:inline>
-</script>  
- 
-  </head>
-  <body>
-    <slot />
-  </body>
-  <script is:inline>
-    window.onresize = () => {
-      window.innerWidth > 1000
-        ? (document.body.style.zoom = 1.5)
-        : (document.body.style.zoom = 1);
-      window.innerHeight > 1000
-        ? (document.body.style.zoom = 1.5)
-        : (document.body.style.zoom = 1);
-      window.resizeTo(75, 812);
-    };
-    window.innerWidth > 1000
-      ? (document.body.style.zoom = 1.5)
-      : (document.body.style.zoom = 1);
-    window.innerHeight > 1000
-      ? (document.body.style.zoom = 1.5)
-      : (document.body.style.zoom = 1);
-    window.resizeTo(30, 812);
-
-     
-  </script>
-</html>
+	if(api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
+		return (
+			<Home/>
+		)
+	}else if (!api.authStore.isValid && window.matchMedia('(display-mode: standalone)').matches){
+		return (
+			<Login/>
+		)
+	}else {
+		 window.location.pathname = "/download"
+	}
+}

@@ -9,7 +9,6 @@ export default function Login(){
  let [btnstate, setBtnstate] = useState("aborted");
  let [isLogin, setIsLogin] = useState(false);
  function login(e) {
-    console.log("logging in...");
     setBtnstate("loading");
     let w = window.open()
     const data = api
@@ -37,7 +36,7 @@ export default function Login(){
             setBtnstate("aborted");
           return;
         }
-        window.location.href = "/"
+        alert(w.location.origin)
       });
      
     data.then((res) => {

@@ -78,8 +78,8 @@ export default function App() {
 					document.querySelector('html').setAttribute('data-theme', 'black')
 					localStorage.setItem('theme', 'black')
 				}else{
-					document.querySelector('html').setAttribute('data-theme', 'white')
-					localStorage.setItem('theme', 'white')
+					document.querySelector('html').setAttribute('data-theme', 'light')
+					localStorage.setItem('theme', 'light')
 				}
 			})
 	

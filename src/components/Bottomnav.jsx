@@ -72,10 +72,9 @@ export default function Bottomnav() {
   let [tags, setTags] = useState([]);
   let [color, setColor] = useState("black");
   let [colorvalue, setColorValue] = useState("black");
- 
+  let accessbile = JSON.parse(localStorage.getItem("accessbile"));
   let [isScrolling, setIsScrolling] = useState(false);
   let pRef = useRef();
-   
 
   let [isTyping, setIsTyping] = useState(false);
 
@@ -127,6 +126,8 @@ export default function Bottomnav() {
 
     if (charCount >= maxchar) {
       setChar(maxchar);
+      pRef.current.innerHTML = newText.slice(0, maxchar);
+      return;
     }
 
     let hashtags = newText.match(/#[a-z0-9]+/gi);
@@ -152,7 +153,6 @@ export default function Bottomnav() {
       }
     }
 
- 
     restoreCaretPositionToEnd(pRef.current);
     let dup = pRef.current.cloneNode(true);
     dup.querySelectorAll("a").forEach((a) => {
@@ -175,7 +175,7 @@ export default function Bottomnav() {
     if (file !== "") {
       form.append("file", file);
     }
-    if(Pref.current.innerHTML == "") {
+    if (Pref.current.innerHTML == "") {
       return;
     }
     form.append("content", pRef.current.innerHTML);
@@ -524,11 +524,22 @@ export default function Bottomnav() {
         }}
       >
         <div className=" max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
-          
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span
-                className="  "
+                className={`text-2xl
+                ${
+                  accessbile && theme === "black"
+                    ? `
+                  text-white antialiased   drop-shadow-md not-sr-only  
+                  `
+                    : accessbile && theme === "light"
+                    ? `
+                   text-black  antialiased   drop-shadow-md not-sr-only 
+                  `
+                    : ""
+                }
+                `}
                 style={{ fontSize: "1rem" }}
                 onClick={() => {
                   document.getElementById("newpost").close();
@@ -543,13 +554,36 @@ export default function Bottomnav() {
                 Cancel
               </span>
             </div>
-            <button
-              className=" btn btn-sm rounded-full text-"
-              style={{ fontSize: ".8rem" }}
-              onClick={createPost}
-            >
-              Post
-            </button>
+            {chars > 0 ? (
+              <button
+                className={` 
+
+              btn  
+             btn-sm 
+              rounded-full
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   bg-blue-500 capitalize
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black     
+ 
+                `
+                  : ""
+              }
+
+              
+              `}
+                style={{ fontSize: ".8rem" }}
+                onClick={createPost}
+              >
+                Post
+              </button>
+            ) : (
+              ""
+            )}
           </div>
 
           <div className="flex flex-row relative    gap-5 mt-8">
@@ -567,7 +601,25 @@ export default function Bottomnav() {
             <p
               contentEditable="true"
               suppressContentEditableWarning={true}
-              className="w-full  h-[12vh]  text-sm mt-5 outline-none resize-none"
+              className={` 
+              w-full  h-[12vh]  text-sm mt-5 outline-none resize-none
+         
+              rounded-full
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   
+                `
+                  : accessbile && theme === "light"
+                  ? `
+                 text-black     
+ 
+                `
+                  : ""
+              }
+
+              
+              `}
               id="post"
               ref={pRef}
               placeholder="What's on your mind?"
@@ -633,11 +685,26 @@ export default function Bottomnav() {
             <div className="flex flex-row justify-between sticky left-2  mt-8  ">
               <span
                 onClick={() => {
-                  setColor("black");
-                  document.getElementById("post").style.color = "black";
-                  setColorValue("black");
+                  if (
+                    document.documentElement.getAttribute("data-theme") ===
+                    "black"
+                  ) {
+                    setColor("white");
+                    setColorValue("white");
+                    document.getElementById("post").style.color = "white";
+                  } else {
+                    setColor("black");
+                    setColorValue("black");
+                    document.getElementById("post").style.color = "black";
+                  }
                 }}
-                className={`btn btn-circle hover:bg-black btn-sm bg-black
+                className={`btn btn-circle 
+                btn-sm
+                ${
+                  theme === "black"
+                    ? "hover:bg-white  bg-white border-slate-300"
+                    : "bg-black border-base-300"
+                }
                ${
                  color === "black"
                    ? `

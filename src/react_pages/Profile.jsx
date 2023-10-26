@@ -89,7 +89,7 @@ export default function Profile(props) {
       localStorage.setItem("theme", "black");
       document.querySelector("html").setAttribute("data-theme", "black");
     } else {
-      document.querySelector("html").setAttribute("data-theme",  theme);
+      document.querySelector("html").setAttribute("data-theme", theme);
       window
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", (e) => {
@@ -105,9 +105,6 @@ export default function Profile(props) {
   }, []);
 
   useEffect(() => {
-    
-    
-
     api
       .collection("users")
       .getFirstListItem(`username="${props.user}"`, {
@@ -151,7 +148,6 @@ export default function Profile(props) {
 
   let [page, setPage] = useState(1);
   useEffect(() => {
-   
     if (pageSelected) {
       setPage(1);
       setHasMore(true);
@@ -840,18 +836,16 @@ export default function Profile(props) {
                     );
                   }
                 })
-                
-              ) 
-              
-              
-              : pageSelected === "likes" && profile.$dead === undefined && array.length < 1 ? <>
-               <div className="flex flex-col gap-5">
-               <Loading />
-              <Loading />
-               </div>
-              </> :
-               
-              pageSelected === "collections" &&
+              ) : pageSelected === "likes" &&
+                profile.$dead === undefined &&
+                array.length < 1 ? (
+                <>
+                  <div className="flex flex-col gap-5">
+                    <Loading />
+                    <Loading />
+                  </div>
+                </>
+              ) : pageSelected === "collections" &&
                 profile.$dead === undefined &&
                 array.length > 0 ? (
                 <div className="flex flex-row flex-wrap gap-2 justify-evenly   w-full">
@@ -875,7 +869,7 @@ export default function Profile(props) {
                             };
                           }}
                         >
-                          <div  s>
+                          <div s>
                             <figure>
                               <img
                                 className="rounded cursor-pointer"
@@ -893,7 +887,6 @@ export default function Profile(props) {
                                 }`}
                               />
                             </figure>
-                            
                           </div>
 
                           <dialog
@@ -927,7 +920,7 @@ export default function Profile(props) {
                                 viewBox="0 0 24 24"
                                 strokeWidth={1.5}
                                 stroke="currentColor"
-                                className="w-6 h-6 focus:outline-none"
+                                className="w-6 h-6 text-white focus:outline-none"
                               >
                                 <path
                                   strokeLinecap="round"
@@ -942,7 +935,7 @@ export default function Profile(props) {
                             >
                               <img
                                 src={`${api.baseUrl}/api/files/w5qr8xrcpxalcx6/${c.id}/${c.file}`}
-                                className="w-full  justify-center flex rounded object-cover  mt-5 cursor-pointer"
+                                className="w-full cursor-none  justify-center flex rounded object-cover  mt-5  "
                                 alt="post image"
                                 width={window.innerWidth - 100}
                                 height={window.innerHeight - 100}
@@ -965,7 +958,6 @@ export default function Profile(props) {
                             >
                               View Post
                             </button>
-                            
                           </dialog>
                         </div>
                       );

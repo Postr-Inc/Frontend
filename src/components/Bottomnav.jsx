@@ -117,7 +117,13 @@ export default function Bottomnav() {
     selection.removeAllRanges();
     selection.addRange(range);
   }
-
+  
+  window.onscroll = function () {
+    if(modalisOpen){
+      console.log("modal is open")
+      return
+    }
+  }
   function handleContentInput(e) {
     let newText = pRef.current.innerHTML;
 

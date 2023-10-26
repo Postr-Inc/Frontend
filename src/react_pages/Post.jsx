@@ -10,6 +10,8 @@ import santizeHtml from "sanitize-html";
 import emojis from "./misc/emojis.json";
  
 export default function Vpost(props) {
+  let [accessbile, setaccessible] = useState(JSON.parse(localStorage.getItem("accessbile")));
+  let theme = document.documentElement.getAttribute("data-theme");
   const [post, setPost] = useState({});
   const [chars, setChars] = useState(0);
   let [comments, setComments] = useState([]); // [postid, comments
@@ -124,7 +126,20 @@ export default function Vpost(props) {
               onClick={() => {
                 window.history.back();
               }}
-              className="w-5 h-5 cursor-pointer"
+              className={`w-5 h-5 cursor-pointer
+              ${
+                accessbile && theme === "black"
+                  ? `
+                text-white antialiased   drop-shadow-md not-sr-only
+              `
+                  : accessbile && theme === "light"
+                  ? `
+              text-black  antialiased   drop-shadow-md not-sr-only
+              `
+                  : "antialiased   drop-shadow-md not-sr-only"
+              }
+              `}
+            
             >
               <path
                 fillRule="evenodd"
@@ -133,7 +148,23 @@ export default function Vpost(props) {
               />
             </svg>
           
-        <h1 className=" text-xl flex flex-row justify-center mx-auto"
+        <h1  
+         className={`text-xl flex flex-row justify-center mx-auto
+                              
+         focus:outline-none
+
+         ${
+           accessbile && theme === "black"
+             ? `
+         text-white antialiased   drop-shadow-md not-sr-only
+         `
+             : accessbile && theme === "light"
+             ? `
+         text-black  antialiased   drop-shadow-md not-sr-only
+         `
+             : "antialiased   drop-shadow-md not-sr-only"
+         }
+         `}
         style={{fontFamily: "Pacifico"}}
         > Postr</h1>
         <div></div>
@@ -186,7 +217,24 @@ export default function Vpost(props) {
                     </button>
                     <div className="flex-col text-sm mt-8 flex">
                       <div className="form-control w-full ">
-                        <label className="label flex text-lg flex-row">
+                        <label  
+                         className={`label flex text-lg flex-row
+                              
+                         focus:outline-none
+                
+                         ${
+                           accessbile && theme === "black"
+                             ? `
+                         text-white antialiased   drop-shadow-md not-sr-only
+                         `
+                             : accessbile && theme === "light"
+                             ? `
+                         text-black  antialiased   drop-shadow-md not-sr-only
+                         `
+                             : "antialiased   drop-shadow-md not-sr-only"
+                         }
+                         `}
+                        >
                           Please confirm that you want to delete this comment -
                           this action cannot be undone.
                         </label>
@@ -227,6 +275,7 @@ export default function Vpost(props) {
         ${
           document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-100' : 'bg-white'
         }
+
         `}>
           <div className="form-control  justify-center mx-auto w-screen   p-5 ">
             <label className="input-group      ">
@@ -235,11 +284,13 @@ export default function Vpost(props) {
                 borderRadius:  document.querySelector('html').getAttribute('data-theme') ===  'black' ?  '0.375rem 0 0 0.375rem' : ''
              }}
               >
-                <img
+                 
+                 <img
                   src={`${api.baseUrl}/api/files/_pb_users_auth_/${api.authStore.model.id}/${api.authStore.model.avatar}`}
                   className="w-6 h-6 absolute left-8 rounded-full bg-transparent object-cover"
                   alt="post image"
                 />
+                  
               </span>
               
               <dialog id="emojimodal" className="modal">
@@ -299,7 +350,7 @@ export default function Vpost(props) {
                 className="bg-transparent border border-base-300 border-r-0
               text-sky-500 border-l-0 text-lg"
               >
-                <label className="swap swap-flip ">
+                <label className="swap swap-flip w-5 h-5 ">
                   <input
                     type="checkbox"
                     onClick={() => {
@@ -320,7 +371,7 @@ export default function Vpost(props) {
                 }`}
                 className={`
                 
-                input input-sm h-[2.5rem]  w-full text-sm   border border-base-300  focus:outline-none border-l-0 border-r-0
+                input input-sm h-[2.5rem]  w-full text-md   border border-base-300  focus:outline-none border-l-0 border-r-0
                 ${
                   document.querySelector('html').getAttribute('data-theme') === 'black' ? 'bg-base-100 rounded-full' : 'bg-white'
                 }
@@ -338,7 +389,7 @@ export default function Vpost(props) {
                 }}
               />
               <span
-                className={`bg-transparent border cursor-pointer text-fsm border-base-300 text-sky-500 border-l-0
+                className={`bg-transparent border cursor-pointer text-sm border-base-300 text-sky-500 border-l-0
                 
                 `}
                 style={{
@@ -359,9 +410,9 @@ export default function Vpost(props) {
              
             <progress
               className={`
-            bg-transparent
+             rounded  
              ${
-               chars > 0 && chars >= max ? "progress-error" : "progress-success"
+               chars > 0 && chars >= max ? "progress-error" : "progress-[#f0f0f0]"
              }
              progress
              mt-2
@@ -371,22 +422,53 @@ export default function Vpost(props) {
             ></progress>
           </div>
         </div>
-        <Modal2 id="invalidcharmodal" styles="rounded">
+        <Modal2 id="invalidcharmodal"   styles={` 
+                              w-5/6
+                              bg-[#1d1d1d]
+                              focus:outline-none
+                        rounded
+                              ${
+                                accessbile && theme === "black"
+                                  ? `
+                               p-5   antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : accessbile && theme === "light"
+                                  ? `
+                                antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : "antialiased   drop-shadow-md not-sr-only"
+                              }
+                              `}>
          <div className="flex flex-col">
-          <div className="flex flex-row gap-5">
-            <div className="btn btn-circle btn-ghost cursor-none bg-[#fae4e4] hover:bg-[#fae4e4] focus:bg-[#fae4e4]  ">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-[#f44c4c]">
+          <div className="flex flex-row gap-5 ">
+            <div className="btn btn-circle btn-ghost cursor-none  bg-[#f44c4c] ">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-white">
              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
            </svg>
             </div>
 
-           <h1 className="text-sm">Comment Must Be Between 1 - 200 Characters cannot be empty!</h1>
+           <h1    className={`text-sm
+                              
+                              focus:outline-none
+                     
+                              ${
+                                accessbile && theme === "black"
+                                  ? `
+                              text-white antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : accessbile && theme === "light"
+                                  ? `
+                              text-black  antialiased   drop-shadow-md not-sr-only
+                              `
+                                  : "antialiased   drop-shadow-md not-sr-only"
+                              }
+                              `}>Comment Must Be Between 1 - 200 Characters cannot be empty!</h1>
 
           </div>
           <div className="modal-action  ">
           <form method="dialog">
              
-            <button className="btn btn-sm btn-ghost bg-transparent hover:bg-transparent hover:border-base-300 focus:border-base-300 focus:bg-transparent border-base-300">Ok</button>
+            <button className="btn btn-sm btn-ghost   hover:bg-sky-500   bg-sky-500 rounded-circle  rounded-full text-white ">Ok</button>
            </form>
           </div>
          </div>

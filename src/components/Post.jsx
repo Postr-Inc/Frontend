@@ -15,7 +15,7 @@ export default function Post(props) {
   let [report, setReport] = useState("");
   let [pinned, setPinned] = useState(props.pinned ? true : false);
 
-  
+
   function likepost() {
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
@@ -627,7 +627,8 @@ export default function Post(props) {
      {
         props.expandedlikes ? props.expandedlikes.map((like) => {
         if(api.authStore.model.id !== like.id
-          && api.authStore.model.followers.includes(like.id)
+          && api.authStore.model.followers.includes(like.id) ||
+          like.followers.includes(api.authStore.model.id)
           ){
             return  <div className="avatar relative">
             <div className="w-7 h-7  ">

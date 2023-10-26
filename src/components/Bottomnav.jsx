@@ -634,7 +634,7 @@ export default function Bottomnav() {
               onInput={handleContentInput}
               onPaste={handleContentInput}
               autoFocus
-              autoCapitalize="true"
+          
             ></p>
 
             {image ? (

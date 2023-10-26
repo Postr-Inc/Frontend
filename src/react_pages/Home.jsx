@@ -11,7 +11,7 @@ function fetchPosts(page, pageSelected) {
   return api
     .collection("posts")
     .getList(page, 10, {
-      expand: "author,comments.user",
+      expand: "author,comments.user,likes",
       sort: `
       ${
         pageSelected === "posts"
@@ -306,11 +306,13 @@ export default function Home() {
             </div>
           ) : (
             posts.map((post) => (
+ 
               <div key={post.id}>
                 <Post
                   file={post.file}
                   author={post.expand.author}
                   likes={post.likes}
+                  expandedlikes={post.expand.likes}
                   verified={post.expand.author.validVerified}
                   comments={post.expand.comments ? post.expand.comments : []}
                   content={post.content}

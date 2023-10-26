@@ -24,6 +24,7 @@ export default function Login(){
           console.log(url);
           if (window.matchMedia("(display-mode: standalone)")) {
              w.location.href = url
+             window.location.href = "/"
           } else {
            
             window.open(url);
@@ -31,7 +32,6 @@ export default function Login(){
         },
       })
       .then((res) => {
-        console.log(res);
         if (!res) {
             setBtnstate("aborted");
           return;

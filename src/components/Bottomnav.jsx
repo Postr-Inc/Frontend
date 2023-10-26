@@ -523,7 +523,9 @@ export default function Bottomnav() {
           fontSize: "16px",
         }}
       >
-        <div className="   h-full bg-base-100  w-full  overflow-hidden  shadow-none fixed top-0 left-0 p-5">
+        <div className="   h-full bg-base-100  w-full 
+        overflow-y-none overscroll-x-none
+        shadow-none fixed top-0 left-0 p-5">
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span

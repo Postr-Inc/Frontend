@@ -53,8 +53,8 @@ export default function Login(){
             api.collection("users").update(data.record.id, form);
           });
       }
+      window.location.reload()
       window.close()
-      window.location.href = "/";
     });
     data.catch((e) => {
       console.log(e.response);

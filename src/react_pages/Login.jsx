@@ -103,11 +103,13 @@ export default function Login(){
         <button 
          
         className={`btn btn-ghost text-md  w-5/6 ${
-        document.documentElement.getAttribute('data-theme') === 'black'
+        theme == 'black'
+        && document.documentElement.getAttribute('data-theme') === 'black'
             ? 'bg-white hover:bg-white text-black'
             : 'bg-black hover:bg-black text-white'
     } capitalize   rounded-full font-bold`}>
-            <svg xmlns="http://www.w3.org/2000/svg" className={`w-6 h-6 ${ document.documentElement.getAttribute('data-theme') === 'black'
+            <svg xmlns="http://www.w3.org/2000/svg" className={`w-6 h-6 ${ 
+              document.documentElement.getAttribute('data-theme') === 'black'
     ? 'fill-black'
     : 'fill-white'
 } `} viewBox="0 0 50 50" width="50px" height="50px">

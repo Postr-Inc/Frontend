@@ -195,7 +195,7 @@ export default function Post(props) {
           </span>
 
           <div className="dropdown dropdown-left absolute end-5 ">
-            <div className="flex text-sm flex-row gap-5">
+            <div className="flex text-sm flex-row gap-2">
               <span
                 className={`
             text-sm

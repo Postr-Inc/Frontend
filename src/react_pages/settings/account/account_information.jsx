@@ -23,16 +23,16 @@ export default function Settings_account_information() {
               window.history.back();
             }}
             className={`w-6 h-6  ${
-                  accessbile && theme === "black"
-                    ? `
+              accessbile && theme === "black"
+                ? `
               text-white antialiased   drop-shadow-md not-sr-only  
               `
-                    : accessbile && theme === "light"
-                    ? `
+                : accessbile && theme === "light"
+                ? `
                text-black  antialiased   drop-shadow-md not-sr-only 
               `
-                    : ""
-                }`}
+                : ""
+            }`}
           >
             <path
               fillRule="evenodd"
@@ -58,7 +58,7 @@ export default function Settings_account_information() {
             Account
           </span>
           <span
-            className={`text-[12px]  ${
+            className={`${localStorage.getItem("font-size") || "text-sm"}   ${
               accessbile && theme === "black"
                 ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -81,7 +81,7 @@ export default function Settings_account_information() {
         <ul className="flex flex-col gap-5">
           <li className="flex justify-between">
             <p
-              className={`text-md  ${
+              className={`${localStorage.getItem("font-size") || "text-sm"}   ${
                 accessbile && theme === "black"
                   ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -97,7 +97,9 @@ export default function Settings_account_information() {
             </p>
             <div className="flex gap-2">
               <p
-                className={`text-lg  ${
+                className={`${
+                  localStorage.getItem("font-size") || "text-sm"
+                }  ${
                   accessbile && theme === "black"
                     ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -139,7 +141,7 @@ export default function Settings_account_information() {
           </li>
           <li className="flex justify-between">
             <p
-              className={`text-md  ${
+              className={`${localStorage.getItem("font-size") || "text-sm"}   ${
                 accessbile && theme === "black"
                   ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -155,7 +157,9 @@ export default function Settings_account_information() {
             </p>
             <div className="flex gap-2  ">
               <p
-                className={`text-lg  ${
+                className={`${
+                  localStorage.getItem("font-size") || "text-sm"
+                }   ${
                   accessbile && theme === "black"
                     ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -197,9 +201,9 @@ export default function Settings_account_information() {
               </svg>
             </div>
           </li>
-          <li className="flex justify-between">
+          <li className="flex justify-between hero">
             <p
-              className={`text-md  ${
+              className={`${localStorage.getItem("font-size") || "text-sm"}   ${
                 accessbile && theme === "black"
                   ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -213,9 +217,11 @@ export default function Settings_account_information() {
             >
               Email
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2  ">
               <p
-                className={`text-lg  ${
+                className={`${
+                  localStorage.getItem("font-size") || "text-sm"
+                }  ${
                   accessbile && theme === "black"
                     ? `
               text-white antialiased   drop-shadow-md not-sr-only  
@@ -257,7 +263,7 @@ export default function Settings_account_information() {
           </li>
         </ul>
         <button
-          className={` mt-8  ${
+          className={` mt-8  text-error  ${
             accessbile && theme === "black"
               ? `
               text-red-500 antialiased   drop-shadow-md not-sr-only  

@@ -10,9 +10,11 @@ export default function Settings_my_accessibility(){
    <div className="flex flex-col gap-5 p-5">
    <div className="flex   flex-row justify-between">
         <span
-          className="flex flex-row items-center gap-2 cursor-pointer
-           
-          "
+          className={`flex flex-row items-center gap-2 cursor-pointer
+          ${
+            localStorage.getItem("font-size") || "text-md"
+          } 
+          `}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +41,8 @@ export default function Settings_my_accessibility(){
           </svg>
         </span>
         <div className="flex flex-col hero">
-          <span className={`font-semibold text-lg
+          <span className={`font-semibold  
+          text-lg
            ${
             accessbile  && theme === 'black' ? `
             text-white antialiased   drop-shadow-md not-sr-only  
@@ -54,6 +57,7 @@ export default function Settings_my_accessibility(){
       </div>
        <div className="mt-2">
         <p className={` 
+        
          ${
           accessbile  && theme === 'black' ? `
           text-white antialiased   drop-shadow-md not-sr-only  
@@ -68,7 +72,7 @@ export default function Settings_my_accessibility(){
        </div>
        <div className="divider h-0 p-0"></div>
        <div className="flex flex-col">
-        <h1 className={`text-xl font-bold
+        <h1 className={` text-md font-bold
          ${
           accessbile  && theme === 'black' ? `
           text-white antialiased   drop-shadow-md not-sr-only  
@@ -100,6 +104,9 @@ export default function Settings_my_accessibility(){
            />
         </div>
         <p className={`mt-2
+        ${
+          localStorage.getItem("font-size") || "text-md"
+        } 
         ${
           accessbile  && theme === 'black' ? `
           text-white antialiased font-normal drop-shadow-md not-sr-only  

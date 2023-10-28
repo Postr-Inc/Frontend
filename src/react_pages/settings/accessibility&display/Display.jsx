@@ -75,7 +75,7 @@ export default function Settings_my_accessibility_display(){
        <div className="flex flex-col  mt-6 gap-2 ">
    
        <Post
-                  font_size={fontSize}
+                  fontSize={fontSize}
                   file={null}
                   author={{
                     username:'postr',

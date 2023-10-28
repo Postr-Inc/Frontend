@@ -190,7 +190,7 @@ export default function Bottomnav() {
     form.append("type", "text");
     form.append(
       "tags",
-      tags.length > 0 ? JSON.stringify(tags) : JSON.stringify([])
+      tags.length > 0 ? JSON.stringify(tags) : JSON.stringify([]),
     );
     form.append("shares", JSON.stringify([]));
     form.append("repostedBy", JSON.stringify([]));
@@ -223,52 +223,54 @@ export default function Bottomnav() {
         }
         setError(false);
         setNotification_message("Post created");
-        
+        document.getElementById("notchalert").onclick = () => {
+          window.location.href = "/p/" + res.id;
+        };
       })
       .catch((e) => {
         document.getElementById("newpost").close();
         document.activeElement.blur();
         setError(true);
         setNotification_message("Error creating post");
-        
       });
   }
 
   return (
     <>
-    {
-      notification_message ?    <div className="fixed top-0  w-full  mx-0 flex justify-center mt-9">
-      <div
-        id="notchalert"
-        className="alert alert-primary w-4/6 cursor-pointer rounded-full  text-start  flex   bg-base-300"
-        onClick={(e) => {
-          setNotification_message("");
-        }}
-      >
-        {!error ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
+      {notification_message ? (
+        <div className="fixed top-0  w-full  mx-0 flex justify-center mt-9">
+          <div
+            id="notchalert"
+            className="alert alert-primary w-4/6 cursor-pointer rounded-full  text-start  flex   bg-base-300"
+            onClick={(e) => {
+              setNotification_message("");
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-            />
-          </svg>
-        ) : (
-          ""
-        )}
+            {!error ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                />
+              </svg>
+            ) : (
+              ""
+            )}
 
-        <h1>{notification_message}</h1>
-      </div>
-    </div>
-    : ""
-    }
+            <h1>{notification_message}</h1>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
 
       <div
         className=" fixed bottom-8 left-[50%] transform -translate-x-1/2
@@ -573,7 +575,8 @@ export default function Bottomnav() {
           <div className="flex flex-row justify-between">
             <div className="flex cursor-pointer">
               <span
-                className={`text-2xl
+                className={`
+                ${localStorage.getItem("font_text_size")}
                 ${
                   accessbile && theme === "black"
                     ? `
@@ -603,7 +606,7 @@ export default function Bottomnav() {
             {chars > 0 ? (
               <button
                 className={` 
-
+                ${localStorage.getItem("font_text_size")}
               btn  
              btn-sm 
               rounded-full
@@ -619,10 +622,10 @@ export default function Bottomnav() {
                 `
                   : ""
               }
-
+            
+               capitalize
               
               `}
-                style={{ fontSize: ".8rem" }}
                 onClick={createPost}
               >
                 Post
@@ -639,7 +642,11 @@ export default function Bottomnav() {
               alt={api.authStore.model.username + "'s avatar"}
             />
 
-            <h1 className="text-sm font-sans font-bold  ">
+            <h1
+              className={`${localStorage.getItem(
+                "font_text_size",
+              )} font-sans    `}
+            >
               @{api.authStore.model.username}
             </h1>
           </div>
@@ -648,8 +655,8 @@ export default function Bottomnav() {
               contentEditable="true"
               suppressContentEditableWarning={true}
               className={` 
-              w-full  h-[12vh]  text-sm mt-5 outline-none resize-none
-         
+              w-full  h-[12vh]    mt-5 outline-none resize-none
+              ${localStorage.getItem("font_text_size")}
               rounded-full
               ${
                 accessbile && theme === "black"
@@ -700,199 +707,61 @@ export default function Bottomnav() {
                 />
               </div>
             ) : null}
-
-            <div className="flex flex-row justify-between mt-8  ">
-              <input
-                type="file"
-                id="file"
-                className="hidden"
-                onChange={(e) => {
-                  setImage(URL.createObjectURL(e.target.files[0]));
-                  setFile(e.target.files[0]);
-                  e.target.value = "";
-                }}
-              />
-              <label
-                htmlFor="file"
-                className="  text-white  rounded-lg cursor-pointer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`w-6 h-6 ${
-                    theme === "black" ? "fill-slate-200" : "fill-base-400"
-                  }`}
-                  enableBackground="new 0 0 24 24"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M19,2H5C3.3438721,2.0018311,2.0018311,3.3438721,2,5v9.0683594V19c0.0018311,1.6561279,1.3438721,2.9981689,3,3h14c0.182312-0.0002441,0.3621216-0.0219727,0.5395508-0.0549316c0.0661011-0.012085,0.1291504-0.0303345,0.1936646-0.0466919c0.1060181-0.0270996,0.210083-0.0586548,0.3125-0.097229c0.0744629-0.0278931,0.1471558-0.0571289,0.218689-0.0906372c0.0839844-0.0395508,0.1642456-0.0853882,0.2444458-0.1327515c0.0751953-0.0441895,0.1511841-0.0856323,0.2219849-0.1359863c0.0057983-0.0041504,0.0123901-0.006897,0.0181885-0.0111084c0.0074463-0.0053711,0.013855-0.0120239,0.0209961-0.0178223c0.0136719-0.0110474,0.0308228-0.0164795,0.043335-0.0289917c0.0066528-0.0066528,0.008728-0.015564,0.0148926-0.0224609C21.5355225,20.8126221,21.9989624,19.9642944,22,19v-2.9296875V5C21.9981689,3.3438721,20.6561279,2.0018311,19,2z M19.5749512,20.9053955C19.3883667,20.9631958,19.1954956,20.9998779,19,21H5c-1.1040039-0.0014038-1.9985962-0.8959961-2-2v-4.7246094l3.7626953-3.7626953c0.684021-0.6816406,1.7905884-0.6816406,2.4746094,0l3.4048462,3.404541c0.0018921,0.0019531,0.0023804,0.0045776,0.0043335,0.0065308l6.9689941,6.9689941C19.6020508,20.8971558,19.588501,20.9012451,19.5749512,20.9053955z M21,19c-0.0006714,0.5162964-0.2020264,0.9821777-0.5234375,1.3369751l-6.7684326-6.7678223l1.055542-1.055481c0.6912231-0.6621094,1.7814331-0.6621094,2.4726562,0L21,16.2773438V19z M21,14.8632812l-3.0566406-3.0566406c-1.0737305-1.0722656-2.8129883-1.0722656-3.8867188,0l-1.055542,1.055542L9.9443359,9.8056641c-1.0744629-1.0722656-2.814209-1.0722656-3.8886719,0L3,12.8613281V5c0.0014038-1.1040039,0.8959961-1.9985962,2-2h14c1.1040039,0.0014038,1.9985962,0.8959961,2,2V14.8632812z M13.5,6C12.6715698,6,12,6.6715698,12,7.5S12.6715698,9,13.5,9c0.828064-0.0009155,1.4990845-0.671936,1.5-1.5C15,6.6715698,14.3284302,6,13.5,6z M13.5,8C13.223877,8,13,7.776123,13,7.5S13.223877,7,13.5,7c0.2759399,0.0005493,0.4994507,0.2240601,0.5,0.5C14,7.776123,13.776123,8,13.5,8z"></path>
-                </svg>
-              </label>
-            </div>
-            <div className="flex flex-row justify-between sticky left-2  mt-8  ">
-              <span
-                onClick={() => {
-                  if (
-                    document.documentElement.getAttribute("data-theme") ===
-                    "black"
-                  ) {
-                    setColor("white");
-                    setColorValue("white");
-                    document.getElementById("post").style.color = "white";
-                  } else {
-                    setColor("black");
-                    setColorValue("black");
-                    document.getElementById("post").style.color = "black";
-                  }
-                }}
-                className={`btn btn-circle 
-                btn-sm
-                ${
-                  theme === "black"
-                    ? "hover:bg-white  bg-white border-slate-300"
-                    : "bg-black border-base-300"
-                }
-               ${
-                 color === "black"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-300 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("red");
-                  document.getElementById("post").style.color =
-                    "rgb(239 68 68 )";
-                  setColorValue("rgb(239 68 68 )");
-                }}
-                className={`btn btn-circle hover:bg-red-500 btn-sm bg-red-500
-               ${
-                 color === "red"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-300 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("orange");
-                  document.getElementById("post").style.color =
-                    "rgb(249 115 22 )";
-                  setColorValue("rgb(249 115 22 )");
-                }}
-                className={`btn btn-circle hover:bg-orange-500 btn-sm  bg-orange-500
-               ${
-                 color === "orange"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-300 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("yellow");
-                  document.getElementById("post").style.color =
-                    "rgb(250 204 21 )";
-                  setColorValue("rgb(250 204 21 )");
-                }}
-                className={`btn btn-circle hover:bg-yellow-400 btn-sm bg-yellow-400
-               ${
-                 color === "yellow"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-400 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("green");
-                  document.getElementById("post").style.color =
-                    "rgb(34 197 94 )";
-                  setColorValue("rgb(34 197 94 )");
-                }}
-                className={`btn btn-circle hover:bg-green-400 btn-sm bg-green-500
-               ${
-                 color === "green"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-400 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("purple");
-                  document.getElementById("post").style.color =
-                    "rgb(168 85 247 )";
-                  setColorValue("rgb(168 85 247 )");
-                }}
-                className={`btn btn-circle hover:bg-purple-500 btn-sm bg-purple-500
-               ${
-                 color === "purple"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-400 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-              <span
-                onClick={() => {
-                  setColor("blue");
-                  document.getElementById("post").style.color =
-                    "rgb(14 165 233 )";
-                  setColorValue("rgb(14 165 233 )");
-                }}
-                className={`btn btn-circle hover:bg-sky-500 btn-sm bg-sky-500
-               ${
-                 color === "blue"
-                   ? `
-                  border ${
-                    theme === "black"
-                      ? "border-white"
-                      : "border-base-400 border-4"
-                  }
-                  `
-                   : ``
-               }
-               `}
-              ></span>
-            </div>
           </div>
         </div>
+
+        <ul className="menu fixed bottom-5 rounded-full menu-horizontal bg-base-200 rounded-box">
+          <li>
+            <input
+              type="file"
+              id="file"
+              className="hidden"
+              onChange={(e) => {
+                setImage(URL.createObjectURL(e.target.files[0]));
+                setFile(e.target.files[0]);
+                e.target.value = "";
+              }}
+            />
+            <label
+              htmlFor="file"
+              className="  text-white  rounded-lg cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`w-6 h-6 ${
+                  theme === "black" ? "fill-slate-200" : "fill-base-400"
+                }`}
+                enableBackground="new 0 0 24 24"
+                viewBox="0 0 24 24"
+              >
+                <path d="M19,2H5C3.3438721,2.0018311,2.0018311,3.3438721,2,5v9.0683594V19c0.0018311,1.6561279,1.3438721,2.9981689,3,3h14c0.182312-0.0002441,0.3621216-0.0219727,0.5395508-0.0549316c0.0661011-0.012085,0.1291504-0.0303345,0.1936646-0.0466919c0.1060181-0.0270996,0.210083-0.0586548,0.3125-0.097229c0.0744629-0.0278931,0.1471558-0.0571289,0.218689-0.0906372c0.0839844-0.0395508,0.1642456-0.0853882,0.2444458-0.1327515c0.0751953-0.0441895,0.1511841-0.0856323,0.2219849-0.1359863c0.0057983-0.0041504,0.0123901-0.006897,0.0181885-0.0111084c0.0074463-0.0053711,0.013855-0.0120239,0.0209961-0.0178223c0.0136719-0.0110474,0.0308228-0.0164795,0.043335-0.0289917c0.0066528-0.0066528,0.008728-0.015564,0.0148926-0.0224609C21.5355225,20.8126221,21.9989624,19.9642944,22,19v-2.9296875V5C21.9981689,3.3438721,20.6561279,2.0018311,19,2z M19.5749512,20.9053955C19.3883667,20.9631958,19.1954956,20.9998779,19,21H5c-1.1040039-0.0014038-1.9985962-0.8959961-2-2v-4.7246094l3.7626953-3.7626953c0.684021-0.6816406,1.7905884-0.6816406,2.4746094,0l3.4048462,3.404541c0.0018921,0.0019531,0.0023804,0.0045776,0.0043335,0.0065308l6.9689941,6.9689941C19.6020508,20.8971558,19.588501,20.9012451,19.5749512,20.9053955z M21,19c-0.0006714,0.5162964-0.2020264,0.9821777-0.5234375,1.3369751l-6.7684326-6.7678223l1.055542-1.055481c0.6912231-0.6621094,1.7814331-0.6621094,2.4726562,0L21,16.2773438V19z M21,14.8632812l-3.0566406-3.0566406c-1.0737305-1.0722656-2.8129883-1.0722656-3.8867188,0l-1.055542,1.055542L9.9443359,9.8056641c-1.0744629-1.0722656-2.814209-1.0722656-3.8886719,0L3,12.8613281V5c0.0014038-1.1040039,0.8959961-1.9985962,2-2h14c1.1040039,0.0014038,1.9985962,0.8959961,2,2V14.8632812z M13.5,6C12.6715698,6,12,6.6715698,12,7.5S12.6715698,9,13.5,9c0.828064-0.0009155,1.4990845-0.671936,1.5-1.5C15,6.6715698,14.3284302,6,13.5,6z M13.5,8C13.223877,8,13,7.776123,13,7.5S13.223877,7,13.5,7c0.2759399,0.0005493,0.4994507,0.2240601,0.5,0.5C14,7.776123,13.776123,8,13.5,8z"></path>
+              </svg>
+            </label>
+          </li>
+          <li>
+            <a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                />
+              </svg>
+            </a>
+          </li>
+        </ul>
       </dialog>
     </>
   );

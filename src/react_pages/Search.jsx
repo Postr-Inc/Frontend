@@ -21,29 +21,26 @@ export default function Search() {
 
   // Handle different search types
   function handleSearch(value) {
-    console.log(value)
+    console.log(value);
     setItems([]);
     setSearch(value);
- if (value.startsWith("@") && value.trim().length > 1) {
+    if (value.startsWith("@") && value.trim().length > 1) {
       // Handle "@" followed by username
       setType("users");
       setPage(0);
       fetchData(value.slice(1)); // Exclude the "@" character
-    } else if(value.startsWith('$') && value.trim().length > 1) {
+    } else if (value.startsWith("$") && value.trim().length > 1) {
       // Handle other keywords
       setPage(1);
       setType("keywords");
       fetchData(value.slice(1)); // Exclude the "$" character
       setIsSearching(true);
-    }
-    else if (value.startsWith('#') && value.trim().length > 1) {
+    } else if (value.startsWith("#") && value.trim().length > 1) {
       setPage(1);
       setType("tags");
       fetchData(value.slice(1)); // Exclude the "#" character
       setIsSearching(true);
-
-    }
-    else{ 
+    } else {
       setItems([]);
       setPage(0);
       setType("posts");
@@ -51,11 +48,9 @@ export default function Search() {
       setIsSearching(true);
     }
   }
-  
+
   // Fetch data based on search type
   function fetchData(query) {
-    
-    
     if (type === "users") {
       api
         .collection("users")
@@ -65,7 +60,9 @@ export default function Search() {
           expand: "followers",
         })
         .then((res) => {
-          const uniqueItems = res.items.filter((i) => !items.find((item) => item.id === i.id));
+          const uniqueItems = res.items.filter(
+            (i) => !items.find((item) => item.id === i.id),
+          );
           setItems([...items, ...uniqueItems]); // Append new items to the existing items
           setTotal(res.totalPages);
         });
@@ -77,7 +74,7 @@ export default function Search() {
           ? "posts"
           : type === "users"
           ? "users"
-          : "posts"
+          : "posts",
       )
       .getList(page, 10, {
         expand: "author",
@@ -93,26 +90,26 @@ export default function Search() {
       })
       .then((res) => {
         // sort by date
-       
+
         // remove dupe by id
-        const uniqueItems = res.items.filter((i) => !items.find((item) => item.id === i.id));
+        const uniqueItems = res.items.filter(
+          (i) => !items.find((item) => item.id === i.id),
+        );
         // sort by date
-       uniqueItems.sort((a, b) => {
+        uniqueItems.sort((a, b) => {
           return new Date(b.created) - new Date(a.created);
         });
-        
+
         setItems([...items, ...uniqueItems]); // Append new items to the existing items
         setTotal(res.totalPages);
-        
-     
       });
   }
 
   function loadMoreItems() {
-    console.log(page, total)
-    if(Number(page) >= Number(total)) {
+    console.log(page, total);
+    if (Number(page) >= Number(total)) {
       setHasMore(false);
-      return
+      return;
     }
     setHasMore(true);
     setPage(page + 1);
@@ -120,7 +117,7 @@ export default function Search() {
   }
 
   useEffect(() => {
-   fetchData();
+    fetchData();
   }, []);
 
   return (
@@ -170,18 +167,20 @@ export default function Search() {
           <input
             type="search"
             id="default-search"
-            class="block  p-4 pl-10 text-sm
+            class={`block  p-4 pl-10  ${localStorage.getItem("font_text_size")}
         input input-bordered   w-72  
         rounded-full
         input-sm
-        "
+        `}
             onFocus={() => {
               searchIconRef.current.style.color = "#3b82f6";
             }}
             onBlur={() => {
               searchIconRef.current.style.color = "#9CA3AF";
             }}
-            onInput={(e) => {handleSearch(e.target.value)}}
+            onInput={(e) => {
+              handleSearch(e.target.value);
+            }}
             onKeyUp={(e) => {
               setIsTyping(false);
             }}
@@ -206,104 +205,133 @@ export default function Search() {
           dataLength={items.length}
           next={loadMoreItems}
           hasMore={hasMore}
-          
         >
           {items.length > 0 ? (
             items.map((item) => {
               return type === "tags" ||
                 type === "keywords" ||
-                type === "posts" ?
-               
-                (
-                 
+                type === "posts" ? (
                 <div>
-                  {
-                    item.content ?  <Post
-                    key={item.id}
-                    content={item.content}
-                    author={item.expand ? item.expand.author : ""}
-                    id={item.id}
-                    tags={item.tags}
-                    likes={item.likes}
-                    comments={item.comments}
-                    created={item.created}
-                    file={item.file}
-                    verified={item.expand ? item.expand.author.validVerified : ""}
-                    bookmarked={item.bookmarked}
-                    color={item.textColor}
-                  />
-                  : ""
-                  }
+                  {item.content ? (
+                    <Post
+                      key={item.id}
+                      content={item.content}
+                      author={item.expand ? item.expand.author : ""}
+                      id={item.id}
+                      fontSize={localStorage.getItem("font_text_size")}
+                      tags={item.tags}
+                      likes={item.likes}
+                      comments={item.comments}
+                      created={item.created}
+                      file={item.file}
+                      verified={
+                        item.expand ? item.expand.author.validVerified : ""
+                      }
+                      bookmarked={item.bookmarked}
+                      color={item.textColor}
+                    />
+                  ) : (
+                    ""
+                  )}
                 </div>
-              
-              ) : (
-                item.username && item.followers && item.bio ? (
-                  <div className="flex flex-row justify-between items-center p-2 mb-8">
-                    <div className="flex flex-row   gap-2">
-                      {item.avatar ? (
-                        <img
-                          src={
-                            api.baseUrl +
-                            "/api/files/_pb_users_auth_/" +
-                            item.id +
-                            "/" +
-                            item.avatar
-                          }
-                          alt=""
-                          className="w-12 h-12 rounded-full"
-                        />
-                      ) : (
-                        <div className="avatar placeholder">
-                          <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
-                            <span className="text-sm">
-                              {item.username[0].toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex flex-col  mr-5">
-                        <a
-                          className="  text-sm capitalize"
-                          href={`/u/${item.username}`}
-                        >
-                          {item.username}
-                        </a>
-                        <h1 className="text-gray-500 text-sm">{item.name}</h1>
-                        <p className="text-gray-500 text-sm">
-                          {item.bio ? item.bio : ""}
-                        </p>
-                        <div className="flex flex-row gap-2 mt-2">
-                          <p className="text-gray-500 text-sm">
-                            {item.followers ? item.followers.length : 0} Followers
-                          </p>
+              ) : item.username && item.followers && item.bio ? (
+                <div className="flex flex-row justify-between items-center p-2 mb-8">
+                  <div className="flex flex-row   gap-2">
+                    {item.avatar ? (
+                      <img
+                        src={
+                          api.baseUrl +
+                          "/api/files/_pb_users_auth_/" +
+                          item.id +
+                          "/" +
+                          item.avatar
+                        }
+                        alt=""
+                        className="w-12 h-12 rounded-full"
+                      />
+                    ) : (
+                      <div className="avatar placeholder">
+                        <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-12 h-12">
+                          <span
+                            className={`
+                          ${localStorage.getItem("font_text_size")}
+                          `}
+                          >
+                            {item.username[0].toUpperCase()}
+                          </span>
                         </div>
                       </div>
+                    )}
+                    <div className="flex flex-col  mr-5">
+                      <a
+                        className={`capitalize ${localStorage.getItem(
+                          "font_text_size",
+                        )}`}
+                        href={`/u/${item.username}`}
+                      >
+                        {item.username}
+                      </a>
+                      <h1 className="text-gray-500 text-sm">{item.name}</h1>
+                      <p
+                        className={`text-gray-500 
+                      ${localStorage.getItem("font_text_size")}
+                      `}
+                      >
+                        {item.bio ? item.bio : ""}
+                      </p>
+                      <div className="flex flex-row gap-2 mt-2">
+                        <p
+                          className={`text-gray-500  ${localStorage.getItem(
+                            "font_text_size",
+                          )}`}
+                        >
+                          {item.followers ? item.followers.length : 0} Followers
+                        </p>
+                      </div>
                     </div>
+                  </div>
 
-                    <div className="flex flex-col gap-2">
-                      <button className={`
+                  <div className="flex flex-col gap-2">
+                    <button
+                      className={`
+                      ${localStorage.getItem("font_text_size")}
                       ${
-                        document.documentElement.getAttribute("data-theme") === "black" ? "bg-blue-500 border-none" : "bg-base-100 border border-slate-200 text-black"
+                        document.documentElement.getAttribute("data-theme") ===
+                        "black"
+                          ? "bg-blue-500 border-none"
+                          : "bg-base-100 border border-slate-200 text-black"
                       }
-                      btn btn-sm    rounded-full px-8 capitalize py-1 text-sm `}>
-                        Message
-                      </button>
-                      {item.followers &&
-                      !JSON.parse(
-                        JSON.stringify(item.followers)
-                      ).includes(api.authStore.model.id) ? (
-                        <button className={`
+                      btn btn-sm    rounded-full px-8 capitalize py-1 text-sm `}
+                    >
+                      Message
+                    </button>
+                    {item.followers &&
+                    !JSON.parse(JSON.stringify(item.followers)).includes(
+                      api.authStore.model.id,
+                    ) ? (
+                      <button
+                        className={`
                         ${
-                          document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-200 border-none" : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
+                          document.documentElement.getAttribute(
+                            "data-theme",
+                          ) === "black"
+                            ? "bg-base-200 border-none"
+                            : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
                         }
-                        btn btn-sm   rounded-full px-8 capitalize py-1 text-sm `}>
-                          Follow
-                        </button>
-                      ) : (
-                        <button
-                          className={`
+                        btn btn-sm   rounded-full px-8 capitalize py-1 text-sm `}
+                      >
+                        Follow
+                      </button>
+                    ) : (
+                      <button
+                        className={`
+                        ${localStorage.getItem("font_text_size")}
                           ${
-                            document.documentElement.getAttribute("data-theme") === "black" ? "bg-base-200 border-none" : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
+                            document.documentElement.getAttribute(
+                              "data-theme",
+                            ) === "black"
+                              ? "bg-base-200 border-none"
+                              : "bg-[#121212] hover:bg-[#121212] border border-slate-200 text-white"
                           }
                           btn btn-sm text-white capitalize  rounded-full px-5 py-1 text-sm  
 
@@ -315,21 +343,18 @@ export default function Search() {
                     }
                     
                   `}
-                        >
-                          Following
-                        </button>
-                      )}
-                    </div>
+                      >
+                        Following
+                      </button>
+                    )}
                   </div>
-                ) : (
-                  ""
-                )
+                </div>
+              ) : (
+                ""
               );
             })
           ) : (
-            <div>
-              {!isSearching ? <Loading /> : ""}
-            </div>
+            <div>{!isSearching ? <Loading /> : ""}</div>
           )}
         </InfiniteScroll>
       </div>

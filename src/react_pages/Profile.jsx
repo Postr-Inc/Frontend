@@ -12,13 +12,13 @@ import Alert from "../components/Alert";
 
 export default function Profile(props) {
   let [accessbile, setaccessible] = useState(
-    JSON.parse(localStorage.getItem("accessbile"))
+    JSON.parse(localStorage.getItem("accessbile")),
   );
   let theme = document.documentElement.getAttribute("data-theme");
   let [profile, setProfile] = useState({});
   let [array, setarray] = useState([]);
   let [followers, setFollowers] = useState(
-    profile.followers ? profile.followers : []
+    profile.followers ? profile.followers : [],
   );
   let [hasRequested, setHasRequested] = useState(false);
   let [pageSelected, setPageSelected] = useState("posts");
@@ -82,7 +82,7 @@ export default function Profile(props) {
         return res;
       });
   }
- 
+
   useEffect(() => {
     api
       .collection("users")
@@ -158,12 +158,12 @@ export default function Profile(props) {
       let form = new FormData();
       form.append(
         "username",
-        edited.username ? edited.username : profile.username
+        edited.username ? edited.username : profile.username,
       );
       form.append("bio", edited.bio !== undefined ? edited.bio : profile.bio);
       form.append(
         "Isprivate",
-        edited.Isprivate ? edited.Isprivate : profile.Isprivate
+        edited.Isprivate ? edited.Isprivate : profile.Isprivate,
       );
       form.append("avatar", edited.avatar ? edited.avatar : profile.avatar);
       api
@@ -186,7 +186,7 @@ export default function Profile(props) {
               ? e.data.data.avatar.message
               : e.data.data.Isprivate
               ? e.data.data.Isprivate.message
-              : ""
+              : "",
           );
           setedited({});
         });
@@ -215,6 +215,17 @@ export default function Profile(props) {
               window.history.back();
             }}
             className={`w-5 h-5
+             ${
+               props.font_size == "text-md"
+                 ? "w-6 h-6"
+                 : props.font_size == "text-lg"
+                 ? "w-7 h-7"
+                 : props.font_size == "text-xl"
+                 ? "w-8 h-8"
+                 : props.font_size == "text-2xl"
+                 ? "w-9 h-9"
+                 : ""
+             }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -236,7 +247,7 @@ export default function Profile(props) {
           </svg>
         </span>
         <span
-          className={`text-xl
+          className={`${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -255,6 +266,17 @@ export default function Profile(props) {
         </span>
         <div
           className={`cursor-pointer
+           ${
+             props.font_size == "text-md"
+               ? "w-6 h-6"
+               : props.font_size == "text-lg"
+               ? "w-7 h-7"
+               : props.font_size == "text-xl"
+               ? "w-8 h-8"
+               : props.font_size == "text-2xl"
+               ? "w-9 h-9"
+               : ""
+           }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -287,7 +309,9 @@ export default function Profile(props) {
           <div className="flex flex-col gap-2s">
             <div className="flex flex-col gap-2">
               <h1
-                className={`text-xl pb-2 font-bold
+                className={`${localStorage.getItem(
+                  "font_text_size",
+                )} pb-2 font-bold
               ${
                 accessbile && theme === "black"
                   ? `
@@ -306,6 +330,7 @@ export default function Profile(props) {
             </div>
             <span
               className={`w-[80vw] max-w-[80vw]
+              ${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -323,7 +348,7 @@ export default function Profile(props) {
             </span>
             <div className="flex flex-col mt-2">
               <span
-                className={`text-sm flex
+                className={`${localStorage.getItem("font_text_size")} flex hero
               ${
                 accessbile && theme === "black"
                   ? `
@@ -344,6 +369,17 @@ export default function Profile(props) {
                   strokeWidth={1.5}
                   stroke="currentColor"
                   className={`w-4 h-4 mr-2
+                   ${
+                     props.font_size == "text-md"
+                       ? "w-6 h-6"
+                       : props.font_size == "text-lg"
+                       ? "w-7 h-7"
+                       : props.font_size == "text-xl"
+                       ? "w-8 h-8"
+                       : props.font_size == "text-2xl"
+                       ? "w-9 h-9"
+                       : ""
+                   }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -370,7 +406,8 @@ export default function Profile(props) {
               </span>
 
               <span
-                className={`text-sm mt-2
+                className={`
+                ${localStorage.getItem("font_text_size")} mt-2
               ${
                 accessbile && theme === "black"
                   ? `
@@ -444,7 +481,9 @@ export default function Profile(props) {
               {props.user === api.authStore.model.username ? (
                 <>
                   <button
-                    className={`  w-full  btn btn-sm    rounded-md  capitalize
+                    className={` ${localStorage.getItem(
+                      "font_text_size",
+                    )} w-full  btn btn-sm    rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
@@ -464,7 +503,9 @@ export default function Profile(props) {
                     Edit Profile
                   </button>
                   <button
-                    className={`    w-full btn btn-sm   rounded-md  capitalize
+                    className={`  ${localStorage.getItem(
+                      "font_text_size",
+                    )}  w-full btn btn-sm   rounded-md  capitalize
               ${
                 accessbile && theme === "black"
                   ? `
@@ -494,7 +535,9 @@ export default function Profile(props) {
                   !followers.includes(api.authStore.model.id) ? (
                     <>
                       <button
-                        className={`${
+                        className={`
+                        ${localStorage.getItem("font_text_size")}
+                        ${
                           hasRequested
                             ? `
                              ${
@@ -519,6 +562,7 @@ export default function Profile(props) {
                       </button>
                       <button
                         className={`
+                        ${localStorage.getItem("font_text_size")}
                          btn btn-sm btn-ghost w-full  ${
                            document
                              .querySelector("html")
@@ -531,7 +575,7 @@ export default function Profile(props) {
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post"
+                            "post",
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -550,7 +594,9 @@ export default function Profile(props) {
                               ? " text-white rounded border "
                               : "text-white bg-black hover:bg-black focus:bg-black"
                             : ""
-                        } w-full btn btn-sm   rounded-md  capitalize`}
+                        } w-full btn btn-sm  ${localStorage.getItem(
+                          "font_text_size",
+                        )} rounded-md  capitalize`}
                         onClick={debounce(follow, 1000)}
                       >
                         {followers && followers.includes(api.authStore.model.id)
@@ -559,6 +605,7 @@ export default function Profile(props) {
                       </button>
                       <button
                         className={`
+                        ${localStorage.getItem("font_text_size")}
                           btn btn-sm btn-ghost w-full  ${
                             document
                               .querySelector("html")
@@ -571,7 +618,7 @@ export default function Profile(props) {
                         onClick={() => {
                           window.newpost.showModal();
                           document.getElementById(
-                            "post"
+                            "post",
                           ).innerHTML = `<a class="text-sky-500" href="#/profile/${profile.id}">u/${profile.username}<a/>`;
                         }}
                       >
@@ -588,6 +635,7 @@ export default function Profile(props) {
         </div>
         <div
           className={`font-medium p-2 flex flex-row justify-between mt-6
+          ${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -604,6 +652,7 @@ export default function Profile(props) {
         >
           <a
             className={`
+            
          cursor-pointer
          text-lg  ${
            pageSelected === "posts" ? "underline underline-offset-[10px]" : ""
@@ -716,6 +765,7 @@ export default function Profile(props) {
                           expandedLikes={p.expand.likes}
                           author={p.expand.author}
                           content={p.content}
+                          fontSize={localStorage.getItem("font_text_size")}
                           tags={p.tags}
                           likes={p.likes}
                           comments={p.comments}

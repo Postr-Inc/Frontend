@@ -17,7 +17,6 @@ export default function Settings_home() {
     localStorage.getItem("recommendation_ratings") === "true" ? true : false,
   );
 
-   
   return (
     <>
       <div className="p-4 flex flex-col  gap-8 mb-24">
@@ -34,7 +33,8 @@ export default function Settings_home() {
               onClick={() => {
                 window.history.back();
               }}
-              className={`w-6 h-6
+              className={`w-5 h-5
+              
               ${
                 accessbile && theme === "black"
                   ? `
@@ -57,7 +57,7 @@ export default function Settings_home() {
           </span>
           <div className="flex flex-col hero">
             <span
-              className={`font-bold text-lg
+              className={`font-bold   text-xl
             ${
               accessbile && theme === "black"
                 ? `
@@ -74,7 +74,7 @@ export default function Settings_home() {
               Settings
             </span>
             <span
-              className={`text-[12px]
+              className={`text-sm
             ${
               accessbile && theme === "black"
                 ? `
@@ -98,7 +98,9 @@ export default function Settings_home() {
         <div className="justify-center  ">
           <input
             placeholder="Search settings"
-            className="input input-bordered input-md rounded-full w-5/8 flex justify-center hero"
+            className={`input input-bordered input-md rounded-full w-5/8 flex justify-center hero
+            ${localStorage.getItem("font_text_size")}
+            `}
           />
         </div>
 
@@ -110,7 +112,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -133,7 +135,9 @@ export default function Settings_home() {
           </div>
           <div className="flex flex-col focus:bg-base-300">
             <p
-              className={`text-lg font-bold
+              className={`
+                 text-xl
+              font-bold
             ${
               accessbile && theme === "black"
                 ? `
@@ -175,7 +179,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -205,7 +209,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -228,7 +232,8 @@ export default function Settings_home() {
           </div>
           <div className="flex flex-col focus:bg-base-300">
             <p
-              className={`text-lg font-bold
+              className={`w font-bold
+              text-xl
             ${
               accessbile && theme === "black"
                 ? `
@@ -271,7 +276,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -301,7 +306,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -366,7 +371,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -396,7 +401,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -461,7 +466,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -491,7 +496,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -556,7 +561,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -586,7 +591,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `
@@ -650,7 +655,7 @@ export default function Settings_home() {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className={`w-6 h-6
+              className={`w-5 h-5
               ${
                 accessbile && theme === "black"
                   ? `

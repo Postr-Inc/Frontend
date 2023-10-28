@@ -134,7 +134,7 @@ export default function Post(props) {
               <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
                 <span
                   className={`
-                  ${localStorage.getItem("font_text_size")}
+                  ${props.fontSize}
                 ${
                   accessbile && theme === "black"
                     ? `
@@ -234,7 +234,7 @@ export default function Post(props) {
               <label
                 tabIndex="0"
                 className={`
-                ${localStorage.getItem("font_text_size")}
+                ${props.fontSize}
                 cursor-pointer
                 flex
                 ${props.fontSize == "text-2xl" ? "text-lg" : props.fontSize}
@@ -757,7 +757,7 @@ export default function Post(props) {
         </span>
         <span
           className={`
-            ${localStorage.getItem("font_text_size")}
+            ${props.fontSize}
           ${
             accessbile && theme === "black"
               ? `
@@ -776,7 +776,7 @@ export default function Post(props) {
 
         <span
           className={`
-          ${localStorage.getItem("font_text_size")}
+          ${props.fontSize}
         ${
           accessbile && theme === "black"
             ? `
@@ -806,7 +806,7 @@ export default function Post(props) {
         <form method="dialog" className="modal-box p-5  h-96">
           <h3
             className={`
-           font-bold ${localStorage.getItem("font_text_size")}
+           font-bold ${props.fontSize}
           ${
             accessbile && theme === "black"
               ? `
@@ -828,7 +828,7 @@ export default function Post(props) {
           <div className="divider h-0 mt-2 opacity-50 "></div>
           <p
             className={`
-            ${localStorage.getItem("font_text_size")}
+            ${props.fontSize}
           ${
             accessbile && theme === "black"
               ? `
@@ -915,7 +915,7 @@ export default function Post(props) {
           <div className="modal-action">
             <button
               className={`btn btn-ghost border-1 border-slate-200 rounded btn-sm w-full
-            ${localStorage.getItem("font_text_size")}
+            ${props.fontSize}
             ${
               accessbile && theme === "black"
                 ? `

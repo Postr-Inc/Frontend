@@ -46,7 +46,8 @@ export default function Settings_account() {
         </span>
         <div className="flex flex-col hero">
           <span
-            className={`font-semibold text-lg
+            className={`font-semibold 
+             text-xl capitalize
            ${
              accessbile && theme === "black"
                ? `
@@ -85,7 +86,8 @@ export default function Settings_account() {
         </div>
       </div>
       <p
-        className={`text-sm
+        className={`
+        ${localStorage.getItem("font_text_size")}
        ${
          accessbile && theme === "black"
            ? `
@@ -133,7 +135,7 @@ export default function Settings_account() {
         </div>
         <div className="flex flex-col focus:bg-base-300">
           <p
-            className={`text-lg font-bold  ${
+            className={`${localStorage.getItem("font_text_size")} font-bold  ${
               accessbile && theme === "black"
                 ? `
             text-white antialiased   drop-shadow-md not-sr-only  
@@ -148,7 +150,7 @@ export default function Settings_account() {
             Account Information
           </p>
           <p
-            className={`text-sm
+            className={`${localStorage.getItem("font_text_size")}
            ${
              accessbile && theme === "black"
                ? `
@@ -226,7 +228,7 @@ export default function Settings_account() {
         </div>
         <div className="flex flex-col focus:bg-base-300">
           <p
-            className={`text-lg font-bold ${
+            className={`${localStorage.getItem("font_text_size")} font-bold ${
               accessbile && theme === "black"
                 ? `
             text-white antialiased   drop-shadow-md not-sr-only  
@@ -241,7 +243,7 @@ export default function Settings_account() {
             Download your account data
           </p>
           <p
-            className={`text-sm
+            className={`${localStorage.getItem("font_text_size")}
            ${
              accessbile && theme === "black"
                ? `

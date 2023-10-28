@@ -116,6 +116,17 @@ export default function Noti() {
               window.history.back();
             }}
             className={`w-5 h-5
+            ${
+              localStorage.getItem("font_text_size") == "text-md"
+                ? "w-6 h-6"
+                : localStorage.getItem("font_text_size") == "text-lg"
+                ? "w-6 h-6"
+                : localStorage.getItem("font_text_size") == "text-xl"
+                ? "w-8 h-8"
+                : localStorage.getItem("font_text_size") == "text-2xl"
+                ? "w-9 h-9"
+                : ""
+            }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -137,7 +148,11 @@ export default function Noti() {
           </svg>
         </span>
         <h1
-          className={`text-2xl
+          className={`${
+            localStorage.getItem("font_text_size") == "text-sm"
+              ? "text-lg"
+              : localStorage.getItem("font_text_size")
+          }
         ${
           accessbile && theme === "black"
             ? `
@@ -162,6 +177,17 @@ export default function Noti() {
             strokeWidth={1.5}
             stroke="currentColor"
             className={`w-6 h-6 cursor-pointer
+            ${
+              localStorage.getItem("font_text_size") == "text-md"
+                ? "w-6 h-6"
+                : localStorage.getItem("font_text_size") == "text-lg"
+                ? "w-6 h-6"
+                : localStorage.getItem("font_text_size") == "text-xl"
+                ? "w-8 h-8"
+                : localStorage.getItem("font_text_size") == "text-2xl"
+                ? "w-9 h-9"
+                : ""
+            }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -216,7 +242,7 @@ export default function Noti() {
                     <div className="avatar placeholder">
                       <div className="bg-neutral-focus   border-slate-200 rounded-full w-10 h-10">
                         <span
-                          className={`text-xsm
+                          className={`${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -237,7 +263,9 @@ export default function Noti() {
                   )}
                   <div className="flex flex-col gap-1">
                     <span
-                      className={`text-sm cursor-pointer
+                      className={`${localStorage.getItem(
+                        "font_text_size",
+                      )} cursor-pointer
                        ${
                          accessbile && theme === "black"
                            ? `
@@ -264,7 +292,22 @@ export default function Noti() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-6 text-yellow-500 h-6"
+                          className={`w-6 
+                          ${
+                            localStorage.getItem("font_text_size") == "text-md"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-lg"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-xl"
+                              ? "w-8 h-8"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-2xl"
+                              ? "w-9 h-9"
+                              : ""
+                          }
+                          text-yellow-500 h-6`}
                         >
                           <path
                             strokeLinecap="round"
@@ -280,6 +323,20 @@ export default function Noti() {
                           strokeWidth={1.5}
                           stroke="currentColor"
                           className={`w-6 h-6
+                          ${
+                            localStorage.getItem("font_text_size") == "text-md"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-lg"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-xl"
+                              ? "w-8 h-8"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-2xl"
+                              ? "w-9 h-9"
+                              : ""
+                          }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -307,6 +364,20 @@ export default function Noti() {
                           strokeWidth={1.5}
                           stroke="#F13B38"
                           className={`w-6 h-6
+                          ${
+                            localStorage.getItem("font_text_size") == "text-md"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-lg"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-xl"
+                              ? "w-8 h-8"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-2xl"
+                              ? "w-9 h-9"
+                              : ""
+                          }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -333,7 +404,20 @@ export default function Noti() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="text-sky-500 w-6 h-6"
+                          className={`text-sky-500  ${
+                            localStorage.getItem("font_text_size") == "text-md"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-lg"
+                              ? "w-6 h-6"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-xl"
+                              ? "w-8 h-8"
+                              : localStorage.getItem("font_text_size") ==
+                                "text-2xl"
+                              ? "w-9 h-9"
+                              : ""
+                          } w-6 h-6`}
                         >
                           <path
                             strokeLinecap="round"
@@ -347,7 +431,7 @@ export default function Noti() {
 
                       {noti.type === "like" ? (
                         <span
-                          className={`text-sm
+                          className={`${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -365,7 +449,7 @@ export default function Noti() {
                         </span>
                       ) : noti.type === "comment" ? (
                         <span
-                          className={`text-sm
+                          className={`${localStorage.getItem("font_text_size")}
                         ${
                           accessbile && theme === "black"
                             ? `
@@ -383,7 +467,9 @@ export default function Noti() {
                         </span>
                       ) : (
                           <span
-                            className={`text-sm
+                            className={`${localStorage.getItem(
+                              "font_text_size",
+                            )}
                           ${
                             accessbile && theme === "black"
                               ? `
@@ -401,7 +487,7 @@ export default function Noti() {
                           </span>
                         ) || noti.type === "comment_like" ? (
                         <span
-                          className={`text-sm
+                          className={`${localStorage.getItem("font_text_size")}
                         ${
                           accessbile && theme === "black"
                             ? `
@@ -419,7 +505,7 @@ export default function Noti() {
                         </span>
                       ) : noti.type === "follow" ? (
                         <span
-                          className={`text-sm
+                          className={`${localStorage.getItem("font_text_size")}
                         ${
                           accessbile && theme === "black"
                             ? `
@@ -451,9 +537,9 @@ export default function Noti() {
                         ""
                       )}
                     </div>
-                    <div className="text-sm absolute end-5 flex flex-row gap-5">
+                    <div className=" absolute end-5 flex   gap-5">
                       <span
-                        className={`text-sm
+                        className={`${localStorage.getItem("font_text_size")}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -474,6 +560,20 @@ export default function Noti() {
                         viewBox="0 0 20 20"
                         fill="currentColor"
                         className={`w-5 h-5 cursor-pointer
+                        ${
+                          localStorage.getItem("font_text_size") == "text-md"
+                            ? "w-6 h-6"
+                            : localStorage.getItem("font_text_size") ==
+                              "text-lg"
+                            ? "w-6 h-6"
+                            : localStorage.getItem("font_text_size") ==
+                              "text-xl"
+                            ? "w-8 h-8"
+                            : localStorage.getItem("font_text_size") ==
+                              "text-2xl"
+                            ? "w-9 h-9"
+                            : ""
+                        }
               ${
                 accessbile && theme === "black"
                   ? `
@@ -494,7 +594,7 @@ export default function Noti() {
                               setNotifications(
                                 notifications.filter((n) => {
                                   return n.id !== noti.id;
-                                })
+                                }),
                               );
                             });
                         }}
@@ -503,7 +603,9 @@ export default function Noti() {
                       </svg>
                     </div>
                     <span
-                      className={`text-sm cursor-pointer
+                      className={`${localStorage.getItem(
+                        "font_text_size",
+                      )} cursor-pointer
                     ${
                       accessbile && theme === "black"
                         ? `
@@ -537,6 +639,7 @@ export default function Noti() {
           <p className="flex hero gap- mx-auto justify-center w-full">
             <p
               className={`
+              ${localStorage.getItem("font_text_size")}
             ${
               accessbile && theme === "black"
                 ? `

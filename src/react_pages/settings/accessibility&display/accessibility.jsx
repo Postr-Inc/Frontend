@@ -53,11 +53,12 @@ export default function Settings_my_accessibility(){
           `}>Accessibility</span>
            
         </div>
+        <div></div>
          
       </div>
        <div className="mt-2">
         <p className={` 
-        
+         ${localStorage.getItem('font_text_size')}
          ${
           accessbile  && theme === 'black' ? `
           text-white antialiased   drop-shadow-md not-sr-only  
@@ -72,7 +73,7 @@ export default function Settings_my_accessibility(){
        </div>
        <div className="divider h-0 p-0"></div>
        <div className="flex flex-col">
-        <h1 className={` text-md font-bold
+        <h1 className={` text-xl font-bold
          ${
           accessbile  && theme === 'black' ? `
           text-white antialiased   drop-shadow-md not-sr-only  
@@ -85,6 +86,7 @@ export default function Settings_my_accessibility(){
         <div className="flex justify-between mt-2">
          <p
          className={`
+         ${localStorage.getItem('font_text_size')}
          ${
           accessbile  && theme === 'black' ? `
           text-white antialiased font-normal drop-shadow-md not-sr-only  
@@ -105,7 +107,7 @@ export default function Settings_my_accessibility(){
         </div>
         <p className={`mt-2
         ${
-          localStorage.getItem("font-size") || "text-md"
+          localStorage.getItem("font_text_size")
         } 
         ${
           accessbile  && theme === 'black' ? `

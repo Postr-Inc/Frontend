@@ -15,6 +15,9 @@ export default function Post(props) {
   let [pinned, setPinned] = useState(props.pinned ? true : false);
 
   function likepost() {
+    if (window.location.pathname.includes("settings")) {
+      return;
+    }
     if (likes.includes(api.authStore.model.id)) {
       let index = likes.indexOf(api.authStore.model.id);
       likes.splice(index, 1);
@@ -50,12 +53,16 @@ export default function Post(props) {
 
   return (
     <div
-      className="flex flex-col  text-sm mb-[35px]  "
+      className={`flex flex-col  
+      ${props.fontSize ? props.fontSize : ""}
+      
+      ${!window.location.pathname.includes("/settings") ? "mb-[35px] " : ""} `}
       id={props.id}
       onClick={(e) => {
         if (
           window.location.pathname !== "/p/" + props.id &&
-          e.target.id === props.id
+          e.target.id === props.id &&
+          !window.location.pathname.includes("/settings")
         ) {
           window.location.href = "/p/" + props.id;
         }
@@ -97,6 +104,7 @@ export default function Post(props) {
 
       <div
         className={`flex flex-col
+        
       ${
         accessbile && theme === "black"
           ? `
@@ -110,10 +118,14 @@ export default function Post(props) {
       }
       `}
       >
-        <div className="flex flex-row ">
+        <div className="flex flex-row hero">
           {props.author.avatar ? (
             <img
-              src={`${api.baseUrl}/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`}
+              src={`${
+                props.author.avatar.startsWith("/")
+                  ? props.author.avatar
+                  : `${api.baseUrl}/api/files/_pb_users_auth_/${props.author.id}/${props.author.avatar}`
+              }`}
               className="w-8 h-8 rounded-full object-cover"
               alt="post image"
             />
@@ -122,7 +134,7 @@ export default function Post(props) {
               <div className="bg-neutral-focus text-neutral-content  border-slate-200 rounded-full w-8">
                 <span
                   className={`
-                  text-sm
+                  ${localStorage.getItem("font_text_size")}
                 ${
                   accessbile && theme === "black"
                     ? `
@@ -144,7 +156,9 @@ export default function Post(props) {
 
           <span
             className={`
+            ${props.fontSize}
            mx-2 cursor-pointer
+           flex flex-row  
           ${
             accessbile && theme === "black"
               ? `
@@ -159,7 +173,10 @@ export default function Post(props) {
           `}
             style={{ marginLeft: ".7rem", marginRight: ".5rem" }}
             onClick={() => {
-              if (window.location.pathname !== "/u/" + props.author.username) {
+              if (
+                window.location.pathname !== "/u/" + props.author.username &&
+                !window.location.pathname.includes("/settings")
+              ) {
                 window.location.href = "/u/" + props.author.username;
               }
             }}
@@ -169,14 +186,14 @@ export default function Post(props) {
           {props.author.validVerified ? (
             <img
               src="/icons/verified.png"
-              className="mt-[.3em]"
-              style={{ width: "13px", height: "13px" }}
+              style={{ width: "15px", height: "15px", marginTop: "2px" }}
             />
           ) : (
             ""
           )}
           <span
             className={`
+            ${props.fontSize}
             mx-2 cursor-pointer
            ${
              accessbile && theme === "black"
@@ -194,11 +211,11 @@ export default function Post(props) {
             @{props.author.username}
           </span>
 
-          <div className="dropdown dropdown-left absolute end-5 ">
-            <div className="flex text-sm flex-row gap-2">
+          <div className="dropdown dropdown-left absolute end-8 ">
+            <div className="flex  hero flex-row gap-2">
               <span
                 className={`
-            text-sm
+             ${props.fontSize}
           ${
             accessbile && theme === "black"
               ? `
@@ -217,8 +234,10 @@ export default function Post(props) {
               <label
                 tabIndex="0"
                 className={`
+                ${localStorage.getItem("font_text_size")}
                 cursor-pointer
                 flex
+                ${props.fontSize == "text-2xl" ? "text-lg" : props.fontSize}
               ${
                 accessbile && theme === "black"
                   ? `
@@ -325,7 +344,7 @@ export default function Post(props) {
         </div>
 
         <p
-          className={`mt-6 text-sm max-w-full ${
+          className={`mt-6 ${props.fontSize} max-w-full ${
             document.documentElement.getAttribute("data-theme") === "black"
               ? "text-white"
               : "text-black"
@@ -441,7 +460,19 @@ export default function Post(props) {
                 ? "#F13B38"
                 : "currentColor"
             }
-            className="w-5 h-5 cursor-pointer"
+            className={`w-5 h-5 cursor-pointer
+            ${
+              props.fontSize == "text-md"
+                ? "w-6 h-6"
+                : props.fontSize == "text-lg"
+                ? "w-7 h-7"
+                : props.fontSize == "text-xl"
+                ? "w-8 h-8"
+                : props.fontSize == "text-2xl"
+                ? "w-9 h-9"
+                : ""
+            }
+            `}
           >
             <path
               strokeLinecap="round"
@@ -467,7 +498,19 @@ export default function Post(props) {
             strokeWidth="1.5"
             stroke="currentColor"
             className={`
-            w-5 h-5 cursor-pointer
+            w-5 h-5
+            ${
+              props.fontSize == "text-md"
+                ? "w-6 h-6"
+                : props.fontSize == "text-lg"
+                ? "w-7 h-7"
+                : props.fontSize == "text-xl"
+                ? "w-8 h-8"
+                : props.fontSize == "text-2xl"
+                ? "w-9 h-9"
+                : ""
+            }
+            cursor-pointer
           ${
             accessbile && theme === "black"
               ? `
@@ -481,6 +524,9 @@ export default function Post(props) {
           }
           `}
             onClick={() => {
+              if (window.location.pathname.includes("settings")) {
+                return;
+              }
               if (window.location.pathname !== "/p/" + props.id) {
                 window.location.href = "/p/" + props.id;
               }
@@ -510,6 +556,17 @@ export default function Post(props) {
           stroke="currentColor"
           className={`
           w-5 h-5 cursor-pointer
+          ${
+            props.fontSize == "text-md"
+              ? "w-6 h-6"
+              : props.fontSize == "text-lg"
+              ? "w-7 h-7"
+              : props.fontSize == "text-xl"
+              ? "w-8 h-8"
+              : props.fontSize == "text-2xl"
+              ? "w-9 h-9"
+              : ""
+          }
           ${
             accessbile && theme === "black"
               ? `
@@ -569,6 +626,9 @@ export default function Post(props) {
               }
               `}
                 onClick={() => {
+                  if (window.location.pathname.includes("settings")) {
+                    return;
+                  }
                   setBookmarked([
                     ...bookmarked.filter((id) => id !== api.authStore.model.id),
                   ]);
@@ -614,6 +674,9 @@ export default function Post(props) {
               }
               `}
                 onClick={() => {
+                  if (window.location.pathname.includes("settings")) {
+                    return;
+                  }
                   let bookmarks = api.authStore.model.bookmarks;
                   api.collection("users").update(api.authStore.model.id, {
                     bookmarks: [...bookmarks, props.id],
@@ -647,7 +710,10 @@ export default function Post(props) {
                   api.authStore.model.followers.includes(like.id))
               ) {
                 return (
-                  <>
+                  <div
+                    className="tooltip tooltip-right "
+                    data-tip={`${like.username} also viewed @${props.author.username}'s post`}
+                  >
                     <div className="  mt-1 mb-1 pl-0 relative">
                       <div
                         className="w-7 h-7 pl-0   
@@ -655,11 +721,11 @@ export default function Post(props) {
                       >
                         <img
                           src={`${api.baseUrl}/api/files/_pb_users_auth_/${like.id}/${like.avatar}`}
-                          className="rounded-full  border-2 w-full h-full "
+                          className="rounded-full    w-full h-full "
                         />
                       </div>
                     </div>
-                  </>
+                  </div>
                 );
               }
             })
@@ -668,6 +734,7 @@ export default function Post(props) {
       <div className="flex flex-row font-normal mt-2 gap-2 ">
         <span
           className={`
+          ${props.fontSize}
         ${
           accessbile && theme === "black"
             ? `
@@ -690,7 +757,7 @@ export default function Post(props) {
         </span>
         <span
           className={`
-            text-sm
+            ${localStorage.getItem("font_text_size")}
           ${
             accessbile && theme === "black"
               ? `
@@ -709,6 +776,7 @@ export default function Post(props) {
 
         <span
           className={`
+          ${localStorage.getItem("font_text_size")}
         ${
           accessbile && theme === "black"
             ? `
@@ -738,7 +806,7 @@ export default function Post(props) {
         <form method="dialog" className="modal-box p-5  h-96">
           <h3
             className={`
-           font-bold text-lg
+           font-bold ${localStorage.getItem("font_text_size")}
           ${
             accessbile && theme === "black"
               ? `
@@ -760,7 +828,7 @@ export default function Post(props) {
           <div className="divider h-0 mt-2 opacity-50 "></div>
           <p
             className={`
-            text-sm
+            ${localStorage.getItem("font_text_size")}
           ${
             accessbile && theme === "black"
               ? `
@@ -777,12 +845,16 @@ export default function Post(props) {
             Your report will be reviewed and actioned accordingly. Nobody but
             you will know that you reported this post.
           </p>
-          <div className={`divider h-0 mb-5 opacity-30 `}>
+          <div
+            className={`divider ${localStorage.getItem(
+              "font_text_size",
+            )} h-0 mb-5 opacity-30 `}
+          >
             Please Select A Reason
           </div>
           <select
             defaultValue="Select a reason"
-            className={`select rounded p-1  select-ghost w-full select-sm
+            className={`select rounded bordered  select-bordered  select-ghost w-full select-sm
             
             ${
               accessbile && theme === "black"
@@ -842,8 +914,8 @@ export default function Post(props) {
           </select>
           <div className="modal-action">
             <button
-              className={`btn btn-ghost border  rounded btn-sm w-full
-            
+              className={`btn btn-ghost border-1 border-slate-200 rounded btn-sm w-full
+            ${localStorage.getItem("font_text_size")}
             ${
               accessbile && theme === "black"
                 ? `
@@ -914,13 +986,13 @@ function parseDate(data) {
     hours > 1 ? Math.round(hours) + "hs" : Math.round(hours) + "h";
   }
   if (days < 7) {
-    return Math.round(days) + "d ago";
+    return Math.round(days) + "d";
   }
   if (weeks < 4) {
-    return Math.round(weeks) + "w ago";
+    return Math.round(weeks) + "w";
   }
   if (months < 12) {
-    return Math.round(months) + "mo ago";
+    return Math.round(months) + "mo";
   }
   if (years >= 1) {
     return Math.round(years) + "y ago";

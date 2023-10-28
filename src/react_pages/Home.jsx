@@ -213,12 +213,12 @@ export default function Home() {
                   : ""
               }
               `}
-        style={{ fontFamily: "Inter", fontSize: "14px" }}
+        style={{ fontFamily: "Inter" }}
       >
         <a
           className={`
          cursor-pointer
-         text-lg  ${
+         ${localStorage.getItem("font_text_size")} ${
            pageSelected === "posts" ? "underline underline-offset-[10px]" : ""
          }`}
           onClick={() => {
@@ -237,7 +237,7 @@ export default function Home() {
           }}
           className={`
          cursor-pointer
-         text-lg  ${
+         ${localStorage.getItem("font_text_size")} ${
            pageSelected === "recommended"
              ? "underline underline-offset-[10px]"
              : ""
@@ -253,9 +253,9 @@ export default function Home() {
           }}
           className={`
              cursor-pointer
-          text-lg ${
-            pageSelected === "top" ? "underline underline-offset-[10px]" : ""
-          } `}
+           ${localStorage.getItem("font_text_size")} ${
+             pageSelected === "top" ? "underline underline-offset-[10px]" : ""
+           } `}
         >
           Explore
         </a>
@@ -306,12 +306,12 @@ export default function Home() {
             </div>
           ) : (
             posts.map((post) => (
- 
               <div key={post.id}>
                 <Post
                   file={post.file}
                   author={post.expand.author}
                   likes={post.likes}
+                  fontSize={localStorage.getItem("font_text_size")}
                   expandedlikes={post.expand.likes}
                   verified={post.expand.author.validVerified}
                   comments={post.expand.comments ? post.expand.comments : []}
@@ -327,10 +327,18 @@ export default function Home() {
                   <button className="flex justify-center mx-auto focus:outline-none">
                     <div className="divider  text-slate-400  w-12   mt-0"></div>
                   </button>
-                  <h1 className="text-md justify-center flex mx-auto font-bold">
+                  <h1
+                    className={`${localStorage.getItem(
+                      "font_text_size",
+                    )} justify-center flex mx-auto font-bold`}
+                  >
                     Why You're Seeing This Post
                   </h1>
-                  <span className="text-md justify-center mt-5 flex mx-auto cursor-text ">
+                  <span
+                    className={`${localStorage.getItem(
+                      "font_text_size",
+                    )} justify-center mt-5 flex mx-auto cursor-text `}
+                  >
                     There are various reasons why you may see content on your
                     feed. Postr shows posts based on who you follow.
                   </span>
@@ -353,7 +361,11 @@ export default function Home() {
                         </svg>
                       </div>
                     </div>
-                    <p className="text-sm cursor-text ">
+                    <p
+                      className={`${localStorage.getItem(
+                        "font_text_size",
+                      )} cursor-text `}
+                    >
                       This post was made by {post.expand.author.username} and
                       was posted on {new Date(post.created).toDateString()}.
                     </p>
@@ -377,7 +389,11 @@ export default function Home() {
                           </div>
                         </div>
                       )}
-                      <p className="text-sm mt-5">
+                      <p
+                        className={`${localStorage.getItem(
+                          "font_text_size",
+                        )} mt-5`}
+                      >
                         You are following {post.expand.author.username}.
                       </p>
                     </div>

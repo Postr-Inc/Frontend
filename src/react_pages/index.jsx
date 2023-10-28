@@ -70,6 +70,9 @@ export default function App() {
 	  });
 	
 	  useEffect(() => {
+		  if(!localStorage.getItem('font_text_size')){
+			  localStorage.setItem('font_text_size', 'text-sm')
+		  }
 		// calculate time the app was open each day
 		let lastOpened = localStorage.getItem('lastOpened');
 		let dailyUsageData = JSON.parse(localStorage.getItem('dailyUsageData')) || {};

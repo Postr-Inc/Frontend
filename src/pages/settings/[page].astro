@@ -1,0 +1,9 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Settings from "../../react_pages/settings/index.jsx";
+let { page } = Astro.props;
+---
+
+<Layout title="Settings" description="Settings page" image="">
+    <Settings client:only />
+</Layout>

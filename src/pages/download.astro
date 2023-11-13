@@ -1,0 +1,16 @@
+---
+import Layout from "../layouts/Layout.astro"
+import Download from "../react_pages/download";
+---
+
+<Layout
+title="Postr 6.0 Beta"
+description="Download Postr 6.0 Beta for mac, ios, windows, android and linux!"
+image=""
+theme="light"
+>
+<script is:inline>
+    document.documentElement.setAttribute('data-theme', 'light');
+ </script>
+<Download client:only />
+</Layout>

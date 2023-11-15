@@ -31,7 +31,7 @@ export default function Login() {
       })
       .then((res) => {
         if (!res) {
-            setBtnstate("aborted");
+         setBtnstate("aborted");
           return;
         }
         window.location.href = "/"
@@ -98,7 +98,9 @@ export default function Login() {
             <span className='text-rose-500'> Privacy Policy</span>.
          </p>
          <div className='divider mt-0 h-0 before:opacity-50 after:opacity-50 after:bg-slate-200 before:rounded-full after:rounded-full'>Or</div>
-         <button className='btn  text-white  bg-rose-500'>
+         <button 
+         onClick={()=>window.location.href="/signup"}
+         className='btn  text-white hover:bg-rose-500  bg-rose-500'>
             Create Account
          </button>
          <Footer />

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Pocketbase from 'pocketbase'
 
 export const api = new Pocketbase('https://bird-meet-rationally.ngrok-free.app')
-
+api.autoCancellation(false)
 export default function Home() {
   if (!api.authStore.isValid) window.location.href = "/login";
   return (

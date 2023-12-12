@@ -2,16 +2,17 @@
 import Image from 'next/image'
 import Footer from '../footer'
 import {useRef, useState } from 'react'
-import {sdk } from '../page'
+import { api } from '../app/page'
+ 
 export default function Login() {
    let curTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "darkMode" : "lightmode"
    let [btnState, setBtnState] = useState(false)
 
    async  function oauth(type:string){
-      let res = await sdk.oauth({provider:type, redirect_uri:'/'})
+      let res = await api.oauth({provider:type, redirect_uri:'/'})
       console.log(res)
    }
-   if(sdk.authStore.isValid) window.location.href = "/" 
+   if(api.authStore.isValid) window.location.href = "/" 
    return (
       <div className=" relative    p-5 w-screen  justify-center flex flex-col gap-5 mx-auto
       xl:w-[30vw] lg:w-[50vw]
@@ -60,7 +61,7 @@ export default function Login() {
             Already have an account?  <span className='text-rose-500 cursor-pointer' onClick={()=>window.location.href="/auth/login"}>Login</span>
          </p>
         
-         <Footer />
+         <Footer className="mt-16" />
       </div>
    )
 }

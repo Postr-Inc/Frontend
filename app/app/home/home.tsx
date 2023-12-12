@@ -7,7 +7,7 @@ import { Loading } from "@/src/components/icons/loading";
 import Post from "@/src/components/post";
 //@ts-ignore
 import BottomNav from "@/src/components/bottomNav";
-export default function Home(props: { swapPage: Function , setParams:Function}) {
+export default function Home(props: { swapPage: Function , setParams:Function,  setLastPage:Function, params:any, lastPage:string}) {
   let hasRan = useRef(false);
   let [posts, setPosts] = useState<any>([]);
   let [totalPages, setTotalPages] = useState(0);
@@ -64,6 +64,8 @@ export default function Home(props: { swapPage: Function , setParams:Function}) 
       window.onscroll = () => {
         setWindowScroll(window.scrollY);
       }
+      props.setLastPage("home")
+     
       api.authStore.update()
       api
         .list({ collection: "posts", limit: 10, page: 0, expand: ["author", "comments.user"], sort: `-created`})

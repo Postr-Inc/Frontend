@@ -27,7 +27,10 @@ export default function App() {
         case isDesktop && !api.authStore.isValid:
             return <Login swapPage={changePage} />;
         case isDesktop && api.authStore.isValid && page === "home":
-            return <Home swapPage={changePage} setParams={setParams} />;
+            return <Home swapPage={changePage} setParams={setParams} 
+             lastPage={lastPage} params={params}
+             setLastPage={setLastPage}
+            />;
         default:
         case isDesktop && api.authStore.isValid && page === "user":
             return (
@@ -35,6 +38,7 @@ export default function App() {
                     key={crypto.randomUUID()}
                     swapPage={changePage}
                     setParams={setParams}
+                    setLastPage={setLastPage}
                     lastPage={lastPage}
                     params={params}
                 />
@@ -44,6 +48,7 @@ export default function App() {
                  <Bookmarks
                     key={crypto.randomUUID()}
                     swapPage={changePage}
+                    setLastPage={setLastPage}
                     setParams={setParams}
                     lastPage={lastPage}
                     params={params}

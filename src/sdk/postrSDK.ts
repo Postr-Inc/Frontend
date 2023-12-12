@@ -423,7 +423,7 @@ export default class postrSdk {
      * @returns  {Promise<any>}
      * @description List records from a collection
      */
-    public list(data: { collection: string, filter?: string, sort?: string, limit?: number, page?: number, returnable?: Array<string>, expand: Array<string> }) {
+    public list(data: { collection: string, filter?: string, sort?: string, limit?: number, page?: number, returnable?: Array<string>, expand?: Array<string> }) {
         return new Promise((resolve, reject) => {
             let key = crypto.randomUUID();
             this.currType = "list"

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Card from "@/src/components/front-page/card";
 import Nav from '@/src/components/nav'
-import './styles.css'
+ 
 
 const Home  =  () =>{
   return(

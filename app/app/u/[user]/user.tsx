@@ -1,6 +1,5 @@
 import BottomNav from "@/src/components/bottomNav";
 import { useParams } from "next/navigation";
-import { api } from "../../page";
 import Modal from "@/src/components/Modal";
 import { useEffect, useState, useRef, useCallback, memo } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -9,6 +8,7 @@ import Post from "@/src/components/post";
 import { LazyImage } from "@/src/components/Image";
 import Comment from "@/src/components/comment";
 import { Loading } from "@/src/components/icons/loading";
+import { api } from "@/src/api/api";
 export default function User(props: {
   swapPage: Function;
   setParams: Function;

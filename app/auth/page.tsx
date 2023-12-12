@@ -2,7 +2,8 @@
 import Image from 'next/image'
 import Footer from '../footer'
 import {useRef, useState } from 'react'
-import { api } from '../app/page'
+import { api } from '@/src/api/api'
+api
  
 export default function Login() {
    let curTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "darkMode" : "lightmode"

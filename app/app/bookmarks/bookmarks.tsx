@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
-import { api } from "../page";
 import Post from "@/src/components/post";
 import { Loading } from "@/src/components/icons/loading";
 import Bookmark from "@/src/components/icons/bookmark";
 import BottomModal from "@/src/components/Bottomupmodal";
+import { api } from "@/src/api/api";
 export default function Bookmarks(props: any) {
   let initialized = useRef(false);
   let [bookmarks, setBookmarks] = useState<any>([]);

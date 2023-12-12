@@ -2,20 +2,18 @@
 import Image from 'next/image'
 import Footer from '@/src/components/footer'
 import {useRef, useState } from 'react'
-import { api } from '../../page'
-export default function Login(props:{swapPage:any}) {
+import { api } from '@/src/api/api';
+export default function Login(props: any) {
    let curTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "darkMode" : "lightmode"
    let [btnState, setBtnState] = useState(false)
 
    async  function oauth(type:string){
-      try {
-       await api.oauth({provider:type, redirect_uri:'/', redirect: false})
-       props.swapPage('home')
-      } catch (error) {
-         setBtnState(false)
-      }
-
+      api.oauth({provider:type, redirect_uri:'/', redirect: false}).then((res:any)=>{
+         props.swapPage("home")
+         console.log(res)
+      })
    }
+
  
    return (
       <> 

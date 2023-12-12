@@ -1,11 +1,11 @@
 "use client";
-import { api } from "@/app/app/page";
 import { useEffect, useState, useRef } from "react";
 import Modal from "./Modal";
 import BottomModal from "./Bottomupmodal";
 import Comment from "./comment";
 import { LazyImage } from "./Image";
 import Bookmark from "./icons/bookmark";
+import { api } from "../api/api";
  
 export default function Post(props: any) {
   let [likes, setLikes] = useState(props.likes);
@@ -122,9 +122,9 @@ export default function Post(props: any) {
                 onClick={() => {
                   setComments([]);
                   setLikes([]);
-                  props.swapPage("user");
-                  props.setLastPage("home");
                   props.setParams({ user: props.expand.author });
+                  props.swapPage("user");
+               
                 }}
               >
                 <span className="capitalize font-bold">
@@ -190,7 +190,7 @@ export default function Post(props: any) {
           }}
         ></p>
         {props.file ? (
-          <LazyImage 
+          <img
           
             src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
             alt={props.file}
@@ -202,7 +202,7 @@ export default function Post(props: any) {
              
            height="h-96"
 
-          ></LazyImage>
+          ></img>
            
         ) : (
           ""

@@ -100,7 +100,7 @@ const Home  =  () =>{
 </div>
   )
 }
-export default function Component() {
+export default function() {
   let isDesktop = !('ontouchstart' in window) || (navigator.maxTouchPoints > 0)
   && !window.matchMedia("(display-mode: standalone)").matches
 

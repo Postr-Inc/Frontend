@@ -35,7 +35,7 @@ interface isRatelimited {
  * @version v0.0.4
  */
 
-export default class postrSdk {
+export   class postrSdk {
     private type: string
     private ws: WebSocket
     private sendMessage: (e: any) => void
@@ -184,7 +184,7 @@ export default class postrSdk {
          * @param {boolean} isValid
          * @description check if token is expired
          */
-        isValid: isTokenExpired(JSON.parse((localStorage.getItem("postr_auth") || '{}')) ? JSON.parse((localStorage.getItem("postr_auth") || '{}')).token : null,0),
+        isValid: isTokenExpired(JSON.parse((localStorage.getItem("postr_auth") || '{}')) ? JSON.parse((localStorage.getItem("postr_auth") || '{}')).token : null, 0),
         isRatelimited: (type: string): Promise<isRatelimited> => {
             return new Promise((resolve, reject) => {
             this.callbacks.set('isRatelimited', (data: any) => {
@@ -340,6 +340,8 @@ export default class postrSdk {
                         localStorage.setItem("postr_auth", JSON.stringify({ model: data.clientData.record, token: data.clientData.token }))
                         redirect ? window.location.href = redirect_uri : null
                         resolve(data.clientData)
+                        this.authStore.model = data.clientData.record
+                        this.authStore.isValid = true
                         this.callbacks.delete("oauth")
                         window.dispatchEvent(this.changeEvent)
 

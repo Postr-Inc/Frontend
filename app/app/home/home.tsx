@@ -1,5 +1,4 @@
 import Bookmark from "@/src/components/icons/bookmark";
-import { api } from "../page";
 import Settings from "@/src/components/icons/settings";
 import { useRef, useEffect, useState } from "react";
 import Scroller from "react-infinite-scroll-component";
@@ -7,6 +6,7 @@ import { Loading } from "@/src/components/icons/loading";
 import Post from "@/src/components/post";
 //@ts-ignore
 import BottomNav from "@/src/components/bottomNav";
+import { api } from "@/src/api/api";
 export default function Home(props: { swapPage: Function , setParams:Function,  setLastPage:Function, params:any, lastPage:string}) {
   let hasRan = useRef(false);
   let [posts, setPosts] = useState<any>([]);

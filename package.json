@@ -1,0 +1,54 @@
+{
+  "name": "v7-postr",
+  "version": "7.0.0",
+  "private": true,
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Postr-Inc/Postr-Application.git#next-v1"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@giphy/js-fetch-api": "^5.2.0",
+    "@giphy/react-components": "^9.2.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "eventsource": "^2.0.2",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.0.2",
+    "pocketbase": "^0.19.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-infinite-scroll-component": "^6.1.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "daisyui": "^4.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.2",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  },
+  "description": "Frontend pwa for postr",
+  "bugs": {
+    "url": "https://github.com/Postr-Inc/Postr-Application/issues"
+  },
+  "homepage": "https://github.com/Postr-Inc/Postr-Application/tree/next-v1#readme",
+  "main": "\"\"",
+  "keywords": [
+    "nextjs"
+  ],
+  "author": "MalikWhitten67",
+  "license": "MIT"
+}

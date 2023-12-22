@@ -1,7 +1,7 @@
+"use client";
 import { useRef, useState } from "react";
 import Post from "@/src/components/post";
 import { Loading } from "@/src/components/icons/loading";
-import Bookmark from "@/src/components/icons/bookmark";
 import BottomModal from "@/src/components/Bottomupmodal";
 import { api } from "@/src/api/api";
 export default function Bookmarks(props: any) {
@@ -13,14 +13,14 @@ export default function Bookmarks(props: any) {
       page: 0,
       limit: 1,
       expand: ["bookmarks", "bookmarks.author", "bookmarks.comments", "bookmarks.comments.user"],
-      filter: `id= "${api.authStore.model.id}"`,
+      filter: `id= "${api.authStore.model().id}"`,
     });
    setTimeout(() => {
     setBookmarks(res.items[0].expand.bookmarks);
    }, 1000);
           
   }
-  if (!initialized.current) {
+  if (!initialized.current && typeof window !== "undefined") {
     loadBookmarks();
     initialized.current = true;
   }
@@ -63,9 +63,9 @@ export default function Bookmarks(props: any) {
 
     <div className="p-2 mt-6 flex flex-col gap-5">
     {
-      api.authStore.model.bookmarks.length > 0 && bookmarks && bookmarks.length < 1 ? Array.from(Array(10).keys()).map((i) => {
+       typeof window !== "undefined" &&  api.authStore.model().bookmarks.length > 0 && bookmarks && bookmarks.length < 1 ? Array.from(Array(10).keys()).map((i) => {
         return <Loading />
-      }) : api.authStore.model.bookmarks.length > 0 && bookmarks ? bookmarks.map((bookmark: any) => {
+      }) :  bookmarks && bookmarks.length > 0 ? bookmarks.map((bookmark: any) => {
         return (
           <Post key={bookmark.id} {...bookmark} swapPage={props.swapPage} setParams={props.setParams} />
         );
@@ -83,12 +83,12 @@ export default function Bookmarks(props: any) {
     </div>
     <BottomModal  height={`
     ${
-      api.authStore.model.bookmarks.length  < 1 ? "h-24" : "h-[40vh]"
+     typeof window != "undefined" && api.authStore.model().bookmarks.length  < 1 ? "h-24" : "h-[40vh]"
     }
     relative`} id="bookmarksModal">
       <p className={`w-full   text-red-500
       ${
-        api.authStore.model.bookmarks.length  < 1 ? "hidden" : ""
+        typeof window != "undefined" &&  api.authStore.model().bookmarks.length  < 1 ? "hidden" : ""
       }
       `}
       

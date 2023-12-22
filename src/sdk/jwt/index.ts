@@ -61,15 +61,15 @@ function getTokenPayload(token:string) {
  */
 export function isTokenExpired(token:string, expirationThreshold:any) {
     var decoded = getTokenPayload(token);
+    
     var exp = decoded.exp;
-    console.log(exp - expirationThreshold, (Date.now() / 1000))
     if (!exp) {
         return false;
     }
 
    
-    var isExpired = (exp - expirationThreshold) < (Date.now() / 1000);
-    
+    var isExpired = Date.now() >= exp * 1000 - (expirationThreshold || 0) * 1000;
+   
     return isExpired ? false : true
   
 }

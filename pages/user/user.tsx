@@ -1,3 +1,4 @@
+'use client';
 import BottomNav from "@/src/components/bottomNav";
 import { useParams } from "next/navigation";
 import Modal from "@/src/components/Modal";
@@ -9,35 +10,46 @@ import { LazyImage } from "@/src/components/Image";
 import Comment from "@/src/components/comment";
 import { Loading } from "@/src/components/icons/loading";
 import { api } from "@/src/api/api";
+import { SideBarLeft } from "@/src/components/Sidebars";
 export default function User(props: {
   swapPage: Function;
   setParams: Function;
   params: any;
   setLastPage: Function;
-  lastPage: string;
+  lastPage: any;
+  page: string;
 }) {
-  if(!props.params.user){
+   
+  if(typeof window !== "undefined" && props.params.user === undefined){
     api.list({collection:"users", limit:1, page:0, filter:`username="${props.params.username}"`}).then((e:any)=>{
       props.setParams({user:e.items[0]})
     })
-  }
-  let [user, setUser] = useState<any>(props.params.user);
-  let [banner, setBanner] = useState<any>(props.params.user.banner);
-  let [page, setPage] = useState(0);
+  } 
+  let [followers, setFollowers] = useState<any>(typeof window !== "undefined" ? props.params.user?.followers : []);
+  let [user, setUser] = useState<any>(typeof window !== "undefined" ? props.params.user : {});
+  console.log(user)
+  let [banner, setBanner] = useState<any>(typeof window !== "undefined" ? props.params.user?.banner : "");
+   let [page, setPage] = useState(1);
   let [array, setArray] = useState<any>([]);
   let [comments, setComments] = useState<any>([]);
   let [totalPages, setTotalPages] = useState(1);
-  let hasMore = useRef(true);
+  let [totalItems, setTotalItems] = useState(0);
+  let [hasMore, setHasMore] = useState(true);
   let [feedPage, setFeedPage] = useState("posts");
   let [avatar, setAvatar] = useState<any>(null);
   let [bannerBlob, setBannerBlob] = useState<any>(null);
+  let [windowScroll, setWindowScroll] = useState(0);
   let [isFetching, setIsFetching] = useState(true);
   let maxBioLength = 160;
   let bannerRef = useRef<any>(null);
   let avatarRef = useRef<any>(null);
-  document.title = `${props.params.user.username} (@${props.params.user.username}) / Postr`;
+  typeof window !== "undefined" ? document.title = `${props.params.user?.username} (@${props.params.user?.username}) / Postr`: null;
 
+  if(typeof window == "undefined") return null;
   let isIntialized = useRef(false);
+  typeof window !== "undefined" ? window.onscroll = () => {
+    setWindowScroll(window.scrollY);
+  } : null;
 
   function parseDate(date: string) {
     let now = new Date();
@@ -79,14 +91,14 @@ export default function User(props: {
   function likeReply(likes: Array<string>, id: string, updateState: Function) {
    
     switch (true) {
-      case likes.includes(api.authStore.model.id):
+      case likes.includes(api.authStore.model().id):
         api
           .update({
             collection: "comments",
             id: id,
             record: {
               likes:  likes.filter(
-                (id: any) => id != api.authStore.model.id
+                (id: any) => id != api.authStore.model().id
               ),
             },
           }) 
@@ -105,7 +117,7 @@ export default function User(props: {
             collection: "comments",
             id: id,
             record: {
-              likes: [...likes, api.authStore.model.id],
+              likes: [...likes, api.authStore.model().id],
             },
           })
           .then((e: any) => {
@@ -118,161 +130,247 @@ export default function User(props: {
     }
   }
 
+  function updatePostCache(id: string, record: any) {
+    for(var i in api.cacehStore.keys()){
+       if(api.cacehStore.keys()[i].includes(`posts`)){
+          let cache = JSON.parse(api.cacehStore.get(api.cacehStore.keys()[i]))
+          cache.value.items.map((e:any, index:number)=>{
+            if(e.expand.author && e.expand.author.id === id){
+              e.expand.author = record
+              cache.value.items[index].expand.author = record 
+             
+              api.cacehStore.set(api.cacehStore.keys()[i], cache.value, 1200)
+            }
+          })
+       }
+    }
+  }
+
   function follow() {
+ 
+    
+    
     switch (true) {
-      case user.followers.includes(api.authStore.model.id):
+      case  followers.includes(api.authStore.model().id):
+       setFollowers(followers.filter((u: any) => u != api.authStore.model().id));
+       updatePostCache(props.params.user.id, {...props.params.user, followers: followers.filter((u: any) => u != api.authStore.model().id)})
         api
           .update({
             collection: "users",
             id: props.params.user.id,
             record: {
-              followers: user.followers.filter(
-                (id: any) => id != api.authStore.model.id
-              ),
+              followers:  followers.filter((u: any) => u != api.authStore.model().id),
             },
           })
           .then((e: any) => {
-            setUser(e);
+            
+            
+            let updatedFollowing = api.authStore.model().following.filter((id:any)=>id != props.params.user.id)
+            api.update({ collection: "users", id: api.authStore.model().id, record: {following: updatedFollowing}}).then((e:any)=>{api.authStore.update()})
+  
+            
           });
+
+
+           
         break;
 
-      default:
+      default: 
+        setFollowers([...followers, api.authStore.model().id]);
+        updatePostCache(props.params.user.id, {...props.params.user, followers: [...props.params.user.followers, api.authStore.model().id]})
         api
           .update({
             collection: "users",
             id: props.params.user.id,
             record: {
-              followers: [...user.followers, api.authStore.model.id],
+              followers: [...user.followers, api.authStore.model().id],
             },
           })
-          .then((e: any) => {
-            setUser(e);
+          .then((e: any) => { 
+            api.update({ collection: "users", id: api.authStore.model().id, record: {following: [...api.authStore.model().following, props.params.user.id]}}).then((e:any)=>{api.authStore.update()})
+        
           });
+         
         break;
     
     }
+    
+     
+    
   }
-  
+
  
   useEffect(() => {
     if (isIntialized.current && isFetching) {
       isIntialized.current = true;
       return;
     }
- 
-    api
+    window.scrollTo({top:0, behavior:"smooth"})
+   
+    
+    if(api.cacehStore.get(`user-feed-posts-${1}-${user.id}`)){
+      let cache = JSON.parse(api.cacehStore.get(`user-feed-posts-${1}-${user.id}`))
+      setArray(cache.value.items);
+      setTotalPages(cache.value.totalPages); 
+      setTotalItems(cache.value.totalItems);
+      setIsFetching(false);
+      setHasMore(true);
+      return;
+    }else{
+      console.log('cache miss')
+      api
       .list({
         collection: "posts",
         limit: 10,
-        filter: `author.id ="${user.id}"`,
-        expand: ["author"],
-        page: page,
+        filter: `author.id ="${props.params.user.id}"`,
+        expand: ["author", "comments.user", "user", "post", "post.author", "author.followers", "author.following", "author.following.followers", "author.following.following"],
+        page:  1,
         sort: `-created`,
       })
       .then((e: any) => {
-        setArray([...array, ...e.items]);
-        setIsFetching(false);
+        console.log(e)
+        setArray(e.items);
         setTotalPages(e.totalPages);
+        setTotalItems(e.totalItems);
+        setHasMore(true);
+        setIsFetching(false);
+        if(!api.cacehStore.has(`user-feed-posts-${1}-${user.id}`)){ api.cacehStore.set(`user-feed-posts-${1}-${user.id}`, {items:e.items, totalItems:e.totalItems, totalPages: e.totalPages}, 1200)}
       });
+    }
+     
 
     return () => {
       isIntialized.current = false;
     };
-  }, []);
-
+  }, [props.params.user]);
+   
   const swapPage = useCallback((page: string) => {
-    setArray([]);
-    setPage(1);
-    setIsFetching(true);
-    swapFeed(page, 0);
     setFeedPage(page);
+    swapFeed(page, 1);
   }, []);
 
-  function swapFeed(page: string, pg: number = 0) {
+ 
+  function swapFeed(pageValue: string, pg: number = 0) {
+    if(api.cacehStore.has(`user-feed-${pageValue}-${pg}-${user.id}`)){
+      setIsFetching(false);
+      let cache = JSON.parse(api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`))
+      setArray(cache.value.items);
+      setTotalPages(cache.value.totalPages);
+      setTotalItems(cache.value.totalItems);
+      console.log(array)
+      return
+    }
+    
+  
     let filterString =
-      page === "posts"
+      pageValue === "posts"
         ? `author.id ="${user.id}"`
-        : page === "likes"
-        ? `likes?~"${user.id}" && author.id !="${user.id}"`
-        : page === "replies"
+        : pageValue === "likes"
+        ? `likes~"${user.id}" && author.id != "${user.id}"`
+        : pageValue === "replies"
         ? `user.id ="${user.id}" && post.author.id !="${user.id}"`
-        : page === "media"
+        : pageValue === "media"
         ? `file != "" && author.id ="${user.id}"`
         : "";
-
+  
     let collection =
-      page === "posts" || page === "likes"
+    pageValue === "posts" || pageValue === "likes"
         ? "posts"
-        : page === "replies"
+        : pageValue === "replies"
         ? "comments"
-        : page === "media"
+        : pageValue === "media"
         ? "posts"
         : "";
-
-    api
+ 
+       
+  
+      api
       .list({
         collection: collection,
         limit: 10,
         filter: filterString,
-        expand: ["author", "comments.user", "user", "post", "post.author"],
-        page: pg,
+        expand: ["author", "comments.user", "user", "post", "post.author", "author.followers", "author.following", "author.following.followers", "author.following.following"],
+        page: 1,
         sort: `-created`,
       })
       .then((e: any) => {
-        console.log(e);
+        if(!api.cacehStore.has(`user-feed-${pageValue}-${page}-${user.id}`)){ api.cacehStore.set(`user-feed-${pageValue}-${page}-${user.id}`, {items:e.items, totalItems:e.totalItems, totalPages: e.totalPages}, 230)}
+        
         setArray(e.items);
-        setTimeout(
-          () => {
-            setIsFetching(false);
-          },
-          feedPage === "media" ? 2500 : 0
-        );
+        setTotalPages(e.totalPages);
+        setTotalItems(e.totalItems);
+        setHasMore(true);
+       setTimeout(() => {
+        setIsFetching(false);
+        }, 500);
+         
       });
   }
-
+   
   function loadMore() {
-    if (page >= totalPages || isFetching) {
-      hasMore.current = false;
-      return;
+    
+ 
+    switch(true){
+      case array.length >= totalItems:
+        setHasMore(false);
+        return;
+      case api.cacehStore.has(`user-feed-${feedPage}-${page + 1}-${user.id}`):
+        setIsFetching(false);
+        let cache = JSON.parse(api.cacehStore.get(`user-feed-${feedPage}-${page + 1}-${user.id}`))
+        setArray([...array, ...cache.value.items]);
+        setTotalPages(cache.value.totalPages);
+        setTotalItems(cache.value.totalItems); 
+        return
+      default:
+        api
+        .list({
+          collection:
+            feedPage === "posts"
+              ? "posts"
+              : feedPage === "likes"
+              ? "posts"
+              : feedPage === "replies"
+              ? "comments"
+              : feedPage === "media"
+              ? "posts"
+              : "",
+          limit: 10,
+          filter:
+            feedPage === "posts"
+              ? `author.id ="${user.id}"`
+              : feedPage === "likes"
+              ? `likes?~"${user.id}" && author.id != "${user.id}"`
+              : feedPage === "replies"
+              ? `author.id ="${user.id}"`
+              : feedPage === "media"
+              ? `file != "" && author.id ="${user.id}"`
+              : "",
+          expand: ["author", "post", "comments.user", "post.author"],
+          sort: `-created`,
+          page: page + 1,
+        })
+        .then((e: any) => {
+         
+          api.cacehStore.set(`user-feed-${feedPage}-${page + 1}-${user.id}`, {items:e.items, totalItems:e.totalItems, totalPages: e.totalPages}, 230)
+          setArray([...array, ...e.items]);
+          setIsFetching(false); 
+          setTotalPages(e.totalPages);
+          setTotalItems(e.totalItems); 
+          
+          setPage((page) => page + 1);
+        });
+        break;
     }
-    setPage(page + 1);
-    api
-      .list({
-        collection:
-          feedPage === "posts"
-            ? "posts"
-            : feedPage === "likes"
-            ? "posts"
-            : feedPage === "replies"
-            ? "comments"
-            : feedPage === "media"
-            ? "posts"
-            : "",
-        limit: 10,
-        filter:
-          feedPage === "posts"
-            ? `author.id ="${user.id}"`
-            : feedPage === "likes"
-            ? `likes?~"${user.id}"`
-            : feedPage === "replies"
-            ? `author.id ="${user.id}"`
-            : feedPage === "media"
-            ? `file != "" && author.id ="${user.id}"`
-            : "",
-        expand: ["author", "post", "comments.user", "post.author"],
-        sort: `-created`,
-        page:  page,
-      })
-      .then((e: any) => {
-        setArray([...array, ...e.items]);
-        setTotalPages(e.totalPages);
-      });
+  
+  
+      
+    
   }
   async function save() {
     let userObj: any = {};
     let linkreg = /(?:https):\/\/[\n\S]+/g;
     switch (true) {
-      case user.username !== props.params.user.username &&
+      case user.username !==  props.params.user.username &&
         user.username.length < 3:
         alert("Username must be at least 3 characters long.");
         return;
@@ -286,9 +384,8 @@ export default function User(props: {
         break;
       case user.bio !== props.params.user.bio && user.bio.length < 3:
         alert("Bio must be at least 3 characters long.");
-      case user.social !== props.params.user.social &&
-        linkreg.test(user.social) === false:
-        alert("Social link is invalid.");
+      case user.social !== props.params.user.social 
+      && !user.social.includes('Strafe:') || !user.social.match(linkreg):
         return;
       default:
         break;
@@ -336,27 +433,48 @@ export default function User(props: {
         setUser(res);
       }
       //@ts-ignore
-      document.getElementById("edit-modal")?.close();
+      if(typeof window !== "undefined") document.getElementById("edit-modal")?.close();
     } catch (error) {
       console.log(error);
     }
   }
 
   return (
-    <div className=" w-full">
-      <div className="flex p-3  justify-between">
-        <svg
+    <div 
+    
+    key={props.params.user.id}
+    className=" relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto" >
+        <SideBarLeft page={props.page} swapPage={props.swapPage} setParams={props.setParams} params={props.params} setLastPage={props.setLastPage} lastPage={props.lastPage} />
+      {
+        typeof window !== "undefined" && windowScroll > 1050
+          && array.length > 0
+          ? 
+          
+          <div 
+          className="xl:mt-24"
+          onClick={()=>typeof window !== "undefined" ? window.scrollTo({top:0, behavior:"smooth"}) : null}
+          className="fixed z-[999] cursor-pointer top-4 p-3 w-fit h-10  xl:top-24 border border-slate-200 shadow hover:font-bold  translate-x-0 inset-x-0  mx-auto flex hero gap-2 text-white    rounded-full bg-[#43b1f1]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" dataSlot="icon" className="w-5 h-5">
+  <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
+</svg>
+Scroll to top
+          </div>
+          : null
+        }
+      <div className="flex flex-col relative  xl:border xl:border-[#f9f9f9]  xl:w-[35vw] lg:w-[35vw] md:w-[35vw]">
+      <div className="flex p-3 hero sticky top-0 mb-2 z-[9999] bg-white justify-between">
+       <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
+       <svg
           onClick={() => {
-            setUser({})
-            setArray([])
-            props.swapPage(props.lastPage);
+            props.setLastPage(props.page); 
+            props.swapPage("home");
             
           }}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="w-5 h-5
-             
+          className="xl:w-6 xl:h-6 w-5 h-5 cursor-pointer
+           
               
              "
         >
@@ -366,7 +484,8 @@ export default function User(props: {
             clip-rule="evenodd"
           ></path>
         </svg>
-        <p className="text-1xl">@{user.username}</p>
+       </div>
+        <p className="text-1xl ">@{user?.username}</p>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -376,10 +495,10 @@ export default function User(props: {
           <path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
         </svg>
       </div>
-      <div className="relative h-32 flex flex-col gap-4">
+      <div className="relative h-44 flex  mt-2 flex-col gap-4">
         {banner !== "" ? (
           <img
-            src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.banner}`}
+            src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params?.user?.id}/${user?.banner}`}
             alt=""
             className="w-full h-full object-cover"
           />
@@ -390,10 +509,10 @@ export default function User(props: {
           <img
             src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.avatar}`}
             alt=""
-            className=" w-20  h-20 rounded-full  object-cover avatar  absolute bottom-[-3vh] left-2   border-2   border-white"
+            className=" w-24  h-24 rounded   object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
           />
           <div className="absolute right-2 flex gap-5 ">
-            {props.params.user.id !== api.authStore.model.id ? (
+            {props.params.user.id !== api.authStore.model().id ? (
               <>
                 <button className="   btn-outline border-slate-200   ">
                   <svg
@@ -417,18 +536,18 @@ export default function User(props: {
             )}
             <button
               onClick={() => {
-                user.id === api.authStore.model.id
+                user.id === api.authStore.model().id
                   ? (document
                       ?.getElementById("edit-modal")
                       // @ts-ignore
                       ?.showModal() as HTMLDialogElement)
                   : follow();
               }}
-              className="btn  text-white   btn-sm rounded-full bg-black"
+              className="btn  text-white hover:bg-black  btn-sm rounded-full bg-black"
             >
-              {user.id === api.authStore.model.id
+              {user.id === api.authStore.model().id
                 ? "Edit Profile"
-                : user.followers !== undefined && user.followers.includes( api.authStore.model.id)
+                :  followers.includes(api.authStore.model().id)
                 ? "Unfollow"
                 : "Follow"}
             </button>
@@ -441,12 +560,10 @@ export default function User(props: {
           <p className="text-2xl font-bold">{user.username}</p>
 
           {user.validVerified ? (
-            <img
-              src="/icons/verified.png"
-              width={25}
-              height={25}
-              alt="verified"
-            ></img>
+             
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" dataSlot="icon" className="w-8 fill-blue-500 text-white h-8">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+          </svg>
           ) : (
             ""
           )}
@@ -470,7 +587,7 @@ export default function User(props: {
         <p className="mt-6">
           {user.bio !== "" ? user.bio : "This user has not set a bio."}
         </p>
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:text-sm mb-5">
           <p className="hero flex mt-4 gap-2 w-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -501,7 +618,11 @@ export default function User(props: {
 
           {user.social !== "" ? (
             <p className="mt-4 hero flex gap-2 w-full">
-              <span className="text-md font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"  className="w-5 h-5">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+</svg>
+
+              <span className="text-md cursor-pointer font-medium">
                 <span
                   onClick={() => {
                     window.open(user.social);
@@ -520,11 +641,11 @@ export default function User(props: {
           <p className=" mt-2 text-md">
             <span className="font-bold">
               {" "}
-              {user.followers !== undefined
-                ? user.followers.length
+              {followers !== undefined
+                ? followers.length
                 : 0}{" "}
             </span>
-            {user.followers !== undefined && user.followers.length === 1
+            {followers !== undefined && followers.length === 1
               ? "Follower"
               : "Followers"}
           </p>
@@ -536,17 +657,65 @@ export default function User(props: {
             </span>
             Following
           </p>
+           
+          
         </div>
+        
       </div>
-
-      <div className="flex flex-row p-2 gap-2 justify-between">
+      {
+        user.expand?.followers 
+        && user.id !== api.authStore.model().id
+        && user.expand?.followers.length > 0
+        ?  <div className="avatar-group mx-3 -space-x-6 flex gap-8 text-sm hero rtl:space-x-reverse">
+        {
+          user.expand.followers.map((e:any)=>{
+             console.log(e)
+             if(api.authStore.model().following.includes(e.id)){
+         
+               return (
+                 <>
+                 <div className="avatar rounded mt-2">
+                 <div className="w-4">
+                   <img 
+                     
+                    src={api.cdn.url({id:e.id, collection:'users', file:e.avatar})} alt="" className="rounded w-full h-full object-cover" />
+                 </div>
+               </div>
+               <p className="mt-2 opacity-70 hover:underline cursor-pointer">
+          Followed By {
+            user.expand.followers.map((e:any)=>{
+              if(api.authStore.model().following.includes(e.id)){
+                return (
+                  <span>
+                  {e.username}
+                </span>
+                )
+              }
+            }) 
+          }
+        </p>
+                 </>
+               
+               ) 
+                
+                
+            
+             } 
+          })
+        }
+         
+        
+      </div>
+      : ""
+      }
+      <div className="flex flex-row p-2 gap-2 justify-between    xl:border-[#f9f9f9] ">
         <a
           role="tab"
           onClick={() => {
             feedPage !== "posts" ? swapPage("posts") : "";
           }}
           className={`
-           p-2   ${feedPage === "posts" ? "active font-bold   " : ""}
+           p-2  cursor-pointer  ${feedPage === "posts" ? "active font-bold   " : ""}
         `}
         >
           Posts
@@ -559,10 +728,10 @@ export default function User(props: {
 
         <a
           onClick={() => {
-            feedPage !== "replies" ? swapPage("replies") : "";
+             feedPage !== "replies" ? swapPage("replies") : "";
           }}
           role="tab"
-          className={`   p-2  ${feedPage === "replies" ? "active  " : ""}`}
+          className={`  cursor-pointer  p-2  ${feedPage === "replies" ? "active  " : ""}`}
         >
           Replies
           {feedPage === "replies" ? (
@@ -577,7 +746,7 @@ export default function User(props: {
           }}
           role="tab"
           className={`
-           p-2  ${feedPage === "media" ? "active font-bold  " : ""}
+           p-2  cursor-pointer ${feedPage === "media" ? "active font-bold  " : ""}
         `}
         >
           Media
@@ -593,7 +762,7 @@ export default function User(props: {
           }}
           role="tab"
           className={`
-         p-2 ${feedPage === "likes" ? "active font-bold" : ""}
+         p-2  cursor-pointer ${feedPage === "likes" ? "active font-bold" : ""}
         `}
         >
           Likes
@@ -606,7 +775,7 @@ export default function User(props: {
       </div>
 
       <InfiniteScroll
-        hasMore={true}
+        hasMore={hasMore}
         dataLength={array.length}
         next={loadMore}
         loader={""}
@@ -615,14 +784,17 @@ export default function User(props: {
           <div
             className={
               feedPage === "media"
-                ? "grid grid-row-3 grid-cols-3 gap-3 p-2 mb-24"
-                : `flex flex-col gap-3 p-3 mb-24`
+                ? "grid grid-row-3 grid-cols-3 gap-3   mb-24 xl:p-0 p-2"
+                : `flex flex-col  xl:p-0 p-4 mb-24   xl:border xl:border-[#f9f9f9]  ${
+                  array.length < 2 ? 'border-b-0 border-b-transparent' : ''
+                }`
             }
           >
             {isFetching && feedPage !== "media"
               ? Array.from(Array(10).keys()).map((e: any) => {
                   return (
                     <Loading
+                    className="p-4 h-32 rounded"
  
                     ></Loading>
                   );
@@ -631,138 +803,108 @@ export default function User(props: {
               ? array.map((e: any, index: number) => {
                   return (
                     <div
-                      className={index === array.length - 1 ? "mt-5" : ""}
+                      className={index === array.length - 1 ? "sm:mt-3" : "mb-6"}
                        
                       id={e.id}
                     >
                       <Post
+                        cache={api.cacehStore.get(`user-feed-posts-${page}-${user.id}`) ? JSON.parse(api.cacehStore.get(`user-feed-posts-${page}-${user.id}`)) : null}  
                         {...e}
                         swapPage={props.swapPage}
                         setParams={props.setParams}
+                        page={props.page}
+                        currentPage={page}
+                        updateCache={(key: string, value: any) => {
+                          let cache = JSON.parse(api.cacehStore.get(`user-feed-${feedPage}-${page}-${user.id}`))
+                          let index = cache.value.items.findIndex((e:any)=>e.id === key)
+                          cache.value.items.forEach((e:any, index:number)=>{
+                            if(e.id === key){
+                              cache.value.items[index] = value
+                            }
+                          })
+                          for(var i in api.cacehStore.keys()){
+                             let k = api.cacehStore.keys()[i]
+                             if(k.includes('home-posts')){
+                                  let items = JSON.parse(api.cacehStore.get(k)).value.items
+                                  items.forEach((e:any, index:number)=>{
+                                    if(e.id === key){
+                                      items[index] = value
+                                    }
+                                  })
+                                  api.cacehStore.set(k, {items:items, totalItems:JSON.parse(api.cacehStore.get(k)).value.totalItems, totalPages:JSON.parse(api.cacehStore.get(k)).value.totalPages}, 230)
+                             }
+                          }
+
+                        
+                          api.cacehStore.set(`user-feed-${feedPage}-${page}-${user.id}`, cache.value, 230)
+                        }}
                       
                       ></Post>
                     </div>
                   );
                 })
               : feedPage === "replies"
-              ? array.map((e: any) => {
-                 // append comment
-                 comments.push(e);
-                  return (
-                    <div className="mt-5   mb-6"  >
-                    <div className="flex   justify-between">
-                      <div className="flex flex-row  gap-2   ">
-                        <img
-                          src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${e.expand.user.id}/${e.expand.user.avatar}`}
-                          alt="profile"
-                          className="rounded-full w-12 h-12 cursor-pointer"
-                        ></img>
-                        <div className="flex flex-col  o">
-                          <div className="flex flex-row gap-2 hero">
-                            <p
-                              onClick={() => {
-                                
-                                props.swapPage("user");
-                                props.setParams({ user: e.expand.user });
-                              }}
-                            >
-                              <span className="capitalize font-bold">
-                                {e.expand.user?.name}
-                              </span>
-                            </p>
-              
+              ?  array.length > 0 ? array.map((e: any) => {
+                 
+                return (
+                  <div className=" xl:mt-0   mb-6 xl:p-3 lg:p-3 md:p-3 md:mt-0 lg:mt-0"  >
+                  <div className="flex   justify-between">
+                    <div className="flex flex-row  gap-2   ">
+                      <img
+                        src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${e.expand?.user?.id}/${e.expand?.user?.avatar}`}
+                        alt="profile"
+                        className="rounded object-cover w-12 h-12 cursor-pointer"
+                      ></img>
+                      <div className="flex flex-col  ">
+                        <div className="flex flex-row gap-2  h-0 mt-2 hero">
+                          <p
+                            onClick={() => {
+                              props.swapPage("user");
+                              props.setParams({ user: e.expand.user });
                              
-                            <p className="hover:underline">
-                              @{e.expand.user.username}
-                            </p>
-                            {e.expand.user?.validVerified ? (
-                              <img
-                                src="/icons/verified.png"
-                                width={15}
-                                height={15}
-                                alt="verified"
-                              ></img>
-                            ) : (
-                              ""
-                            )}
-                            {e.expand.user.postr_plus ? (
-                              <div
-                                className="tooltip z[-1]"
-                                data-tip={`Subscriber since ${ 
-                                  new Date(
-                                    e.expand.user.plus_subscriber_since
-                                  ).toLocaleDateString()
-                                }`}
-                              >
-                                <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
-                                  Postr+ Sub
-                                </span>
-                              </div>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-2   absolute end-2 ">
-                          <p>{parseDate(e.created)}</p>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-6 h-6"
+                            }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                            />
-                          </svg>
+                            <span className="capitalize font-bold">
+                              {e.expand.user?.username}
+                            </span>
+                          </p>
+            
+                           
+                          <p className="hover:underline text-sm opacity-50">
+                            @{e.expand.user?.username}
+                          </p>
+                          {e.expand.user?.validVerified ? (
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" dataSlot="icon" className="w-6 fill-blue-500 text-white h-6">
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                         </svg>
+                          ) : (
+                            ""
+                          )}
+                          {e.expand.user?.postr_plus ? (
+                            <div
+                              className="tooltip z[-1]"
+                              data-tip={`Subscriber since ${ 
+                                new Date(
+                                 e.expand.user ? e.expand.user?.plus_subscriber_since : ""
+                                ).toLocaleDateString()
+                              }`}
+                            >
+                              <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
+                                Postr+ Sub
+                              </span>
+                            </div>
+                          ) : (
+                            ""
+                          )}
+                          <p>
+                      ·
+                      </p>        <p>{parseDate(e.created)}</p>
                         </div>
+                         
                       </div>
-                    </div>
-                    <div className="mt-3 mb-4 ">
-                      <p
-                        className="mt-2"
-                        ref={(r) => {
-                          if (r && e.text) {
-                           r.innerHTML = e.text;
-                          }
-                        }}
-                      ></p>
                      
-              
-               
-                      <div className="flex gap-5 mt-5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className={`w-6 h-6 cursor-pointer ${
-                            comments.find((c: any) => c.id === e.id).likes.includes(api.authStore.model.id)
-                              ? "fill-red-500 text-red-500"
-                              : ""
-                          }`}
-
-                          onClick={() => {
-                            likeReply(
-                              comments.find((c: any) => c.id === e.id).likes,
-                              e.id,
-                              setComments
-                            );
-                          }}
-                          
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                          />
-                        </svg>
-              
+                      <div className="flex gap-2   absolute end-2 ">
+                 
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -770,66 +912,130 @@ export default function User(props: {
                           strokeWidth={1.5}
                           stroke="currentColor"
                           className="w-6 h-6"
-                          onClick={() => {
-                            //@ts-ignore
-                            document.getElementById(props.id + "comments")?.showModal();
-                          }}
                         >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                            d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
                           />
                         </svg>
-              
-                        <svg
-                          onClick={() => {
-                            navigator.share({
-                              title: "View " + e.expand.user.username + "'s comment",
-                              text:  e.content,
-                              url: window.location.href,
-                            });
-                          }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke-width="1.5"
-                          stroke="currentColor"
-                          className="
-              cursor-pointer
-              w-6 h-6
-              
-              "
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"
-                          ></path>
-                        </svg>
-                       
-                      </div>
-                      <div className="flex gap-5 mt-5 ">
-                        <p>
-                          Replied to <span 
-                          onClick={() => {
-                            props.setParams({ user: e.expand.post.expand.author });
-                          }}
-                          className="underline text-blue-500">@{e.expand.post.expand.author.username}</span>
-                        </p>
                       </div>
                     </div>
-              
-                
-                    
                   </div>
-                  );
-                })
+                  <div className="mt-3 mb-4 ">
+                    <p
+                      className="mt-2"
+                      ref={(r) => {
+                        if (r && e.text) {
+                         r.innerHTML = e.text;
+                        }
+                      }}
+                    ></p>
+                   
+            
+             
+                    <div className="flex gap-5 mt-5">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className={`w-6 h-6 cursor-pointer ${
+                          comments.find((c: any) => c.id === e.id)?.likes.includes(api.authStore.model().id)
+                            ? "fill-red-500 text-red-500"
+                            : ""
+                        }`}
+
+                        onClick={() => {
+                          likeReply(
+                            comments.find((c: any) => c.id === e.id).likes,
+                            e.id,
+                            setComments
+                          );
+                        }}
+                        
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                        />
+                      </svg>
+            
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                        onClick={() => {
+                          //@ts-ignore
+                          document.getElementById(props.id + "comments")?.showModal();
+                        }}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                        />
+                      </svg>
+            
+                      <svg
+                        onClick={() => {
+                          navigator.share({
+                            title: "View " + e.expand.user.username + "'s comment",
+                            text:  e.content,
+                            url: window.location.href,
+                          });
+                        }}
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        className="
+            cursor-pointer
+            w-6 h-6
+            
+            "
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"
+                        ></path>
+                      </svg>
+                     
+                    </div>
+                    <div className="flex gap-5 mt-5 ">
+                      <p>
+                        Replied to <span 
+                        onClick={() => {
+                          props.setParams({ user:  e.expand.post.expand.author }) 
+                        }}
+                        className="underline text-blue-500 cursor-pointer">@{e.expand?.post?.expand?.author.username}</span>
+                      </p>
+                    </div>
+                  </div>
+            
+              
+                  
+                </div>
+                );
+              })
+              : array.length === 0 ? <div className="text-center text-2xl mt-2">
+                <p className="font-extrabold ">
+                  @{props.params.user.username} has not replied to any posts yet.
+                </p>
+              </div> : ""
               : feedPage === "media"
               ? array.map((e: any) => {
                   let url = `https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${e.id}/${e.file}`;
                   return (
-                    <LazyImage
+                     <div className="p-2">
+                      <LazyImage
                       onClick={() => {
                         //@ts-ignore
                         document.getElementById(e.id + "file")?.showModal();
@@ -838,7 +1044,7 @@ export default function User(props: {
                       height="100%"
                       width="100%"
                       alt=""
-                      className="w-full rounded-md h-44 object-cover"
+                      className="w-full   rounded-md h-44 object-cover"
                     >
                       <Modal id={e.id + "file"} height="h-[100vh]">
                         <div className="flex flex-col justify-center items-center h-full bg-[#121212]  relative">
@@ -864,6 +1070,7 @@ export default function User(props: {
                         </div>
                       </Modal>
                     </LazyImage>
+                    </div>
                   );
                 })
               : ""}
@@ -871,8 +1078,10 @@ export default function User(props: {
         }
       </InfiniteScroll>
 
-      <Modal id="edit-modal">
-        <div className="mx-2 mt-3">
+      <Modal id="edit-modal"
+      height="xl:h-[75vh] xl:rounded-box xl:max-w-[75vw] h-screen"
+      >
+        <div className="mx-2 mt-3    p-0" >
           <div className="flex hero justify-between">
             <svg
               onClick={() => {
@@ -882,7 +1091,7 @@ export default function User(props: {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-5 h-5
+              className="w-5 h-5 cursor-pointer
              
               
              "
@@ -936,7 +1145,7 @@ export default function User(props: {
           onChange={(e) => {
             if (e.target.files) {
                let file = e.target.files[0];
-              setBannerBlob(file);
+               setBannerBlob(new Blob([file], {type:file.type}))
               
                 let reader = new FileReader();
                 reader.onload = (e) => {
@@ -944,20 +1153,21 @@ export default function User(props: {
                   bannerRef.current.src = e.target?.result;
                 };
                 reader.readAsDataURL(file);
+                 
                
             }
             // @ts-ignore
           }}
         />
-        <div className="flex flex-col relative mt-4">
-          <div className="relative h-32 flex flex-col gap-4">
+        <div className="flex flex-col croll   relative mt-4">
+          <div className="relative h-24 mb-6   flex flex-col w-full gap-2">
             {user.banner !== "" || bannerBlob !== null ? (
-              <div className="relative h-32">
+              <div className="relative h-[9rem]">
                 <img
                   src={
                     bannerBlob !== null
-                      ? bannerBlob
-                      : `https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.banner}`
+                      ?  URL.createObjectURL(bannerBlob)
+                      : `https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${user.id}/${user.banner}`
                   }
                   ref={bannerRef}
                   alt=""
@@ -1051,7 +1261,7 @@ export default function User(props: {
                     }
                     ref={avatarRef}
                     alt=""
-                    className="w-20 h-20 object-cover avatar rounded-full border-slate-200 border-2"
+                    className="w-20 h-20 object-cover avatar rounded  border-slate-200 border-2"
                   />
 
                   <label
@@ -1127,8 +1337,8 @@ export default function User(props: {
               </div>
             )}
           </div>
-          <div className="mt-12  p-5 ">
-            <div className="relativ  flex flex-col gap-5  ">
+          <div className="mt-12  p-3 sm:scroll ">
+            <div className="relativ  flex flex-col gap-3  ">
               <div>
                 <label>Username</label>
                 <textarea
@@ -1196,7 +1406,7 @@ export default function User(props: {
                 <label>
                   Social{" "}
                   <span className="text-sm opacity-50">
-                    (Instagram, Twitter, website etc.)
+                    (Strafe, Twitter, Instagram, Website.)
                   </span>
                 </label>
                 <textarea
@@ -1220,7 +1430,56 @@ export default function User(props: {
           </div>
         </div>
       </Modal>
-      <BottomNav swapPage={props.swapPage} />
+      </div> 
+      <div className="xl:drawer   xl:w-[auto]   xl:drawer-end xl:drawer-open lg:drawer-open   ">
+            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+
+            <div className="drawer-side">
+              <label
+                htmlFor="my-drawer-2"
+                aria-label="close sidebar"
+                className="drawer-overlay"
+              ></label>
+              <ul className="p-4  w-80   min-h-full   text-base-content">
+                {/* Sidebar content here */}
+                <li className="flex flex-col gap-5 text-sm">
+                  <li>
+                    <a className=" bg-base-200 w-full rounded  menu text-md">
+                      <p>
+                        Subscribe to{" "}
+                        <span className="from-blue-500 to-purple-500 bg-gradient-to-r text-white text-transparent bg-clip-text font-bold">
+                          Postr ++
+                        </span>
+                        <p>Become a supporter and unlock exclusive benefits</p>
+                      </p>
+                      <button className="btn btn-primary btn-sm rounded-full  mt-2 w-[50%]">
+                        Subscribe
+                      </button>
+                    </a>
+                  </li>
+                  <li className="flex flex-row gap-5">
+                    <a className="cursor-pointer hover:underline">Terms of service</a>
+                    <a href="/information/privacy.pdf"  className="cursor-pointer hover:underline">Privacy Policy</a>
+                  </li>
+                  <li className="flex flex-row gap-5">
+                    <a href=""  className="cursor-pointer hover:underline">Help and safety</a>
+                    <a className="cursor-pointer hover:underline">Accessibility</a>
+                  </li>
+                  <li>
+                    Pkg version:{" 1.6.7 "}
+                  </li>
+                  <li>
+                    <a >
+                    © 2023 Postr-inc. All rights reserved
+                    </a>
+                  </li>
+                </li>
+              </ul>
+            </div>
+          </div>
+     <div className="xl:hidden lg:hidden md:hidden">
+     <BottomNav swapPage={props.swapPage} />
+     </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter} from 'next/font/google'
 import Head from 'next/head'
 import './globals.css'
-
+import { GeistSans } from 'geist/font/sans';
  
 const inter = Inter({ subsets: ['latin'] })
  
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className={inter.className}>{children}</body>
+      <body className={GeistSans.className}>{children}</body>
       <Head>
       <link rel="shortcut icon" href="/icons/icon-blue.jpg" type="image/x-icon" />
       <link rel='manifest' href='/pwa/manifest.json' />

@@ -1,30 +1,49 @@
-"use client";
-import Image from 'next/image'
-import Footer from '@/src/components/footer'
-import {useRef, useState } from 'react'
-import { api } from '@/src/api/api';
-export default function Login(props: any) {
-   let curTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "darkMode" : "lightmode"
+'use client';
+import {useEffect, useRef, useState } from 'react'
+import { api } from '@/src/api/api'
+import Footer from '@/app/footer'
+ 
+export default function Login(props:any) {
+   let [isClient, setClient] = useState(false)
+   useEffect(() => {
+      if(typeof window !== "undefined") setClient(true)
+   }, [])
+   if(api.authStore.isValid()){
+      props.swapPage('home')
+   }
+   let curTheme = " "
+   if(typeof window !== "undefined")   curTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "darkMode" : "lightMode"
    let [btnState, setBtnState] = useState(false)
 
    async  function oauth(type:string){
-      api.oauth({provider:type, redirect_uri:'/', redirect: false}).then((res:any)=>{
-         props.swapPage("home")
-         console.log(res)
-      })
+      
+       await api.oauth({provider:type, redirect_uri:'/'})
+       props.setLastPage('login')
+       props.swapPage('home')
    }
 
- 
-   return (
-      <> 
+   useEffect(() => {
+      if(!btnState){
+         setTimeout(() => {
+            setBtnState(false)
+         }, 1000);
+      }
+   }, [btnState])
+   return  <>
+   {
+      isClient ? <div>
+
+   
       <div className=" relative    p-5 w-screen  justify-center flex flex-col gap-5 mx-auto
       xl:w-[30vw] lg:w-[50vw]
-      "  >
+      "  
+     
+      >
 
 
          <div className=' mb-12 flex flex-col gap-5  '>
             <div className='flex gap-2 hero justify-center'>
-               <Image src="/icons/icon-blue.jpg" alt='postr logo' width={40} height={40} className='rounded'></Image>
+               <img src="/icons/icon-blue.jpg" alt='postr logo' width={40} height={40}></img>
 
             </div>
             <p className=' mt-2 font-bold text-3xl '>
@@ -52,21 +71,22 @@ export default function Login(props: any) {
          </button>
          <p className='mt-2 mb-2 text-sm'>
             By signing up you are agree to comply with the <span className='text-rose-500'>Terms</span> and
-            <a  href="/information/privacy.pdf" className='text-rose-500'> Privacy Policy</a>.
+            <span className='text-rose-500'> Privacy Policy</span>.
          </p>
          <div className='divider mt-0 h-0 before:opacity-50 after:opacity-50 after:bg-slate-200 before:rounded-full after:rounded-full'>Or</div>
          <button 
-         onClick={()=>window.location.href="/auth/signup"}
+         onClick={()=> typeof window !== "undefined" ? window.location.href = "/auth/register" : null}
          className='btn  text-white hover:bg-rose-500  bg-rose-500'>
             Create Account
          </button>
          <p className='mt-2 mb-2'>
-            Email and password: <span className='text-rose-500 cursor-pointer' onClick={()=>window.location.href="/auth/login"}>Login</span>
+            Already have an account?  <span className='text-rose-500 cursor-pointer' onClick={()=> typeof window !== "undefined" ? window.location.href = "/auth/login" : null}>Login</span>
          </p>
         
-      
+         <Footer className="mt-16" />
       </div>
-      <Footer />
-      </>
-   )
+      </div> : null
+
+   }
+   </>
 }

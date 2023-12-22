@@ -47,6 +47,7 @@ export const LazyImage = memo(function LazyImage(props: {
          
             onClick={() => (props.onClick ? props.onClick() : null)}
             src={props.src}
+            fetchPriority="high"
             alt={props.alt}
             width={props.width}
             height={props.height}

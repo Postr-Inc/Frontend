@@ -47,13 +47,10 @@ const created = (created: any) => {
 };
 function CommentModal(props: any) {
   let [comment, setComment] = useState("");
- 
-  
+
   async function createComment() {
-   
     switch (true) {
-      case  comment.length < 1:
-        
+      case comment.length < 1:
         break;
       default:
         try {
@@ -67,16 +64,22 @@ function CommentModal(props: any) {
             },
             expand: ["user"],
           });
-          props.setComments([...props.comments, res]); 
-         
+          props.setComments([...props.comments, res]);
+
           api.update({
             collection: "posts",
             id: props.post.id,
             record: {
-              comments: [...props.comments.map((e: any)=>e.id), res.id],
+              comments: [...props.comments.map((e: any) => e.id), res.id],
             },
-          }) 
-          props.updateCache(props.post.id, {...props.post, expand: {...props.post.expand, comments: [...props.comments, res]}})
+          });
+          props.updateCache(props.post.id, {
+            ...props.post,
+            expand: {
+              ...props.post.expand,
+              comments: [...props.comments, res],
+            },
+          });
           setComment("");
         } catch (error) {
           console.log(error);
@@ -105,7 +108,6 @@ function CommentModal(props: any) {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                
                 className="w-5 h-5"
               >
                 <path
@@ -128,8 +130,7 @@ function CommentModal(props: any) {
           {props.comments.length > 0 ? (
             props.comments.map((comment: any) => {
               return (
-            
-                  <Comment
+                <Comment
                   id={comment.id}
                   key={comment.id}
                   expand={comment.expand}
@@ -142,13 +143,21 @@ function CommentModal(props: any) {
                   user={comment.expand.user}
                   setParams={props.setParams}
                   swapPage={props.swapPage}
-                  deleteComment={()=>{
-                    props.setComments(props.comments.filter((e: any)=>e.id != comment.id))
-                    props.updateCache(props.post.id, {...props.post, expand: {...props.post.expand, comments: props.comments.filter((e: any)=>e.id != comment.id)}})
+                  deleteComment={() => {
+                    props.setComments(
+                      props.comments.filter((e: any) => e.id != comment.id)
+                    );
+                    props.updateCache(props.post.id, {
+                      ...props.post,
+                      expand: {
+                        ...props.post.expand,
+                        comments: props.comments.filter(
+                          (e: any) => e.id != comment.id
+                        ),
+                      },
+                    });
                   }}
                 ></Comment>
-               
-            
               );
             })
           ) : (
@@ -235,9 +244,14 @@ function CommentModal(props: any) {
               />
               <button className="btn  hover:bg-white  bg-white border-start-0 rounded-full border-l-transparent border  rounded-l-none border-slate-200 absolute end-0 top-0 h-full  border-l-0 ">
                 {comment.length > 0 ? (
-                  <p className="text-sky-500"
-                  onClick={()=>{createComment()}}
-                  >Post</p>
+                  <p
+                    className="text-sky-500"
+                    onClick={() => {
+                      createComment();
+                    }}
+                  >
+                    Post
+                  </p>
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -245,7 +259,6 @@ function CommentModal(props: any) {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                     
                     className="w-8 h-8"
                   >
                     <path
@@ -274,8 +287,6 @@ export default function Post(props: any) {
   );
   let hasInitialized = useRef(false);
 
-   
-  
   async function handleLike() {
     switch (likes.includes(api.authStore.model().id)) {
       case true:
@@ -301,301 +312,319 @@ export default function Post(props: any) {
     }
   }
 
-
-   
   return (
-     
-      <div
+    <div
       key={props.id}
-        className={`xl:mt-0 w-full  xl:p-3    xl:mb-0 mb-6   ${
-          props.page !== "user" ? "xl:p-5 sm:p-2" : ""  &&
-          props.page == 'home' ? 'p-5' : ''
-        }`}
-      >
-        <div className="flex   justify-between">
-          <CommentModal
-            id={props.id + "comments"}
-            comments={comments}
-            post={props}
-            setComments={setComments}
-            setParams={props.setParams}
-            swapPage={props.swapPage}
-            updateCache={props.updateCache}
-          ></CommentModal>
-          <div className="flex flex-row  gap-2   ">
-            <img
-              onClick={() => {
-                console.log(props.expand.author);
-                props.setParams({ user: props.expand.author });
-                props.swapPage("user");
-              }}
-              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.expand.author?.id}/${props.expand.author?.avatar}`}
-              alt="profile"
-              className="rounded object-cover w-12 h-12 cursor-pointer"
-            ></img>
-            <div className="flex flex-col   heros">
-              <div className="flex flex-row h-0 mt-2 gap-2 hero">
-                <p
-                  onClick={() => {
-                    console.log(props.expand.author);
-                    props.setParams({ user: props.expand.author });
-                    props.swapPage("user");
-                  }}
-                >
-                  <span className="capitalize font-bold cursor-pointer">
-                    {props.expand.author?.username}
-                  </span>
-                </p>
-                <p className="hover:underline opacity-50 text-sm">
-                  @{props.expand.author?.username}
-                </p>
-                {props.expand.author?.validVerified ? (
-                  <div
-                    className="tooltip z[-1] tooltip-left"
-                    data-tip="This user is verified"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                     
-                      className="w-6 fill-blue-500 text-white h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                      />
-                    </svg>
-                  </div>
-                ) : (
-                  ""
-                )}
-                {
-                  props.expand.author?.isDeveloper ?  <div className="tooltip    rounded tooltip-left" data-tip="Postr Developer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4   h-4">
-<path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
-</svg>
-
-</div> : ""
-                }
-                {props.expand.author?.postr_plus ? (
-                  <div
-                    className="tooltip  "
-                    data-tip={`Subscriber since ${new Date(
-                      props.expand.author?.plus_subscriber_since
-                    ).toLocaleDateString()}`}
-                  >
-                    <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
-                      Postr+ Sub
-                    </span>
-                  </div>
-                ) : (
-                  ""
-                )}
-                ·<span>{created(props.created)}</span>
-                <div className="flex gap-2   absolute end-2 ">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+      className={`xl:mt-0 w-full  xl:p-3    xl:mb-0 mb-6   ${
+        props.page !== "user"
+          ? "xl:p-5 sm:p-2"
+          : "" && props.page == "home"
+          ? "p-5"
+          : ""
+      }`}
+    >
+      <div className="flex   justify-between">
+        <CommentModal
+          id={props.id + "comments"}
+          comments={comments}
+          post={props}
+          setComments={setComments}
+          setParams={props.setParams}
+          swapPage={props.swapPage}
+          updateCache={props.updateCache}
+        ></CommentModal>
+        <div className="flex flex-row  gap-2   ">
+          <img
+            onClick={() => {
+              console.log(props.expand.author);
+              props.setParams({ user: props.expand.author });
+              props.swapPage("user");
+            }}
+            src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.expand.author?.id}/${props.expand.author?.avatar}`}
+            alt="profile"
+            className="rounded object-cover w-12 h-12 cursor-pointer"
+          ></img>
+          <div className="flex flex-col   heros">
+            <div className="flex flex-row h-0 mt-2 gap-2 hero">
+              <p
+                onClick={() => {
+                  console.log(props.expand.author);
+                  props.setParams({ user: props.expand.author });
+                  props.swapPage("user");
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                />
-              </svg>
-            </div>
+                <span className="capitalize font-bold cursor-pointer">
+                  {props.expand.author?.username}
+                </span>
+              </p>
+              <p className="hover:underline opacity-50 text-sm">
+                @{props.expand.author?.username}
+              </p>
+              {props.expand.author?.validVerified ? (
+                <div
+                  className="tooltip z-[-1] tooltip-left"
+                  data-tip="This user is verified"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 fill-blue-500 text-white h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                ""
+              )}
+              {props.expand.author?.isDeveloper ? (
+                <div
+                  className="tooltip    rounded tooltip-left"
+                  data-tip="Postr Developer"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4   h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                ""
+              )}
+              {props.expand.author?.postr_plus ? (
+                <div
+                  className="tooltip tooltip-left "
+                  data-tip={`Subscriber since ${new Date(
+                    props.expand.author?.plus_subscriber_since
+                  ).toLocaleDateString()}`}
+                >
+                  <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
+                    Postr+ Sub
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              ·<span>{created(props.created)}</span>
+              <div className="flex gap-2   absolute end-2 ">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                  />
+                </svg>
               </div>
-            
             </div>
-             
           </div>
         </div>
-        <div className="mt-3 mb-4 ">
-          <p
-            className="mt-2"
-            ref={(e) => {
-              if (e && props.content) {
-                e.innerHTML = props.content;
-              }
+      </div>
+      <div className="mt-3 mb-4 ">
+        <p
+          className="mt-2"
+          ref={(e) => {
+            if (e && props.content) {
+              e.innerHTML = props.content;
+            }
+          }}
+        ></p>
+        {props.file ? (
+          <img
+            src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+            alt={props.file}
+            className="rounded-xl w-full h-96 mt-2 cursor-pointer object-cover"
+            onClick={() => {
+              //@ts-ignore
+              document.getElementById(props.id + "file")?.showModal();
             }}
-          ></p>
-          {props.file ? (
-            <img
+            height="h-96"
+          ></img>
+        ) : (
+          ""
+        )}
+
+        {/**Heart Icon */}
+        <div className="flex    gap-6 mt-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className={`w-6 h-6 cursor-pointer ${
+              likes.includes(api.authStore.model().id)
+                ? "fill-red-500 text-red-500"
+                : ""
+            }`}
+            onClick={(e) => {
+              console.log("clicked");
+              handleLike();
+            }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+            />
+          </svg>
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => {
+              //@ts-ignore
+              document.getElementById(props.id + "comments")?.showModal();
+            }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+            />
+          </svg>
+          <Repost />
+
+          <svg
+            onClick={() => {
+              navigator.share({
+                title: "View " + props.expand.author?.username + "'s post",
+                text: props.content.slice(0, 100),
+                url: window.location.href,
+              });
+            }}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6 cursor-pointer"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            />
+          </svg>
+
+          <Bookmark
+            id={props.id}
+            className={`w-6 h-6 cursor-pointer ${
+              bookmarked ? "fill-blue-500 text-blue-500" : ""
+            }`}
+            onClick={() => {
+              if (!api.authStore.model().bookmarks.includes(props.id)) {
+                api.update({
+                  collection: "users",
+                  id: api.authStore.model().id,
+                  record: {
+                    bookmarks: [...api.authStore.model().bookmarks, props.id],
+                  },
+                });
+                setRefresh(!refresh);
+              } else {
+                api.update({
+                  collection: "users",
+                  id: api.authStore.model().id,
+                  record: {
+                    bookmarks: api.authStore
+                      .model()
+                      .bookmarks.filter((id: any) => id != props.id),
+                  },
+                });
+                setRefresh(!refresh);
+              }
+              setBookmarked(!bookmarked);
+            }}
+          />
+        </div>
+      </div>
+      <div className="flex gap-5 mt-5  ">
+        {props.expand?.likes &&
+        props.expand?.likes[0].id !== api.authStore.model().id &&
+        props.expand.likes[0].avatar ? (
+          <div className="flex gap-2">
+            {
+              <>
+                <img
+                  src={api.cdn.url({
+                    id: props.expand?.likes[0].id,
+                    collection: "users",
+                    file: props.expand?.likes[0].avatar,
+                  })}
+                  alt={props.expand?.likes[0].avatar}
+                  className="rounded-full w-6 h-6 cursor-pointer"
+                ></img>
+                Liked by{" "}
+                <span className="font-bold hover:underline cursor-pointer">
+                  {props.expand?.likes[0].username ==
+                  api.authStore.model().username
+                    ? "you"
+                    : props.expand?.likes[0].username}
+                </span>{" "}
+                and {props.expand?.likes.length - 1} others
+              </>
+            }
+          </div>
+        ) : (
+          <p>
+            {likes.length} {likes.length == 1 ? "like" : "likes"}
+          </p>
+        )}
+        <span>·</span>
+        <p>
+          {comments.length} {comments.length == 1 ? "comment" : "comments"}
+        </p>
+      </div>
+      {props.file ? (
+        <Modal id={props.id + "file"} height=" h-[100vh]">
+          <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
+            <svg
+              onClick={() => {
+                //@ts-ignore
+                document.getElementById(props.id + "file")?.close();
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="  bg-base-200 btn btn-sm btn-circle fixed left-2 top-2"
+            >
+              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+
+            <LazyImage
               src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
               alt={props.file}
-              className="rounded-xl w-full h-96 mt-2 cursor-pointer object-cover"
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id + "file")?.showModal();
-              }}
-              height="h-96"
-            ></img>
-          ) : (
-            ""
-          )}
-
-          {/**Heart Icon */}
-          <div className="flex    gap-6 mt-5">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={`w-6 h-6 cursor-pointer ${
-                likes.includes(api.authStore.model().id)
-                  ? "fill-red-500 text-red-500"
-                  : ""
-              }`}
-              onClick={(e) => {
-                console.log("clicked");
-                handleLike();
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-              />
-            </svg>
-
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6 cursor-pointer"
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id + "comments")?.showModal();
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-              />
-            </svg>
-            <Repost />
-
-            <svg
-              
-              onClick={() => {
-                navigator.share({
-                  title: "View " + props.expand.author?.username + "'s post",
-                  text: props.content.slice(0, 100),
-                  url: window.location.href,
-                });
-              }}
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-               
-              className="w-6 h-6 cursor-pointer"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-              />
-            </svg>
-
-            <Bookmark
-              id={props.id}
-              className={`w-6 h-6 cursor-pointer ${
-                bookmarked ? "fill-blue-500 text-blue-500" : ""
-              }`}
-              onClick={() => {
-                if (!api.authStore.model().bookmarks.includes(props.id)) {
-                  api.update({
-                    collection: "users",
-                    id: api.authStore.model().id,
-                    record: {
-                      bookmarks: [...api.authStore.model().bookmarks, props.id],
-                    },
-                  });
-                  setRefresh(!refresh);
-                } else {
-                  api.update({
-                    collection: "users",
-                    id: api.authStore.model().id,
-                    record: {
-                      bookmarks: api.authStore
-                        .model()
-                        .bookmarks.filter((id: any) => id != props.id),
-                    },
-                  });
-                  setRefresh(!refresh);
-                }
-                setBookmarked(!bookmarked);
-              }}
-            />
+              className=" xl:w-[60vw] w-full h-full  object-cover  cursor-pointer"
+            ></LazyImage>
           </div>
-          
-        </div>
-        <div className="flex gap-5 mt-5  ">
-           
-            {
-               props.expand?.likes && props.expand?.likes[0].id !== api.authStore.model().id 
-               && props.expand.likes[0].avatar
-               ? <div className="flex gap-2">{
-                
-
-                  <>
-                  <img src={api.cdn.url({id:props.expand?.likes[0].id, collection: 'users', file: props.expand?.likes[0].avatar})} alt={props.expand?.likes[0].avatar} className="rounded-full w-6 h-6 cursor-pointer"></img> 
-                  Liked by  <span className="font-bold hover:underline cursor-pointer">{props.expand?.likes[0].username == api.authStore.model().username ? "you" : props.expand?.likes[0].username}</span> and {props.expand?.likes.length - 1} others
-                  </>
-                 
-              }
-               
-               </div>
-               : <p>
-                 {likes.length} {likes.length == 1 ? "like" : "likes" }
-               </p>
-            }
-            <span>
-            ·
-            </span>
-            <p>
-              {comments.length} {comments.length == 1 ? "comment" : "comments"}
-            </p>
-          </div>
-        {props.file ? (
-          <Modal id={props.id + "file"} height=" h-[100vh]">
-            <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
-              <svg
-                onClick={() => {
-                  //@ts-ignore
-                  document.getElementById(props.id + "file")?.close();
-                }}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="  bg-base-200 btn btn-sm btn-circle fixed left-2 top-2"
-              >
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-              </svg>
-
-              <LazyImage
-                src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-                alt={props.file}
-                className=" xl:w-[60vw] w-full h-full  object-cover  cursor-pointer"
-              ></LazyImage>
-            </div>
-          </Modal>
-        ) : null}
-      </div>
-    
+        </Modal>
+      ) : null}
+    </div>
   );
 }

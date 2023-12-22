@@ -10,7 +10,7 @@ import { LazyImage } from "@/src/components/Image";
 import Comment from "@/src/components/comment";
 import { Loading } from "@/src/components/icons/loading";
 import { api } from "@/src/api/api";
-import { SideBarLeft } from "@/src/components/Sidebars";
+import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 export default function User(props: {
   swapPage: Function;
   setParams: Function;
@@ -246,7 +246,9 @@ export default function User(props: {
       setArray(cache.value.items);
       setTotalPages(cache.value.totalPages);
       setTotalItems(cache.value.totalItems);
-      setIsFetching(false);
+      setTimeout(() => {
+        setIsFetching(false);
+      }, 500);
       setHasMore(true);
       return;
     } else {
@@ -524,6 +526,7 @@ export default function User(props: {
         swapPage={props.swapPage}
         setParams={props.setParams}
         params={props.params}
+        currentPage={props.page}
         setLastPage={props.setLastPage}
         lastPage={props.lastPage}
       />
@@ -1625,57 +1628,7 @@ export default function User(props: {
           </div>
         </Modal>
       </div>
-      <div className="xl:drawer   xl:w-[auto]   xl:drawer-end xl:drawer-open lg:drawer-open   ">
-        <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-
-        <div className="drawer-side">
-          <label
-            htmlFor="my-drawer-2"
-            aria-label="close sidebar"
-            className="drawer-overlay"
-          ></label>
-          <ul className="p-4  w-80   min-h-full   text-base-content">
-            {/* Sidebar content here */}
-            <li className="flex flex-col gap-5 text-sm">
-              <li>
-                <a className=" bg-base-200 w-full rounded  menu text-md">
-                  <p>
-                    Subscribe to{" "}
-                    <span className="from-blue-500 to-purple-500 bg-gradient-to-r text-white text-transparent bg-clip-text font-bold">
-                      Postr ++
-                    </span>
-                    <p>Become a supporter and unlock exclusive benefits</p>
-                  </p>
-                  <button className="btn btn-primary btn-sm rounded-full  mt-2 w-[50%]">
-                    Subscribe
-                  </button>
-                </a>
-              </li>
-              <li className="flex flex-row gap-5">
-                <a className="cursor-pointer hover:underline">
-                  Terms of service
-                </a>
-                <a
-                  href="/information/privacy.pdf"
-                  className="cursor-pointer hover:underline"
-                >
-                  Privacy Policy
-                </a>
-              </li>
-              <li className="flex flex-row gap-5">
-                <a href="" className="cursor-pointer hover:underline">
-                  Help and safety
-                </a>
-                <a className="cursor-pointer hover:underline">Accessibility</a>
-              </li>
-              <li>Pkg version:{" 1.6.7 "}</li>
-              <li>
-                <a>© 2023 Postr-inc. All rights reserved</a>
-              </li>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <SideBarRight></SideBarRight>
       <div className="xl:hidden lg:hidden md:hidden">
         <BottomNav swapPage={props.swapPage} />
       </div>

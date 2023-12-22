@@ -20,6 +20,12 @@ useEffect(() => {
       changePage("login");
       return;
     }
+
+    api.authStore.onChange(() => {
+      if (!api.authStore.isValid()) {
+        changePage("login");
+      }
+    });
     api.authStore.update()
   }
   return () => { hasInitialized.current = false };

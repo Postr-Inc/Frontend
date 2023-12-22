@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useCallback, useState, useEffect , memo} from "react";
 import { Loading } from "./icons/loading";
-import { api } from "@/app/page";
+
  
 export const LazyImage = memo(function LazyImage(props: {
     src: string;

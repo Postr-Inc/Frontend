@@ -132,6 +132,10 @@ function CommentModal(props: any) {
                   <Comment
                   id={comment.id}
                   key={comment.id}
+                  expand={comment.expand}
+                  comments={props.comments}
+                  level={1}
+                  likes={comment.likes}
                   post={props.post}
                   text={comment.text}
                   created={comment.created}
@@ -271,23 +275,7 @@ export default function Post(props: any) {
   let hasInitialized = useRef(false);
 
    
-  const debounce = (func: any, wait: any, immediate: any) => {
-    //dont debounce if immediate is set
-    let timeout: any;
-    return function () {
-      let context = this,
-        args = arguments;
-      let later = function () {
-        timeout = null;
-        if (!immediate) func.apply(context, args);
-      };
-      let callNow = immediate && !timeout;
-      //@ts-ignore
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-    };
-  };
+  
   async function handleLike() {
     switch (likes.includes(api.authStore.model().id)) {
       case true:
@@ -363,7 +351,7 @@ export default function Post(props: any) {
                 </p>
                 {props.expand.author?.validVerified ? (
                   <div
-                    className="tooltip z[-1]"
+                    className="tooltip z[-1] tooltip-left"
                     data-tip="This user is verified"
                   >
                     <svg
@@ -372,7 +360,7 @@ export default function Post(props: any) {
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      dataSlot="icon"
+                     
                       className="w-6 fill-blue-500 text-white h-6"
                     >
                       <path
@@ -385,6 +373,14 @@ export default function Post(props: any) {
                 ) : (
                   ""
                 )}
+                {
+                  props.expand.author?.isDeveloper ?  <div className="tooltip    rounded tooltip-left" data-tip="Postr Developer">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4   h-4">
+<path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+</svg>
+
+</div> : ""
+                }
                 {props.expand.author?.postr_plus ? (
                   <div
                     className="tooltip  "
@@ -461,7 +457,7 @@ export default function Post(props: any) {
               }`}
               onClick={(e) => {
                 console.log("clicked");
-                debounce(handleLike, 1000, true)();
+                handleLike();
               }}
             >
               <path
@@ -492,7 +488,7 @@ export default function Post(props: any) {
             <Repost />
 
             <svg
-              className="cursor-pointer"
+              
               onClick={() => {
                 navigator.share({
                   title: "View " + props.expand.author?.username + "'s post",
@@ -505,8 +501,8 @@ export default function Post(props: any) {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              dataSlot="icon"
-              className="w-6 h-6"
+               
+              className="w-6 h-6 cursor-pointer"
             >
               <path
                 strokeLinecap="round"
@@ -524,7 +520,7 @@ export default function Post(props: any) {
                 if (!api.authStore.model().bookmarks.includes(props.id)) {
                   api.update({
                     collection: "users",
-                    id: api.authStore.model.id,
+                    id: api.authStore.model().id,
                     record: {
                       bookmarks: [...api.authStore.model().bookmarks, props.id],
                     },
@@ -558,7 +554,7 @@ export default function Post(props: any) {
 
                   <>
                   <img src={api.cdn.url({id:props.expand?.likes[0].id, collection: 'users', file: props.expand?.likes[0].avatar})} alt={props.expand?.likes[0].avatar} className="rounded-full w-6 h-6 cursor-pointer"></img> 
-                  Liked by  <span className="font-bold hover:underline">{props.expand?.likes[0].username == api.authStore.model().username ? "you" : props.expand?.likes[0].username}</span> and {props.expand?.likes.length - 1} others
+                  Liked by  <span className="font-bold hover:underline cursor-pointer">{props.expand?.likes[0].username == api.authStore.model().username ? "you" : props.expand?.likes[0].username}</span> and {props.expand?.likes.length - 1} others
                   </>
                  
               }

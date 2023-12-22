@@ -1,3 +1,4 @@
+//@ts-nocheck
 var atobPolyfill:Function;
 
 if (typeof atob === 'function') {
@@ -22,7 +23,9 @@ if (typeof atob === 'function') {
                 continue;
             }
 
+            //@ts-ignore
             bs = bc % 4 ? bs * 64 + buffer : buffer;
+            
             if (bc++ % 4) {
                 output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
             }

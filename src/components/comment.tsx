@@ -19,25 +19,25 @@ export default function Comment(props: {
   let [likes, setLikes] = useState(props.likes);
 
   async function likeComment() {
-    switch (likes.includes(api.authStore.model.id)) {
+    switch (likes.includes(api.authStore.model().id)) {
       case true:
         console.log("unlike");
-        setLikes(likes.filter((id: any) => id != api.authStore.model.id));
+        setLikes(likes.filter((id: any) => id != api.authStore.model().id));
         await api.update({
           collection: "comments",
           id: props.id,
           record: {
-            likes: likes.filter((id: any) => id != api.authStore.model.id),
+            likes: likes.filter((id: any) => id != api.authStore.model().id),
           },
         });
         break;
 
       default:
-        setLikes([...likes, api.authStore.model.id]);
+        setLikes([...likes, api.authStore.model().id]);
         await api.update({
           collection: "comments",
           id: props.id,
-          record: { likes: [...likes, api.authStore.model.id] },
+          record: { likes: [...likes, api.authStore.model().id] },
         });
         break;
     }

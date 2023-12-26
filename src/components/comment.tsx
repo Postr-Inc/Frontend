@@ -85,7 +85,7 @@ export default function Comment(props: {
      ${props.level == 2 ? "p-5" : ""} 
     `}
     >
-      <div className="flex flex-col   gap-2 p-2 w-full     scroll">
+      <div className="flex flex-col relative  gap-2 p-2 w-full  ">
         <div className="flex flex-row">
           <img
             src={api.cdn.url({
@@ -114,7 +114,7 @@ export default function Comment(props: {
             ) : null}
             <p>·</p>
             <p className="opacity-50 font-semibold text-sm"> {created()}</p>
-            <div className="justify-between flex flex-row w-full absolut end-5">
+            <div className="justify-between flex flex-row w-full  absolute end-0">
               <div className="flex flex-row gap-5"></div>
               <details className="dropdown dropdown-left">
                 <summary className="m-1 ">

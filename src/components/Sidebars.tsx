@@ -1,63 +1,70 @@
+import { useState } from "react";
 import { api } from "../api/api";
+
 export function SideBarRight(props: any) {
-  return <>
-    <div className="xl:drawer   xl:w-[auto] xl:drawer-end xl:drawer-open lg:drawer-open   ">
-            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+  let [text, setText] = useState<any>("");
+  let maxlength = 140;
+  let [postimgs, setPostimgs] = useState<any>([]);
+  return (
+    <>
+      <div className="xl:drawer   xl:w-[auto] xl:drawer-end xl:drawer-open lg:drawer-open   ">
+        <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
-            <div className="drawer-side">
-              <label
-                htmlFor="my-drawer-2"
-                aria-label="close sidebar"
-                className="drawer-overlay"
-              ></label>
-              <ul className="p-4  w-80  min-h-full   text-base-content">
-                {/* Sidebar content here */}
-                <li className="flex flex-col gap-5 text-sm">
-                  <li>
-                    <a className=" bg-base-200 w-full rounded  menu text-md">
-                      <p>
-                        Subscribe to{" "}
-                        <span className="from-blue-500 to-purple-500 bg-gradient-to-r text-white text-transparent bg-clip-text font-bold">
-                          Postr ++
-                        </span>
-                        <p>Become a supporter and unlock exclusive benefits</p>
-                      </p>
-                      <button className="btn btn-primary btn-sm rounded-full  mt-2 w-[50%]">
-                        Subscribe
-                      </button>
-                    </a>
-                  </li>
-                  <li className="flex flex-row gap-5">
-                    <a className="cursor-pointer hover:underline">
-                      Terms of service
-                    </a>
-                    <a
-                      href="/information/privacy.pdf"
-                      className="cursor-pointer hover:underline"
-                    >
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li className="flex flex-row gap-5">
-                    <a href="" className="cursor-pointer hover:underline">
-                      Help and safety
-                    </a>
-                    <a className="cursor-pointer hover:underline">
-                      Accessibility
-                    </a>
-                  </li>
-                  <li>Pkg version:{" 1.6.7 "}</li>
-                  <li>
-                    <a>© 2023 Postr-inc. All rights reserved</a>
-                  </li>
-                </li>
-              </ul>
-            </div>
-          </div>
-  </>
-
+        <div className="drawer-side">
+          <label
+            htmlFor="my-drawer-2"
+            aria-label="close sidebar"
+            className="drawer-overlay"
+          ></label>
+          <ul className="p-4  w-80  min-h-full   text-base-content">
+            {/* Sidebar content here */}
+            <li className="flex flex-col gap-5 text-sm">
+              <li>
+                <a className=" bg-base-200 w-full rounded  menu text-md">
+                  <p>
+                    Subscribe to{" "}
+                    <span className="from-blue-500 to-purple-500 bg-gradient-to-r text-white text-transparent bg-clip-text font-bold">
+                      Postr ++
+                    </span>
+                    <p>Become a supporter and unlock exclusive benefits</p>
+                  </p>
+                  <button className="btn btn-primary btn-sm rounded-full  mt-2 w-[50%]">
+                    Subscribe
+                  </button>
+                </a>
+              </li>
+              <li className="flex flex-row gap-5">
+                <a className="cursor-pointer hover:underline">
+                  Terms of service
+                </a>
+                <a
+                  href="/information/privacy.pdf"
+                  className="cursor-pointer hover:underline"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li className="flex flex-row gap-5">
+                <a href="" className="cursor-pointer hover:underline">
+                  Help and safety
+                </a>
+                <a className="cursor-pointer hover:underline">Accessibility</a>
+              </li>
+              <li>Pkg version:{" 1.6.7 "}</li>
+              <li>
+                <a>© 2023 Postr-inc. All rights reserved</a>
+              </li>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </>
+  );
 }
 export function SideBarLeft(props: any) {
+  const [postimgs, setPostimgs] = useState<any>([]);
+  let [text, setText] = useState<any>("");
+  let maxlength = 140;
   return (
     <>
       <div className="xl:drawer xl:w-[auto]     xl:drawer-open lg:drawer-open  ">
@@ -75,7 +82,9 @@ export function SideBarLeft(props: any) {
             <li className="">
               <a
                 className={`text-xl  ${
-                  props.currentPage == "home" ? "font-semibold text-blue-500" : ""
+                  props.currentPage == "home"
+                    ? "font-semibold text-blue-500"
+                    : ""
                 }`}
                 onClick={() => {
                   props.swapPage("home");
@@ -143,22 +152,27 @@ export function SideBarLeft(props: any) {
               <a
                 className={`text-xl
                   ${
-                    props.currentPage == "user" && props.params.user.username == api.authStore.model().username
-                      ? "font-semibold text-blue-500" 
+                    props.currentPage == "user" &&
+                    props.params.user.username == api.authStore.model().username
+                      ? "font-semibold text-blue-500"
                       : ""
                   }
                   `}
-                  onClick={()=>{
-                    props.setParams({user:api.authStore.model()})
-                    props.swapPage("user")
-                 }}
+                onClick={() => {
+                  props.setParams({ user: api.authStore.model() });
+                  props.swapPage("user");
+                }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`w-8 h-8 ${props.currentPage == "user" && props.params.user.id == api.authStore.model().id ? "fill-blue-500" : ""}`}
-                   
+                  className={`w-8 h-8 ${
+                    props.currentPage == "user" &&
+                    props.params.user.id == api.authStore.model().id
+                      ? "fill-blue-500"
+                      : ""
+                  }`}
                 >
                   <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
                 </svg>
@@ -202,16 +216,125 @@ export function SideBarLeft(props: any) {
               </a>
             </li>
             <li>
-            <div className="btn rounded-full text-xl bg-blue-500 text-white ">
-             <p>
-              Post
-             </p>
-          </div>
+              <div
+                onClick={() => {
+                  //@ts-ignore
+                  document.getElementById("createPost").showModal();
+                }}
+                className="btn rounded-full text-xl   focus:bg-blue-500 bg-blue-500 text-white "
+              >
+                <p>Post</p>
+              </div>
             </li>
           </ul>
-           
         </div>
       </div>
+      <dialog
+        id="createPost"
+        className="sm:modal  sm:modal-middle   p-5  xl:w-[25vw] rounded-box"
+      >
+        <div className="sm:modal-box "
+         
+        >
+          <div className="flex hero justify-between">
+            <p
+              className="cursor-pointer hover:text-red-500"
+              onClick={() => {
+                document.getElementById("createPost").close();
+              }}
+            >
+              Cancel
+            </p>
+            <button className="text-blue-500 text-md focus:outline-none">
+              Drafts
+            </button>
+          </div>
+          <div className={` py-4 flex flex-col 
+          ${
+            postimgs.length > 0 ?  text.lenght / maxlength > 1 ? "h-96" : "h-80" : "h-32"
+          }
+          
+          `}
+          style={{height: text.length > 0 ? 'auto' : ' '}}
+          >
+            <div className="flex flex-row      ">
+              <img
+                src={api.authStore.img()}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+ <div className="flex flex-col w-full">
+ <textarea
+              
+              className={`w-full mt-2 mx-3 
+              focus:outline scroll
+              h-32
+              resize-none outline-none`}
+              placeholder="What's happening?"
+               
+              onChange={(e) => {
+                setText(e.target.value);
+              }}
+            ></textarea>
+            <div className="scroll"> 
+                {
+                postimgs.length > 0 &&
+                <div className="flex flex-row mt-5  2  p-2 gap-2  overflow-y-hidden ">
+                  {
+                    Object.keys(postimgs).map((key) => {
+                      return (
+                        <img
+                          src={URL.createObjectURL(postimgs[key])}
+                          className=" object-cover w-32 h-32 rounded-md"
+                        />
+                      )
+                    })
+                  }
+                </div>
+              }</div>
+ </div>
+             
+            </div>
+            
+          </div>
+          
+          <div className="divider mt-0 mb-2 before:bg-[#f6f4f4] after:bg-[#fdf9f9]  after:text-slate-200"></div>
+        <div className="flex  h-full justify-between">
+          <input
+            type="file"
+            id="file-upload"
+            className="hidden"
+            multiple
+            onChange={(e) => {
+              setPostimgs(e.target.files);
+            }}
+          />
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer flex flex-row gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+              />
+            </svg>
+          </label>
+          <p className="  ">
+            {text.length}/{maxlength}
+          </p>
+          <button className="btn  btn-sm rounded-full ">Post</button>
+        </div>
+        </div>
+         
+      </dialog>
     </>
   );
 }

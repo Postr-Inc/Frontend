@@ -60,6 +60,7 @@ function CommentModal(props: any) {
               user: api.authStore.model().id,
               post: props.post.id,
               text: comment,
+              cacheKey: props.cacheKey,
               likes: [],
             },
             expand: ["user"],
@@ -68,6 +69,7 @@ function CommentModal(props: any) {
 
           api.update({
             collection: "posts",
+            cacheKey: props.cacheKey,
             id: props.post.id,
             record: {
               comments: [...props.comments.map((e: any) => e.id), res.id],
@@ -92,7 +94,7 @@ function CommentModal(props: any) {
   return (
     <dialog
       id={props.id}
-      className="   fixed top-0 left-0 w-full sm:modal placeholder: xl:rounded-xl  m-auto wfull   h-[80vh] f md:mt-5  md:rounded-xl  md:w-[40vw] xl:w-[30vw]     "
+      className="   fixed top-0 left-0 w-full sm:modal placeholder: xl:rounded-xl  m-auto     h-[80vh] f md:mt-5  md:rounded-xl  md:w-[40vw] xl:w-[30vw]     "
     >
       <div className="   xl:rounded-xl bg-base-100   scroll h-full w-full  shadow-none   ">
         <div className="flex flex-col   p-3 w-full  ">
@@ -118,11 +120,7 @@ function CommentModal(props: any) {
               </svg>
             </button>
             <div>Comments</div>
-            <div className="flex gap-5">
-              <button className="btn btn-sm bg-transparent text-sky-500 rounded-full">
-                Drafts
-              </button>
-            </div>
+            <div></div>
           </div>
         </div>
 
@@ -156,6 +154,8 @@ function CommentModal(props: any) {
                         ),
                       },
                     });
+                     
+                    api.delete({ collection: "comments", id: comment.id, cacheKey: props.cacheKey });
                   }}
                 ></Comment>
               );
@@ -294,10 +294,16 @@ export default function Post(props: any) {
         setLikes(likes.filter((id: any) => id != api.authStore.model().id));
         await api.update({
           collection: "posts",
+          cacheKey: props.cacheKey,
           id: props.id,
           record: {
             likes: likes.filter((id: any) => id != api.authStore.model().id),
           },
+        });
+        // up
+        props.updateCache(props.id, {
+          ...props,
+          likes: likes.filter((id: any) => id != api.authStore.model().id),
         });
         break;
 
@@ -305,8 +311,13 @@ export default function Post(props: any) {
         setLikes([...likes, api.authStore.model().id]);
         await api.update({
           collection: "posts",
+          cacheKey: props.cacheKey,
           id: props.id,
           record: { likes: [...likes, api.authStore.model().id] },
+        });
+        props.updateCache(props.id, {
+          ...props,
+          likes: [...likes, api.authStore.model().id],
         });
         break;
     }
@@ -315,11 +326,11 @@ export default function Post(props: any) {
   return (
     <div
       key={props.id}
-      className={`xl:mt-0 w-full  xl:p-3    xl:mb-0 mb-6   ${
-        props.page !== "user"
+      className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
+        props.page !== "user" && props.page !== "bookmarks"
           ? "xl:p-5 sm:p-2"
           : "" && props.page == "home"
-          ? "p-5"
+          ? "p-5  "
           : ""
       }`}
     >
@@ -329,6 +340,7 @@ export default function Post(props: any) {
           comments={comments}
           post={props}
           setComments={setComments}
+          cacheKey={props.cacheKey}
           setParams={props.setParams}
           swapPage={props.swapPage}
           updateCache={props.updateCache}
@@ -357,12 +369,13 @@ export default function Post(props: any) {
                   {props.expand.author?.username}
                 </span>
               </p>
-              <p className="hover:underline opacity-50 text-sm">
+              <p className="hover:underline opacity-50 text-sm md:hidden sm:hidden
+              ">
                 @{props.expand.author?.username}
               </p>
               {props.expand.author?.validVerified ? (
                 <div
-                  className="tooltip z-[-1] tooltip-left"
+                  className="tooltip z-[-1] sm:bg-white tooltip-left"
                   data-tip="This user is verified"
                 >
                   <svg
@@ -420,7 +433,7 @@ export default function Post(props: any) {
               ) : (
                 ""
               )}
-              ·<span>{created(props.created)}</span>
+              ·<span className="text-sm">{created(props.created)}</span>
               <div className="flex gap-2   absolute end-2 ">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -450,10 +463,13 @@ export default function Post(props: any) {
             }
           }}
         ></p>
-        {props.file ? (
-          <img
+         
+        {props.file.length > 0 ? (
+         
+             <>
+            <img
             src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-            alt={props.file}
+             
             className="rounded-xl w-full h-96 mt-2 cursor-pointer object-cover"
             onClick={() => {
               //@ts-ignore
@@ -461,10 +477,12 @@ export default function Post(props: any) {
             }}
             height="h-96"
           ></img>
+            </>
+            
         ) : (
           ""
         )}
-
+         
         {/**Heart Icon */}
         <div className="flex    gap-6 mt-5">
           <svg
@@ -490,7 +508,8 @@ export default function Post(props: any) {
             />
           </svg>
 
-          <svg
+           <div className="flex gap-2 hero w-12">
+           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -508,6 +527,8 @@ export default function Post(props: any) {
               d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
             />
           </svg>
+          {comments.length} 
+           </div>
           <Repost />
 
           <svg
@@ -537,28 +558,31 @@ export default function Post(props: any) {
             className={`w-6 h-6 cursor-pointer ${
               bookmarked ? "fill-blue-500 text-blue-500" : ""
             }`}
-            onClick={() => {
+            onClick={() => { 
               if (!api.authStore.model().bookmarks.includes(props.id)) {
-                api.update({
-                  collection: "users",
-                  id: api.authStore.model().id,
-                  record: {
-                    bookmarks: [...api.authStore.model().bookmarks, props.id],
-                  },
-                });
+                api.update({collection: "users", id: api.authStore.model().id, cacheKey: "userBookmarks" + api.authStore.model().id, expand:["bookmarks", "bookmarks.author"], record: {bookmarks: [...api.authStore.model().bookmarks, props.id]}}).then((res: any) => {
+                  api.authStore.update() 
+                  console.log(res);
+                  api.cacehStore.set("bookmarks", res.expand.bookmarks || [], 1200)
+                  props.deleteBookmark && props.deleteBookmark()
+                })
                 setRefresh(!refresh);
               } else {
                 api.update({
                   collection: "users",
                   id: api.authStore.model().id,
+                  cacheKey: "userBookmarks" + api.authStore.model().id,
+                  expand:["bookmarks", "bookmarks.author"],
                   record: {
-                    bookmarks: api.authStore
-                      .model()
-                      .bookmarks.filter((id: any) => id != props.id),
+                    bookmarks: api.authStore.model().bookmarks.filter( (e: any) => e != props.id),
                   },
-                });
+                }).then((res: any) => {  
+                  api.authStore.update() 
+                  api.cacehStore.set("bookmarks", res.expand ? res.expand.bookmarks : [], 1200)
+                  props.deleteBookmark && props.deleteBookmark()
+                })
                 setRefresh(!refresh);
-              }
+              } 
               setBookmarked(!bookmarked);
             }}
           />
@@ -573,7 +597,7 @@ export default function Post(props: any) {
               <>
                 <img
                   src={api.cdn.url({
-                    id: props.expand?.likes[0].id,
+                    id:  props.expand?.likes[0].id,
                     collection: "users",
                     file: props.expand?.likes[0].avatar,
                   })}
@@ -596,11 +620,10 @@ export default function Post(props: any) {
             {likes.length} {likes.length == 1 ? "like" : "likes"}
           </p>
         )}
-        <span>·</span>
-        <p>
-          {comments.length} {comments.length == 1 ? "comment" : "comments"}
-        </p>
+         
+        
       </div>
+       
       {props.file ? (
         <Modal id={props.id + "file"} height=" h-[100vh]">
           <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
@@ -617,11 +640,11 @@ export default function Post(props: any) {
               <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
             </svg>
 
-            <LazyImage
+            <img
               src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
               alt={props.file}
               className=" xl:w-[60vw] w-full h-full  object-cover  cursor-pointer"
-            ></LazyImage>
+            ></img>
           </div>
         </Modal>
       ) : null}

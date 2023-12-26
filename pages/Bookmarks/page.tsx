@@ -1,112 +1,187 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Post from "@/src/components/post";
 import { Loading } from "@/src/components/icons/loading";
 import BottomModal from "@/src/components/Bottomupmodal";
 import { api } from "@/src/api/api";
+import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
+import Scroller from "react-infinite-scroll-component";
+import BottomNav from "@/src/components/BottomNav";
+import Bookmark from "@/src/components/icons/bookmark";
+
 export default function Bookmarks(props: any) {
   let initialized = useRef(false);
   let [bookmarks, setBookmarks] = useState<any>([]);
+  let [isClient, setClient] = useState(false);
   async function loadBookmarks() {
-    let res: any = await api.list({
+    if (api.cacehStore.has("bookmarks")) {
+      let cache = JSON.parse(api.cacehStore.get("bookmarks")).value;
+      setBookmarks(cache);
+      return;
+    }
+    let res: any = await api.read({
       collection: "users",
-      page: 0,
-      limit: 1,
-      expand: ["bookmarks", "bookmarks.author", "bookmarks.comments", "bookmarks.comments.user"],
-      filter: `id= "${api.authStore.model().id}"`,
+      id: api.authStore.model().id,
+      expand: [
+        "bookmarks",
+        "bookmarks.author",
+        "bookmarks.comments",
+        "bookmarks.comments.user",
+      ],
     });
-   setTimeout(() => {
-    setBookmarks(res.items[0].expand.bookmarks);
-   }, 1000);
-          
+    console.log(res);
+    api.cacehStore.set(
+      "bookmarks",
+      res.expand["bookmarks"] ? res.expand["bookmarks"] : [],
+      1000 * 60 * 60 * 24 * 7
+    );
+    setBookmarks(res.expand["bookmarks"] ? res.expand["bookmarks"] : []);
   }
   if (!initialized.current && typeof window !== "undefined") {
     loadBookmarks();
     initialized.current = true;
   }
-  return <div className="p-2">
-     <div className="flex  p-2   justify-between">
-        <svg
-          onClick={() => {
-            setBookmarks([]);
-            props.setLastPage("bookmarks")
-            props.swapPage("home");
-          }}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-5 h-5
-             
-              
-             "
-        >
-          <path
-            fill-rule="evenodd"
-            d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-        
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className="w-5 h-5"
-          onClick={() => {
-            //@ts-ignore
-            document.getElementById("bookmarksModal")?.showModal();
-          }}
-        >
-          <path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
-        </svg>
-      </div>
+  useEffect(() => {
+    if (typeof window !== "undefined") setClient(true);
+  }, [bookmarks]);
+  return (
+    <>
+      {isClient ? (
+        <div className="relative xl:flex  sm:p-2  lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
+          <SideBarLeft
+            params={props.params}
+            setParams={props.setParams}
+            currentPage={props.currentPage}
+            swapPage={props.swapPage}
+          />
+          <div className="flex flex-col gap-5">
+            <div className="sticky bg-white z-[999] xl:mx-24 p-3 top-0">
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-col ">
+                  <p className="font-bold">Bookmarks</p>
+                  <p>@{api.authStore.model().username}</p>
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
 
-    <div className="p-2 mt-6 flex flex-col gap-5">
-    {
-       typeof window !== "undefined" &&  api.authStore.model().bookmarks.length > 0 && bookmarks && bookmarks.length < 1 ? Array.from(Array(10).keys()).map((i) => {
-        return <Loading />
-      }) :  bookmarks && bookmarks.length > 0 ? bookmarks.map((bookmark: any) => {
-        return (
-          <Post key={bookmark.id} {...bookmark} swapPage={props.swapPage} setParams={props.setParams} />
-        );
-      }) : <div className=" mx-auto justify-center flex flex-col">
-        <h1 className="text-2xl font-bold text-center">No Bookmarks 😢</h1>
-         
-         <p className="text-gray-500 text-sm  text-center prose
-        w-[300px] break-normal mt-3 
-         ">
-          Clicking the bookmark icon on a post will add it to your bookmarks.
-         </p>
-        
-      </div>
-    }
-    </div>
-    <BottomModal  height={`
-    ${
-     typeof window != "undefined" && api.authStore.model().bookmarks.length  < 1 ? "h-24" : "h-[40vh]"
-    }
-    relative`} id="bookmarksModal">
-      <p className={`w-full   text-red-500
-      ${
-        typeof window != "undefined" &&  api.authStore.model().bookmarks.length  < 1 ? "hidden" : ""
-      }
-      `}
-      
-      >
-        Clear all bookmarks?
-      </p>
-      <div className="p-5">
-      <button 
-      onClick={()=>{
-        //@ts-ignore
-        document.getElementById("bookmarksModal")?.close();
-      }}
-      className="btn rounded-full  
-      translate-x-0 inset-x-0 mx-auto
-      left-0 p-5  w-[95%] btn-ghost absolute bottom-2  border-slate-200 focus:outline-none">
-        Cancel
-      </button>
-      </div>
-    </BottomModal>
-  </div>
+            <div
+              className=" xl:mx-24     text-md   
+      relative 
+      xl:w-[35vw]
+      md:w-[80vw]
+     
+             xl:text-sm md:text-sm"
+            >
+              <div className="mb-32">
+                {api.authStore.model().bookmarks.length > 0 ? (
+                  bookmarks.map((post: any) => {
+                    return (
+                      <Post
+                        {...post}
+                        key={post.id}
+                        post={post}
+                        page={"bookmarks"}
+                        params={props.params}
+                        setParams={props.setParams}
+                        currentPage={props.currentPage}
+                        swapPage={props.swapPage}
+                        deleteBookmark={async () => {
+                          setBookmarks(
+                            bookmarks.filter(
+                              (bookmark: any) => bookmark.id !== post.id
+                            )
+                          );
+                        }}
+                        updateCache={(key: string, value: any) => {
+                          console.log("updating cache");
+                          let cache = JSON.parse(
+                            api.cacehStore.get("bookmarks")
+                          );
+                          cache.value.forEach((e: any, index: number) => {
+                            if (e.id === key) {
+                              cache.value[index] = value;
+                            }
+                          });
+                          for (var i in api.cacehStore.keys()) {
+                            let key = api.cacehStore.keys()[i];
+                            if (key.includes("user-feed") || key.includes("home")) {
+                               
+                                let cache = JSON.parse(api.cacehStore.get(key));
+                                cache.value.items.forEach((e: any, index: number) => {
+                                  if (e.id ===  value.id) {
+                                    cache.value.items[index] = value;
+                                    api.update({id: e.id, collection: "posts", record: value, cacheKey: key})
+                                    
+                                  }
+                                });
+                                api.cacehStore.set(key, cache.value, 1000 * 60 * 60 * 24 * 7);
+                                
+                            }
+                          }
+                          api.cacehStore.set(
+                            "bookmarks",
+                            cache.value,
+                            1000 * 60 * 60 * 24 * 7
+                          );
+                        }}
+                      />
+                    );
+                  })
+                ) : (
+                  <div
+                    className="p-5 flex flex-col mt-6 justify-center mx-auto  
+              w-[30rem]
+             drop-shadow-md not-sr-only  
+          
+        "
+                  >
+                    <span className="  font-bold text-2xl mt-2 ">
+                      Save posts to view them here
+                    </span>
+                    <span className="text-sm">
+                      Dont let your favorite posts get away. Tap the bookamark
+                      icon on the bottom of any post to add it to this
+                      collection. So you can easily find it later.
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="xl:hidden lg:hidden">
+                <BottomNav
+                  params={props.params}
+                  setParams={props.setParams}
+                  currentPage={props.currentPage}
+                  swapPage={props.swapPage}
+                />
+              </div>
+            </div>
+          </div>
+
+          <SideBarRight
+            params={props.params}
+            setParams={props.setParams}
+            currentPage={props.currentPage}
+            swapPage={props.swapPage}
+          />
+        </div>
+      ) : (
+        ""
+      )}
+    </>
+  );
 }

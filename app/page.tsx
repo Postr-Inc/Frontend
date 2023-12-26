@@ -5,6 +5,7 @@ import User from "@/pages/user/user";
 import Home from "@/pages/home/home";
 import Login from "@/pages/auth/page";
 import { api } from "@/src/api/api";
+import Bookmarks from "@/pages/Bookmarks/page";
  
 export default function Page() {
 
@@ -40,6 +41,9 @@ useEffect(() => {
      
     case  api.authStore.isValid() &&  page == "user":
         return (<User   key={crypto.randomUUID()} swapPage={changePage} setParams={setParams} params={params} setLastPage={setLastPage} lastPage={lastPage}  page={page} />)
+        break;
+    case api.authStore.isValid() && page == "bookmarks":
+        return (<Bookmarks  key={crypto.randomUUID()} swapPage={changePage} setParams={setParams} params={params} setLastPage={setLastPage} lastPage={lastPage}  page={page} />)
         break;
     default:
         

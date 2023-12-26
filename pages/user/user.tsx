@@ -23,6 +23,7 @@ export default function User(props: {
     api
       .list({
         collection: "users",
+        cacheKey: `user-${props.params.username}`,
         limit: 1,
         page: 0,
         filter: `username="${props.params.username}"`,
@@ -50,6 +51,36 @@ export default function User(props: {
   let [avatar, setAvatar] = useState<any>(null);
   let [bannerBlob, setBannerBlob] = useState<any>(null);
   let [windowScroll, setWindowScroll] = useState(0);
+  let [online, setOnline] = useState<any>(false)
+  let isMounted = useRef(false);
+   
+
+  // todo: make an event to update automatically
+ useEffect(() => {
+  api.online.forEach((e: any) => {
+    if(e?.userID == props.params?.user.id 
+
+      && !isMounted.current
+      ){
+        
+        isMounted.current = true
+        
+    }
+  });
+  
+  }, [props.params?.user.id])
+
+  typeof window != "undefined" && window.addEventListener("online", () => {
+    api.online.forEach((e: any) => {
+      
+      if(e?.userID == props.params?.user.id){
+             if(!online){
+               setOnline(true)
+             }
+      }
+    });
+  });
+  
   let [isFetching, setIsFetching] = useState(true);
   let maxBioLength = 160;
   let bannerRef = useRef<any>(null);
@@ -110,6 +141,8 @@ export default function User(props: {
           .update({
             collection: "comments",
             id: id,
+            cacheKey: `comment-${id}`,
+            expand: [],
             record: {
               likes: likes.filter((id: any) => id != api.authStore.model().id),
             },
@@ -128,6 +161,8 @@ export default function User(props: {
           .update({
             collection: "comments",
             id: id,
+            cacheKey: `comment-${id}`,
+            expand: [],
             record: {
               likes: [...likes, api.authStore.model().id],
             },
@@ -174,6 +209,8 @@ export default function User(props: {
           .update({
             collection: "users",
             id: props.params.user.id,
+            cacheKey: `user-${props.params.user.id}`,
+       
             record: {
               followers: followers.filter(
                 (u: any) => u != api.authStore.model().id
@@ -187,6 +224,8 @@ export default function User(props: {
             api
               .update({
                 collection: "users",
+                cacheKey: `user-${api.authStore.model().id}`,
+                expand: [],
                 id: api.authStore.model().id,
                 record: { following: updatedFollowing },
               })
@@ -207,6 +246,7 @@ export default function User(props: {
           .update({
             collection: "users",
             id: props.params.user.id,
+            cacheKey: `user-${props.params.user.id}`,
             record: {
               followers: [...user.followers, api.authStore.model().id],
             },
@@ -251,8 +291,7 @@ export default function User(props: {
       }, 500);
       setHasMore(true);
       return;
-    } else {
-      console.log("cache miss");
+    } else { 
       api
         .list({
           collection: "posts",
@@ -279,17 +318,15 @@ export default function User(props: {
           setTotalItems(e.totalItems);
           setHasMore(true);
           setIsFetching(false);
-          if (!api.cacehStore.has(`user-feed-posts-${1}-${user.id}`)) {
-            api.cacehStore.set(
-              `user-feed-posts-${1}-${user.id}`,
-              {
-                items: e.items,
-                totalItems: e.totalItems,
-                totalPages: e.totalPages,
-              },
-              1200
-            );
-          }
+          api.cacehStore.set(
+            `user-feed-posts-${1}-${user.id}`,
+            {
+              items: e.items,
+              totalItems: e.totalItems,
+              totalPages: e.totalPages,
+            },
+            230
+          );
         });
     }
 
@@ -300,31 +337,31 @@ export default function User(props: {
 
   const swapPage = useCallback((page: string) => {
     setFeedPage(page);
-    swapFeed(page, 1);
+    setPage(1);
+    swapFeed(page);
   }, []);
 
   function swapFeed(pageValue: string, pg: number = 0) {
+    setIsFetching(true);
     if (api.cacehStore.has(`user-feed-${pageValue}-${pg}-${user.id}`)) {
-      setIsFetching(false);
-      let cache = JSON.parse(
-        api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`)
-      );
+      let cache = JSON.parse(api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`));
       setArray(cache.value.items);
       setTotalPages(cache.value.totalPages);
       setTotalItems(cache.value.totalItems);
-      console.log(array);
+      setHasMore(true);
       return;
     }
-
+    
+    
     let filterString =
       pageValue === "posts"
         ? `author.id ="${user.id}"`
         : pageValue === "likes"
         ? `likes~"${user.id}" && author.id != "${user.id}"`
         : pageValue === "replies"
-        ? `user.id ="${user.id}" && post.author.id !="${user.id}"`
+        ? `user.id="${user.id}" &&post.author.id!="${user.id}"`
         : pageValue === "media"
-        ? `file != "" && author.id ="${user.id}"`
+        ? `author.id ="${user.id}" && file:length > 0  `
         : "";
 
     let collection =
@@ -335,13 +372,14 @@ export default function User(props: {
         : pageValue === "media"
         ? "posts"
         : "";
-
+        setArray([])
     api
       .list({
         collection: collection,
         limit: 10,
         filter: filterString,
-        expand: [
+        cacheKey: `user-feed-${pageValue}-${pg}-${user.id}`,
+         expand: [
           "author",
           "comments.user",
           "user",
@@ -352,10 +390,11 @@ export default function User(props: {
           "author.following.followers",
           "author.following.following",
         ],
-        page: 1,
+        page: 0,
         sort: `-created`,
       })
       .then((e: any) => {
+         
         if (!api.cacehStore.has(`user-feed-${pageValue}-${page}-${user.id}`)) {
           api.cacehStore.set(
             `user-feed-${pageValue}-${page}-${user.id}`,
@@ -367,30 +406,25 @@ export default function User(props: {
             230
           );
         }
-
+        
         setArray(e.items);
         setTotalPages(e.totalPages);
         setTotalItems(e.totalItems);
         setHasMore(true);
         setTimeout(() => {
           setIsFetching(false);
-        }, 500);
+        }, feedPage === "media" ? 700 : 500);
       });
   }
 
   function loadMore() {
     switch (true) {
-      case array.length >= totalItems:
+      case page >= totalPages:
+        console.log("no more");
         setHasMore(false);
         return;
       case api.cacehStore.has(`user-feed-${feedPage}-${page + 1}-${user.id}`):
-        setIsFetching(false);
-        let cache = JSON.parse(
-          api.cacehStore.get(`user-feed-${feedPage}-${page + 1}-${user.id}`)
-        );
-        setArray([...array, ...cache.value.items]);
-        setTotalPages(cache.value.totalPages);
-        setTotalItems(cache.value.totalItems);
+      
         return;
       default:
         api
@@ -412,15 +446,35 @@ export default function User(props: {
                 : feedPage === "likes"
                 ? `likes?~"${user.id}" && author.id != "${user.id}"`
                 : feedPage === "replies"
-                ? `author.id ="${user.id}"`
+                ? `user.id="${user.id}" &&post.author.id!="${user.id}"`
                 : feedPage === "media"
-                ? `file != "" && author.id ="${user.id}"`
+                ? `file:length > 0  && author.id ="${user.id}"`
                 : "",
-            expand: ["author", "post", "comments.user", "post.author"],
+                expand: [
+                  "author",
+                  "comments.user",
+                  "user",
+                  "post",
+                  "post.author",
+                  "author.followers",
+                  "author.following",
+                  "author.following.followers",
+                  "author.following.following",
+                ],
             sort: `-created`,
             page: page + 1,
           })
           .then((e: any) => {
+            if(feedPage === "media"){
+              console.log(e);
+                e.items = e.items.filter((e: any) => e.file.length > 0)
+
+            }
+            setArray([...array, ...e.items]);
+            setTotalPages(e.totalPages);
+            setTotalItems(e.totalItems);
+            setHasMore(true);
+            setPage(page + 1);
             api.cacehStore.set(
               `user-feed-${feedPage}-${page + 1}-${user.id}`,
               {
@@ -430,12 +484,6 @@ export default function User(props: {
               },
               230
             );
-            setArray([...array, ...e.items]);
-            setIsFetching(false);
-            setTotalPages(e.totalPages);
-            setTotalItems(e.totalItems);
-
-            setPage((page) => page + 1);
           });
         break;
     }
@@ -558,7 +606,10 @@ export default function User(props: {
           Scroll to top
         </div>
       ) : null}
-      <div className="flex flex-col relative  xl:border xl:border-[#f9f9f9]  xl:w-[35vw] lg:w-[35vw] md:w-[35vw]">
+      <div className="flex   xl:mx-24     text-md   
+         relative 
+         xl:w-[35vw]
+         md:w-[80vw] flex-col xl:border xl:border-[#f9f9f9]   lg:w-[50vw]  ">
         <div className="flex p-3 hero sticky top-0 mb-2 z-[9999] bg-white justify-between">
           <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
             <svg
@@ -601,12 +652,18 @@ export default function User(props: {
           ) : (
             <div className="w-full h-full bg-gray-300"></div>
           )}
-          <div className="flex justify-between relative">
-            <img
+          <div className="flex justify-between relative w-full">
+           <div className="indicator w-24  ">
+            {
+             online ? <span className="indicator-item absolute mt-[2vh] right-0 bg-green-500 badge"></span> :  <span className="indicator-item absolute mt-[2vh] right-0 bg-[#4a4a4a] badge"></span>
+            }
+           <img
               src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.avatar}`}
               alt=""
               className=" w-24  h-24 rounded   object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
             />
+           </div>
+           
             <div className="absolute right-2 flex gap-5 ">
               {props.params.user.id !== api.authStore.model().id ? (
                 <>
@@ -803,7 +860,7 @@ export default function User(props: {
         user.expand?.followers.length > 0 ? (
           <div className="avatar-group mx-3 -space-x-6 flex gap-8 text-sm hero rtl:space-x-reverse">
             {user.expand.followers.map((e: any) => {
-              console.log(e);
+               
               if (api.authStore.model().following.includes(e.id)) {
                 return (
                   <>
@@ -918,7 +975,7 @@ export default function User(props: {
             <div
               className={
                 feedPage === "media"
-                  ? "grid grid-row-3 grid-cols-3 gap-3   mb-24 xl:p-0 p-2"
+                  ? "grid grid-row-3 grid-cols-3 gap-3   mb-24 xl:p-0  sm:p-3 p-2"
                   : `flex flex-col  xl:p-0 p-4 mb-24   xl:border xl:border-[#f9f9f9]  ${
                       array.length < 2 ? "border-b-0 border-b-transparent" : ""
                     }`
@@ -928,7 +985,9 @@ export default function User(props: {
                 Array.from(Array(10).keys()).map((e: any) => {
                   return <Loading className="p-4 h-32 rounded"></Loading>;
                 })
-              ) : feedPage === "posts" || feedPage === "likes" ? (
+              ) : feedPage === "posts" || feedPage === "likes"   
+              && array.length > 0 ?
+              (
                 array.map((e: any, index: number) => {
                   return (
                     <div
@@ -949,7 +1008,9 @@ export default function User(props: {
                               )
                             : null
                         }
+                        
                         {...e}
+                        cacheKey={`user-feed-posts-${page}-${user.id}`}
                         swapPage={props.swapPage}
                         setParams={props.setParams}
                         page={props.page}
@@ -960,35 +1021,22 @@ export default function User(props: {
                               `user-feed-${feedPage}-${page}-${user.id}`
                             )
                           );
-                          let index = cache.value.items.findIndex(
-                            (e: any) => e.id === key
-                          );
+                                                    
                           cache.value.items.forEach((e: any, index: number) => {
                             if (e.id === key) {
                               cache.value.items[index] = value;
                             }
-                          });
+                          }); 
                           for (var i in api.cacehStore.keys()) {
                             let k = api.cacehStore.keys()[i];
                             if (k.includes("home-posts")) {
-                              let items = JSON.parse(api.cacehStore.get(k))
-                                .value.items;
-                              items.forEach((e: any, index: number) => {
-                                if (e.id === key) {
-                                  items[index] = value;
-                                }
-                              });
-                              api.cacehStore.set(
-                                k,
-                                {
-                                  items: items,
-                                  totalItems: JSON.parse(api.cacehStore.get(k))
-                                    .value.totalItems,
-                                  totalPages: JSON.parse(api.cacehStore.get(k))
-                                    .value.totalPages,
-                                },
-                                230
-                              );
+                               let cache = JSON.parse(api.cacehStore.get(k));
+                               cache.value.items.forEach((e: any, index: number) => {
+                                 if (e.id === key) {
+                                   cache.value.items[index] = value;
+                                 }
+                               });
+                                api.cacehStore.set(k, cache.value, 230);
                             }
                           }
 
@@ -1005,12 +1053,13 @@ export default function User(props: {
               ) : feedPage === "replies" ? (
                 array.length > 0 ? (
                   array.map((e: any) => {
+                    console.log(e);
                     return (
                       <div className=" xl:mt-0   mb-6 xl:p-3 lg:p-3 md:p-3 md:mt-0 lg:mt-0">
                         <div className="flex   justify-between">
                           <div className="flex flex-row  gap-2   ">
                             <img
-                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${e.expand?.user?.id}/${e.expand?.user?.avatar}`}
+                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${e.expand.user?.id}/${e.expand.user?.avatar}`}
                               alt="profile"
                               className="rounded object-cover w-12 h-12 cursor-pointer"
                             ></img>
@@ -1026,7 +1075,7 @@ export default function User(props: {
                                     {e.expand.user?.username}
                                   </span>
                                 </p>
-                                <p className="hover:underline text-sm opacity-50">
+                                <p className="hover:underline text-sm opacity-50 sm:hiden xsm:hidden">
                                   @{e.expand.user?.username}
                                 </p>
                                 {e.expand.user?.validVerified ? (
@@ -1050,7 +1099,7 @@ export default function User(props: {
                                 )}
                                 {e.expand.user?.isDeveloper ? (
                                   <div
-                                    className="tooltip tooltip-left"
+                                    className="tooltip tooltip-left sm:tooltip-bottom"
                                     data-tip="Postr Developer"
                                   >
                                     <svg
@@ -1059,7 +1108,7 @@ export default function User(props: {
                                       viewBox="0 0 24 24"
                                       strokeWidth={1.5}
                                       stroke="currentColor"
-                                      className="w-5 h-5"
+                                      className="w-4 h-4"
                                     >
                                       <path
                                         strokeLinecap="round"
@@ -1073,7 +1122,7 @@ export default function User(props: {
                                 )}
                                 {e.expand.user?.postr_plus ? (
                                   <div
-                                    className="tooltip z[-1]"
+                                    className="tooltip tooltip-left z[-1]"
                                     data-tip={`Subscriber since ${new Date(
                                       e.expand.user
                                         ? e.expand.user?.plus_subscriber_since
@@ -1087,7 +1136,7 @@ export default function User(props: {
                                 ) : (
                                   ""
                                 )}
-                                <p>·</p> <p>{parseDate(e.created)}</p>
+                                <p>·</p> <p className="text-sm">{parseDate(e.created)}</p>
                               </div>
                             </div>
 
@@ -1226,23 +1275,28 @@ export default function User(props: {
                 ) : (
                   ""
                 )
-              ) : feedPage === "media" ? (
+              ) : feedPage === "media"  ?
+              (
+                array.length > 0 ?
                 array.map((e: any) => {
-                  let url = `https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${e.id}/${e.file}`;
+                   
                   return (
-                    <div className="p-2">
-                      <LazyImage
+                    <div className="p-2 sm:p-0">
+                      {
+                        e.file !== "" ?
+                        <> 
+                        <LazyImage
                         onClick={() => {
                           //@ts-ignore
                           document.getElementById(e.id + "file")?.showModal();
                         }}
-                        src={url}
+                        src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
                         height="100%"
                         width="100%"
                         alt=""
                         className="w-full   rounded-md h-44 object-cover"
                       >
-                        <Modal id={e.id + "file"} height="h-[100vh]">
+                          <Modal id={e.id + "file"} height="h-[100vh]">
                           <div className="flex flex-col justify-center items-center h-full bg-[#121212]  relative">
                             <svg
                               onClick={() => {
@@ -1258,16 +1312,23 @@ export default function User(props: {
                             </svg>
 
                             <img
-                              key={crypto.randomUUID()}
-                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${e.id}/${e.file}`}
+                               
+                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
                               alt={e.file}
                               className=" w-full   object-contain mt-2 cursor-pointer"
                             ></img>
                           </div>
                         </Modal>
                       </LazyImage>
+                      
+                        </>
+                      : ""
+                      }
                     </div>
                   );
+                })
+                :  Array.from(Array(10).keys()).map((e: any) => {
+                  return  <LazyImage src={''} height="100%" width="100%" alt="" className="w-full   rounded-md h-44 object-cover"/>
                 })
               ) : (
                 ""

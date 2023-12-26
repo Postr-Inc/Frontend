@@ -14,6 +14,7 @@ export const LazyImage = memo(function LazyImage(props: {
 }){
 
     const [loaded, setLoaded] = useState(false);
+    let initialized = useRef(false);
 
     const handleImageLoaded = useCallback(() => {
         setLoaded(true);
@@ -21,21 +22,21 @@ export const LazyImage = memo(function LazyImage(props: {
 
     
 
-    useEffect(() => {
-        // Create a new Image instance
-        const loader = new Image();
-        //@ts-ignore
-        loader.src = props.src 
+    useEffect(() => { 
+        if (typeof window !== "undefined") {
+            initialized.current = true;
+        }
 
-        // Set the onload callback
-        loader.onload = () => {
-            handleImageLoaded();
-        };
+        if (initialized.current) {
+            let img = new Image();
+            img.src = props.src;
+            img.onload = handleImageLoaded;
+        }
 
-        // Clean up to prevent memory leaks
         return () => {
-            loader.onload = null;
+            initialized.current = false;
         };
+        
     }, []);
 
     return (
@@ -47,7 +48,7 @@ export const LazyImage = memo(function LazyImage(props: {
          
             onClick={() => (props.onClick ? props.onClick() : null)}
             src={props.src}
-            fetchPriority="high"
+          fetchPriority="high"
             alt={props.alt}
             width={props.width}
             height={props.height}

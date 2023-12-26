@@ -30,6 +30,19 @@ export default function Home(props: {
   let [windowScroll, setWindowScroll] = useState(
     typeof window !== "undefined" ? window.scrollY : 0
   );
+  let [poorConnection, setPoorConnection] = useState(false);
+  let [dismissToast, setDismissToast] = useState(false);
+
+  typeof window != "undefined" && window.addEventListener("online", (d) => {
+    //@ts-ignore
+    let data = d.detail.online.get("latency");
+
+    if (data > 1000) {
+      setPoorConnection(true);
+    } else {
+      setPoorConnection(false);
+    }
+  });
   let [hasMore, setHasMore] = useState(true);
   function handleRatelimit(params: {
     limit: Number;
@@ -39,7 +52,7 @@ export default function Home(props: {
   async function loadMore() {
     let { ratelimited, limit, duration, used } =
       await api.authStore.isRatelimited("list");
- 
+
     switch (true) {
       case ratelimited:
         handleRatelimit({ limit, duration, used });
@@ -48,24 +61,43 @@ export default function Home(props: {
       case page >= totalPages:
         setHasMore(false);
         break;
-      case api.cacehStore.has(`user-home-posts-${page + 1}-${api.authStore.model().id}`):
-       
-        let cache = JSON.parse(api.cacehStore.get(`user-home-posts-${page + 1}-${api.authStore.model().id}`))
-        setPosts([...posts, ...cache.value.items])
-        setTotalPages(cache.value.totalPages)  
-        setPage((page) => page + 1); 
+      case api.cacehStore.has(
+        `user-home-posts-${page + 1}-${api.authStore.model().id}`
+      ):
+        let cache = JSON.parse(
+          api.cacehStore.get(
+            `user-home-posts-${page + 1}-${api.authStore.model().id}`
+          )
+        );
+        setPosts([...posts, ...cache.value.items]);
+        setTotalPages(cache.value.totalPages);
+        setPage((page) => page + 1);
         break;
-      default: 
+      default:
         await api
           .list({
             collection: "posts",
             limit: 10,
             page: page + 1,
-            expand: ["author", "comments.user", "likes", "author.followers", "author.following", "author.following.followers", "author.following.following"],
-            sort: `-created`,
+            cacheKey: `user-home-posts-${page + 1}-${api.authStore.model().id}`,
+            cacheTime: 1200,
+            expand: [
+              "author",
+              "comments.user",
+              "likes",
+              "author.followers",
+              "author.following",
+              "author.following.followers",
+              "author.following.following",
+            ],
+            sort: `created`,
           })
           .then((e: any) => {
-            api.cacehStore.set(`user-home-posts-${page + 1 }-${api.authStore.model().id}`, e, 1200)
+            api.cacehStore.set(
+              `user-home-posts-${page + 1}-${api.authStore.model().id}`,
+              e,
+              1200
+            );
             setPosts([...posts, ...e.items]);
             setTotalPages(e.totalPages);
             setPage((page) => page + 1);
@@ -84,25 +116,53 @@ export default function Home(props: {
             setWindowScroll(window.scrollY);
           })
         : null;
-      if(api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`)){
-    
-        setPosts(JSON.parse(api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)).value.items)
-        setTotalPages(JSON.parse(api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)).value.totalPages)
-        console.log("using cache", JSON.parse(api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)))
-        return
+      if (api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`)) {
+        setPosts(
+          JSON.parse(
+            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+          ).value.items
+        );
+        setTotalPages(
+          JSON.parse(
+            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+          ).value.totalPages
+        );
+        console.log(
+          "using cache",
+          JSON.parse(
+            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+          )
+        );
+        return;
       }
       api
         .list({
           collection: "posts",
           limit: 10,
           page: 1,
-          expand: ["author", "comments.user", "author.followers", "author.following", "author.following.followers", "author.following.following", "likes"],
+          cacheKey: `user-home-posts-1-${api.authStore.model().id}`,
+          cacheTime: 1200,
+          expand: [
+            "author",
+            "comments.user",
+            "author.followers",
+            "author.following",
+            "author.following.followers",
+            "author.following.following",
+            "likes",
+          ],
           sort: `-created`,
         })
-        .then((e: any) => { 
+        .then((e: any) => {
           setTotalPages(e.totalPages);
           setPosts(e.items);
-          !api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`) ? api.cacehStore.set(`user-home-posts-1-${api.authStore.model().id}`, e, 1200) : null
+          !api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`)
+            ? api.cacehStore.set(
+                `user-home-posts-1-${api.authStore.model().id}`,
+                e,
+                1200
+              )
+            : null;
         });
     }
     return () => {
@@ -112,14 +172,19 @@ export default function Home(props: {
   return (
     <>
       {isClient ? (
-        <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
-          <SideBarLeft params={props.params} setParams={props.setParams} currentPage={props.currentPage}  swapPage={props.swapPage} />
+        <div className="relative xl:flex  sm:p-2  lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
+          <SideBarLeft
+            params={props.params}
+            setParams={props.setParams}
+            currentPage={props.currentPage}
+            swapPage={props.swapPage}
+          />
 
           <div
-            className="     text-md   
+            className=" xl:mx-24     text-md   
          relative 
          xl:w-[35vw]
-         md:w-[80vw]
+         md:w-[50vw]
         
                 xl:text-sm md:text-sm"
           >
@@ -132,7 +197,7 @@ export default function Home(props: {
                     ? window.scrollTo({ top: 0, behavior: "smooth" })
                     : null
                 }
-                className="fixed top-4 p-3 w-fit h-10 xl:top-24   translate-x-0 inset-x-0  mx-auto flex hero gap-2 text-white    rounded-full bg-[#43b1f1]"
+                className="fixed top-4 p-3 w-fit h-10 xl:top-[2rem]  z-[999] cursor-pointer  translate-x-0 inset-x-0  mx-auto flex hero gap-2 text-white    rounded-full bg-[#43b1f1]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -225,12 +290,19 @@ export default function Home(props: {
                             </li>
                             <li>
                               <a
-                              onClick={()=>{
-                                //@ts-ignore
-                                document.getElementById('logout-modal').showModal()
-                              }}
+                                onClick={() => {
+                                  //@ts-ignore
+                                  document
+                                    .getElementById("logout-modal")
+                                    //@ts-ignore
+                                    .showModal();
+                                }}
                               >
-                                Logout <span className="font-bold"> @{api.authStore.model().username}</span>
+                                Logout{" "}
+                                <span className="font-bold">
+                                  {" "}
+                                  @{api.authStore.model().username}
+                                </span>
                               </a>
                             </li>
                           </ul>
@@ -272,15 +344,49 @@ export default function Home(props: {
                 </div>
               </div>
 
+              {
+                poorConnection && !dismissToast ?  <div className="toast  xl:hidden lg:hidden md:hidden toast-end relative sm:toast-center  text-sm "
+                
+                onClick={() => {
+                  setDismissToast(true)
+                }}
+                >
+                <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
+                  <span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                      />
+                    </svg>
+                  </span>
+                  <p>
+                    Poor connection detected.
+                    <p>Likely due to your internet connection.</p>
+                    <span className="text-sm"> Click to Dismiss</span>
+                  </p>
+                </div>
+              </div>
+              :""
+              }
+
               <div className="flex hero xl:p-5 p-2 justify-between xl:mt-0  ">
                 <p>Following</p>
-                <p>For You</p>
+                <p>Recommended</p>
                 <p>Trending</p>
               </div>
             </div>
 
             <Scroller
-              className="mt-2 xl:mt-0 z-[-1]  flex flex-col  w-full xl:gap-0 xl:p-0 gap-2   "
+              className="mt-2  xl:mt-0 z-[-1]  flex flex-col  w-full xl:gap-0 xl:p-0 gap-2   "
               dataLength={posts.length}
               hasMore={true}
               next={loadMore}
@@ -294,41 +400,70 @@ export default function Home(props: {
                         key={e.id}
                         id={e.id}
                       >
-                         <Post
-                        cache={api.cacehStore.get(`user-home-posts-${page}-${api.authStore.model().id}`)}
-                        {...e}
-                        swapPage={props.swapPage}
-                        setParams={props.setParams}
-                        page={props.currentPage}
-                        currentPage={page}
-                        updateCache={(key: string, value: any) => {
-                          let cache = JSON.parse(api.cacehStore.get(`user-home-posts-${page}-${api.authStore.model().id}`))
-                          cache.value.items.forEach((e:any, index:number)=>{
-                            if(e.id === key){
-                              cache.value.items[index] = value
+                        <Post
+                          cache={api.cacehStore.get(
+                            `user-home-posts-${page}-${
+                              api.authStore.model().id
+                            }`
+                          )}
+                          cacheKey={`user-home-posts-${page}-${ api.authStore.model().id}`}
+                          {...e}
+                          swapPage={props.swapPage}
+                          setParams={props.setParams}
+                          page={props.currentPage}
+                          currentPage={page}
+                          updateCache={(key: string, value: any) => {
+                            let cache = JSON.parse(
+                              api.cacehStore.get(
+                                `user-home-posts-${page}-${
+                                  api.authStore.model().id
+                                }`
+                              )
+                            );
+                            cache.value.items.forEach(
+                              (e: any, index: number) => {
+                                if (e.id === key) {
+                                  cache.value.items[index] = value;
+                                }
+                              }
+                            );
+                            for (var i in api.cacehStore.keys()) {
+                              let key = api.cacehStore.keys()[i];
+                              console.log(key);
+                              if (key.includes("user-feed")) {
+                                let items = JSON.parse(api.cacehStore.get(key))
+                                  .value.items;
+
+                                items.forEach((e: any, index: number) => {
+                                  if (e.id === key) {
+                                    items[index] = value;
+                                  }
+                                });
+                                api.cacehStore.set(
+                                  key,
+                                  {
+                                    items: items,
+                                    totalItems: JSON.parse(
+                                      api.cacehStore.get(key)
+                                    ).value.totalItems,
+                                    totalPages: JSON.parse(
+                                      api.cacehStore.get(key)
+                                    ).value.totalPages,
+                                  },
+                                  230
+                                );
+                              }
                             }
-                          })
-                          for(var i in api.cacehStore.keys()){
-                            let key = api.cacehStore.keys()[i]
-                            console.log(key)
-                            if(key.includes('user-feed')){ 
-                             
-                                 let items = JSON.parse(api.cacehStore.get(key)).value.items 
-                                  
-                                 items.forEach((e:any, index:number)=>{
-                                 
-                                   if(e.id === key){
-                                       console.log('found')
-                                   }
-                                 })
-                                 api.cacehStore.set(key, {items:items, totalItems:JSON.parse(api.cacehStore.get(key)).value.totalItems, totalPages:JSON.parse(api.cacehStore.get(key)).value.totalPages}, 230)
-                            }
-                         }
-                        
-                          api.cacehStore.set(`user-home-posts-${page}-${api.authStore.model().id}`, cache.value, 1200)
-                        }}
-                      
-                      ></Post>
+
+                            api.cacehStore.set(
+                              `user-home-posts-${page}-${
+                                api.authStore.model().id
+                              }`,
+                              cache.value,
+                              1200
+                            );
+                          }}
+                        ></Post>
                       </div>
                     );
                   })
@@ -338,11 +473,53 @@ export default function Home(props: {
             </Scroller>
 
             <div className="xl:hidden lg:hidden">
-              <BottomNav />
-            </div>
+           <BottomNav
+              params={props.params}
+              setParams={props.setParams}
+              currentPage={props.currentPage}
+              swapPage={props.swapPage} 
+           />
+         </div>
           </div>
-         <SideBarRight params={props.params} setParams={props.setParams} currentPage={props.currentPage}  swapPage={props.swapPage} />
-         <LogoutModal />
+          {
+            poorConnection  && !dismissToast ?  <div 
+            
+            onClick={() => {
+              setDismissToast(true)
+            }}
+            className="toast toast-end sm:toast-center  text-sm sm:hidden xsm:hidden  sm:top-0 ">
+            <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                  />
+                </svg>
+              </span>
+              <p>
+                Poor connection detected.
+                <p>Likely due to your internet connection.</p>
+                <span className="text-sm"> Click to Dismiss</span>
+              </p>
+            </div>
+          </div> : ""
+          }
+          <SideBarRight
+            params={props.params}
+            setParams={props.setParams}
+            currentPage={props.currentPage}
+            swapPage={props.swapPage}
+          />
+          <LogoutModal />
         </div>
       ) : (
         ""
@@ -351,26 +528,40 @@ export default function Home(props: {
   );
 }
 
-function LogoutModal(){
-  return <>
-  <dialog id="logout-modal" className=" rounded-box   modal-middle bg-opacity-50   ">
-    <div className="flex p-5 xl:w-[15vw] h-[45vh] xl:h-[35vh] rounded-box items-center bg-white justify-center flex-col mx-auto">
-      <img src="/icons/icon-blue.jpg"  className="rounded" alt="postr logo" width={40} height={40}></img>
-      <p className="font-bold text-xl mt-2">
-        Loging out of Postr?
-      </p>
-      <p className="text-sm mt-2">
-        You can always log back in at any time.
-      </p>
-      <button className="btn btn-ghost rounded-full w-full bg-black  text-white mt-5"
-      onClick={()=>{
-        api.authStore.clear()
-      }}
-      >Logout</button>
-    <form  method="dialog" className="w-full">
-      <button className="btn btn-ghost mt-5 w-full rounded-full bg-base-200 ">Cancel</button>
-    </form>
-    </div>
-  </dialog>
-  </>
+function LogoutModal() {
+  return (
+    <>
+      <dialog
+        id="logout-modal"
+        className=" rounded-box   modal-middle bg-opacity-50   "
+      >
+        <div className="flex p-5 xl:w-[15vw] h-[45vh] xl:h-[35vh] rounded-box items-center bg-white justify-center flex-col mx-auto">
+          <img
+            src="/icons/icon-blue.jpg"
+            className="rounded"
+            alt="postr logo"
+            width={40}
+            height={40}
+          ></img>
+          <p className="font-bold text-xl mt-2">Loging out of Postr?</p>
+          <p className="text-sm mt-2">
+            You can always log back in at any time.
+          </p>
+          <button
+            className="btn btn-ghost rounded-full w-full bg-black  text-white mt-5"
+            onClick={() => {
+              api.authStore.clear();
+            }}
+          >
+            Logout
+          </button>
+          <form method="dialog" className="w-full">
+            <button className="btn btn-ghost mt-5 w-full rounded-full bg-base-200 ">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </dialog> 
+    </>
+  );
 }

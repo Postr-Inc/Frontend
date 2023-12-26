@@ -328,9 +328,10 @@ export default function Post(props: any) {
       key={props.id}
       className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
         props.page !== "user" && props.page !== "bookmarks"
+        && props.page !== "home"
           ? "xl:p-5 sm:p-2"
-          : "" && props.page == "home"
-          ? "p-5  "
+          :   props.page == "home"
+          ? "xl:p-5  "
           : ""
       }`}
     >

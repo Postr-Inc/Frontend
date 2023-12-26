@@ -144,7 +144,7 @@ export default function Bookmarks(props: any) {
                 ) : (
                   <div
                     className="p-5 flex flex-col mt-6 justify-center mx-auto  
-              w-[30rem]
+              w-[23rem] xl:w-[30rem]
              drop-shadow-md not-sr-only  
           
         "

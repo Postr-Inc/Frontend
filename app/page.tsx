@@ -6,7 +6,6 @@ import Home from "@/pages/home/home";
 import Login from "@/pages/auth/page";
 import { api } from "@/src/api/api";
 import Bookmarks from "@/pages/Bookmarks/page";
- 
 export default function Page() {
 
 let [page, changePage] = useState("home");
@@ -46,7 +45,6 @@ useEffect(() => {
         return (<Bookmarks  key={crypto.randomUUID()} swapPage={changePage} setParams={setParams} params={params} setLastPage={setLastPage} lastPage={lastPage}  page={page} />)
         break;
     default:
-        
         break;
   }
 }

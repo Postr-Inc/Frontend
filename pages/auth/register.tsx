@@ -3,7 +3,7 @@ import {useEffect, useRef, useState } from 'react'
 import { api } from '@/src/api/api'
 import Footer from '@/app/footer'
  
-export default function Login(props:any) {
+export default function Register(props:any) {
    let [isClient, setClient] = useState(false)
    useEffect(() => {
       if(typeof window !== "undefined") setClient(true)
@@ -57,16 +57,14 @@ export default function Login(props:any) {
          <button 
          onClick={()=>{setBtnState(true); oauth('google')}}
          className={
-            curTheme == "darkMode" ? 'btn btn-med bg-white rounded-full' : 'btn btn-md w-full   bg-[#121212] text-white hover:bg-[#121212] shadow font-bold  '
-         }><img src='/icons/google.png' width={40} height={30}></img>Continue with Google {
+            curTheme == "darkMode" ? 'btn btn-sm bg-white rounded-full' : 'btn btn-md w-full   bg-[#121212] text-white hover:bg-[#121212] shadow font-bold  '
+         }><img src='/icons/google.png' width={30} height={30}></img>Continue with google {
             btnState ? <span className='loading loading-spinner'></span> : ""
          }
          </button>
-         <button 
-         onClick={()=>{setBtnState(true); oauth('twitter')}}
-         className={
-            curTheme == "darkMode" ? 'btn btn-med bg-white rounded-full' : 'btn btn-md hover:border-2    w-full  text-[#121212]  bg-[#e7e8e7ea]  font-bold  '
-         }><img src='/icons/x.png' width={30} height={30}></img>Continue with Twitter
+         <button className={
+            curTheme == "darkMode" ? 'btn btn-sm bg-white rounded-full' : 'btn btn-md hover:border-2    w-full  text-[#121212]  bg-[#e7e8e7ea]  font-bold  '
+         }><img src='/icons/apple.png' width={30} height={30}></img>Continue with  Apple
          {
             btnState ? <span className='loading loading-spinner'></span> : ""
          }
@@ -74,6 +72,15 @@ export default function Login(props:any) {
          <p className='mt-2 mb-2 text-sm'>
             By signing up you are agree to comply with the <span className='text-rose-500'>Terms</span> and
             <span className='text-rose-500'> Privacy Policy</span>.
+         </p>
+         <div className='divider mt-0 h-0 before:opacity-50 after:opacity-50 after:bg-slate-200 before:rounded-full after:rounded-full'>Or</div>
+         <button 
+         onClick={()=> typeof window !== "undefined" ? window.location.href = "/auth/register" : null}
+         className='btn  text-white hover:bg-rose-500  bg-rose-500'>
+            Create Account
+         </button>
+         <p className='mt-2 mb-2'>
+            Already have an account?  <span className='text-rose-500 cursor-pointer' onClick={()=> typeof window !== "undefined" ? window.location.href = "/auth/login" : null}>Login</span>
          </p>
         
          <Footer className="mt-16" />

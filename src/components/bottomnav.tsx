@@ -36,7 +36,7 @@ export default function BottomNav(props: any) {
               className={`
                 w-7 h-7
                 cursor-pointer
-                ${theme}
+                 
                 `}
               
               xmlns="http://www.w3.org/2000/svg"

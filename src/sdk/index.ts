@@ -71,11 +71,12 @@ export  default class postrSdk {
     currType: string
     private $memoryCache: Map<string, any>
     token: string
-    constructor(data:{wsUrl: string, wsAuthUrl: string, pbUrl: string, cancellation: any}) {
+    constructor(data:{wsUrl: string, pbUrl: string, cancellation: any}) {
          
         this.sessionID = crypto.randomUUID()
+        console.log(this.sessionID)
         this.isStandalone = false 
-        this.ws = new WebSocket(`ws://${data.wsUrl}`)
+        this.ws = new WebSocket(`wss://${data.wsUrl}`)
         this.$memoryCache = new Map()
         this.token = JSON.parse(store.get("postr_auth") || '{}') ? JSON.parse(store.get("postr_auth") || '{}').token : null
         /**
@@ -270,6 +271,11 @@ export  default class postrSdk {
             this.sendMessage(JSON.stringify({ type: "authUpdate",token: this.token, data: { record: this.authStore.model(),  key: 'authUpdate' }, session: this.sessionID}))
 
         },
+        /**
+         * @method model
+         * @description Get the current authmodel data
+         * @returns {Auth_Object}
+         */
         model:  () => {
             if (typeof window == "undefined") return;
             return JSON.parse(store.get("postr_auth") || '{}').model
@@ -323,7 +329,7 @@ export  default class postrSdk {
                 resolve(data.message)
                 this.callbacks.delete('checkUsername');
             })
-            this.sendMessage(JSON.stringify({ type: "checkUsername",  key: 'checkUsername', data: { username: username } }))
+            this.sendMessage(JSON.stringify({ type: "checkUsername",  key: 'checkUsername', data: { username: username }, token:this.token, session: this.sessionID }))
         })
     }
 
@@ -449,6 +455,7 @@ export  default class postrSdk {
             else {
                 let { provider, redirect_uri, redirect } = data
                 this.callbacks.set("oauth", (data: any) => {
+                    console.log(data)
                     if (typeof window == "undefined") return;
                     data.url ? window.open(data.url) : null
                     if (data.clientData) {
@@ -577,7 +584,7 @@ export  default class postrSdk {
             !this.authStore.isValid ? (reject(new Error("token is expired"))) : null;
     
             this.callbacks.set(key, (responseData: any) => {
-                if (responseData.error)  return;
+                if (responseData.error) reject(responseData);
                 else resolve(responseData);
                 this.callbacks.delete(key);
             });

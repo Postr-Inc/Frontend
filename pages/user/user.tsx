@@ -51,36 +51,29 @@ export default function User(props: {
   let [avatar, setAvatar] = useState<any>(null);
   let [bannerBlob, setBannerBlob] = useState<any>(null);
   let [windowScroll, setWindowScroll] = useState(0);
-  let [online, setOnline] = useState<any>(false)
+  let [online, setOnline] = useState<any>(false);
   let isMounted = useRef(false);
-   
 
   // todo: make an event to update automatically
- useEffect(() => {
-  api.online.forEach((e: any) => {
-    if(e?.userID == props.params?.user.id 
-
-      && !isMounted.current
-      ){
-        
-        isMounted.current = true
-        
-    }
-  });
-  
-  }, [props.params?.user.id])
-
-  typeof window != "undefined" && window.addEventListener("online", () => {
+  useEffect(() => {
     api.online.forEach((e: any) => {
-      
-      if(e?.userID == props.params?.user.id){
-             if(!online){
-               setOnline(true)
-             }
+      if (e?.userID == props.params?.user.id && !isMounted.current) {
+        isMounted.current = true;
       }
     });
-  });
-  
+  }, [props.params?.user.id]);
+
+  typeof window != "undefined" &&
+    window.addEventListener("online", () => {
+      api.online.forEach((e: any) => {
+        if (e?.userID == props.params?.user.id) {
+          if (!online) {
+            setOnline(true);
+          }
+        }
+      });
+    });
+
   let [isFetching, setIsFetching] = useState(true);
   let maxBioLength = 160;
   let bannerRef = useRef<any>(null);
@@ -210,7 +203,7 @@ export default function User(props: {
             collection: "users",
             id: props.params.user.id,
             cacheKey: `user-${props.params.user.id}`,
-       
+
             record: {
               followers: followers.filter(
                 (u: any) => u != api.authStore.model().id
@@ -291,7 +284,7 @@ export default function User(props: {
       }, 500);
       setHasMore(true);
       return;
-    } else { 
+    } else {
       api
         .list({
           collection: "posts",
@@ -344,15 +337,16 @@ export default function User(props: {
   function swapFeed(pageValue: string, pg: number = 0) {
     setIsFetching(true);
     if (api.cacehStore.has(`user-feed-${pageValue}-${pg}-${user.id}`)) {
-      let cache = JSON.parse(api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`));
+      let cache = JSON.parse(
+        api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`)
+      );
       setArray(cache.value.items);
       setTotalPages(cache.value.totalPages);
       setTotalItems(cache.value.totalItems);
       setHasMore(true);
       return;
     }
-    
-    
+
     let filterString =
       pageValue === "posts"
         ? `author.id ="${user.id}"`
@@ -372,14 +366,14 @@ export default function User(props: {
         : pageValue === "media"
         ? "posts"
         : "";
-        setArray([])
+    setArray([]);
     api
       .list({
         collection: collection,
         limit: 10,
         filter: filterString,
         cacheKey: `user-feed-${pageValue}-${pg}-${user.id}`,
-         expand: [
+        expand: [
           "author",
           "comments.user",
           "user",
@@ -394,7 +388,6 @@ export default function User(props: {
         sort: `-created`,
       })
       .then((e: any) => {
-         
         if (!api.cacehStore.has(`user-feed-${pageValue}-${page}-${user.id}`)) {
           api.cacehStore.set(
             `user-feed-${pageValue}-${page}-${user.id}`,
@@ -406,14 +399,17 @@ export default function User(props: {
             230
           );
         }
-        
+
         setArray(e.items);
         setTotalPages(e.totalPages);
         setTotalItems(e.totalItems);
         setHasMore(true);
-        setTimeout(() => {
-          setIsFetching(false);
-        }, feedPage === "media" ? 700 : 500);
+        setTimeout(
+          () => {
+            setIsFetching(false);
+          },
+          feedPage === "media" ? 700 : 500
+        );
       });
   }
 
@@ -424,7 +420,6 @@ export default function User(props: {
         setHasMore(false);
         return;
       case api.cacehStore.has(`user-feed-${feedPage}-${page + 1}-${user.id}`):
-      
         return;
       default:
         api
@@ -450,25 +445,24 @@ export default function User(props: {
                 : feedPage === "media"
                 ? `file:length > 0  && author.id ="${user.id}"`
                 : "",
-                expand: [
-                  "author",
-                  "comments.user",
-                  "user",
-                  "post",
-                  "post.author",
-                  "author.followers",
-                  "author.following",
-                  "author.following.followers",
-                  "author.following.following",
-                ],
+            expand: [
+              "author",
+              "comments.user",
+              "user",
+              "post",
+              "post.author",
+              "author.followers",
+              "author.following",
+              "author.following.followers",
+              "author.following.following",
+            ],
             sort: `-created`,
             page: page + 1,
           })
           .then((e: any) => {
-            if(feedPage === "media"){
+            if (feedPage === "media") {
               console.log(e);
-                e.items = e.items.filter((e: any) => e.file.length > 0)
-
+              e.items = e.items.filter((e: any) => e.file.length > 0);
             }
             setArray([...array, ...e.items]);
             setTotalPages(e.totalPages);
@@ -497,11 +491,15 @@ export default function User(props: {
         alert("Username must be at least 3 characters long.");
         return;
       case user.username !== props.params.user.username:
-        let res = await api.checkUsername(user.username);
+        try {
+          let res = await api.checkUsername(user.username);
 
-        if (res) {
-          alert("Username already exists.");
-          return;
+          if (res) {
+            alert("Username already exists.");
+            return;
+          }
+        } catch (error) {
+          console.log(error);
         }
         break;
       case user.bio !== props.params.user.bio && user.bio.length < 3:
@@ -543,8 +541,10 @@ export default function User(props: {
         })
       : "";
 
+    console.log(userObj);
     try {
       if (Object.keys(userObj).length > 0) {
+        console.log(userObj);
         let res = await api.update({
           collection: "users",
           id: props.params.user.id,
@@ -582,7 +582,6 @@ export default function User(props: {
       windowScroll > 1050 &&
       array.length > 0 ? (
         <div
-         
           onClick={() =>
             typeof window !== "undefined"
               ? window.scrollTo({ top: 0, behavior: "smooth" })
@@ -594,7 +593,6 @@ export default function User(props: {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            
             className="w-5 h-5"
           >
             <path
@@ -606,10 +604,12 @@ export default function User(props: {
           Scroll to top
         </div>
       ) : null}
-      <div className="flex   xl:mx-24     text-md   
+      <div
+        className="flex   xl:mx-24     text-md   
          relative 
          xl:w-[35vw]
-         md:w-[80vw] flex-col xl:border xl:border-[#f9f9f9]   lg:w-[50vw]  ">
+         md:w-[80vw] flex-col xl:border xl:border-[#f9f9f9]   lg:w-[50vw]  "
+      >
         <div className="flex p-3 hero sticky top-0 mb-2 z-[9999] bg-white justify-between">
           <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
             <svg
@@ -653,17 +653,28 @@ export default function User(props: {
             <div className="w-full h-full bg-gray-300"></div>
           )}
           <div className="flex justify-between relative w-full">
-           <div className="indicator w-24  ">
-            {
-             online ? <span className="indicator-item absolute mt-[2vh] right-0 bg-green-500 badge"></span> :  <span className="indicator-item absolute mt-[2vh] right-0 bg-[#4a4a4a] badge"></span>
-            }
-           <img
-              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.avatar}`}
-              alt=""
-              className=" w-24  h-24 rounded   object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
-            />
-           </div>
-           
+            <div className="indicator w-24 sm:w-16 ">
+              {online ? (
+                <span className="indicator-item absolute mt-[2vh] right-0 bg-green-500 badge"></span>
+              ) : (
+                <span className="indicator-item absolute mt-[2vh] right-0 bg-[#4a4a4a] badge"></span>
+              )}
+              {user.avatar ? (
+                <img
+                  src={api.cdn.url({id:user.id, file:user.avatar, collection:'users'})}
+                  alt={api.authStore.model().username}
+                  className=" w-24  h-24 sm:w-16 sm:h-16 rounded object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
+                ></img>
+              ) : (
+                <div className="avatar placeholder">
+                  <div className="bg-base-200 text-black rounded w-24  h-24 sm:w-16 sm:h-16 avatar  absolute bottom-[-3vh] left-2   border-2   shadow   border-white">
+                    <span className="text-2xl">
+                      {api.authStore.model().username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="absolute right-2 flex gap-5 ">
               {props.params.user.id !== api.authStore.model().id ? (
                 <>
@@ -719,7 +730,6 @@ export default function User(props: {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                 
                 className="w-8 fill-blue-500 text-white h-8"
               >
                 <path
@@ -860,7 +870,6 @@ export default function User(props: {
         user.expand?.followers.length > 0 ? (
           <div className="avatar-group mx-3 -space-x-6 flex gap-8 text-sm hero rtl:space-x-reverse">
             {user.expand.followers.map((e: any) => {
-               
               if (api.authStore.model().following.includes(e.id)) {
                 return (
                   <>
@@ -982,12 +991,12 @@ export default function User(props: {
               }
             >
               {isFetching && feedPage !== "media" ? (
-                Array.from(Array(10).keys()).map((e: any) => {
-                  return <Loading className="p-4 h-32 rounded"></Loading>;
-                })
-              ) : feedPage === "posts" || feedPage === "likes"   
-              && array.length > 0 ?
-              (
+                <div className="mx-auto flex justify-center">
+                  <span className="loading loading-spinner-large loading-spinner mt-5 text-blue-600"></span>
+                  </div>
+              ) : feedPage === "posts" ||
+                (feedPage === "likes") ? 
+                array.length > 0 ? 
                 array.map((e: any, index: number) => {
                   return (
                     <div
@@ -1008,7 +1017,6 @@ export default function User(props: {
                               )
                             : null
                         }
-                        
                         {...e}
                         cacheKey={`user-feed-posts-${page}-${user.id}`}
                         swapPage={props.swapPage}
@@ -1021,22 +1029,24 @@ export default function User(props: {
                               `user-feed-${feedPage}-${page}-${user.id}`
                             )
                           );
-                                                    
+
                           cache.value.items.forEach((e: any, index: number) => {
                             if (e.id === key) {
                               cache.value.items[index] = value;
                             }
-                          }); 
+                          });
                           for (var i in api.cacehStore.keys()) {
                             let k = api.cacehStore.keys()[i];
                             if (k.includes("home-posts")) {
-                               let cache = JSON.parse(api.cacehStore.get(k));
-                               cache.value.items.forEach((e: any, index: number) => {
-                                 if (e.id === key) {
-                                   cache.value.items[index] = value;
-                                 }
-                               });
-                                api.cacehStore.set(k, cache.value, 230);
+                              let cache = JSON.parse(api.cacehStore.get(k));
+                              cache.value.items.forEach(
+                                (e: any, index: number) => {
+                                  if (e.id === key) {
+                                    cache.value.items[index] = value;
+                                  }
+                                }
+                              );
+                              api.cacehStore.set(k, cache.value, 230);
                             }
                           }
 
@@ -1050,7 +1060,16 @@ export default function User(props: {
                     </div>
                   );
                 })
-              ) : feedPage === "replies" ? (
+                : <div>
+                  <p className="text-center text-xl font-bold mt-10">
+                    {
+                      user.id === api.authStore.model().id ? "You" : user.username
+                    }
+                    {` haven't posted anything yet.`}
+                  </p>
+                  </div>
+              :
+              feedPage === "replies" ? (
                 array.length > 0 ? (
                   array.map((e: any) => {
                     console.log(e);
@@ -1085,7 +1104,6 @@ export default function User(props: {
                                     viewBox="0 0 24 24"
                                     strokeWidth={1.5}
                                     stroke="currentColor"
-                                    
                                     className="w-6 fill-blue-500 text-white h-6"
                                   >
                                     <path
@@ -1136,7 +1154,10 @@ export default function User(props: {
                                 ) : (
                                   ""
                                 )}
-                                <p>·</p> <p className="text-sm">{parseDate(e.created)}</p>
+                                <p>·</p>{" "}
+                                <p className="text-sm">
+                                  {parseDate(e.created)}
+                                </p>
                               </div>
                             </div>
 
@@ -1207,7 +1228,11 @@ export default function User(props: {
                               className="w-6 h-6"
                               onClick={() => {
                                 //@ts-ignore
-                                document.getElementById(props?.id + "comments").showModal();
+                                document
+                                   //@ts-ignore
+                                  .getElementById(props?.id + "comments")
+                                     //@ts-ignore
+                                  .showModal();
                               }}
                             >
                               <path
@@ -1266,70 +1291,85 @@ export default function User(props: {
                     );
                   })
                 ) : array.length === 0 ? (
-                  <div className="text-center text-2xl mt-2">
+                <div className="text-center text-lg mt-10"  >
                     <p className="font-extrabold ">
-                      @{props.params.user.username} has not replied to any posts
-                      yet.
+                      {
+                        api.authStore.model().id === user.id ? 
+                        "You haven't replied to anything yet." :
+                        `@${user.username} hasn't replied to anyone yet`
+                      } 
                     </p>
                   </div>
                 ) : (
                   ""
                 )
-              ) : feedPage === "media"  ?
-              (
-                array.length > 0 ?
-                array.map((e: any) => {
-                   
-                  return (
-                    <div className="p-2 sm:p-0">
-                      {
-                        e.file !== "" ?
-                        <> 
-                        <LazyImage
-                        onClick={() => {
-                          //@ts-ignore
-                          document.getElementById(e.id + "file")?.showModal();
-                        }}
-                        src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
+              ) : feedPage === "media" ? (
+                array.length > 0 ? (
+                  array.map((e: any) => {
+                    return (
+                      <div className="p-2 sm:p-0">
+                        {e.file !== "" ? (
+                          <>
+                            <LazyImage
+                              onClick={() => {
+                                //@ts-ignore
+                                document
+                                  .getElementById(e.id + "file")
+                                     //@ts-ignore
+                                  ?.showModal();
+                              }}
+                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
+                              height="100%"
+                              width="100%"
+                              alt=""
+                              className="w-full   rounded-md h-44 object-cover"
+                            >
+                              <Modal id={e.id + "file"} height="h-[100vh]">
+                                <div className="flex flex-col justify-center items-center h-full bg-[#121212]  relative">
+                                  <svg
+                                    onClick={() => {
+                                      //@ts-ignore
+                                      document
+                                        .getElementById(e.id + "file")
+                                           //@ts-ignore
+                                        ?.close();
+                                    }}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    className="w-6 h-6 text-white absolute left-2 top-2"
+                                  >
+                                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                                  </svg>
+
+                                  <img
+                                    src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
+                                    alt={e.file}
+                                    className=" w-full   object-contain mt-2 cursor-pointer"
+                                  ></img>
+                                </div>
+                              </Modal>
+                            </LazyImage>
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  Array.from(Array(10).keys()).map((e: any) => {
+                    return (
+                      <LazyImage
+                        src={""}
                         height="100%"
                         width="100%"
                         alt=""
                         className="w-full   rounded-md h-44 object-cover"
-                      >
-                          <Modal id={e.id + "file"} height="h-[100vh]">
-                          <div className="flex flex-col justify-center items-center h-full bg-[#121212]  relative">
-                            <svg
-                              onClick={() => {
-                                //@ts-ignore
-                                document.getElementById(e.id + "file")?.close();
-                              }}
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                              className="w-6 h-6 text-white absolute left-2 top-2"
-                            >
-                              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                            </svg>
-
-                            <img
-                               
-                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
-                              alt={e.file}
-                              className=" w-full   object-contain mt-2 cursor-pointer"
-                            ></img>
-                          </div>
-                        </Modal>
-                      </LazyImage>
-                      
-                        </>
-                      : ""
-                      }
-                    </div>
-                  );
-                })
-                :  Array.from(Array(10).keys()).map((e: any) => {
-                  return  <LazyImage src={''} height="100%" width="100%" alt="" className="w-full   rounded-md h-44 object-cover"/>
-                })
+                      />
+                    );
+                  })
+                )
               ) : (
                 ""
               )}
@@ -1558,7 +1598,7 @@ export default function User(props: {
               ) : (
                 <div className="absolute top-[80px] left-5">
                   <div className="relative w-32  ">
-                    <div className="w-20 h-20 object-cover bg-gray-300 avatar rounded-full border-slate-200 border-2"></div>
+                    <div className="w-20 h-20 object-cover bg-gray-300 avatar rounded border-slate-200 border-2"></div>
 
                     <label
                       htmlFor="change-avatar"

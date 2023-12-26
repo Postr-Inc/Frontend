@@ -65,6 +65,8 @@ export function SideBarLeft(props: any) {
   const [postimgs, setPostimgs] = useState<any>([]);
   let [text, setText] = useState<any>("");
   let maxlength = 140;
+
+  function createPost() {}
   return (
     <>
       <div className="xl:drawer xl:w-[auto]     xl:drawer-open lg:drawer-open  ">
@@ -94,12 +96,13 @@ export function SideBarLeft(props: any) {
                   className={`
                      w-8 h-8
                      cursor-pointer
-                      ${props.currentPage == "home" ? "fill-blue-500" : ""}
+                      ${props.currentPage == "home" ? "fill-blue-500" : "fill-white stroke-black "}
                      `}
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
                   viewBox="0 0 24 24"
+                  strokeWidth={1.5}
                   id="home"
                 >
                   <path
@@ -116,15 +119,15 @@ export function SideBarLeft(props: any) {
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.5}
+                  stroke-width="1.5"
                   stroke="currentColor"
-                  className="w-8 h-8"
+                  className="   w-8 h-8   cursor-pointer     hover:fill-black hover:text-black         "
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                  />
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  ></path>
                 </svg>
                 Notifications
               </a>
@@ -165,16 +168,27 @@ export function SideBarLeft(props: any) {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className={`w-8 h-8 ${
-                    props.currentPage == "user" &&
-                    props.params.user.id == api.authStore.model().id
-                      ? "fill-blue-500"
-                      : ""
-                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={`
+                   w-8 h-8
+                   ${
+                      props.currentPage == "user" &&
+                      props.params.user.username == api.authStore.model().username
+                        ? "fill-blue-500"
+                        : ""
+                    
+                     
+                   }
+                  `}
                 >
-                  <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                  />
                 </svg>
                 Profile
               </a>
@@ -233,14 +247,13 @@ export function SideBarLeft(props: any) {
         id="createPost"
         className="sm:modal  sm:modal-middle   p-5  xl:w-[25vw] rounded-box"
       >
-        <div className="sm:modal-box "
-         
-        >
+        <div className="sm:modal-box ">
           <div className="flex hero justify-between">
             <p
               className="cursor-pointer hover:text-red-500"
               onClick={() => {
-                document.getElementById("createPost").close();
+                   //@ts-ignore
+                document.getElementById("createPost")?.close();
               }}
             >
               Cancel
@@ -249,91 +262,89 @@ export function SideBarLeft(props: any) {
               Drafts
             </button>
           </div>
-          <div className={` py-4 flex flex-col 
+          <div
+            className={` py-4 flex flex-col 
           ${
-            postimgs.length > 0 ?  text.lenght / maxlength > 1 ? "h-96" : "h-80" : "h-32"
+            postimgs.length > 0
+              ? text.lenght / maxlength > 1
+                ? "h-96"
+                : "h-80"
+              : "h-32"
           }
           
           `}
-          style={{height: text.length > 0 ? 'auto' : ' '}}
+            style={{ height: text.length > 0 ? "auto" : " " }}
           >
             <div className="flex flex-row      ">
               <img
                 src={api.authStore.img()}
                 className="w-10 h-10 rounded-full object-cover"
               />
- <div className="flex flex-col w-full">
- <textarea
-              
-              className={`w-full mt-2 mx-3 
+              <div className="flex flex-col w-full">
+                <textarea
+                  className={`w-full mt-2 mx-3 
               focus:outline scroll
               h-32
               resize-none outline-none`}
-              placeholder="What's happening?"
-               
-              onChange={(e) => {
-                setText(e.target.value);
-              }}
-            ></textarea>
-            <div className="scroll"> 
-                {
-                postimgs.length > 0 &&
-                <div className="flex flex-row mt-5  2  p-2 gap-2  overflow-y-hidden ">
-                  {
-                    Object.keys(postimgs).map((key) => {
-                      return (
-                        <img
-                          src={URL.createObjectURL(postimgs[key])}
-                          className=" object-cover w-32 h-32 rounded-md"
-                        />
-                      )
-                    })
-                  }
+                  placeholder="What's happening?"
+                  onChange={(e) => {
+                    setText(e.target.value);
+                  }}
+                ></textarea>
+                <div className="scroll">
+                  {postimgs.length > 0 && (
+                    <div className="flex flex-row mt-5  2  p-2 gap-2  overflow-y-hidden ">
+                      {Object.keys(postimgs).map((key) => {
+                        return (
+                          <img
+                            src={URL.createObjectURL(postimgs[key])}
+                            className=" object-cover w-32 h-32 rounded-md"
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              }</div>
- </div>
-             
+              </div>
             </div>
-            
           </div>
-          
+
           <div className="divider mt-0 mb-2 before:bg-[#f6f4f4] after:bg-[#fdf9f9]  after:text-slate-200"></div>
-        <div className="flex  h-full justify-between">
-          <input
-            type="file"
-            id="file-upload"
-            className="hidden"
-            multiple
-            onChange={(e) => {
-              setPostimgs(e.target.files);
-            }}
-          />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer flex flex-row gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
+          <div className="flex  h-full justify-between">
+            <input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              multiple
+              onChange={(e) => {
+                setPostimgs(e.target.files);
+              }}
+            />
+            <label
+              htmlFor="file-upload"
+              className="cursor-pointer flex flex-row gap-2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-              />
-            </svg>
-          </label>
-          <p className="  ">
-            {text.length}/{maxlength}
-          </p>
-          <button className="btn  btn-sm rounded-full ">Post</button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                />
+              </svg>
+            </label>
+            <p className="  ">
+              {text.length}/{maxlength}
+            </p>
+            <button className="btn  btn-sm rounded-full ">Post</button>
+          </div>
         </div>
-        </div>
-         
       </dialog>
     </>
   );

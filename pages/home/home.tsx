@@ -26,6 +26,8 @@ export default function Home(props: {
   let [posts, setPosts] = useState<any>([]);
   let [totalPages, setTotalPages] = useState(0);
   let [page, setPage] = useState(1);
+  let [isFetching, setIsFetching] = useState(false);
+  let [pageValue, setPageValue] = useState("following" as string);
   let [isInitialLoad, setIsInitialLoad] = useState(true);
   let [windowScroll, setWindowScroll] = useState(
     typeof window !== "undefined" ? window.scrollY : 0
@@ -33,22 +35,103 @@ export default function Home(props: {
   let [poorConnection, setPoorConnection] = useState(false);
   let [dismissToast, setDismissToast] = useState(false);
 
-  typeof window != "undefined" && window.addEventListener("online", (d) => {
-    //@ts-ignore
-    let data = d.detail.online.get("latency");
+  typeof window != "undefined" &&
+    window.addEventListener("online", (d) => {
+      //@ts-ignore
+      let data = d.detail.online.get("latency");
 
-    if (data > 1000) {
-      setPoorConnection(true);
-    } else {
-      setPoorConnection(false);
-    }
-  });
+      if (data > 1000) {
+        setPoorConnection(true);
+      } else {
+        setPoorConnection(false);
+      }
+    });
   let [hasMore, setHasMore] = useState(true);
   function handleRatelimit(params: {
     limit: Number;
     duration: Number;
     used: Number;
   }) {}
+  function swapFeed(pageValue: string, pg: number = 0) {
+    setPageValue(pageValue);
+    setIsFetching(true);
+    if (
+      api.cacehStore.has(
+        `user-feed-${pageValue}-${pg}-${api.authStore.model().id}`
+      )
+    ) {
+      let cache = JSON.parse(
+        api.cacehStore.get(
+          `user-feed-${pageValue}-${pg}-${api.authStore.model().id}`
+        )
+      );
+      setPosts(cache.value.items);
+      setTotalPages(cache.value.totalPages);
+      setHasMore(true);
+      return;
+    }
+
+    console.log("swapping feed", pageValue);
+    let filterString =
+       pageValue === "following"
+        ? `author.followers ?~"${
+            api.authStore.model().id
+          }"`
+        : pageValue === "recommended"
+        ? `likes:length > 1 && author.id !="${
+            api.authStore.model().id
+          }" && author.followers !~"${api.authStore.model().id}"`
+        : pageValue === "trending"
+        ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
+        : "";
+        console.log(filterString);
+     
+    setPosts([]);
+    api
+      .list({
+        collection:  "posts",
+        limit: 10,
+        filter: filterString,
+        cacheKey: `user-feed-${pageValue}-${page}-${api.authStore.model().id}`,
+        expand: [
+          "author",
+          "comments.user",
+          "user",
+          "post",
+          "post.author",
+          "author.followers",
+          "author.following",
+          "author.following.followers",
+          "author.following.following",
+        ],
+        page: 0,
+        sort: `-created`,
+      })
+      .then((e: any) => {
+        console.log(e);
+        if (
+          !api.cacehStore.has(
+            `user-feed-${pageValue}-${page}-${api.authStore.model().id}`
+          )
+        ) {
+          api.cacehStore.set(
+            `user-feed-${pageValue}-${page}-${api.authStore.model().id}`,
+            {
+              items: e.items,
+              totalItems: e.totalItems,
+              totalPages: e.totalPages,
+            },
+            230
+          );
+        }
+
+        setPosts(e.items);
+        setTotalPages(e.totalPages);
+
+        setHasMore(true);
+        setIsFetching(false);
+      });
+  }
   async function loadMore() {
     let { ratelimited, limit, duration, used } =
       await api.authStore.isRatelimited("list");
@@ -74,12 +157,26 @@ export default function Home(props: {
         setPage((page) => page + 1);
         break;
       default:
+        let filterString =
+      pageValue === "following"
+        ? `author.followers ?~"${
+            api.authStore.model().id
+          }"`
+        : pageValue === "recommended"
+        ? `likes:length > 1 && author.id !="${
+            api.authStore.model().id
+          }" && author.followers !~"${api.authStore.model().id}"`
+        : pageValue === "trending"
+        ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
+        : "";
+        console.log(filterString);
         await api
           .list({
             collection: "posts",
             limit: 10,
             page: page + 1,
-            cacheKey: `user-home-posts-${page + 1}-${api.authStore.model().id}`,
+            cacheKey: `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`,
+            filter: filterString,
             cacheTime: 1200,
             expand: [
               "author",
@@ -94,7 +191,7 @@ export default function Home(props: {
           })
           .then((e: any) => {
             api.cacehStore.set(
-              `user-home-posts-${page + 1}-${api.authStore.model().id}`,
+              `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`,
               e,
               1200
             );
@@ -116,32 +213,46 @@ export default function Home(props: {
             setWindowScroll(window.scrollY);
           })
         : null;
-      if (api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`)) {
+      if (api.cacehStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)) {
         setPosts(
           JSON.parse(
-            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
           ).value.items
         );
         setTotalPages(
           JSON.parse(
-            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
           ).value.totalPages
         );
         console.log(
           "using cache",
           JSON.parse(
-            api.cacehStore.get(`user-home-posts-1-${api.authStore.model().id}`)
+            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
           )
         );
         return;
       }
+      let filterString =
+      pageValue === "following"
+        ? ` author.followers ~"${
+            api.authStore.model().id
+          }"`
+        : pageValue === "recommended"
+        ? `likes:length > 1 && author.id !="${
+            api.authStore.model().id
+          }" && author.followers !~"${api.authStore.model().id}"`
+        : pageValue === "trending"
+        ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
+        : "";
+
       api
         .list({
           collection: "posts",
           limit: 10,
           page: 1,
-          cacheKey: `user-home-posts-1-${api.authStore.model().id}`,
+          cacheKey: `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
           cacheTime: 1200,
+          filter: filterString,
           expand: [
             "author",
             "comments.user",
@@ -156,9 +267,9 @@ export default function Home(props: {
         .then((e: any) => {
           setTotalPages(e.totalPages);
           setPosts(e.items);
-          !api.cacehStore.has(`user-home-posts-1-${api.authStore.model().id}`)
+          !api.cacehStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)  
             ? api.cacehStore.set(
-                `user-home-posts-1-${api.authStore.model().id}`,
+                `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
                 e,
                 1200
               )
@@ -238,7 +349,7 @@ export default function Home(props: {
             )}
 
             <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f9f9f9]   w-[100%]  xl:z-[999] flex flex-col  xl:bg-white     ">
-              <div className="flex xl:p-5 w-full p-2 justify-between ">
+              <div className="flex xl:p-5 w-full   justify-between ">
                 <div className="flex gap-2 hero">
                   <div className="flex flex-col   w-full">
                     <div className="flex  justify-between gap-2 w-full">
@@ -247,11 +358,23 @@ export default function Home(props: {
                           <label tabIndex={0}>
                             {typeof window != "undefined" &&
                             api.authStore.isValid() ? (
-                              <img
-                                src={api.authStore.img()}
-                                alt={api.authStore.model().username}
-                                className="rounded object-cover w-12 h-12 cursor-pointer"
-                              ></img>
+                              <>
+                                {api.authStore.model().avatar ? (
+                                  <img
+                                    src={api.authStore.img()}
+                                    alt={api.authStore.model().username}
+                                    className="rounded object-cover w-12 h-12 cursor-pointer"
+                                  ></img>
+                                ) : (
+                                  <div className="avatar placeholder">
+                                  <div className="bg-base-300 text-black   avatar  w-16 h-16   border cursor-pointer rounded   border-white">
+                                    <span className="text-2xl">
+                                      {api.authStore.model().username.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                                )}
+                              </>
                             ) : (
                               ""
                             )}
@@ -308,7 +431,7 @@ export default function Home(props: {
                           </ul>
                         </div>
                         <div className="flex flex-col">
-                          <p className="font-bold text-lg">
+                          <p className="font-bold ">
                             {typeof window != "undefined" &&
                               api.authStore.model().username}
                           </p>
@@ -344,44 +467,76 @@ export default function Home(props: {
                 </div>
               </div>
 
-              {
-                poorConnection && !dismissToast ?  <div className="toast  xl:hidden lg:hidden md:hidden toast-end relative sm:toast-center  text-sm "
-                
-                onClick={() => {
-                  setDismissToast(true)
-                }}
+              {poorConnection && !dismissToast ? (
+                <div
+                  className="toast  xl:hidden lg:hidden md:hidden toast-end relative sm:toast-center  text-sm "
+                  onClick={() => {
+                    setDismissToast(true);
+                  }}
                 >
-                <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
-                  <span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                      />
-                    </svg>
-                  </span>
-                  <p>
-                    Poor connection detected.
-                    <p>Likely due to your internet connection.</p>
-                    <span className="text-sm"> Click to Dismiss</span>
-                  </p>
+                  <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
+                    <span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                        />
+                      </svg>
+                    </span>
+                    <p>
+                      Poor connection detected.
+                      <p>Likely due to your internet connection.</p>
+                      <span className="text-sm"> Click to Dismiss</span>
+                    </p>
+                  </div>
                 </div>
-              </div>
-              :""
-              }
+              ) : (
+                ""
+              )}
 
-              <div className="flex hero xl:p-5 p-2 justify-between xl:mt-0  ">
-                <p>Following</p>
-                <p>Recommended</p>
-                <p>Trending</p>
+              <div className="flex hero xl:p-5 mt-5 justify-between xl:mt-0  ">
+               <div className="flex flex-col text-sm">
+               <p
+               className="cursor-pointer"
+                onClick={()=>{
+                  swapFeed('following', 0)
+                }}
+                >Following</p>
+                  {
+                    pageValue === 'following' ? <div className=" rounded-md   h-2 bg-blue-500"></div> : ""
+                  }
+                 </div>
+                 <div className="flex flex-col">
+                 <p
+                 className="cursor-pointer"
+                onClick={()=>{
+                  swapFeed('recommended', 0)
+                }}
+                >Recommended</p>
+                  {
+                    pageValue === 'recommended' ? <div className=" rounded-md   h-2 bg-blue-500"></div> : ""
+                  }
+               </div>
+                <div className="flex flex-col">
+                <p
+                className="cursor-pointer"
+                onClick={()=>{
+                  swapFeed('trending', 0)
+                }}
+                >Trending</p>
+                  {
+                    pageValue === 'trending' ? <div className=" rounded-md  h-2 bg-blue-500"></div> : ""
+                  }
+                </div>
+                
               </div>
             </div>
 
@@ -406,7 +561,9 @@ export default function Home(props: {
                               api.authStore.model().id
                             }`
                           )}
-                          cacheKey={`user-home-posts-${page}-${ api.authStore.model().id}`}
+                          cacheKey={`user-home-posts-${page}-${
+                            api.authStore.model().id
+                          }`}
                           {...e}
                           swapPage={props.swapPage}
                           setParams={props.setParams}
@@ -419,100 +576,126 @@ export default function Home(props: {
                                   api.authStore.model().id
                                 }`
                               )
-                            );
-                            cache.value.items.forEach(
-                              (e: any, index: number) => {
-                                if (e.id === key) {
-                                  cache.value.items[index] = value;
+                            ); 
+                            if(cache && cache.value?.items.length > 0){
+                              console.log(cache.value.items);
+                              cache.value.items.forEach(
+                                (e: any, index: number) => {
+                                  if (e.id === key) {
+                                    cache.value.items[index] = value;
+                                  }
+                                }
+                              );
+                              for (var i in api.cacehStore.keys()) {
+                                let key = api.cacehStore.keys()[i];
+                                console.log(key);
+                                if (key.includes("user-feed")) {
+                                  let items = JSON.parse(api.cacehStore.get(key))
+                                    .value.items;
+  
+                                  items.forEach((e: any, index: number) => {
+                                    if (e.id === key) {
+                                      items[index] = value;
+                                    }
+                                  });
+                                  api.cacehStore.set(
+                                    key,
+                                    {
+                                      items: items,
+                                      totalItems: JSON.parse(
+                                        api.cacehStore.get(key)
+                                      ).value.totalItems,
+                                      totalPages: JSON.parse(
+                                        api.cacehStore.get(key)
+                                      ).value.totalPages,
+                                    },
+                                    1200
+                                  );
                                 }
                               }
-                            );
-                            for (var i in api.cacehStore.keys()) {
-                              let key = api.cacehStore.keys()[i];
-                              console.log(key);
-                              if (key.includes("user-feed")) {
-                                let items = JSON.parse(api.cacehStore.get(key))
-                                  .value.items;
-
-                                items.forEach((e: any, index: number) => {
-                                  if (e.id === key) {
-                                    items[index] = value;
-                                  }
-                                });
-                                api.cacehStore.set(
-                                  key,
-                                  {
-                                    items: items,
-                                    totalItems: JSON.parse(
-                                      api.cacehStore.get(key)
-                                    ).value.totalItems,
-                                    totalPages: JSON.parse(
-                                      api.cacehStore.get(key)
-                                    ).value.totalPages,
-                                  },
-                                  230
-                                );
-                              }
+  
+                              api.cacehStore.set(
+                                `user-home-posts-${page}-${
+                                  api.authStore.model().id
+                                }`,
+                                cache.value,
+                                1200
+                              );
                             }
-
-                            api.cacehStore.set(
-                              `user-home-posts-${page}-${
-                                api.authStore.model().id
-                              }`,
-                              cache.value,
-                              1200
-                            );
                           }}
                         ></Post>
                       </div>
                     );
                   })
-                : Array.from(Array(10).keys()).map((e: any) => {
-                    return <Loading key={e}></Loading>;
-                  })}
+                : 
+                 <>
+                  {isFetching ? (
+                   <div className="mx-auto flex justify-center">
+                   <span className="loading loading-spinner-large loading-spinner mt-5 text-blue-600"></span>
+                   </div>
+                  ) : (<>
+                    
+                      {
+                        pageValue === "following" ?  <div className="flex flex-col mt-6  justify-center">
+                        <p className="text-center text-xl font-bold">
+                          You're not following anyone.
+                        </p>
+                        <p className="text-center text-sm">
+                          Follow people to see their posts here.
+                        </p>
+                        </div>
+                        : pageValue === "recommended" ? <div className="flex flex-col  justify-center"></div> : pageValue === "trending" ? <div className="flex flex-col  justify-center"></div> : <div className="flex flex-col  justify-center"></div>
+                      }
+                  
+                  </>)
+                  }
+                 </>
+                }
             </Scroller>
 
             <div className="xl:hidden lg:hidden">
-           <BottomNav
-              params={props.params}
-              setParams={props.setParams}
-              currentPage={props.currentPage}
-              swapPage={props.swapPage} 
-           />
-         </div>
-          </div>
-          {
-            poorConnection  && !dismissToast ?  <div 
-            
-            onClick={() => {
-              setDismissToast(true)
-            }}
-            className="toast toast-end sm:toast-center  text-sm sm:hidden xsm:hidden  sm:top-0 ">
-            <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
-              <span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                  />
-                </svg>
-              </span>
-              <p>
-                Poor connection detected.
-                <p>Likely due to your internet connection.</p>
-                <span className="text-sm"> Click to Dismiss</span>
-              </p>
+              <BottomNav
+                params={props.params}
+                setParams={props.setParams}
+                currentPage={props.currentPage}
+                swapPage={props.swapPage}
+              />
             </div>
-          </div> : ""
-          }
+          </div>
+          {poorConnection && !dismissToast ? (
+            <div
+              onClick={() => {
+                setDismissToast(true);
+              }}
+              className="toast toast-end sm:toast-center  text-sm sm:hidden xsm:hidden  sm:top-0 "
+            >
+              <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
+                <span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                    />
+                  </svg>
+                </span>
+                <p>
+                  Poor connection detected.
+                  <p>Likely due to your internet connection.</p>
+                  <span className="text-sm"> Click to Dismiss</span>
+                </p>
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
           <SideBarRight
             params={props.params}
             setParams={props.setParams}
@@ -561,7 +744,7 @@ function LogoutModal() {
             </button>
           </form>
         </div>
-      </dialog> 
+      </dialog>
     </>
   );
 }

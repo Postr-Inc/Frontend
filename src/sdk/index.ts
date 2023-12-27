@@ -117,7 +117,7 @@ export  default class postrSdk {
                 let cache = JSON.parse(value)
                 
                 if (cache.time) {
-                    if (new Date().getTime()  - cache.time > cache.cacheTime) {
+                    if (new Date().getTime() - cache.time > cache.cacheTime) {
                         console.log("delete")
                         this.$memoryCache.delete(key)
                     }
@@ -201,6 +201,14 @@ export  default class postrSdk {
      * @returns {cacehStore}
      */
     cacehStore = {
+        /**
+         * @method set
+         * @description Set a value in the cache
+         * @param key 
+         * @param value 
+         * @param cacheTime 
+         * @returns 
+         */
         set: (key: string, value: any, cacheTime: number) => {
             console.log("set")
             if (typeof window == "undefined") return;
@@ -560,6 +568,7 @@ export  default class postrSdk {
 
 
             this.callbacks.set(key, (data: any) => {
+          
                 if (data.error) reject(data);
                 resolve(data)
                 this.callbacks.delete(key)

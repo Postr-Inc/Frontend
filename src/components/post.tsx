@@ -46,11 +46,12 @@ const created = (created: any) => {
   }
 };
 function CommentModal(props: any) {
-  let [comment, setComment] = useState("");
+  let [commentV, setComment] = useState("");
+  let [mentions, setMentions] = useState([]);
 
   async function createComment() {
     switch (true) {
-      case comment.length < 1:
+      case commentV.length < 1:
         break;
       default:
         try {
@@ -59,7 +60,7 @@ function CommentModal(props: any) {
             record: {
               user: api.authStore.model().id,
               post: props.post.id,
-              text: comment,
+              text: commentV,
               cacheKey: props.cacheKey,
               likes: [],
             },
@@ -94,7 +95,7 @@ function CommentModal(props: any) {
   return (
     <dialog
       id={props.id}
-      className="   fixed top-0 left-0 w-full sm:modal placeholder: xl:rounded-xl  m-auto     h-[80vh] f md:mt-5  md:rounded-xl  md:w-[40vw] xl:w-[30vw]     "
+      className="   fixed top-0 left-0 w-full sm:modal placeholder: xl:rounded-xl  m-auto   right-16  h-[80vh] f md:mt-5  md:rounded-xl  md:w-[40vw] xl:w-[30vw]     "
     >
       <div className="   xl:rounded-xl bg-base-100   scroll h-full w-full  shadow-none   ">
         <div className="flex flex-col   p-3 w-full  ">
@@ -124,7 +125,11 @@ function CommentModal(props: any) {
           </div>
         </div>
 
-        <div className=" flex flex-col lg:mb-32 md:mb-32 xl:mb-32 mb-32 mt-8  p-4 gap-5">
+        <div className={`flex flex-col lg:mb-32 md:mb-32 xl:mb-32 mb-32 mt-8  p-4 
+        ${
+          mentions.length > 0 ? "sm:mb-64" : ""
+        }
+        sm:p-2 gap-5`}>
           {props.comments.length > 0 ? (
             props.comments.map((comment: any) => {
               return (
@@ -140,7 +145,12 @@ function CommentModal(props: any) {
                   created={comment.created}
                   user={comment.expand.user}
                   setParams={props.setParams}
+                  setComment={setComment}
+                  comment={commentV}
+                  setMentions={setMentions}
+                  mentions={mentions}
                   swapPage={props.swapPage}
+                  updateCache={props.updateCache}
                   deleteComment={() => {
                     props.setComments(
                       props.comments.filter((e: any) => e.id != comment.id)
@@ -154,8 +164,12 @@ function CommentModal(props: any) {
                         ),
                       },
                     });
-                     
-                    api.delete({ collection: "comments", id: comment.id, cacheKey: props.cacheKey });
+
+                    api.delete({
+                      collection: "comments",
+                      id: comment.id,
+                      cacheKey: props.cacheKey,
+                    });
                   }}
                 ></Comment>
               );
@@ -175,53 +189,78 @@ function CommentModal(props: any) {
           )}
         </div>
 
-        <div className="flex flex-col  gap-5 hero absolute    bottom-0   left-0   p-2 bg-white   ">
-          <div className="flex flex-row  justify-between w-full  p-2 text-xl">
+        <div className={`flex flex-col  gap-5 w-full absolute    bottom-0   left-0   p-2  bg-white  
+        
+        ${
+          mentions.length > 0 ? "sm:mt-32" : ""
+        }
+        `}>
+        {
+           mentions.length > 0  ?  <div className="flex gap-5 justify-start  p-2">
+           <div className="flex flex-col">
+           <p>
+             Mentions
+           </p>
+            <div className="flex gap-5 mt-2">
+            {
+                 mentions.length > 0 ? mentions.map((mention: any) => {
+                   return <p 
+                   onClick={() => {
+                     
+                   }}
+                   className="text-sm  btn rounded-full btn-sm text-sky-500">{mention}</p>
+                 }) : ""
+               }
+               </div>
+           </div>
+           </div> : ""
+        }
+          <div className="flex flex-row  xl:hidden justify-between w-full  p-2 text-xl">
             <p
               onClick={() => {
-                setComment(comment + "❤️");
+                setComment(commentV + "❤️");
               }}
             >
               ❤️
             </p>
             <p
               onClick={() => {
-                setComment(comment + "🔥");
+                setComment(commentV + "🔥");
               }}
             >
               🔥
             </p>
             <p
               onClick={() => {
-                setComment(comment + "🥴");
+                setComment(commentV + "🥴");
               }}
             >
               🥴
             </p>
             <p
               onClick={() => {
-                setComment(comment + "👏");
+                setComment(commentV + "👏");
               }}
             >
               👏
             </p>
             <p
               onClick={() => {
-                setComment(comment + "🐱‍💻");
+                setComment(commentV + "🐱‍💻");
               }}
             >
               🐱‍💻
             </p>
             <p
               onClick={() => {
-                setComment(comment + "👀");
+                setComment(commentV + "👀");
               }}
             >
               👀
             </p>
             <p
               onClick={() => {
-                setComment(comment + "😂");
+                setComment(commentV + "😂");
               }}
             >
               😂
@@ -233,17 +272,27 @@ function CommentModal(props: any) {
               alt="profile"
               className="rounded object-cover w-12 h-12 cursor-pointer"
             ></img>
-            <div className="relative rounded-full w-full">
+             
+            <div className="relative rounded  w-full  border-slate-200 ">
               <input
-                className="input  border  border-slate-200  bg-white   border-l-full w-full rounded-full"
+                className="   input justify-start  hero    border-slate-200  border  border-l-full w-full rounded-full line-clamp-1  resize-none  focus:outline-none  
+                text-sm  
+                "
                 placeholder={`Reply to ${props.post.expand?.author?.username}`}
                 onChange={(e) => {
                   setComment(e.target.value);
+                  // turn @mentions into links
+                  let  mentions = e.target.value.match(/@\w+/g)
+                  if(mentions){
+                    setMentions(mentions as any)
+                  }else{
+                    setMentions([])
+                  }
                 }}
-                value={comment}
+                value={commentV}
               />
               <button className="btn  hover:bg-white  bg-white border-start-0 rounded-full border-l-transparent border  rounded-l-none border-slate-200 absolute end-0 top-0 h-full  border-l-0 ">
-                {comment.length > 0 ? (
+                {commentV.length > 0 ? (
                   <p
                     className="text-sky-500"
                     onClick={() => {
@@ -275,6 +324,40 @@ function CommentModal(props: any) {
       </div>
     </dialog>
   );
+}
+
+function DeleteModal(props: any) {
+  return (
+ 
+<dialog id={props.id + 'delete'} className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none">
+  <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
+    <h3 className="font-bold text-lg">Delete Postr ?</h3>
+    <p className="py-4">
+      Are you sure you want to delete this postr? This action cannot be undone. This will permanently delete access accross the platform.
+    </p>
+    <div className="modal-action gap-5">
+      <form method="dialog" className="flex gap-5">
+        <button className="text-red-500"
+        onClick={() => {
+          api.delete({
+            collection: "posts",
+            id: props.id,
+            cacheKey: props.cacheKey,
+          });
+          props.setArray(props.array.filter((e: any) => e.id != props.id));
+          api.cacehStore.delete(props.cacheKey)
+          //@ts-ignore
+          document.getElementById(props.id + 'delete')?.close()
+        }}
+        >Delete</button>
+        <button className=" " data-close>
+          Cancel
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+  )
 }
 
 export default function Post(props: any) {
@@ -327,14 +410,36 @@ export default function Post(props: any) {
     <div
       key={props.id}
       className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
-        props.page !== "user" && props.page !== "bookmarks"
-        && props.page !== "home"
+        props.page !== "user" &&
+        props.page !== "bookmarks" &&
+        props.page !== "home"
           ? "xl:p-5 sm:p-2"
-          :   props.page == "home"
+          : props.page == "home"
           ? "xl:p-5  "
           : ""
       }`}
     >
+      {props.pinned &&
+      props.page == "user" &&
+      props.params &&
+      props.params.user.id == props.expand.author.id ? (
+        <div className="flex hero gap-5 mb-5">
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="w-4 h-4
+         
+        "
+          >
+            <g>
+              <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
+            </g>
+          </svg>
+          Pinned
+        </div>
+      ) : (
+        ""
+      )}
       <div className="flex   justify-between">
         <CommentModal
           id={props.id + "comments"}
@@ -370,30 +475,27 @@ export default function Post(props: any) {
                   {props.expand.author?.username}
                 </span>
               </p>
-              <p className="hover:underline opacity-50 text-sm md:hidden sm:hidden
-              ">
+              <p
+                className="hover:underline opacity-50 text-sm md:hidden sm:hidden
+              "
+              >
                 @{props.expand.author?.username}
               </p>
               {props.expand.author?.validVerified ? (
-                <div
-                  className="tooltip z-[-1] sm:bg-white tooltip-left"
-                  data-tip="This user is verified"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 fill-blue-500 text-white h-6"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 fill-blue-500 text-white h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                    />
-                  </svg>
-                </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                  />
+                </svg>
               ) : (
                 ""
               )}
@@ -436,7 +538,9 @@ export default function Post(props: any) {
               )}
               ·<span className="text-sm">{created(props.created)}</span>
               <div className="flex gap-2   absolute end-2 ">
-                <svg
+              <details className="dropdown dropdown-left">
+  <summary className="m-1 cursor-pointer">
+  <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -450,6 +554,39 @@ export default function Post(props: any) {
                     d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
                   />
                 </svg>
+  </summary>
+  <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+    {
+      props.expand?.author && props.expand.author.id == api.authStore.model().id
+       ? 
+      <li>
+      <a onClick={() => {
+         props.pin(props.id)
+         props.updateCache(props.id, { ...props, pinned: props.pinned })
+      }}>
+
+        {
+          props.pinned ? "Unpin" : "Pin"
+        }
+      </a>
+      </li> : ""
+    }
+    {
+      props.expand?.author && props.expand.author.id == api.authStore.model().id
+       ? 
+      <li>
+      <a onClick={() => {
+         //@ts-ignore
+         document.getElementById(props.id + 'delete')?.showModal()
+      }}>
+
+        Delete
+      </a>
+      </li> : ""
+    }
+  </ul>
+</details>
+                
               </div>
             </div>
           </div>
@@ -464,37 +601,62 @@ export default function Post(props: any) {
             }
           }}
         ></p>
-         
+
         {props.file.length > 0 ? (
-         
-             <>
-            <img
-            src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-             
-            className="rounded-xl w-full h-96 mt-2 cursor-pointer object-cover"
-            onClick={() => {
-              //@ts-ignore
-              document.getElementById(props.id + "file")?.showModal();
-            }}
-            height="h-96"
-          ></img>
-            </>
-            
+          <div className="mt-2">
+            <div
+              className={` w-full 
+           ${
+             props.file.length > 1 ? " grid grid-cols-2" : "w-full object-cover"
+           }
+            col-span-2 grid-flow-dense  `}
+            >
+              {props.file.map((file: any, index: Number) => {
+                return (
+                  <img
+                    className={` w-full object-cover
+    
+                    ${
+                      props.file.length < 2
+                        ? "rounded  h-96"
+                        : "border h-64     border-[#f9f9f9]  rounded"
+                    }
+                    
+                    ${
+                      index == 0
+                        ? "col-span-2 row-span-2"
+                        : "col-span-1 row-span-1"
+                    }
+                    `}
+                    src={api.cdn.url({
+                      id: props.id,
+                      collection: "posts",
+                      file: file,
+                    })}
+                    alt="image"
+                  ></img>
+                );
+              })}
+            </div>
+          </div>
         ) : (
           ""
         )}
-         
+
         {/**Heart Icon */}
-        <div className="flex    gap-6 mt-5">
+        <div className="flex    mt-5">
+          <div className="w-fit   hero"> 
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className={`w-6 h-6 cursor-pointer ${
+            className={`
+            hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-7 h-7 hover:text-rose-500
+            cursor-pointer ${
               likes.includes(api.authStore.model().id)
-                ? "fill-red-500 text-red-500"
+                ? "fill-rose-500 text-rose-500"
                 : ""
             }`}
             onClick={(e) => {
@@ -508,30 +670,37 @@ export default function Post(props: any) {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
             />
           </svg>
+          </div>
 
-           <div className="flex gap-2 hero w-12">
-           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
-            onClick={() => {
-              //@ts-ignore
-              document.getElementById(props.id + "comments")?.showModal();
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-            />
-          </svg>
-          {comments.length} 
-           </div>
-          <Repost />
+          <div className="flex gap-2 hero  p-2 w-fit ">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-9 h-9 hover:text-sky-500  "
+              onClick={() => {
+                //@ts-ignore
+                document.getElementById(props.id + "comments")?.showModal();
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+              />
+            </svg>
+            {comments.length}
+          </div>
+          <Repost
+           originalAuthor={props.expand?.author?.username}
+           originalPost={props}
+           postID={props.id}
+           cacheKey={props.cacheKey}
+          />
 
+          <div className="w-fit p-2 hero flex">
           <svg
             onClick={() => {
               navigator.share({
@@ -545,7 +714,7 @@ export default function Post(props: any) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 cursor-pointer"
+            className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-8 h-8 hover:text-sky-500"
           >
             <path
               strokeLinecap="round"
@@ -553,40 +722,68 @@ export default function Post(props: any) {
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
             />
           </svg>
+          </div>
 
+          <div className="w-fit p-2 hero flex">
           <Bookmark
             id={props.id}
-            className={`w-6 h-6 cursor-pointer ${
+            className={`
+            cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-8 h-8 hover:p-2 hover:text-sky-500
+            ${
               bookmarked ? "fill-blue-500 text-blue-500" : ""
             }`}
-            onClick={() => { 
+            onClick={() => {
               if (!api.authStore.model().bookmarks.includes(props.id)) {
-                api.update({collection: "users", id: api.authStore.model().id, cacheKey: "userBookmarks" + api.authStore.model().id, expand:["bookmarks", "bookmarks.author"], record: {bookmarks: [...api.authStore.model().bookmarks, props.id]}}).then((res: any) => {
-                  api.authStore.update() 
-                  console.log(res);
-                  api.cacehStore.set("bookmarks", res.expand.bookmarks || [], 1200)
-                  props.deleteBookmark && props.deleteBookmark()
-                })
+               
+                api
+                  .update({
+                    collection: "users",
+                    id: api.authStore.model().id,
+                    cacheKey: "userBookmarks" + api.authStore.model().id,
+                    expand: ["bookmarks", "bookmarks.author"],
+                    record: {
+                      bookmarks: [...api.authStore.model().bookmarks, props.id],
+                    },
+                  })
+                  .then((res: any) => {
+                    api.authStore.update();
+                   
+                    api.cacehStore.set(
+                      "bookmarks",
+                      res.expand.bookmarks || [],
+                      1200
+                    ); 
+                  }); 
                 setRefresh(!refresh);
               } else {
-                api.update({
-                  collection: "users",
-                  id: api.authStore.model().id,
-                  cacheKey: "userBookmarks" + api.authStore.model().id,
-                  expand:["bookmarks", "bookmarks.author"],
-                  record: {
-                    bookmarks: api.authStore.model().bookmarks.filter( (e: any) => e != props.id),
-                  },
-                }).then((res: any) => {  
-                  api.authStore.update() 
-                  api.cacehStore.set("bookmarks", res.expand ? res.expand.bookmarks : [], 1200)
-                  props.deleteBookmark && props.deleteBookmark()
-                })
+                console.log("unbookmark");
+                api
+                  .update({
+                    collection: "users",
+                    id: api.authStore.model().id,
+                    cacheKey: "userBookmarks" + api.authStore.model().id,
+                    expand: ["bookmarks", "bookmarks.author"],
+                    record: {
+                      bookmarks: api.authStore
+                        .model()
+                        .bookmarks.filter((e: any) => e != props.id),
+                    },
+                  })
+                  .then((res: any) => {
+                    api.authStore.update();
+                    api.cacehStore.set(
+                      "bookmarks",
+                      res.expand ? res.expand.bookmarks : [],
+                      1200
+                    );
+                    props.deleteBookmark && props.deleteBookmark();
+                  });
                 setRefresh(!refresh);
               } 
               setBookmarked(!bookmarked);
             }}
           />
+          </div>
         </div>
       </div>
       <div className="flex gap-5 mt-5  ">
@@ -598,7 +795,7 @@ export default function Post(props: any) {
               <>
                 <img
                   src={api.cdn.url({
-                    id:  props.expand?.likes[0].id,
+                    id: props.expand?.likes[0].id,
                     collection: "users",
                     file: props.expand?.likes[0].avatar,
                   })}
@@ -621,10 +818,8 @@ export default function Post(props: any) {
             {likes.length} {likes.length == 1 ? "like" : "likes"}
           </p>
         )}
-         
-        
       </div>
-       
+
       {props.file ? (
         <Modal id={props.id + "file"} height=" h-[100vh]">
           <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
@@ -649,6 +844,7 @@ export default function Post(props: any) {
           </div>
         </Modal>
       ) : null}
+      <DeleteModal id={props.id} {...props}></DeleteModal>
     </div>
   );
 }

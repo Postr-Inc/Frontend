@@ -68,23 +68,20 @@ export default function Home(props: {
       setPosts(cache.value.items);
       setTotalPages(cache.value.totalPages);
       setHasMore(true);
+      setIsFetching(false);
       return;
-    }
-
-    console.log("swapping feed", pageValue);
+    } 
     let filterString =
        pageValue === "following"
         ? `author.followers ?~"${
             api.authStore.model().id
           }"`
         : pageValue === "recommended"
-        ? `likes:length > 1 && author.id !="${
-            api.authStore.model().id
-          }" && author.followers !~"${api.authStore.model().id}"`
+        ? `likes:length > 1 && author.id !="${ api.authStore.model().id}" && author.followers !~ "${api.authStore.model().id}"`
         : pageValue === "trending"
         ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
         : "";
-        console.log(filterString);
+         
      
     setPosts([]);
     api
@@ -121,7 +118,7 @@ export default function Home(props: {
               totalItems: e.totalItems,
               totalPages: e.totalPages,
             },
-            230
+            1200
           );
         }
 
@@ -135,6 +132,7 @@ export default function Home(props: {
   async function loadMore() {
     let { ratelimited, limit, duration, used } =
       await api.authStore.isRatelimited("list");
+      console.log(ratelimited, limit, duration, used);
 
     switch (true) {
       case ratelimited:
@@ -207,6 +205,7 @@ export default function Home(props: {
   }
 
   useEffect(() => {
+    setIsFetching(true);
     if (!hasRan.current && typeof window !== "undefined") {
       typeof window !== "undefined"
         ? (window.onscroll = () => {
@@ -308,7 +307,7 @@ export default function Home(props: {
                     ? window.scrollTo({ top: 0, behavior: "smooth" })
                     : null
                 }
-                className="fixed top-4 p-3 w-fit h-10 xl:top-[2rem]  z-[999] cursor-pointer  translate-x-0 inset-x-0  mx-auto flex hero gap-2 text-white    rounded-full bg-[#43b1f1]"
+                className="fixed top-4 p-3 w-fit h-10 xl:top-[17rem]  z-[999] cursor-pointer  translate-x-0 inset-x-0  mx-auto flex hero gap-2 text-white    rounded-full bg-[#43b1f1]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -322,7 +321,7 @@ export default function Home(props: {
                     clipRule="evenodd"
                   />
                 </svg>
-                <div className="border-none   -space-x-2  flex">
+                <div className="border-none    -space-x-2  flex">
                   {Array.from(Array(3).keys()).map((e: any) => {
                     let post = posts[e];
                     return (
@@ -348,7 +347,9 @@ export default function Home(props: {
               ""
             )}
 
-            <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f9f9f9]   w-[100%]  xl:z-[999] flex flex-col  xl:bg-white     ">
+            <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f6f4f4]   w-[100%]  xl:z-[999] flex flex-col  
+           bg-opacity-75 bg-white
+            ">
               <div className="flex xl:p-5 w-full   justify-between ">
                 <div className="flex gap-2 hero">
                   <div className="flex flex-col   w-full">
@@ -455,14 +456,7 @@ export default function Home(props: {
                         <Settings className="w-7 h-7 cursor-pointer" />
                       </div>
                     </div>
-                    {typeof window != "undefined" &&
-                    api.authStore.model().postr_plus ? (
-                      <span className="badge badge-outline  text-sky-500 z-[-1] p-2 mt-5   border-sky-500">
-                        Postr ++
-                      </span>
-                    ) : (
-                      ""
-                    )}
+                   
                   </div>
                 </div>
               </div>
@@ -502,7 +496,7 @@ export default function Home(props: {
                 ""
               )}
 
-              <div className="flex hero xl:p-5 mt-5 justify-between xl:mt-0  ">
+              <div className="flex hero xl:p-5 mt-5 sm:mt-[2.25rem] sm:mb-[2rem]   mb-2 justify-between xl:mt-0  ">
                <div className="flex flex-col text-sm">
                <p
                className="cursor-pointer"
@@ -551,7 +545,7 @@ export default function Home(props: {
                 ? posts.map((e: any) => {
                     return (
                       <div
-                        className="mt-5 xl:mt-0 xl:border xl:border-[#f9f9f9]  "
+                        className="mt-5 xl:mt-0 xl:border xl:border-[#f6f4f4]  "
                         key={e.id}
                         id={e.id}
                       >
@@ -633,7 +627,7 @@ export default function Home(props: {
                    <div className="mx-auto flex justify-center">
                    <span className="loading loading-spinner-large loading-spinner mt-5 text-blue-600"></span>
                    </div>
-                  ) : (<>
+                  ) : !isFetching ?   <>
                     
                       {
                         pageValue === "following" ?  <div className="flex flex-col mt-6  justify-center">
@@ -644,11 +638,23 @@ export default function Home(props: {
                           Follow people to see their posts here.
                         </p>
                         </div>
-                        : pageValue === "recommended" ? <div className="flex flex-col  justify-center"></div> : pageValue === "trending" ? <div className="flex flex-col  justify-center"></div> : <div className="flex flex-col  justify-center"></div>
+                        : pageValue === "recommended" ? <div className="flex flex-col  justify-center">
+                        <p className="text-center text-xl font-bold">
+                          No recommended posts. :{'('}
+                        </p>
+                        </div> : pageValue === "trending" ? <div className="flex flex-col  justify-center">
+                        <p className="text-center text-xl font-bold">
+                          No trending posts.
+                        </p>
+                        </div> : <div className="flex flex-col  justify-center"></div>
                       }
                   
-                  </>)
-                  }
+                  </>
+                  
+                : ""
+                }
+                   
+                   
                  </>
                 }
             </Scroller>

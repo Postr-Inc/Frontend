@@ -28,12 +28,11 @@ export default function Bookmarks(props: any) {
         "bookmarks.comments",
         "bookmarks.comments.user",
       ],
-    });
-    console.log(res);
+    }); 
     api.cacehStore.set(
       "bookmarks",
       res.expand["bookmarks"] ? res.expand["bookmarks"] : [],
-      1000 * 60 * 60 * 24 * 7
+      1200
     );
     setBookmarks(res.expand["bookmarks"] ? res.expand["bookmarks"] : []);
   }
@@ -44,6 +43,7 @@ export default function Bookmarks(props: any) {
   useEffect(() => {
     if (typeof window !== "undefined") setClient(true);
   }, [bookmarks]);
+
   return (
     <>
       {isClient ? (
@@ -55,7 +55,7 @@ export default function Bookmarks(props: any) {
             swapPage={props.swapPage}
           />
           <div className="flex flex-col gap-5">
-            <div className="sticky bg-white z-[999] xl:mx-24 p-3 top-0">
+            <div className="sticky bg-white z-[999] xl:mx-24 p-3 sm:p-2 top-0">
               <div className="flex flex-row justify-between">
                 <div className="flex flex-col ">
                   <p className="font-bold">Bookmarks</p>
@@ -79,7 +79,7 @@ export default function Bookmarks(props: any) {
             </div>
 
             <div
-              className=" xl:mx-24     text-md   
+              className=" xl:mx-24  sm:p-2   text-md   
       relative 
       xl:w-[35vw]
       md:w-[80vw]

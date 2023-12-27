@@ -62,14 +62,66 @@ export function SideBarRight(props: any) {
   );
 }
 export function SideBarLeft(props: any) {
-  const [postimgs, setPostimgs] = useState<any>([]);
+  let [postimgs, setPostimgs] = useState<any>([]);
   let [text, setText] = useState<any>("");
   let maxlength = 140;
 
-  function createPost() {}
+  async function createPost() {
+     
+     if(postimgs.length > 0 ){
+      postimgs  = postimgs.map(async (img:any)=>{
+        let res = await api.getAsByteArray(new Blob([img], {type: img.type}) as File)
+        return res
+      })
+      
+     }
+     switch(true){
+      case text.length < 1:
+        alert('Please enter some text or an image')
+        return
+      case postimgs.length > 4:
+        alert('You can only upload 4 images')
+        return
+      default:
+        try {
+           
+          let post =  await api.create({collection:'posts', expand:[
+            'author'
+          ], record:{
+            author: api.authStore.model().id,
+            content:text,
+            file:{
+             isFile: true,
+             file:   await Promise.all(postimgs)
+            },
+            comments:[],
+            likes:[], 
+        }}) 
+        //@ts-ignore  
+        props.setParams({user:api.authStore.model(), scrollTo:post?.id})
+        props.swapPage('user')
+       
+        
+        setPostimgs([])
+        setText('')
+        //@ts-ignore
+        typeof window != "undefined" && document.getElementById('createPost')?.close()
+    
+        } catch (error) {
+          
+        }
+      break;
+     }
+    
+
+     
+     
+
+    
+  }
   return (
     <>
-      <div className="xl:drawer xl:w-[auto]     xl:drawer-open lg:drawer-open  ">
+      <div className="xl:drawer xl:w-[auto]      xl:drawer-open lg:drawer-open  ">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-side">
@@ -78,9 +130,14 @@ export function SideBarLeft(props: any) {
             aria-label="close sidebar"
             className="drawer-overlay"
           ></label>
-          <ul className="menu p-2  w-80  flex flex-col gap-5 min-h-full  text-base-content">
+          <ul className="menu p-2  w-64  flex flex-col gap-5 min-h-full  text-base-content">
             {/* Sidebar content here */}
 
+            <li className="hover:bg-transparent">
+              <a className="hover:bg-transparent focus:bg-transparent">
+                <img src="/icons/icon-blue.jpg" className="rounded" width={40} height={40}></img>
+              </a>
+            </li>
             <li className="">
               <a
                 className={`text-xl  ${
@@ -94,7 +151,7 @@ export function SideBarLeft(props: any) {
               >
                 <svg
                   className={`
-                     w-8 h-8
+                     w-7 h-7
                      cursor-pointer
                       ${props.currentPage == "home" ? "fill-blue-500" : "fill-white stroke-black "}
                      `}
@@ -121,7 +178,7 @@ export function SideBarLeft(props: any) {
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  className="   w-8 h-8   cursor-pointer     hover:fill-black hover:text-black         "
+                  className="      w-7 h-7   cursor-pointer     hover:fill-black hover:text-black         "
                 >
                   <path
                     stroke-linecap="round"
@@ -140,7 +197,7 @@ export function SideBarLeft(props: any) {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-8 h-8"
+                  className="   w-7 h-7"
                 >
                   <path
                     strokeLinecap="round"
@@ -173,7 +230,7 @@ export function SideBarLeft(props: any) {
                   strokeWidth={1.5}
                   stroke="currentColor"
                   className={`
-                   w-8 h-8
+                   w-7 h-7
                    ${
                       props.currentPage == "user" &&
                       props.params.user.username == api.authStore.model().username
@@ -199,7 +256,7 @@ export function SideBarLeft(props: any) {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="w-8 h-8"
+                  className="w-7 h-7"
                 >
                   <path
                     fillRule="evenodd"
@@ -210,15 +267,15 @@ export function SideBarLeft(props: any) {
                 Collections
               </a>
             </li>
-            <li>
-              <a className="text-lg">
+            <li className="text-lg  text-start hover:outline-none  hover:text-lg  hover:justify-start hover:rounded-full">
+              <a  >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-8 h-8"
+                  className="w-7 h-7"
                 >
                   <path
                     strokeLinecap="round"
@@ -229,17 +286,17 @@ export function SideBarLeft(props: any) {
                 Messages
               </a>
             </li>
-            <li>
-              <div
+            <button
                 onClick={() => {
                   //@ts-ignore
                   document.getElementById("createPost").showModal();
                 }}
-                className="btn rounded-full text-xl   focus:bg-blue-500 bg-blue-500 text-white "
+                className="btn rounded-full  text-lg hero btn-ghost  hover:bg-blue-500 focus:bg-blue-500 bg-blue-500 text-white "
               >
-                <p>Post</p>
-              </div>
-            </li>
+               <p>
+               Post
+               </p>
+              </button>
           </ul>
         </div>
       </div>
@@ -268,45 +325,64 @@ export function SideBarLeft(props: any) {
             postimgs.length > 0
               ? text.lenght / maxlength > 1
                 ? "h-96"
-                : "h-80"
+                : "h-100"
               : "h-32"
           }
-          
+          ;
+
+
+
+
           `}
             style={{ height: text.length > 0 ? "auto" : " " }}
           >
             <div className="flex flex-row      ">
-              <img
+              {
+                api.authStore.model().avatar ?  <img
                 src={api.authStore.img()}
                 className="w-10 h-10 rounded-full object-cover"
               />
-              <div className="flex flex-col w-full">
+               : <div className="avatar placeholder"><div className="bg-base-300 text-black   avatar  w-10 h-10  border cursor-pointer rounded   border-white"><span className="text-2xl">{api.authStore.model().username.charAt(0).toUpperCase()}</span></div></div>
+              }
+              <div className="flex  flex-col w-full">
                 <textarea
                   className={`w-full mt-2 mx-3 
-              focus:outline scroll
-              h-32
+              focus:outline  
+              h-32 overflow-y-hidden
               resize-none outline-none`}
                   placeholder="What's happening?"
                   onChange={(e) => {
                     setText(e.target.value);
                   }}
+                  maxLength={maxlength}
                 ></textarea>
-                <div className="scroll">
+               
+              </div>
+            </div>
+            <div className="scroll overflow-y-hidden" >
                   {postimgs.length > 0 && (
-                    <div className="flex flex-row mt-5  2  p-2 gap-2  overflow-y-hidden ">
+                    <div className="flex flex-row mt-5    gap-5  ">
                       {Object.keys(postimgs).map((key) => {
+                        console.log(postimgs[key]);
                         return (
-                          <img
+                          <div className="relative">
+                             <img
                             src={URL.createObjectURL(postimgs[key])}
                             className=" object-cover w-32 h-32 rounded-md"
                           />
+                          <div 
+                          onClick={()=>{
+                            setPostimgs(postimgs.filter((img:any)=>img.name !== postimgs[key].name))
+                          }}
+                          className="absolute btn btn-circle btn-sm top-1 right-1">
+                            X
+                          </div>
+                          </div>
                         );
                       })}
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
           </div>
 
           <div className="divider mt-0 mb-2 before:bg-[#f6f4f4] after:bg-[#fdf9f9]  after:text-slate-200"></div>
@@ -317,7 +393,9 @@ export function SideBarLeft(props: any) {
               className="hidden"
               multiple
               onChange={(e) => {
-                setPostimgs(e.target.files);
+                //@ts-ignore
+                setPostimgs(Array.from(e.target.files));
+                e.target.value = "";
               }}
             />
             <label
@@ -330,7 +408,7 @@ export function SideBarLeft(props: any) {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-7 h-7"
               >
                 <path
                   strokeLinecap="round"
@@ -342,7 +420,11 @@ export function SideBarLeft(props: any) {
             <p className="  ">
               {text.length}/{maxlength}
             </p>
-            <button className="btn  btn-sm rounded-full ">Post</button>
+            <button 
+            onClick={()=>{
+              createPost()
+            }}
+            className="btn  btn-sm rounded-full ">Post</button>
           </div>
         </div>
       </dialog>

@@ -127,7 +127,7 @@ export default function User(props: {
     }
   }
 
-  function likeReply(likes: Array<string>, id: string, updateState: Function) {
+  function likeReply(likes: Array<string>, id: string) {
     switch (true) {
       case likes.includes(api.authStore.model().id):
         api
@@ -135,16 +135,18 @@ export default function User(props: {
             collection: "comments",
             id: id,
             cacheKey: `comment-${id}`,
-            expand: [],
+            expand: ["likes"],
             record: {
               likes: likes.filter((id: any) => id != api.authStore.model().id),
             },
           })
           .then((e: any) => {
-            let index = comments.findIndex((e: any) => e.id === id);
-            let newComments = [...comments];
-            newComments[index] = e;
-            setComments(newComments);
+            setArray ( array.map((e:any)=>{
+              if(e.id === id){
+                e.likes = likes.filter((id: any) => id != api.authStore.model().id)
+              }
+              return e
+            }))
           });
 
         break;
@@ -155,16 +157,20 @@ export default function User(props: {
             collection: "comments",
             id: id,
             cacheKey: `comment-${id}`,
-            expand: [],
+            expand: ["likes"],
             record: {
               likes: [...likes, api.authStore.model().id],
             },
           })
           .then((e: any) => {
-            let index = comments.findIndex((e: any) => e.id === id);
-            let newComments = [...comments];
-            newComments[index] = e;
-            setComments(newComments);
+             setArray ( array.map((e:any)=>{
+               if(e.id === id){
+                 e.likes = [...likes, api.authStore.model().id]
+               }
+               return e
+             }))
+
+             console.log(array);
           });
         break;
     }
@@ -270,6 +276,21 @@ export default function User(props: {
       isIntialized.current = true;
       return;
     }
+    if(props.params.scrollTo){
+      // check when the element or if the element is in dom then scroll to it
+      const check = setInterval(() => {
+        let element = document.getElementById(props.params.scrollTo)
+        if(element){
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          element.className = "bg-base-200 border-blue-500  rounded border-double border p-2  "
+          setTimeout(() => {
+            //@ts-ignore
+            element.className = ""
+          }, 4000);
+          clearInterval(check)
+        }
+      }, 1000);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     if (api.cacehStore.get(`user-feed-posts-${1}-${user.id}`)) {
@@ -281,6 +302,7 @@ export default function User(props: {
       setTotalItems(cache.value.totalItems);
       setTimeout(() => {
         setIsFetching(false);
+        `1QS`;
       }, 500);
       setHasMore(true);
       return;
@@ -302,10 +324,15 @@ export default function User(props: {
             "author.following.following",
           ],
           page: 1,
-          sort: `-created`,
+          sort: `-pinned, -created`,
         })
         .then((e: any) => {
-          console.log(e);
+          if(feedPage === "posts"){
+             // sort by pinned
+              e.items = e.items.sort((a:any,b:any)=>{
+                return b.pinned - a.pinned
+              })
+          } 
           setArray(e.items);
           setTotalPages(e.totalPages);
           setTotalItems(e.totalItems);
@@ -330,6 +357,11 @@ export default function User(props: {
 
   const swapPage = useCallback((page: string) => {
     setFeedPage(page);
+     if(page === "collections"){
+       
+      return
+     }
+   
     setPage(1);
     swapFeed(page);
   }, []);
@@ -345,15 +377,14 @@ export default function User(props: {
       setTotalItems(cache.value.totalItems);
       setHasMore(true);
       return;
-    }
+    } 
 
     let filterString =
       pageValue === "posts"
         ? `author.id ="${user.id}"`
         : pageValue === "likes"
         ? `likes~"${user.id}" && author.id != "${user.id}"`
-        : pageValue === "replies"
-        ? `user.id="${user.id}" &&post.author.id!="${user.id}"`
+        
         : pageValue === "media"
         ? `author.id ="${user.id}" && file:length > 0  `
         : "";
@@ -361,12 +392,13 @@ export default function User(props: {
     let collection =
       pageValue === "posts" || pageValue === "likes"
         ? "posts"
-        : pageValue === "replies"
-        ? "comments"
+      
         : pageValue === "media"
         ? "posts"
         : "";
+    setPage(1);
     setArray([]);
+    setIsFetching(true);
     api
       .list({
         collection: collection,
@@ -385,7 +417,7 @@ export default function User(props: {
           "author.following.following",
         ],
         page: 0,
-        sort: `-created`,
+        sort:   pageValue !== "posts" ? `-created` : `-pinned, -created`,
       })
       .then((e: any) => {
         if (!api.cacehStore.has(`user-feed-${pageValue}-${page}-${user.id}`)) {
@@ -396,7 +428,7 @@ export default function User(props: {
               totalItems: e.totalItems,
               totalPages: e.totalPages,
             },
-            230
+            1200
           );
         }
 
@@ -408,7 +440,7 @@ export default function User(props: {
           () => {
             setIsFetching(false);
           },
-          feedPage === "media" ? 700 : 500
+          feedPage === "media" ? 1200 : 500
         );
       });
   }
@@ -422,6 +454,9 @@ export default function User(props: {
       case api.cacehStore.has(`user-feed-${feedPage}-${page + 1}-${user.id}`):
         return;
       default:
+        if(feedPage === "collections"){
+          return
+        } 
         api
           .list({
             collection:
@@ -461,7 +496,6 @@ export default function User(props: {
           })
           .then((e: any) => {
             if (feedPage === "media") {
-              console.log(e);
               e.items = e.items.filter((e: any) => e.file.length > 0);
             }
             setArray([...array, ...e.items]);
@@ -476,7 +510,7 @@ export default function User(props: {
                 totalItems: e.totalItems,
                 totalPages: e.totalPages,
               },
-              230
+             1200
             );
           });
         break;
@@ -557,7 +591,7 @@ export default function User(props: {
       }
       //@ts-ignore
       if (typeof window !== "undefined")
-      //@ts-ignore
+        //@ts-ignore
         document.getElementById("edit-modal")?.close();
     } catch (error) {
       console.log(error);
@@ -661,7 +695,11 @@ export default function User(props: {
               )}
               {user.avatar ? (
                 <img
-                  src={api.cdn.url({id:user.id, file:user.avatar, collection:'users'})}
+                  src={api.cdn.url({
+                    id: user.id,
+                    file: user.avatar,
+                    collection: "users",
+                  })}
                   alt={api.authStore.model().username}
                   className=" w-24  h-24 sm:w-16 sm:h-16 rounded object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
                 ></img>
@@ -924,15 +962,15 @@ export default function User(props: {
 
           <a
             onClick={() => {
-              feedPage !== "replies" ? swapPage("replies") : "";
+              feedPage !== "replies" ? swapPage("collections") : "";
             }}
             role="tab"
             className={`  cursor-pointer  p-2  ${
               feedPage === "replies" ? "active  " : ""
             }`}
           >
-            Replies
-            {feedPage === "replies" ? (
+            Collections
+            {feedPage === "collections" ? (
               <div className=" rounded-md h-2 bg-blue-500"></div>
             ) : (
               ""
@@ -983,62 +1021,97 @@ export default function User(props: {
           {
             <div
               className={
-                feedPage === "media"
-                  ? "grid grid-row-3 grid-cols-3 gap-3   mb-24 xl:p-0  sm:p-3 p-2"
-                  : `flex flex-col  xl:p-0 p-4 mb-24   xl:border xl:border-[#f9f9f9]  ${
+                feedPage === "media" && !isFetching
+                  ? "grid grid-cols-3 gap-3   mb-24 xl:p-3 lg:p-3 md:p-3  sm:p-3 p-2"
+                  : `flex flex-col  xl:p-0 lg:p-0 md:p-0 p-4 mb-24 
+                  ${
+                    array.length > 0  ? "  xl:border xl:border-[#f9f9f9] " : ""
+                  }
+                  ${
                       array.length < 2 ? "border-b-0 border-b-transparent" : ""
                     }`
               }
             >
-              {isFetching && feedPage !== "media" ? (
-                <div className="mx-auto flex justify-center">
+              {isFetching ? (
+                <div className="mx-auto W-full flex justify-center">
                   <span className="loading loading-spinner-large loading-spinner mt-5 text-blue-600"></span>
-                  </div>
-              ) : feedPage === "posts" ||
-                (feedPage === "likes") ? 
-                array.length > 0 ? 
-                array.map((e: any, index: number) => {
-                  return (
-                    <div
-                      className={
-                        index === array.length - 1 ? "sm:mt-3" : "mb-6"
-                      }
-                      id={e.id}
-                    >
-                      <Post
-                        cache={
-                          api.cacehStore.get(
-                            `user-feed-posts-${page}-${user.id}`
-                          )
-                            ? JSON.parse(
-                                api.cacehStore.get(
-                                  `user-feed-posts-${page}-${user.id}`
-                                )
-                              )
-                            : null
+                </div>
+              ) : feedPage === "posts" || feedPage === "likes" ? (
+                array.length > 0 ? (
+                  array.map((e: any, index: number) => {
+                    return (
+                      <div
+                        className={
+                          index === array.length - 1 ? "sm:mt-3" : "mb-6"
                         }
-                        {...e}
-                        cacheKey={`user-feed-posts-${page}-${user.id}`}
-                        swapPage={props.swapPage}
-                        setParams={props.setParams}
-                        page={props.page}
-                        currentPage={page}
-                        updateCache={(key: string, value: any) => {
-                          let cache = JSON.parse(
+                        id={e.id}
+                      >
+                        <Post
+                          cache={
                             api.cacehStore.get(
-                              `user-feed-${feedPage}-${page}-${user.id}`
+                              `user-feed-posts-${page}-${user.id}`
                             )
-                          );
+                              ? JSON.parse(
+                                  api.cacehStore.get(
+                                    `user-feed-posts-${page}-${user.id}`
+                                  )
+                                )
+                              : null
+                          }
+                          {...e}
+                          cacheKey={`user-feed-posts-${page}-${user.id}`}
+                          swapPage={props.swapPage}
+                          setParams={props.setParams}
+                          params={props.params}
+                          page={props.page}
+                          setArray={setArray}
+                          array={array}
+                           
+                          pin={(id: string)=>{ 
+                            let post = array.find((e: any) => e.id === id);
+                            if(post.pinned) {
+                              post.pinned = false;
+                              let arr = [...array];
+                              arr[index] = post;
+                              // move back to original position by date
+                              arr = arr.sort((a: any, b: any) => {
+                                return new Date(b.created).getTime() - new Date(a.created).getTime();
+                              });
 
-                          cache.value.items.forEach((e: any, index: number) => {
-                            if (e.id === key) {
-                              cache.value.items[index] = value;
+                              for(var i in arr){
+                                if(arr[i].pinned){
+                                  //@ts-ignore
+                                  arr.unshift(arr.splice(i, 1)[0]);
+                                  // sort pinned by date
+                                  //@ts-ignore
+                                  arr = arr.sort((a: any, b: any) => {
+                                  if(a.pinned && b.pinned) return new Date(b.created).getTime() - new Date(a.created).getTime();
+                                  });
+                                }
+                              }
+                              
+                              api.update({ collection: "posts", id: id, record: { pinned: false }, cacheKey: `user-feed-posts-${page}-${user.id}` });
+                              setArray(arr);
+                              return;
                             }
-                          });
-                          for (var i in api.cacehStore.keys()) {
-                            let k = api.cacehStore.keys()[i];
-                            if (k.includes("home-posts")) {
-                              let cache = JSON.parse(api.cacehStore.get(k));
+                            post.pinned = true;
+                            let arr = [...array];
+                            arr[index] = post;
+                            // move to top of array
+                            arr.unshift(arr.splice(index, 1)[0]);
+                            api.update({ collection: "posts", id: id, record: { pinned: true }, cacheKey: `user-feed-posts-${page}-${user.id}` });
+                            setArray(arr);
+                            
+                          }}
+                          currentPage={page}
+                          updateCache={(key: string, value: any) => {
+                            let cache = JSON.parse(
+                              api.cacehStore.get(
+                                `user-feed-${feedPage}-${page}-${user.id}`
+                              )
+                            );
+
+                            if(cache && cache.value.items){
                               cache.value.items.forEach(
                                 (e: any, index: number) => {
                                   if (e.id === key) {
@@ -1046,258 +1119,53 @@ export default function User(props: {
                                   }
                                 }
                               );
-                              api.cacehStore.set(k, cache.value, 230);
-                            }
-                          }
-
-                          api.cacehStore.set(
-                            `user-feed-${feedPage}-${page}-${user.id}`,
-                            cache.value,
-                            230
-                          );
-                        }}
-                      ></Post>
-                    </div>
-                  );
-                })
-                : <div>
-                  <p className="text-center text-xl font-bold mt-10">
-                    {
-                      user.id === api.authStore.model().id ? "You" : user.username
-                    }
-                    {` haven't posted anything yet.`}
-                  </p>
-                  </div>
-              :
-              feedPage === "replies" ? (
-                array.length > 0 ? (
-                  array.map((e: any) => {
-                    console.log(e);
-                    return (
-                      <div className=" xl:mt-0   mb-6 xl:p-3 lg:p-3 md:p-3 md:mt-0 lg:mt-0">
-                        <div className="flex   justify-between">
-                          <div className="flex flex-row  gap-2   ">
-                            <img
-                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${e.expand.user?.id}/${e.expand.user?.avatar}`}
-                              alt="profile"
-                              className="rounded object-cover w-12 h-12 cursor-pointer"
-                            ></img>
-                            <div className="flex flex-col  ">
-                              <div className="flex flex-row gap-2  h-0 mt-2 hero">
-                                <p
-                                  onClick={() => {
-                                    props.swapPage("user");
-                                    props.setParams({ user: e.expand.user });
-                                  }}
-                                >
-                                  <span className="capitalize font-bold">
-                                    {e.expand.user?.username}
-                                  </span>
-                                </p>
-                                <p className="hover:underline text-sm opacity-50 sm:hiden xsm:hidden">
-                                  @{e.expand.user?.username}
-                                </p>
-                                {e.expand.user?.validVerified ? (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 fill-blue-500 text-white h-6"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                                    />
-                                  </svg>
-                                ) : (
-                                  ""
-                                )}
-                                {e.expand.user?.isDeveloper ? (
-                                  <div
-                                    className="tooltip tooltip-left sm:tooltip-bottom"
-                                    data-tip="Postr Developer"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      strokeWidth={1.5}
-                                      stroke="currentColor"
-                                      className="w-4 h-4"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"
-                                      />
-                                    </svg>
-                                  </div>
-                                ) : (
-                                  ""
-                                )}
-                                {e.expand.user?.postr_plus ? (
-                                  <div
-                                    className="tooltip tooltip-left z[-1]"
-                                    data-tip={`Subscriber since ${new Date(
-                                      e.expand.user
-                                        ? e.expand.user?.plus_subscriber_since
-                                        : ""
-                                    ).toLocaleDateString()}`}
-                                  >
-                                    <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
-                                      Postr+ Sub
-                                    </span>
-                                  </div>
-                                ) : (
-                                  ""
-                                )}
-                                <p>·</p>{" "}
-                                <p className="text-sm">
-                                  {parseDate(e.created)}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-2   absolute end-2 ">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-3 mb-4 ">
-                          <p
-                            className="mt-2"
-                            ref={(r) => {
-                              if (r && e.text) {
-                                r.innerHTML = e.text;
+                              for (var i in api.cacehStore.keys()) {
+                                let k = api.cacehStore.keys()[i];
+                                if (k.includes("home-posts")) {
+                                  let cache = JSON.parse(api.cacehStore.get(k));
+                                  cache.value.items.forEach(
+                                    (e: any, index: number) => {
+                                      if (e.id === key) {
+                                        cache.value.items[index] = value;
+                                      }
+                                    }
+                                  );
+                                  api.cacehStore.set(k, cache.value, 230);
+                                }
                               }
-                            }}
-                          ></p>
-
-                          <div className="flex gap-5 mt-5">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className={`w-6 h-6 cursor-pointer ${
-                                comments
-                                  .find((c: any) => c.id === e.id)
-                                  ?.likes.includes(api.authStore.model().id)
-                                  ? "fill-red-500 text-red-500"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                likeReply(
-                                  comments.find((c: any) => c.id === e.id)
-                                    .likes,
-                                  e.id,
-                                  setComments
-                                );
-                              }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                              />
-                            </svg>
-
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-6 h-6"
-                              onClick={() => {
-                                //@ts-ignore
-                                document
-                                   //@ts-ignore
-                                  .getElementById(props?.id + "comments")
-                                     //@ts-ignore
-                                  .showModal();
-                              }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-                              />
-                            </svg>
-
-                            <svg
-                              onClick={() => {
-                                navigator.share({
-                                  title:
-                                    "View " +
-                                    e.expand.user.username +
-                                    "'s comment",
-                                  text: e.content,
-                                  url: window.location.href,
-                                });
-                              }}
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke-width="1.5"
-                              stroke="currentColor"
-                              className="
-            cursor-pointer
-            w-6 h-6
-            
-            "
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"
-                              ></path>
-                            </svg>
-                          </div>
-                          <div className="flex gap-5 mt-5 ">
-                            <p>
-                              Replied to{" "}
-                              <span
-                                onClick={() => {
-                                  props.setParams({
-                                    user: e.expand.post.expand.author,
-                                  });
-                                }}
-                                className="underline text-blue-500 cursor-pointer"
-                              >
-                                @{e.expand?.post?.expand?.author.username}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
+  
+                              api.cacehStore.set(
+                                `user-feed-${feedPage}-${page}-${user.id}`,
+                                cache.value,
+                               1200
+                              );
+                            }
+                          }}
+                        ></Post>
                       </div>
                     );
                   })
+                ) : (
+                  <div>
+                    <p className="text-center text-xl font-bold mt-10">
+                      {user.id === api.authStore.model().id
+                        ? "You"
+                        : user.username}
+                      {` haven't posted anything yet.`}
+                    </p>
+                  </div>
+                )
+              ) : feedPage === "collections" ? (
+                array.length > 0 ? (
+                  <div className="mt-5">
+                    Coming Soon
+                  </div>
                 ) : array.length === 0 ? (
-                <div className="text-center text-lg mt-10"  >
+                  <div className="text-center text-lg mt-10">
                     <p className="font-extrabold ">
-                      {
-                        api.authStore.model().id === user.id ? 
-                        "You haven't replied to anything yet." :
-                        `@${user.username} hasn't replied to anyone yet`
-                      } 
+                      {api.authStore.model().id === user.id
+                        ? "You haven't replied to anything yet."
+                        : `@${user.username} hasn't replied to anyone yet`}
                     </p>
                   </div>
                 ) : (
@@ -1307,54 +1175,63 @@ export default function User(props: {
                 array.length > 0 ? (
                   array.map((e: any) => {
                     return (
-                      <div className="p-2 sm:p-0">
-                        {e.file !== "" ? (
-                          <>
-                            <LazyImage
-                              onClick={() => {
-                                //@ts-ignore
-                                document
-                                  .getElementById(e.id + "file")
-                                     //@ts-ignore
-                                  ?.showModal();
-                              }}
-                              src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
-                              height="100%"
-                              width="100%"
-                              alt=""
-                              className="w-full   rounded-md h-44 object-cover"
-                            >
-                              <Modal id={e.id + "file"} height="h-[100vh]">
+                      <>
+                        {e.file.map((f: any) => {
+                          let id = f.replace(/\./g, "");
+                          return (
+                            <>
+                              {" "}
+                              <LazyImage
+                                onClick={() => {
+                                  //@ts-ignore
+                                  document
+                                    .getElementById(id)
+                                    //@ts-ignore
+                                    ?.showModal();
+                                }}
+                                src={api.cdn.url({
+                                  id: e.id,
+                                  collection: "posts",
+                                  file: f,
+                                })}
+                                height="100%"
+                                width="100%"
+                                alt=""
+                                className="w-full cursor-pointer   rounded-md h-44 object-cover"
+                              ></LazyImage>
+                              <Modal id={id } height="h-[100vh]">
                                 <div className="flex flex-col justify-center items-center h-full bg-[#121212]  relative">
                                   <svg
                                     onClick={() => {
                                       //@ts-ignore
                                       document
-                                        .getElementById(e.id + "file")
-                                           //@ts-ignore
+                                        .getElementById(id)
+                                        //@ts-ignore
                                         ?.close();
                                     }}
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20"
                                     fill="currentColor"
-                                    className="w-6 h-6 text-white absolute left-2 top-2"
+                                    className="w-6 h-6 cursor-pointer text-white absolute left-2 top-2"
                                   >
                                     <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                                   </svg>
 
                                   <img
-                                    src={`https://bird-meet-rationally.ngrok-free.app/api/files/posts/${e.id}/${e.file}`}
-                                    alt={e.file}
+                                    src={api.cdn.url({
+                                      id: e.id,
+                                      collection: "posts",
+                                      file: f,
+                                    })}
+                                    alt={f}
                                     className=" w-full   object-contain mt-2 cursor-pointer"
                                   ></img>
                                 </div>
                               </Modal>
-                            </LazyImage>
-                          </>
-                        ) : (
-                          ""
-                        )}
-                      </div>
+                            </>
+                          );
+                        })}
+                      </>
                     );
                   })
                 ) : (

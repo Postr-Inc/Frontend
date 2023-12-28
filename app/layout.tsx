@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className={GeistSans.className}>{children}</body>
+      <body className={inter.className}>{children}</body>
       <Head>
       <link rel="shortcut icon" href="/icons/icon-blue.jpg" type="image/x-icon" />
       <link rel='manifest' href='/pwa/manifest.json' />

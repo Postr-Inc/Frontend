@@ -129,55 +129,7 @@ export default function User(props: {
     }
   }
 
-  function likeReply(likes: Array<string>, id: string) {
-    switch (true) {
-      case likes.includes(api.authStore.model().id):
-        api
-          .update({
-            collection: "comments",
-            id: id,
-            cacheKey: `comment-${id}`,
-            expand: ["likes"],
-            record: {
-              likes: likes.filter((id: any) => id != api.authStore.model().id),
-            },
-          })
-          .then((e: any) => {
-            setArray ( array.map((e:any)=>{
-              if(e.id === id){
-                e.likes = likes.filter((id: any) => id != api.authStore.model().id)
-              }
-              return e
-            }))
-          });
-
-        break;
-
-      default:
-        api
-          .update({
-            collection: "comments",
-            id: id,
-            cacheKey: `comment-${id}`,
-            expand: ["likes"],
-            record: {
-              likes: [...likes, api.authStore.model().id],
-            },
-          })
-          .then((e: any) => {
-             setArray ( array.map((e:any)=>{
-               if(e.id === id){
-                 e.likes = [...likes, api.authStore.model().id]
-               }
-               return e
-             }))
-
-             console.log(array);
-          });
-        break;
-    }
-  }
-
+  
   function updatePostCache(id: string, record: any) {
     for (var i in api.cacehStore.keys()) {
       if (api.cacehStore.keys()[i].includes(`posts`)) {

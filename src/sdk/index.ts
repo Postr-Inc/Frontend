@@ -105,6 +105,11 @@ export  default class postrSdk {
          }, 1000)
         }
 
+        this.ws.onclose = () => {
+            console.log("closed reconnecting")
+            this.ws = new WebSocket(`wss://${data.wsUrl}`)
+        }
+
     
         
         this.online = new Map()

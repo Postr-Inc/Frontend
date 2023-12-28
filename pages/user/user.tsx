@@ -50,8 +50,10 @@ export default function User(props: {
   let [feedPage, setFeedPage] = useState("posts");
   let [avatar, setAvatar] = useState<any>(null);
   let [bannerBlob, setBannerBlob] = useState<any>(null);
+  let [bannerFile, setBannerFile] = useState<any>(null);
   let [windowScroll, setWindowScroll] = useState(0);
   let [online, setOnline] = useState<any>(false);
+  let [saving, setSaving] = useState<any>(false);
   let isMounted = useRef(false);
 
   // todo: make an event to update automatically
@@ -282,10 +284,28 @@ export default function User(props: {
         let element = document.getElementById(props.params.scrollTo)
         if(element){
           element.scrollIntoView({ behavior: "smooth", block: "center" });
-          element.className = "bg-base-200 border-blue-500  rounded border-double border p-2  "
+          element.className =  `xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
+            props.page !== "user" &&
+            props.page !== "bookmarks" &&
+            props.page !== "home"
+              ? "xl:p-5 sm:p-2"
+              : props.page == "home"
+              ? "xl:p-5  "
+              : ""
+          }
+          animate-pulse
+          `
           setTimeout(() => {
             //@ts-ignore
-            element.className = ""
+            element.className = `xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
+              props.page !== "user" &&
+              props.page !== "bookmarks" &&
+              props.page !== "home"
+                ? "xl:p-5 sm:p-2"
+                : props.page == "home"
+                ? "xl:p-5  "
+                : ""
+            }`
           }, 4000);
           clearInterval(check)
         }
@@ -560,16 +580,24 @@ export default function User(props: {
       ? (userObj.banner = {
           isFile: true,
           update: true,
-          file: await api.getAsByteArray(bannerBlob),
-          name: bannerBlob.name,
-          type: bannerBlob.type,
+          file: {
+            data:await api.getAsByteArray(bannerBlob),
+            size: bannerFile.size,
+            name: bannerFile.name,
+            type:  bannerFile.type,
+          }
         })
       : "";
     avatar !== null
       ? (userObj.avatar = {
           isFile: true,
           update: true,
-          file: await api.getAsByteArray(avatar),
+          file: {
+            data: await api.getAsByteArray(avatar),
+            size: avatar.size,
+            name: avatar.name,
+            type: avatar.type,
+          },
           name: avatar.name,
           type: avatar.type,
         })
@@ -578,16 +606,20 @@ export default function User(props: {
     console.log(userObj);
     try {
       if (Object.keys(userObj).length > 0) {
-        console.log(userObj);
-        let res = await api.update({
+        setSaving(true);
+        let res: any = await api.update({
           collection: "users",
           id: props.params.user.id,
           record: userObj,
         });
+        api.authStore.update();
         setAvatar(null);
         setBannerBlob(null);
+        setBannerFile(null);
 
+        setBanner(res.banner);
         setUser(res);
+        setSaving(false);
       }
       //@ts-ignore
       if (typeof window !== "undefined")
@@ -679,7 +711,7 @@ export default function User(props: {
         <div className="relative h-44 flex  mt-2 flex-col gap-4">
           {banner !== "" ? (
             <img
-              src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params?.user?.id}/${user?.banner}`}
+              src={api.cdn.url({ id: user.id, file: banner, collection: "users" })}
               alt=""
               className="w-full h-full object-cover"
             />
@@ -1044,7 +1076,7 @@ export default function User(props: {
                         className={
                           index === array.length - 1 ? "sm:mt-3" : "mb-6"
                         }
-                        id={e.id}
+                        
                       >
                         <Post
                           cache={
@@ -1281,7 +1313,8 @@ export default function User(props: {
               </svg>
 
               <p className="text-1xl mx-8 mr-0">Edit Profile</p>
-              <button
+              {
+                saving ? <span className="loading  loading-sm loading-spinner  text-blue-600"></span> :  <button
                 className="btn btn-sm rounded-full bg-black text-white "
                 onClick={() => {
                   save();
@@ -1289,6 +1322,7 @@ export default function User(props: {
               >
                 Save
               </button>
+              }
             </div>
           </div>
           <input
@@ -1323,6 +1357,7 @@ export default function User(props: {
               if (e.target.files) {
                 let file = e.target.files[0];
                 setBannerBlob(new Blob([file], { type: file.type }));
+                setBannerFile(file);
 
                 let reader = new FileReader();
                 reader.onload = (e) => {
@@ -1342,7 +1377,7 @@ export default function User(props: {
                     src={
                       bannerBlob !== null
                         ? URL.createObjectURL(bannerBlob)
-                        : `https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${user.id}/${user.banner}`
+                        :  api.cdn.url({ id: user.id, file: user.banner, collection: "users" })
                     }
                     ref={bannerRef}
                     alt=""
@@ -1432,7 +1467,11 @@ export default function User(props: {
                     <img
                       src={
                         avatar ||
-                        `https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.params.user.id}/${user.avatar}`
+                        api.cdn.url({
+                          id: user.id,
+                          collection: "users",
+                          file: user.avatar,
+                        })
                       }
                       ref={avatarRef}
                       alt=""

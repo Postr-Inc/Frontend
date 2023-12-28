@@ -65,65 +65,106 @@ export function SideBarLeft(props: any) {
   let [postimgs, setPostimgs] = useState<any>([]);
   let [text, setText] = useState<any>("");
   let maxlength = 140;
+  let [error, setError] = useState<any>(false);
+  let [posting, setPosting] = useState<any>(false);
 
+  let [errors, setErrors] = useState<any>([]);
   async function createPost() {
+    let hasErrored = {
+      message: "",
+      id: "",
+    };
+    if (postimgs.length > 0) {
+      postimgs = postimgs.map(async (img: any) => {
+        if (img.size > 1800000) {
+          hasErrored.message = `One or more of your images are too large`;
+          hasErrored.id = img.name;
+          postimgs = postimgs.filter( (img:any) => img.name !== hasErrored.id)
+          return;
+        }
+        let res = {
+           name: img.name,
+           type: img.type,
+           size: img.size,
+           data: await api.getAsByteArray(
+            new Blob([img], { type: img.type }) as File
+          )
+        }
+        return res;
+      });
+    }
+
      
-     if(postimgs.length > 0 ){
-      postimgs  = postimgs.map(async (img:any)=>{
-        let res = await api.getAsByteArray(new Blob([img], {type: img.type}) as File)
-        return res
-      })
-      
-     }
-     switch(true){
+    switch (true) {
       case text.length < 1:
-        alert('Please enter some text or an image')
-        return
+        setError({ message: "You must enter some text" });
+        setTimeout(() => {
+          setError(false);
+        }, 3000);
+        return;
       case postimgs.length > 4:
-        alert('You can only upload 4 images')
-        return
+        alert("You can only upload 4 images");
+        return;
       default:
         try {
-           
-          let post =  await api.create({collection:'posts', expand:[
-            'author'
-          ], record:{
-            author: api.authStore.model().id,
-            content:text,
-            file:{
-             isFile: true,
-             file:   await Promise.all(postimgs)
+          setPosting(true);
+          let post = await api.create({
+            collection: "posts",
+            expand: ["author"],
+            record: {
+              author: api.authStore.model().id,
+              content: text,
+              file: {
+                isFile: true,
+                file: await Promise.all(postimgs),
+              },
+              comments: [],
+              likes: [],
             },
-            comments:[],
-            likes:[], 
-        }}) 
-        //@ts-ignore  
-        props.setParams({user:api.authStore.model(), scrollTo:post?.id})
-        props.swapPage('user')
-       
-        
-        setPostimgs([])
-        setText('')
-        //@ts-ignore
-        typeof window != "undefined" && document.getElementById('createPost')?.close()
-    
-        } catch (error) {
-          
-        }
-      break;
-     }
-    
+          });
+          //@ts-ignore
+          props.setParams({ user: api.authStore.model(), scrollTo: post?.id });
+          props.swapPage("user");
 
-     
-     
-
-    
+          setPostimgs([]);
+          setText("");
+          //@ts-ignore
+          typeof window != "undefined" &&
+          //@ts-ignore
+            document.getElementById("createPost")?.close();
+          setPosting(false);
+        } catch (error) {}
+        break;
+    }
   }
   return (
     <>
       <div className="xl:drawer xl:w-[auto]      xl:drawer-open lg:drawer-open  ">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+        {error ? (
+          <div className="toast toast-end">
+            <div className="alert bg-red-500 bg-opacity-20">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="text-rose-500 w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                />
+              </svg>
 
+              <span>{error.message}</span>
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
         <div className="drawer-side">
           <label
             htmlFor="my-drawer-3"
@@ -135,7 +176,12 @@ export function SideBarLeft(props: any) {
 
             <li className="hover:bg-transparent">
               <a className="hover:bg-transparent focus:bg-transparent">
-                <img src="/icons/icon-blue.jpg" className="rounded" width={40} height={40}></img>
+                <img
+                  src="/icons/icon-blue.jpg"
+                  className="rounded"
+                  width={40}
+                  height={40}
+                ></img>
               </a>
             </li>
             <li className="">
@@ -153,7 +199,11 @@ export function SideBarLeft(props: any) {
                   className={`
                      w-7 h-7
                      cursor-pointer
-                      ${props.currentPage == "home" ? "fill-blue-500" : "fill-white stroke-black "}
+                      ${
+                        props.currentPage == "home"
+                          ? "fill-blue-500"
+                          : "fill-white stroke-black "
+                      }
                      `}
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -232,12 +282,11 @@ export function SideBarLeft(props: any) {
                   className={`
                    w-7 h-7
                    ${
-                      props.currentPage == "user" &&
-                      props.params.user.username == api.authStore.model().username
-                        ? "fill-blue-500"
-                        : ""
-                    
-                     
+                     props.currentPage == "user" &&
+                     props.params.user.username ==
+                       api.authStore.model().username
+                       ? "fill-blue-500"
+                       : ""
                    }
                   `}
                 >
@@ -268,7 +317,7 @@ export function SideBarLeft(props: any) {
               </a>
             </li>
             <li className="text-lg  text-start hover:outline-none  hover:text-lg  hover:justify-start hover:rounded-full">
-              <a  >
+              <a>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -287,16 +336,14 @@ export function SideBarLeft(props: any) {
               </a>
             </li>
             <button
-                onClick={() => {
-                  //@ts-ignore
-                  document.getElementById("createPost").showModal();
-                }}
-                className="btn rounded-full  text-lg hero btn-ghost  hover:bg-blue-500 focus:bg-blue-500 bg-blue-500 text-white "
-              >
-               <p>
-               Post
-               </p>
-              </button>
+              onClick={() => {
+                //@ts-ignore
+                document.getElementById("createPost").showModal();
+              }}
+              className="btn rounded-full  text-lg hero btn-ghost  hover:bg-blue-500 focus:bg-blue-500 bg-blue-500 text-white "
+            >
+              <p>Post</p>
+            </button>
           </ul>
         </div>
       </div>
@@ -309,7 +356,7 @@ export function SideBarLeft(props: any) {
             <p
               className="cursor-pointer hover:text-red-500"
               onClick={() => {
-                   //@ts-ignore
+                //@ts-ignore
                 document.getElementById("createPost")?.close();
               }}
             >
@@ -337,13 +384,20 @@ export function SideBarLeft(props: any) {
             style={{ height: text.length > 0 ? "auto" : " " }}
           >
             <div className="flex flex-row      ">
-              {
-                api.authStore.model().avatar ?  <img
-                src={api.authStore.img()}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-               : <div className="avatar placeholder"><div className="bg-base-300 text-black   avatar  w-10 h-10  border cursor-pointer rounded   border-white"><span className="text-2xl">{api.authStore.model().username.charAt(0).toUpperCase()}</span></div></div>
-              }
+              {api.authStore.model().avatar ? (
+                <img
+                  src={api.authStore.img()}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="avatar placeholder">
+                  <div className="bg-base-300 text-black   avatar  w-10 h-10  border cursor-pointer rounded   border-white">
+                    <span className="text-2xl">
+                      {api.authStore.model().username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="flex  flex-col w-full">
                 <textarea
                   className={`w-full mt-2 mx-3 
@@ -356,33 +410,72 @@ export function SideBarLeft(props: any) {
                   }}
                   maxLength={maxlength}
                 ></textarea>
-               
               </div>
             </div>
-            <div className="scroll overflow-y-hidden" >
-                  {postimgs.length > 0 && (
-                    <div className="flex flex-row mt-5    gap-5  ">
-                      {Object.keys(postimgs).map((key) => {
-                        console.log(postimgs[key]);
-                        return (
-                          <div className="relative">
-                             <img
-                            src={URL.createObjectURL(postimgs[key])}
-                            className=" object-cover w-32 h-32 rounded-md"
-                          />
-                          <div 
-                          onClick={()=>{
-                            setPostimgs(postimgs.filter((img:any)=>img.name !== postimgs[key].name))
-                          }}
-                          className="absolute btn btn-circle btn-sm top-1 right-1">
+
+            <div className="scroll overflow-y-hidden">
+              {postimgs.length > 0 && (
+                <div className="sm:grid sm:grid-cols-2 flex flex-row flex-wrap flex-grow gap-2">
+                  {Object.keys(postimgs).map((key) => {
+                    let hasErrored = false;
+                    console.log(errors);
+                    errors.find((err: any) => err.id == postimgs[key].name)
+                      ? (hasErrored = true)
+                      : (hasErrored = false);
+                    console.log(hasErrored);
+                    return (
+                      <div className="relative  w-32 h-32 ">
+                        <img
+                          src={URL.createObjectURL(postimgs[key])}
+                          className={` object-cover w-32 h-32 rounded-md
+                            xl:col-span-2 sm:col-span-1
+                            ${
+                              errors.find(
+                                (err: any) => err.id == postimgs[key].name
+                              )
+                                ? "border-2 border-red-500 opacity-20"
+                                : ""
+                            }
+                            `}
+                        />
+                        
+                          <div
+                            onClick={() => {
+                              setPostimgs(
+                                postimgs.filter(
+                                  (img: any) => img.name !== postimgs[key].name
+                                )
+                              );
+                            }}
+                            className="absolute btn btn-circle btn-sm top-1 right-1"
+                          >
                             X
                           </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                       
+                        
+
+                        {errors.find(
+                          (err: any) => err.id == postimgs[key].name
+                        ) ? (
+                          <p
+                            ref={(el: any) => {
+                              if (el) {
+                                el.innerHTML = errors.find(
+                                  (err: any) => err.id == postimgs[key].name
+                                ).message;
+                              }
+                            }}
+                            className="text-red-500  absolute top-9 left-2 text-sm"
+                          ></p>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+              )}
+            </div>
           </div>
 
           <div className="divider mt-0 mb-2 before:bg-[#f6f4f4] after:bg-[#fdf9f9]  after:text-slate-200"></div>
@@ -391,10 +484,37 @@ export function SideBarLeft(props: any) {
               type="file"
               id="file-upload"
               className="hidden"
+              accept="image/*"
               multiple
+              max={4}
               onChange={(e) => {
                 //@ts-ignore
-                setPostimgs(Array.from(e.target.files));
+                Array.from(e.target.files).map((img) => {
+                  if (img.size > 2000000) {
+                    console.log("Too large", img.name);
+                    setErrors((errors: any) => {
+                      return [
+                        ...errors,
+                        {
+                          message: `
+                     Quota exceeded
+                     <br>
+                     <br>
+                    This image will not be uploaded
+                    `,
+                          id: img.name,
+                        },
+                      ];
+                    });
+                    return;
+                  }
+                });
+                //@ts-ignore
+                if (e.target.files.length > 4) {
+                  setError({ message: `You can only upload 4 images` });
+                  return;
+                }
+                setPostimgs(Array.from(e.target.files as any));
                 e.target.value = "";
               }}
             />
@@ -420,11 +540,16 @@ export function SideBarLeft(props: any) {
             <p className="  ">
               {text.length}/{maxlength}
             </p>
-            <button 
-            onClick={()=>{
-              createPost()
-            }}
-            className="btn  btn-sm rounded-full ">Post</button>
+            {
+              posting ? <div className="loading loading-spinner text-blue-500"></div> : <button
+              onClick={() => {
+                createPost();
+              }}
+              className="btn  btn-sm rounded-full "
+            >
+              Post
+            </button>
+            }
           </div>
         </div>
       </dialog>

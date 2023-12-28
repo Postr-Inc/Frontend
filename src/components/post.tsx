@@ -409,6 +409,7 @@ export default function Post(props: any) {
   return (
     <div
       key={props.id}
+      id={props.id}
       className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
         props.page !== "user" &&
         props.page !== "bookmarks" &&
@@ -458,7 +459,7 @@ export default function Post(props: any) {
               props.setParams({ user: props.expand.author });
               props.swapPage("user");
             }}
-            src={`https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${props.expand.author?.id}/${props.expand.author?.avatar}`}
+            src={api.cdn.url({collection: "users", file: props.expand.author?.avatar, id: props.expand.author?.id})}
             alt="profile"
             className="rounded object-cover w-12 h-12 cursor-pointer"
           ></img>
@@ -607,7 +608,7 @@ export default function Post(props: any) {
             <div
               className={` w-full 
            ${
-             props.file.length > 1 ? " grid grid-cols-2" : "w-full object-cover"
+             props.file.length > 2 ?  "grid grid-cols-2 gap-2" :  props.file.length > 1 ? "grid grid-cols-2 gap-2" : ""
            }
             col-span-2 grid-flow-dense  `}
             >
@@ -622,11 +623,14 @@ export default function Post(props: any) {
                         : "border h-64     border-[#f9f9f9]  rounded"
                     }
                     
-                    ${
-                      index == 0
-                        ? "col-span-2 row-span-2"
-                        : "col-span-1 row-span-1"
-                    }
+                     ${
+                      // last image colspan
+                      props.file.length > 2 && index == props.file.length - 1
+                        ? "col-span-2"
+                        : ""
+                     }
+                     
+                    
                     `}
                     src={api.cdn.url({
                       id: props.id,
@@ -653,7 +657,7 @@ export default function Post(props: any) {
             strokeWidth={1.5}
             stroke="currentColor"
             className={`
-            hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-7 h-7 hover:text-rose-500
+            hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-6 h-6 hover:text-rose-500
             cursor-pointer ${
               likes.includes(api.authStore.model().id)
                 ? "fill-rose-500 text-rose-500"
@@ -679,7 +683,7 @@ export default function Post(props: any) {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-9 h-9 hover:text-sky-500  "
+              className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
               onClick={() => {
                 //@ts-ignore
                 document.getElementById(props.id + "comments")?.showModal();
@@ -714,7 +718,7 @@ export default function Post(props: any) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-8 h-8 hover:text-sky-500"
+            className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-7   h-7 hover:text-sky-500"
           >
             <path
               strokeLinecap="round"
@@ -728,7 +732,7 @@ export default function Post(props: any) {
           <Bookmark
             id={props.id}
             className={`
-            cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-8 h-8 hover:p-2 hover:text-sky-500
+            cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
             ${
               bookmarked ? "fill-blue-500 text-blue-500" : ""
             }`}

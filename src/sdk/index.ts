@@ -96,8 +96,7 @@ export  default class postrSdk {
 
         
         
-        this.changeEvent = new CustomEvent("authChange", { detail: { model: JSON.parse(store.get("postr_auth") || "{}").model, token:  JSON.parse(store.get("postr_auth") || '{}') ? JSON.parse(store.get("postr_auth") || '{}').token : null } })
- 
+     
         this.ws.onopen = () => {
              this.ws.send(JSON.stringify({ type: "authSession", token: this.token, session: this.sessionID }))
              
@@ -109,7 +108,11 @@ export  default class postrSdk {
     
         
         this.online = new Map()
-        this.onlineEvent = new CustomEvent("online", { detail: { online: this.online } })
+        if(typeof window !== "undefined"){
+            this.changeEvent = new CustomEvent("authChange", { detail: { model: JSON.parse(store.get("postr_auth") || "{}").model, token:  JSON.parse(store.get("postr_auth") || '{}') ? JSON.parse(store.get("postr_auth") || '{}').token : null } })
+            this.onlineEvent = new CustomEvent("online", { detail: { online: this.online } })
+        }
+ 
 
         let timer = setInterval(() => {
             this.$memoryCache.forEach((value, key) => {

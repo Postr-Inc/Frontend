@@ -897,17 +897,23 @@ export default function User(props: {
               if (api.authStore.model().following.includes(e.id)) {
                 return (
                   <>
-                    <div className="avatar rounded mt-2">
+                    <div className="avatar rounded ">
                       <div className="w-4">
-                        <img
+                        {
+                          e.avatar ?  <img
                           src={api.cdn.url({
                             id: e.id,
                             collection: "users",
                             file: e.avatar,
                           })}
                           alt=""
-                          className="rounded w-full h-full object-cover"
-                        />
+                          className=" object-cover"
+                        /> : <div className="z-[9999] bg-base-200 text-black rounded w-full h-full  ">
+                        <span className="text-2xl">
+                          {e.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                        }
                       </div>
                     </div>
                     <p className="mt-2 opacity-70 hover:underline cursor-pointer">

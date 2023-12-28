@@ -916,7 +916,10 @@ export default function User(props: {
                       Followed By{" "}
                       {user.expand.followers.map((e: any) => {
                         if (api.authStore.model().following.includes(e.id)) {
-                          return <span>{e.username}</span>;
+                          return <a onClick={() => {
+                            props.setParams({user:e})
+                            props.swapPage("user")
+                          }} className="hover:underline cursor-pointer">{e.username}</a>;
                         }
                       })}
                     </p>

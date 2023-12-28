@@ -693,8 +693,10 @@ export default function Post(props: any) {
               strokeWidth={1.5}
               stroke="currentColor"
               className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
-              onClick={() => {
+              onClick={(e: any) => {
                 //@ts-ignore
+                e.preventDefault(); e.stopPropagation();
+                window.scrollTo(0,0); //the second 0 marks the Y scroll pos. Setting this to i.e. 100 will push the screen up by 100px.
                 document.getElementById(props.id + "comments")?.showModal();
               }}
             >

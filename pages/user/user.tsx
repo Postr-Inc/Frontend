@@ -908,8 +908,7 @@ export default function User(props: {
                           })}
                           alt=""
                           className=" object-cover"
-                        /> :  ""
-                      </div>
+                        /> : ""
                         }
                       </div>
                     </div>

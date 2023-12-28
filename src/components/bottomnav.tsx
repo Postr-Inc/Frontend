@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-export default function BottomNav(props: any) {
+export   function BottomNav(props: any) {
   let [activePage, setActivePage] = useState("home");
   let theme = 
   typeof window !== "undefined" &&

@@ -6,8 +6,9 @@ import BottomModal from "@/src/components/Bottomupmodal";
 import { api } from "@/src/api/api";
 import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 import Scroller from "react-infinite-scroll-component";
-import BottomNav from "@/src/components/BottomNav";
+ 
 import Bookmark from "@/src/components/icons/bookmark";
+import { BottomNav } from "@/src/components/BottomNav";
 
 export default function Bookmarks(props: any) {
   let initialized = useRef(false);

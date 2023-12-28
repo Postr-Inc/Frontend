@@ -1,5 +1,5 @@
 "use client";
-import BottomNav from "@/src/components/BottomNav";
+import { BottomNav } from "@/src/components/BottomNav";
 import { useParams } from "next/navigation";
 import Modal from "@/src/components/Modal";
 import { useEffect, useState, useRef, useCallback, memo } from "react";

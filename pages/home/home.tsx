@@ -6,9 +6,11 @@ import Scroller from "react-infinite-scroll-component";
 import { Loading } from "@/src/components/icons/loading";
 import Post from "@/src/components/post";
 //@ts-ignore
-import BottomNav from "@/src/components/BottomNav";
+ 
 import { api } from "@/src/api/api";
 import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
+import { BottomNav } from "@/src/components/BottomNav";
+ 
 export default function Home(props: {
   swapPage: Function;
   setParams: Function;

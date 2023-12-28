@@ -908,10 +908,7 @@ export default function User(props: {
                           })}
                           alt=""
                           className=" object-cover"
-                        /> : <div className="z-[9999] bg-base-200 text-black rounded w-full h-full  ">
-                        <span className="text-2xl">
-                          {e.username.charAt(0).toUpperCase()}
-                        </span>
+                        /> :  ""
                       </div>
                         }
                       </div>

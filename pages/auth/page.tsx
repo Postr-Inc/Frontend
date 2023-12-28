@@ -73,7 +73,7 @@ export default function Login(props:any) {
          </button>
          <p className='mt-2 mb-2 text-sm'>
             By signing up you are agree to comply with the <span className='text-rose-500'>Terms</span> and
-            <span className='text-rose-500'> Privacy Policy</span>.
+            <a href='/information/privacy' target='_blank' className='text-rose-500'> Privacy Policy</a>.
          </p>
         
          <Footer className="mt-16" />

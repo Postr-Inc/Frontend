@@ -465,7 +465,13 @@ export default function Post(props: any) {
             className="rounded object-cover w-12 h-12 cursor-pointer"
           ></img>
           :  <div className="avatar placeholder">
-          <div className="bg-base-200 text-black rounded w-12 h-12 avatar  absolute bottom-[-3vh] left-2   border-2   shadow   border-white">
+          <div 
+           onClick={() => {
+            console.log(props.expand.author);
+            props.setParams({ user: props.expand.author });
+            props.swapPage("user");
+          }}
+          className="bg-base-200 text-black rounded w-12 h-12 avatar   border-2   shadow   border-white">
             <span className="text-2xl">
               {props.expand.author.username.charAt(0).toUpperCase()}
             </span>
@@ -693,10 +699,8 @@ export default function Post(props: any) {
               strokeWidth={1.5}
               stroke="currentColor"
               className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
-              onClick={(e: any) => {
+              onClick={() => {
                 //@ts-ignore
-                e.preventDefault(); e.stopPropagation();
-                window.scrollTo(0,0); //the second 0 marks the Y scroll pos. Setting this to i.e. 100 will push the screen up by 100px.
                 document.getElementById(props.id + "comments")?.showModal();
               }}
             >

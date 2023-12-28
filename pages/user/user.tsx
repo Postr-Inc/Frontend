@@ -669,7 +669,7 @@ export default function User(props: {
           ) : (
             <div className="w-full h-full bg-gray-300"></div>
           )}
-          <div className="flex justify-between relative w-full">
+          <div className="flex justify-between sm:mb-6 xsm:mb-6 relative w-full">
             <div className="indicator w-24  ">
               {online ? (
                 <span className="indicator-item absolute mt-[2vh] right-0 bg-green-500 badge"></span>
@@ -687,8 +687,8 @@ export default function User(props: {
                   className=" w-24  h-24     rounded object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
                 ></img>
               ) : (
-                <div className="avatar placeholder">
-                  <div className="bg-base-200 text-black rounded w-24  h-24   avatar  absolute bottom-[-3vh] left-2   border-2   shadow   border-white">
+                <div className="avatar placeholder   absolute bottom-[-3vh] left-2">
+                  <div className="bg-base-200 text-black rounded w-24  h-24   avatar    border-2   shadow   border-white">
                     <span className="text-2xl">
                       {user.username.charAt(0).toUpperCase()}
                     </span>

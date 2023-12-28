@@ -414,7 +414,7 @@ export default function Post(props: any) {
         props.page !== "user" &&
         props.page !== "bookmarks" &&
         props.page !== "home"
-          ? "xl:p-5 sm:p-2"
+          ? "xl:p-5  "
           : props.page == "home"
           ? "xl:p-5  "
           : ""

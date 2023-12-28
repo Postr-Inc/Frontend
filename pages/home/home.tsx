@@ -284,7 +284,7 @@ export default function Home(props: {
   return (
     <>
       {isClient ? (
-        <div className="relative xl:flex  sm:p-2  lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
+        <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
           <SideBarLeft
             params={props.params}
             setParams={props.setParams}
@@ -296,7 +296,7 @@ export default function Home(props: {
             className=" xl:mx-24     text-md   
          relative 
          xl:w-[35vw]
-         md:w-[50vw]
+         md:w-[50vw]  
         
                 xl:text-sm md:text-sm"
           >
@@ -349,10 +349,10 @@ export default function Home(props: {
               ""
             )}
 
-            <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f6f4f4] sm:p-2   w-[100%]  xl:z-[999] flex flex-col  
+            <div className="  xl:sticky xl:top-0  border  border-[#f6f4f4]     w-[100%]  xl:z-[999] flex flex-col  
            bg-opacity-75 bg-white
             ">
-              <div className="flex xl:p-5 w-full   justify-between ">
+              <div className="flex xl:p-5 w-full sm:p-3  justify-between ">
                 <div className="flex gap-2 hero">
                   <div className="flex flex-col   w-full">
                     <div className="flex  justify-between gap-2 w-full">
@@ -465,7 +465,7 @@ export default function Home(props: {
 
               {poorConnection && !dismissToast ? (
                 <div
-                  className="toast  xl:hidden lg:hidden md:hidden toast-end relative sm:toast-center  text-sm "
+                  className="toast p-2  xl:hidden lg:hidden md:hidden toast-end relative sm:toast-center  text-sm "
                   onClick={() => {
                     setDismissToast(true);
                   }}
@@ -498,7 +498,7 @@ export default function Home(props: {
                 ""
               )}
 
-              <div className="flex hero xl:p-5 mt-5 sm:mt-[2.25rem] sm:mb-[2rem]   mb-2 justify-between xl:mt-0  ">
+              <div className="flex hero sm:p-3 xl:p-5        justify-between xl:mt-0  ">
                <div className="flex flex-col text-sm">
                <p
                className="cursor-pointer"
@@ -537,7 +537,7 @@ export default function Home(props: {
             </div>
 
             <Scroller
-              className="mt-2  xl:mt-0 z-[-1] sm:p-2  flex flex-col  w-full xl:gap-0 xl:p-0 gap-2   "
+              className="   xl:mt-0 z-[-1]   flex flex-col  w-full 0 xl:p-0     "
               dataLength={posts.length}
               hasMore={true}
               next={loadMore}
@@ -547,7 +547,7 @@ export default function Home(props: {
                 ? posts.map((e: any) => {
                     return (
                       <div
-                        className="mt-5 xl:mt-0 xl:border xl:border-[#f6f4f4]  "
+                        className="   border   sm:p-3 border-[#f6f4f4]  "
                         key={e.id}
                         id={e.id}
                       >

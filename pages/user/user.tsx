@@ -627,7 +627,7 @@ export default function User(props: {
          xl:w-[35vw]
          md:w-[80vw] flex-col xl:border xl:border-[#f9f9f9]   lg:w-[50vw]  "
       >
-        <div className="flex p-3 hero sticky top-0 mb-2 z-[9999] bg-white justify-between">
+        <div className="flex p-3 hero sticky top-0 z-[9999] bg-white justify-between">
           <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
             <svg
               onClick={() => {
@@ -664,7 +664,7 @@ export default function User(props: {
             <img
               src={api.cdn.url({ id: user.id, file: banner, collection: "users" })}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full sm:h-32 object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gray-300"></div>
@@ -740,7 +740,7 @@ export default function User(props: {
           </div>
         </div>
 
-        <div className="justify-between mt-[8vh] mx-4">
+        <div className="justify-between mt-[8vh] sm:mt-2 mx-4">
           <div className="flex w-full  hero gap-3">
             <p className="text-2xl font-bold">{user.username}</p>
 

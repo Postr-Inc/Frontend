@@ -79,7 +79,7 @@ export default function Home(props: {
             api.authStore.model().id
           }"`
         : pageValue === "recommended"
-        ? `likes:length > 1 && author.id !="${ api.authStore.model().id}" && author.followers !~ "${api.authStore.model().id}"`
+        ? ` author.id !="${ api.authStore.model().id}" && author.followers !~ "${api.authStore.model().id}"`
         : pageValue === "trending"
         ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
         : "";
@@ -163,7 +163,7 @@ export default function Home(props: {
             api.authStore.model().id
           }"`
         : pageValue === "recommended"
-        ? `likes:length > 1 && author.id !="${
+        ? ` && author.id !="${
             api.authStore.model().id
           }" && author.followers !~"${api.authStore.model().id}"`
         : pageValue === "trending"

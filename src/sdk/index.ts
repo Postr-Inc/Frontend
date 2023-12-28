@@ -128,10 +128,25 @@ export  default class postrSdk {
                     if (new Date().getTime() - cache.time > cache.cacheTime) {
                         console.log("delete")
                         this.$memoryCache.delete(key)
+                        clearInterval(timer)
                     }
                 }
             })
         }, 1000)
+
+        let cehckOnline = setInterval(() => {
+            if(this.ws.readyState !== WebSocket.OPEN) {
+                this.ws = new WebSocket(`wss://${data.wsUrl}`)
+            }else{
+                clearInterval(cehckOnline)
+            }
+        }, 1000)
+    }
+
+    checkConnection() {
+        if(this.ws.readyState === WebSocket.OPEN) return true
+        else return false
+
     }
     /**
      * @method upload

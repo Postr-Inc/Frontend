@@ -384,7 +384,7 @@ export default function Home(props: {
                           </label>
                           <ul
                             tabIndex={0}
-                            className="dropdown-content z-[1] menu   w-[16rem] shadow bg-base-100 rounded-box  "
+                            className="dropdown-content z-[1] menu   w-[16rem] shadow bg-base-100  rounded "
                           >
                             <li>
                               <a

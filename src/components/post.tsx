@@ -453,7 +453,8 @@ export default function Post(props: any) {
           updateCache={props.updateCache}
         ></CommentModal>
         <div className="flex flex-row  gap-2   ">
-          <img
+          {
+            props.expand.author.avatar ?  <img
             onClick={() => {
               console.log(props.expand.author);
               props.setParams({ user: props.expand.author });
@@ -463,6 +464,14 @@ export default function Post(props: any) {
             alt="profile"
             className="rounded object-cover w-12 h-12 cursor-pointer"
           ></img>
+          :  <div className="avatar placeholder">
+          <div className="bg-base-200 text-black rounded w-12 h-12 avatar  absolute bottom-[-3vh] left-2   border-2   shadow   border-white">
+            <span className="text-2xl">
+              {props.expand.author.username.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        </div>
+          }
           <div className="flex flex-col   heros">
             <div className="flex flex-row h-0 mt-2 gap-2 hero">
               <p

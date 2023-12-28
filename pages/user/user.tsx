@@ -684,14 +684,14 @@ export default function User(props: {
                     file: user.avatar,
                     collection: "users",
                   })}
-                  alt={api.authStore.model().username}
+                  alt={user.username}
                   className=" w-24  h-24 sm:w-16 sm:h-16 rounded object-cover avatar  absolute bottom-[-3vh] left-2   border-2 border-double shadow   border-white"
                 ></img>
               ) : (
                 <div className="avatar placeholder">
                   <div className="bg-base-200 text-black rounded w-24  h-24 sm:w-16 sm:h-16 avatar  absolute bottom-[-3vh] left-2   border-2   shadow   border-white">
                     <span className="text-2xl">
-                      {api.authStore.model().username.charAt(0).toUpperCase()}
+                      {user.username.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 </div>

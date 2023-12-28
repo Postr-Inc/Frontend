@@ -266,7 +266,7 @@ function CommentModal(props: any) {
               😂
             </p>
           </div>
-          <div className="flex flex-row gap-5  mb-2 w-full items-center">
+          <div className="flex flex-row gap-5  sm:mb-5 mb-2 w-full items-center">
             <img
               src={api.authStore.img()}
               alt="profile"

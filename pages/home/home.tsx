@@ -537,7 +537,7 @@ export default function Home(props: {
             </div>
 
             <Scroller
-              className="   xl:mt-0 z-[-1]   flex flex-col  w-full 0 xl:p-0     "
+              className="   xl:mt-0 z-[-1] mt-3   flex flex-col  w-full 0 xl:p-0     "
               dataLength={posts.length}
               hasMore={true}
               next={loadMore}
@@ -547,7 +547,7 @@ export default function Home(props: {
                 ? posts.map((e: any) => {
                     return (
                       <div
-                        className="   border   sm:p-3 border-[#f6f4f4]  "
+                        className="   xl:border   sm:p-3 border-[#f2f0f0]  "
                         key={e.id}
                         id={e.id}
                       >

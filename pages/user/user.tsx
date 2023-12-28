@@ -897,7 +897,7 @@ export default function User(props: {
               if (api.authStore.model().following.includes(e.id)) {
                 return (
                   <>
-                    <div className="avatar rounded ">
+                    <div className="avatar hero rounded-full ">
                       <div className="w-4">
                         {
                           e.avatar ?  <img

@@ -490,12 +490,11 @@ export default function User(props: {
   }
   async function save() {
     let userObj: any = {};
+    console.log(user);
     let linkreg = /(?:https):\/\/[\n\S]+/g;
     switch (true) {
-      case user.username !== props.params.user.username &&
-        user.username.length < 3:
-        alert("Username must be at least 3 characters long.");
-        return;
+      case user.username !== props.params.user.username && user.username.length < 3:
+        console.log("username too short");
       case user.username !== props.params.user.username:
         try {
           let res = await api.checkUsername(user.username);
@@ -509,14 +508,13 @@ export default function User(props: {
         }
         break;
       case user.bio !== props.params.user.bio && user.bio.length < 3:
-        alert("Bio must be at least 3 characters long.");
-      case (user.social !== props.params.user.social &&
-        !user.social.includes("Strafe:")) ||
-        !user.social.match(linkreg):
+        console.log("bio too short");
+      case  user.social !== props.params.user.social &&  user.social.match(linkreg) == null:
+        return alert("Invalid link");
         return;
-      default:
+      default: 
         break;
-    }
+    } 
 
     user.username !== props.params.user.username
       ? (userObj.username = user.username)
@@ -555,7 +553,7 @@ export default function User(props: {
         })
       : "";
 
-    console.log(userObj);
+     
     try {
       if (Object.keys(userObj).length > 0) {
         setSaving(true);
@@ -563,14 +561,15 @@ export default function User(props: {
           collection: "users",
           id: props.params.user.id,
           record: userObj,
+          expand: ["followers", "following", "following.followers"]
         });
         api.authStore.update();
         setAvatar(null);
         setBannerBlob(null);
-        setBannerFile(null);
-
-        setBanner(res.banner);
+        setBannerFile(null); 
         setUser(res);
+        setBanner(res.banner);
+   
         setSaving(false);
       }
       //@ts-ignore
@@ -1269,6 +1268,7 @@ export default function User(props: {
                 saving ? <span className="loading  loading-sm loading-spinner  text-blue-600"></span> :  <button
                 className="btn btn-sm rounded-full bg-black text-white "
                 onClick={() => {
+                  console.log("saving");
                   save();
                 }}
               >

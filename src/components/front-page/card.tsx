@@ -1,5 +1,5 @@
 "use client";
-export default function Card(props: any){
+export default function Card(props){
     return(
         <div className="flex p-5 gap-5 mx-auto justify-center flex-wrap">
         <div className="card w-96 bg-base-200  ">

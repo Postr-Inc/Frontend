@@ -1,4 +1,3 @@
-'use client';
 export default function Bookmark(props: any) {
      
     return <svg 

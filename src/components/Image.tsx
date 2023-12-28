@@ -1,7 +1,6 @@
-"use client";
 import { useRef, useCallback, useState, useEffect , memo} from "react";
 import { Loading } from "./icons/loading";
-import { api } from "@/app/page";
+import { api } from "@/app/app/page";
  
 export const LazyImage = memo(function LazyImage(props: {
     src: string;
@@ -13,13 +12,15 @@ export const LazyImage = memo(function LazyImage(props: {
     children?: any;
 }){
 
+ 
+    
+
+    const imageRef = useRef(null);
     const [loaded, setLoaded] = useState(false);
 
     const handleImageLoaded = useCallback(() => {
         setLoaded(true);
     }, []);
-
-    
 
     useEffect(() => {
         // Create a new Image instance

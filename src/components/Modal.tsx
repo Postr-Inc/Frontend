@@ -1,15 +1,12 @@
 export default function Modal(props: { id: string, height?: string, children: any}) {
     return (
         <>
-            <dialog id={props.id} className={`sm:modal    xl:rounded-box  
-              
+            <dialog id={props.id} className={`modal    
               `}
             
             >
-                <div className={`${
-                    props.height ? props.height +' max-w-screen max-w-screen h-screen' : "max-w-screen max-w-screen h-screen"
-                } bg-base-100     shadow-none  
-                `}>
+                <div className="max-w-screen max-w-screen h-screen bg-base-100  w-screen  overflow-x-hidden  shadow-none  
+                ">
                           {props.children}
                
                            

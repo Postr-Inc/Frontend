@@ -13,18 +13,11 @@ const config: Config = {
         'lighter': "#ffff",
        'darker':'#121212'
      },
-     screens:{
-        'xsm':  {'max': '639px'},
-        'sm':  {'max': '767px'},
-     },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
-      drawer: (theme) => ({
-
-      }),
     },
   },
   plugins: [require('daisyui')]

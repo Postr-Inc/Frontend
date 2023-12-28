@@ -1,7 +1,6 @@
-"use client";
-export default function Footer(props:any){
+export default function Footer(){
     return(
-        <div className={` ${props.className}  flex hero flex-row flex-wrap w-full   gap-5 mx-auto justify-center   xl:w-[30vw]   lg:w-[50vw]`}>
+        <div className='   flex hero flex-row flex-wrap w-full   gap-5 mx-auto justify-center   xl:w-[30vw]   lg:w-[50vw]'>
             &copy; 2023 - Tweeter
             <button className='btn-sm btn '>Status: <span className='text-success'>Online</span></button>
             <span className=''>Download Tweeter</span>

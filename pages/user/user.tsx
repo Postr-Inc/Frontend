@@ -740,7 +740,7 @@ export default function User(props: {
           </div>
         </div>
 
-        <div className="justify-between mt-[8vh] sm:mt-2 mx-4">
+        <div className="justify-between relative mt-[8vh] sm:mt-2 mx-4">
           <div className="flex w-full  hero gap-3">
             <p className="text-2xl font-bold">{user.username}</p>
 
@@ -803,7 +803,10 @@ export default function User(props: {
             )}
           </div>
           <p className="opacity-45">@{user.username}</p>
-          <p className="mt-6">
+          <p className="mt-6
+          w-full
+          
+          ">
             {user.bio !== "" ? user.bio : "This user has not set a bio."}
           </p>
           <div className="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:text-sm mb-5">
@@ -937,7 +940,7 @@ export default function User(props: {
           >
             Posts
             {feedPage === "posts" ? (
-              <div className=" rounded-md h-2 bg-blue-500"></div>
+              <div className=" rounded-md h-1 bg-blue-500"></div>
             ) : (
               ""
             )}
@@ -954,7 +957,7 @@ export default function User(props: {
           >
             Collections
             {feedPage === "collections" ? (
-              <div className=" rounded-md h-2 bg-blue-500"></div>
+              <div className=" rounded-md h-1 bg-blue-500"></div>
             ) : (
               ""
             )}
@@ -972,7 +975,7 @@ export default function User(props: {
           >
             Media
             {feedPage === "media" ? (
-              <div className=" rounded-md h-2 bg-blue-500"></div>
+              <div className=" rounded-md h-1 bg-blue-500"></div>
             ) : (
               ""
             )}

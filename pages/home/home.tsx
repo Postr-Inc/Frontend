@@ -349,7 +349,7 @@ export default function Home(props: {
               ""
             )}
 
-            <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f6f4f4]   w-[100%]  xl:z-[999] flex flex-col  
+            <div className="  xl:sticky xl:top-0 xl:border xl:border-[#f6f4f4] sm:p-2   w-[100%]  xl:z-[999] flex flex-col  
            bg-opacity-75 bg-white
             ">
               <div className="flex xl:p-5 w-full   justify-between ">
@@ -507,7 +507,7 @@ export default function Home(props: {
                 }}
                 >Following</p>
                   {
-                    pageValue === 'following' ? <div className=" rounded-md   h-2 bg-blue-500"></div> : ""
+                    pageValue === 'following' ? <div className=" rounded-md   h-1 bg-blue-500"></div> : ""
                   }
                  </div>
                  <div className="flex flex-col">
@@ -518,7 +518,7 @@ export default function Home(props: {
                 }}
                 >Recommended</p>
                   {
-                    pageValue === 'recommended' ? <div className=" rounded-md   h-2 bg-blue-500"></div> : ""
+                    pageValue === 'recommended' ? <div className=" rounded-md   h-1 bg-blue-500"></div> : ""
                   }
                </div>
                 <div className="flex flex-col">
@@ -529,7 +529,7 @@ export default function Home(props: {
                 }}
                 >Trending</p>
                   {
-                    pageValue === 'trending' ? <div className=" rounded-md  h-2 bg-blue-500"></div> : ""
+                    pageValue === 'trending' ? <div className=" rounded-md  h-1 bg-blue-500"></div> : ""
                   }
                 </div>
                 
@@ -537,7 +537,7 @@ export default function Home(props: {
             </div>
 
             <Scroller
-              className="mt-2  xl:mt-0 z-[-1]  flex flex-col  w-full xl:gap-0 xl:p-0 gap-2   "
+              className="mt-2  xl:mt-0 z-[-1] sm:p-2  flex flex-col  w-full xl:gap-0 xl:p-0 gap-2   "
               dataLength={posts.length}
               hasMore={true}
               next={loadMore}

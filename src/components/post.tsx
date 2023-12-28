@@ -471,7 +471,7 @@ export default function Post(props: any) {
             props.setParams({ user: props.expand.author });
             props.swapPage("user");
           }}
-          className="bg-base-200 text-black rounded w-12 h-12 avatar   border-2   shadow   border-white">
+          className="bg-base-200 text-black rounded w-12 h-12 avatar cursor-pointer   ">
             <span className="text-2xl">
               {props.expand.author.username.charAt(0).toUpperCase()}
             </span>

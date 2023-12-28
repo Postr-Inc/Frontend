@@ -1,3 +1,4 @@
+//@ts-nocheck
 var atobPolyfill:Function;
 
 if (typeof atob === 'function') {
@@ -22,7 +23,9 @@ if (typeof atob === 'function') {
                 continue;
             }
 
+            //@ts-ignore
             bs = bc % 4 ? bs * 64 + buffer : buffer;
+            
             if (bc++ % 4) {
                 output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
             }
@@ -61,15 +64,15 @@ function getTokenPayload(token:string) {
  */
 export function isTokenExpired(token:string, expirationThreshold:any) {
     var decoded = getTokenPayload(token);
+    
     var exp = decoded.exp;
-    console.log(exp - expirationThreshold, (Date.now() / 1000))
     if (!exp) {
         return false;
     }
 
    
-    var isExpired = (exp - expirationThreshold) < (Date.now() / 1000);
-    
+    var isExpired = Date.now() >= exp * 1000 - (expirationThreshold || 0) * 1000;
+   
     return isExpired ? false : true
   
 }

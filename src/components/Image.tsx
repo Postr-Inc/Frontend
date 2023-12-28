@@ -1,6 +1,7 @@
+"use client";
 import { useRef, useCallback, useState, useEffect , memo} from "react";
 import { Loading } from "./icons/loading";
-import { api } from "@/app/app/page";
+
  
 export const LazyImage = memo(function LazyImage(props: {
     src: string;
@@ -12,33 +13,30 @@ export const LazyImage = memo(function LazyImage(props: {
     children?: any;
 }){
 
- 
-    
-
-    const imageRef = useRef(null);
     const [loaded, setLoaded] = useState(false);
+    let initialized = useRef(false);
 
     const handleImageLoaded = useCallback(() => {
         setLoaded(true);
     }, []);
 
-    useEffect(() => {
-        // Create a new Image instance
-        const loader = new Image();
-        //@ts-ignore
-        loader.src = props.src 
+    
 
-        // Set the onload callback
-        loader.onload = () => {
-            setTimeout(() => {
-                handleImageLoaded();
-            }, 1000);
-        };
+    useEffect(() => { 
+        if (typeof window !== "undefined") {
+            initialized.current = true;
+        }
 
-        // Clean up to prevent memory leaks
+        if (initialized.current) {
+            let img = new Image();
+            img.src = props.src;
+            img.onload = handleImageLoaded;
+        }
+
         return () => {
-            loader.onload = null;
+            initialized.current = false;
         };
+        
     }, []);
 
     return (
@@ -50,6 +48,7 @@ export const LazyImage = memo(function LazyImage(props: {
          
             onClick={() => (props.onClick ? props.onClick() : null)}
             src={props.src}
+          fetchPriority="high"
             alt={props.alt}
             width={props.width}
             height={props.height}

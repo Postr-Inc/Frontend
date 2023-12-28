@@ -18,7 +18,7 @@ export default function BottomNav(props: any) {
     ${
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "bg-darker"
+        ? "bg-darker text-white fill-white stroke-white"
         : "bg-base-200"
     }
     `}
@@ -36,7 +36,7 @@ export default function BottomNav(props: any) {
               className={`
                 w-7 h-7
                 cursor-pointer
-                ${theme}
+                 
                 `}
               
               xmlns="http://www.w3.org/2000/svg"
@@ -90,6 +90,10 @@ export default function BottomNav(props: any) {
               text-gray-500  hover:text-black
               
               "
+              onClick={() => {
+                // @ts-ignore
+                document.getElementById("createPost").showModal();
+              }}
             >
               <path
                 strokeLinecap="round"

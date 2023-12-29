@@ -533,14 +533,12 @@ export default function Home(props: {
                           setParams={props.setParams}
                           page={props.currentPage}
                           currentPage={page}
-                          updateCache={(key: string, value: any) => {
-                            console.log(page, api.authStore.model().id);
+                          updateCache={(key: string, value: any) => { 
                             let cache = JSON.parse(
                               api.cacehStore.get( `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`)
-                            ); 
-                            console.log(cache);
+                            );
                             if(cache && cache.value?.items.length > 0){
-                              console.log(cache.value.items);
+                             
                               cache.value.items.forEach(
                                 (e: any, index: number) => {
                                   if (e.id === key) {
@@ -549,29 +547,17 @@ export default function Home(props: {
                                 }
                               );
                               for (var i in api.cacehStore.keys()) {
-                                let key = api.cacehStore.keys()[i]; 
-                                if (key.includes("user-feed")) {
-                                  let items = JSON.parse(api.cacehStore.get(key))
-                                    .value.items;
+                                let k  = api.cacehStore.keys()[i]; 
+                                if (k.includes("user")) { 
+                                  let items = JSON.parse(api.cacehStore.get(k)).value 
   
-                                  items.forEach((e: any, index: number) => {
-                                    if (e.id === key) {
-                                      items[index] = value;
+                                  items.items.forEach((e: any, index: number) => { 
+                                    if (e.id === key) { 
+                                      console.log(e, index)
+                                      items.items[index] = value; 
                                     }
                                   });
-                                  api.cacehStore.set(
-                                    key,
-                                    {
-                                      items: items,
-                                      totalItems: JSON.parse(
-                                        api.cacehStore.get(key)
-                                      ).value.totalItems,
-                                      totalPages: JSON.parse(
-                                        api.cacehStore.get(key)
-                                      ).value.totalPages,
-                                    },
-                                    200
-                                  );
+                                  api.cacehStore.set(k, items, 1200);
                                 }
                               }
  

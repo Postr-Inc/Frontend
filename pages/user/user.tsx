@@ -1055,17 +1055,17 @@ export default function User(props: {
                         <Post
                           cache={
                             api.cacehStore.get(
-                              `user-feed-posts-${page}-${user.id}`
+                               `user-feed-${feedPage}-${page}-${user.id}`
                             )
                               ? JSON.parse(
                                   api.cacehStore.get(
-                                    `user-feed-posts-${page}-${user.id}`
+                                    `user-feed-${feedPage}-${page}-${user.id}`
                                   )
                                 )
                               : null
                           }
                           {...e}
-                          cacheKey={`user-feed-posts-${page}-${user.id}`}
+                          cacheKey={`user-feed-${feedPage}-${page}-${user.id}`}
                           swapPage={props.swapPage}
                           setParams={props.setParams}
                           params={props.params}
@@ -1127,7 +1127,7 @@ export default function User(props: {
                               );
                               for (var i in api.cacehStore.keys()) {
                                 let k = api.cacehStore.keys()[i];
-                                if (k.includes("home-posts")) {
+                                if (k.includes("home")) {
                                   let cache = JSON.parse(api.cacehStore.get(k));
                                   cache.value.items.forEach(
                                     (e: any, index: number) => {

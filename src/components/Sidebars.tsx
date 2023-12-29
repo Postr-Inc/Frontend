@@ -110,7 +110,7 @@ export function SideBarLeft(props: any) {
           setPosting(true);
           let post = await api.create({
             collection: "posts",
-            expand: ["author"],
+            expand: ["author"], 
             record: {
               author: api.authStore.model().id,
               content: text,

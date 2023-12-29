@@ -864,7 +864,7 @@ export default function User(props: {
                     }}
                     className="text-blue-500 text-md w-5/6  hover:underline"
                   >
-                    {user.social}
+                    {user.social.replace(/(^\w+:|^)\/\//, "")}
                   </span>
                 </span>
               </p>

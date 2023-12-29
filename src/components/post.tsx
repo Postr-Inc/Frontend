@@ -454,7 +454,7 @@ export default function Post(props: any) {
         ></CommentModal>
         <div className="flex flex-row  gap-2   ">
           {
-            props.expand.author.avatar ?  <img
+            props.expand?.author.avatar ?  <img
             onClick={() => {
               console.log(props.expand.author);
               props.setParams({ user: props.expand.author });

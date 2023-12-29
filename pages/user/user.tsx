@@ -387,6 +387,7 @@ export default function User(props: {
           "author.following",
           "author.following.followers",
           "author.following.following",
+          "likes",
         ],
         page: 0,
         sort:   pageValue !== "posts" ? `-created` : `-pinned, -created`,
@@ -462,6 +463,7 @@ export default function User(props: {
               "author.following",
               "author.following.followers",
               "author.following.following",
+              "likes",
             ],
             sort: `-created`,
             page: page + 1,
@@ -889,18 +891,20 @@ export default function User(props: {
             </p>
           </div>
         </div>
+        <div className="hero w-fit flex">
         {user.expand?.followers &&
         user.id !== api.authStore.model().id &&
         user.expand?.followers.length > 0 ? (
-          <div className="avatar-group mx-3 -space-x-6 flex gap-8 text-sm hero rtl:space-x-reverse">
+          <div className="avatar-group mx-3 -space-x-6 flex gap-8 text-sm   rtl:space-x-reverse">
             {user.expand.followers.map((e: any) => {
               if (api.authStore.model().following.includes(e.id)) {
                 return (
                   <>
-                    <div className="avatar hero rounded-full ">
+                  {
+                          e.avatar ?  <div className="avatar  rounded-box  ">
                       <div className="w-4">
-                        {
-                          e.avatar ?  <img
+                        
+                           <img
                           src={api.cdn.url({
                             id: e.id,
                             collection: "users",
@@ -908,11 +912,25 @@ export default function User(props: {
                           })}
                           alt=""
                           className=" object-cover"
-                        /> : ""
-                        }
+                        /> 
                       </div>
                     </div>
-                    <p className="mt-2 opacity-70 hover:underline cursor-pointer">
+                    :  <div className="  placeholder avatar  rounded-full ">
+                    <div className="   ">
+                      
+                         <span className="text-2xl">
+                         {e.username.charAt(0).toUpperCase()}
+                         </span>
+                    </div>
+                  </div>
+                         
+                  }
+                    
+                  </>
+                );
+              }
+            })}
+             <p className=" mt-1 opacity-70 hover:underline cursor-pointer">
                       Followed By{" "}
                       {user.expand.followers.map((e: any) => {
                         if (api.authStore.model().following.includes(e.id)) {
@@ -922,15 +940,12 @@ export default function User(props: {
                           }} className="hover:underline cursor-pointer">{e.username}</a>;
                         }
                       })}
-                    </p>
-                  </>
-                );
-              }
-            })}
+                </p>
           </div>
         ) : (
           ""
         )}
+        </div>
         <div className="flex flex-row p-2 gap-2 justify-between    xl:border-[#f9f9f9] ">
           <a
             role="tab"

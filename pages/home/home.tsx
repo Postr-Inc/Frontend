@@ -59,14 +59,15 @@ export default function Home(props: {
     setIsFetching(true);
     if (
       api.cacehStore.has(
-        `user-feed-${pageValue}-${pg}-${api.authStore.model().id}`
+        `user-home-${pageValue}-posts-1-${api.authStore.model().id}`
       )
     ) {
       let cache = JSON.parse(
         api.cacehStore.get(
-          `user-feed-${pageValue}-${pg}-${api.authStore.model().id}`
+          `user-home-${pageValue}-posts-1-${api.authStore.model().id}`
         )
       );
+      console.log(cache);
       setPosts(cache.value.items);
       setTotalPages(cache.value.totalPages);
       setHasMore(true);
@@ -108,21 +109,11 @@ export default function Home(props: {
       })
       .then((e: any) => {
         console.log(e);
-        if (
-          !api.cacehStore.has(
-            `user-feed-${pageValue}-${page}-${api.authStore.model().id}`
-          )
-        ) {
-          api.cacehStore.set(
-            `user-feed-${pageValue}-${page}-${api.authStore.model().id}`,
-            {
-              items: e.items,
-              totalItems: e.totalItems,
-              totalPages: e.totalPages,
-            },
-            1200
-          );
-        }
+        api.cacehStore.set(
+          `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
+          e,
+          1200
+        );
 
         setPosts(e.items);
         setTotalPages(e.totalPages);
@@ -145,11 +136,11 @@ export default function Home(props: {
         setHasMore(false);
         break;
       case api.cacehStore.has(
-        `user-home-posts-${page + 1}-${api.authStore.model().id}`
+        `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`
       ):
         let cache = JSON.parse(
           api.cacehStore.get(
-            `user-home-posts-${page + 1}-${api.authStore.model().id}`
+            `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`
           )
         );
         setPosts([...posts, ...cache.value.items]);
@@ -214,25 +205,7 @@ export default function Home(props: {
             setWindowScroll(window.scrollY);
           })
         : null;
-      if (api.cacehStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)) {
-        setPosts(
-          JSON.parse(
-            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
-          ).value.items
-        );
-        setTotalPages(
-          JSON.parse(
-            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
-          ).value.totalPages
-        );
-        console.log(
-          "using cache",
-          JSON.parse(
-            api.cacehStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)
-          )
-        );
-        return;
-      }
+      setPage(1);
       let filterString =
       pageValue === "following"
         ? ` author.followers ~"${
@@ -268,13 +241,12 @@ export default function Home(props: {
         .then((e: any) => {
           setTotalPages(e.totalPages);
           setPosts(e.items);
-          !api.cacehStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)  
-            ? api.cacehStore.set(
-                `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
-                e,
-                1200
-              )
-            : null;
+          setIsFetching(false);
+          api.cacehStore.set(
+            `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
+            e,
+            1200
+          );
         });
     }
     return () => {
@@ -553,26 +525,20 @@ export default function Home(props: {
                       >
                         <Post
                           cache={api.cacehStore.get(
-                            `user-home-posts-${page}-${
-                              api.authStore.model().id
-                            }`
+                            `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`
                           )}
-                          cacheKey={`user-home-posts-${page}-${
-                            api.authStore.model().id
-                          }`}
+                          cacheKey={`user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`}
                           {...e}
                           swapPage={props.swapPage}
                           setParams={props.setParams}
                           page={props.currentPage}
                           currentPage={page}
                           updateCache={(key: string, value: any) => {
+                            console.log(page, api.authStore.model().id);
                             let cache = JSON.parse(
-                              api.cacehStore.get(
-                                `user-home-posts-${page}-${
-                                  api.authStore.model().id
-                                }`
-                              )
+                              api.cacehStore.get( `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`)
                             ); 
+                            console.log(cache);
                             if(cache && cache.value?.items.length > 0){
                               console.log(cache.value.items);
                               cache.value.items.forEach(
@@ -583,8 +549,7 @@ export default function Home(props: {
                                 }
                               );
                               for (var i in api.cacehStore.keys()) {
-                                let key = api.cacehStore.keys()[i];
-                                console.log(key);
+                                let key = api.cacehStore.keys()[i]; 
                                 if (key.includes("user-feed")) {
                                   let items = JSON.parse(api.cacehStore.get(key))
                                     .value.items;
@@ -605,15 +570,13 @@ export default function Home(props: {
                                         api.cacehStore.get(key)
                                       ).value.totalPages,
                                     },
-                                    1200
+                                    200
                                   );
                                 }
                               }
-  
+ 
                               api.cacehStore.set(
-                                `user-home-posts-${page}-${
-                                  api.authStore.model().id
-                                }`,
+                                `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`,
                                 cache.value,
                                 1200
                               );

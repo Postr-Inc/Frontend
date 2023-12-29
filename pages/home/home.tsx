@@ -92,7 +92,7 @@ export default function Home(props: {
         collection:  "posts",
         limit: 10,
         filter: filterString,
-        cacheKey: `user-feed-${pageValue}-${page}-${api.authStore.model().id}`,
+        cacheKey: `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
         expand: [
           "author",
           "comments.user",
@@ -557,6 +557,7 @@ export default function Home(props: {
                                       items.items[index] = value; 
                                     }
                                   });
+                                  console.log(items)
                                   api.cacehStore.set(k, items, 1200);
                                 }
                               }

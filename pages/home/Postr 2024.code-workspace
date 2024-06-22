@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"name": "Hapta-main",
+			"path": "../../../../Hapta-main"
+		},
+		{
+			"name": "Frontend-main",
+			"path": "../.."
+		},
+		{
+			"path": "../../../../Frontend-7-nextjs"
+		},
+		{
+			"path": "../../../../Native_Postr_App"
+		},
+		{
+			"path": "../../../../Hapta-Cache"
+		},
+		{
+			"path": "../../../../Embedify"
+		}
+	],
+	"settings": {
+	}
+}

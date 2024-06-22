@@ -11,14 +11,8 @@ import Comment from "@/src/components/comment";
 import { Loading } from "@/src/components/icons/loading";
 import { api } from "@/src/api/api";
 import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-export default function User(props: {
-  swapPage: Function;
-  setParams: Function;
-  params: any;
-  setLastPage: Function;
-  lastPage: any;
-  page: string;
-}) {
+import { Props } from "@/src/@types/types";
+export default function User(props: Props) {
   if (typeof window !== "undefined" && props.params.user === undefined) {
     api
       .list({
@@ -265,25 +259,13 @@ export default function User(props: {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
 
-    if (api.cacehStore.get(`user-feed-posts-${1}-${user.id}`)) {
-      let cache = JSON.parse(
-        api.cacehStore.get(`user-feed-posts-${1}-${user.id}`)
-      );
-      setArray(cache.value.items);
-      setTotalPages(cache.value.totalPages);
-      setTotalItems(cache.value.totalItems);
-      setTimeout(() => {
-        setIsFetching(false);
-        `1QS`;
-      }, 500);
-      setHasMore(true);
-      return;
-    } else {
+    
       api
         .list({
           collection: "posts",
           limit: 10,
           filter: `author.id ="${props.params.user.id}"`,
+          cacheKey: `posts-${props.params.user.id}`,
           expand: [
             "author",
             "comments.user",
@@ -291,14 +273,13 @@ export default function User(props: {
             "post",
             "post.author",
             "author.followers",
-            "author.following",
-            "author.following.followers",
-            "author.following.following",
-          ],
+            "author.following", 
+          ], 
           page: 1,
           sort: `-pinned, -created`,
         })
         .then((e: any) => {
+          console.log(e);
           if(feedPage === "posts"){
              // sort by pinned
               e.items = e.items.sort((a:any,b:any)=>{
@@ -309,18 +290,9 @@ export default function User(props: {
           setTotalPages(e.totalPages);
           setTotalItems(e.totalItems);
           setHasMore(true);
-          setIsFetching(false);
-          api.cacehStore.set(
-            `user-feed-posts-${1}-${user.id}`,
-            {
-              items: e.items,
-              totalItems: e.totalItems,
-              totalPages: e.totalPages,
-            },
-            230
-          );
+          setIsFetching(false); 
         });
-    }
+    
 
     return () => {
       isIntialized.current = false;
@@ -339,18 +311,7 @@ export default function User(props: {
   }, []);
 
   function swapFeed(pageValue: string, pg: number = 0) {
-    setIsFetching(true);
-    if (api.cacehStore.has(`user-feed-${pageValue}-${pg}-${user.id}`)) {
-      let cache = JSON.parse(
-        api.cacehStore.get(`user-feed-${pageValue}-${pg}-${user.id}`)
-      );
-      setArray(cache.value.items);
-      setTotalPages(cache.value.totalPages);
-      setTotalItems(cache.value.totalItems);
-      setHasMore(true);
-      return;
-    } 
-
+    setIsFetching(true); 
     let filterString =
       pageValue === "posts"
         ? `author.id ="${user.id}"`
@@ -393,18 +354,9 @@ export default function User(props: {
         sort:   pageValue !== "posts" ? `-created` : `-pinned, -created`,
       })
       .then((e: any) => {
-        if (!api.cacehStore.has(`user-feed-${pageValue}-${page}-${user.id}`)) {
-          api.cacehStore.set(
-            `user-feed-${pageValue}-${page}-${user.id}`,
-            {
-              items: e.items,
-              totalItems: e.totalItems,
-              totalPages: e.totalPages,
-            },
-            1200
-          );
+        if (pageValue === "media") {
+          e.items = e.items.filter((e: any) => e.file.length > 0);
         }
-
         setArray(e.items);
         setTotalPages(e.totalPages);
         setTotalItems(e.totalItems);
@@ -423,9 +375,7 @@ export default function User(props: {
       case page >= totalPages:
         console.log("no more");
         setHasMore(false);
-        return;
-      case api.cacehStore.has(`user-feed-${feedPage}-${page + 1}-${user.id}`):
-        return;
+        return; 
       default:
         if(feedPage === "collections"){
           return
@@ -477,15 +427,7 @@ export default function User(props: {
             setTotalItems(e.totalItems);
             setHasMore(true);
             setPage(page + 1);
-            api.cacehStore.set(
-              `user-feed-${feedPage}-${page + 1}-${user.id}`,
-              {
-                items: e.items,
-                totalItems: e.totalItems,
-                totalPages: e.totalPages,
-              },
-             1200
-            );
+            
           });
         break;
     }
@@ -563,6 +505,7 @@ export default function User(props: {
           collection: "users",
           id: props.params.user.id,
           record: userObj,
+          cacheKey: `user-${props.params.user.id}`,
           expand: ["followers", "following", "following.followers"]
         });
         api.authStore.update();
@@ -589,13 +532,7 @@ export default function User(props: {
       className=" relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto"
     >
       <SideBarLeft
-        page={props.page}
-        swapPage={props.swapPage}
-        setParams={props.setParams}
-        params={props.params}
-        currentPage={props.page}
-        setLastPage={props.setLastPage}
-        lastPage={props.lastPage}
+        {...props}
       />
       {typeof window !== "undefined" &&
       windowScroll > 1050 &&
@@ -633,8 +570,9 @@ export default function User(props: {
           <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
             <svg
               onClick={() => {
-                props.setLastPage(props.page);
-                props.swapPage("home");
+                let lastPage = props.lastPage;
+                props.setLastPage(props.page); 
+                props.swapPage(lastPage)
               }}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -811,7 +749,7 @@ export default function User(props: {
           ">
             {user.bio !== "" ? user.bio : "This user has not set a bio."}
           </p>
-          <div className="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:text-sm mb-5">
+          <div className="flex flex-wrap  gap-2">
             <p className="hero flex mt-4 gap-2 w-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -829,18 +767,25 @@ export default function User(props: {
               </svg>
               Joined {new Date(props.params.user.created).toLocaleDateString()}
             </p>
-            {user.location !== "" ? (
-              <p className="mt-4 hero flex gap-2">
-                <Icon />{" "}
-                <span className="text-md capitalize font-medium">
-                  {user.location}
+            
+
+           
+          <div  >
+          {user.location !== "" ? (
+              <p className="mt-4 hero flex gap-2 w-full">
+                 <Icon />{" "}
+                <span className="text-md cursor-pointer font-medium">
+                   {user.location}
                 </span>
               </p>
             ) : (
               ""
             )}
-
-            {user.social !== "" ? (
+          </div>
+          
+           
+          <p>
+          {user.social !== "" ? (
               <p className="mt-4 hero flex gap-2 w-full">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -871,8 +816,9 @@ export default function User(props: {
             ) : (
               ""
             )}
+          </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-5">
             <p className=" mt-2 text-md">
               <span className="font-bold">
                 {" "}
@@ -1052,20 +998,9 @@ export default function User(props: {
                         }
                         
                       >
-                        <Post
-                          cache={
-                            api.cacehStore.get(
-                               `user-feed-${feedPage}-${page}-${user.id}`
-                            )
-                              ? JSON.parse(
-                                  api.cacehStore.get(
-                                    `user-feed-${feedPage}-${page}-${user.id}`
-                                  )
-                                )
-                              : null
-                          }
+                        <Post 
                           {...e}
-                          cacheKey={`user-feed-${feedPage}-${page}-${user.id}`}
+                          cacheKey={`posts-${props.params.user.id}`}
                           swapPage={props.swapPage}
                           setParams={props.setParams}
                           params={props.params}
@@ -1109,44 +1044,7 @@ export default function User(props: {
                             setArray(arr);
                             
                           }}
-                          currentPage={page}
-                          updateCache={(key: string, value: any) => {
-                            let cache = JSON.parse(
-                              api.cacehStore.get(
-                                `user-feed-${feedPage}-${page}-${user.id}`
-                              )
-                            );
-
-                            if(cache && cache.value.items){
-                              cache.value.items.forEach(
-                                (e: any, index: number) => {
-                                  if (e.id === key) {
-                                    cache.value.items[index] = value;
-                                  }
-                                }
-                              );
-                              for (var i in api.cacehStore.keys()) {
-                                let k = api.cacehStore.keys()[i];
-                                if (k.includes("home")) {
-                                  let cache = JSON.parse(api.cacehStore.get(k));
-                                  cache.value.items.forEach(
-                                    (e: any, index: number) => {
-                                      if (e.id === key) {
-                                        cache.value.items[index] = value;
-                                      }
-                                    }
-                                  );
-                                  api.cacehStore.set(k, cache.value, 230);
-                                }
-                              }
-  
-                              api.cacehStore.set(
-                                `user-feed-${feedPage}-${page}-${user.id}`,
-                                cache.value,
-                               1200
-                              );
-                            }
-                          }}
+                          currentPage={page} 
                         ></Post>
                       </div>
                     );
@@ -1603,10 +1501,10 @@ export default function User(props: {
                     placeholder="Social"
                     value={user.social}
                     onChange={(e) => {
-                      if (e.target.value.length >= 30) {
+                      if (e.target.value.length >= 40) {
                         setUser({
                           ...user,
-                          social: e.target.value.slice(0, 30),
+                          social: e.target.value.slice(0, 40),
                         });
                         return;
                       }

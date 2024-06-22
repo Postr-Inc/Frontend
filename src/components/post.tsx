@@ -65,7 +65,7 @@ function CommentModal(props: any) {
               likes: [],
             },
             expand: ["user"],
-          });
+          }); 
           props.setComments([...props.comments, res]);
 
           api.update({
@@ -76,14 +76,7 @@ function CommentModal(props: any) {
               comments: [...props.comments.map((e: any) => e.id), res.id],
             },
           });
-          props.updateCache(props.post.id, {
-            ...props.post,
-            expand: {
-              ...props.post.expand,
-              comments: [...props.comments, res],
-            },
-          });
-          setComment("");
+           
         } catch (error) {
           console.log(error);
           return;
@@ -331,9 +324,9 @@ function DeleteModal(props: any) {
  
 <dialog id={props.id + 'delete'} className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none">
   <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
-    <h3 className="font-bold text-lg">Delete Postr ?</h3>
+    <h3 className="font-bold text-lg">Delete Post ?</h3>
     <p className="py-4">
-      Are you sure you want to delete this postr? This action cannot be undone. This will permanently delete access accross the platform.
+      Are you sure you want to delete this post? This action cannot be undone. This will permanently delete access accross the platform.
     </p>
     <div className="modal-action gap-5">
       <form method="dialog" className="flex gap-5">
@@ -360,7 +353,7 @@ function DeleteModal(props: any) {
   )
 }
 
-export default function Post(props: any) {
+export default function Post(props: any) { 
   let [likes, setLikes] = useState(props.likes);
   let [comments, setComments] = useState(props.expand?.comments || []);
   let [comment, setComment] = useState("");
@@ -372,9 +365,8 @@ export default function Post(props: any) {
 
   async function handleLike() {
     switch (likes.includes(api.authStore.model().id)) {
-      case true:
-        console.log("unlike");
-        setLikes(likes.filter((id: any) => id != api.authStore.model().id));
+      case true: 
+        setLikes(likes.filter((id: any) => id != api.authStore.model().id)); 
         await api.update({
           collection: "posts",
           cacheKey: props.cacheKey,
@@ -382,12 +374,8 @@ export default function Post(props: any) {
           record: {
             likes: likes.filter((id: any) => id != api.authStore.model().id),
           },
-        });
-        // up
-        props.updateCache(props.id, {
-          ...props,
-          likes: likes.filter((id: any) => id != api.authStore.model().id),
-        });
+        }); 
+        
         break;
 
       default:
@@ -398,10 +386,7 @@ export default function Post(props: any) {
           id: props.id,
           record: { likes: [...likes, api.authStore.model().id] },
         });
-        props.updateCache(props.id, {
-          ...props,
-          likes: [...likes, api.authStore.model().id],
-        });
+         
         break;
     }
   }
@@ -540,7 +525,7 @@ export default function Post(props: any) {
               )}
               {props.expand.author?.postr_plus ? (
                 <div
-                  className="tooltip tooltip-left "
+                  className="tooltip tooltip-middle cursor-pointer"
                   data-tip={`Subscriber since ${new Date(
                     props.expand.author?.plus_subscriber_since
                   ).toLocaleDateString()}`}
@@ -752,54 +737,27 @@ export default function Post(props: any) {
               bookmarked ? "fill-blue-500 text-blue-500" : ""
             }`}
             onClick={() => {
-              if (!api.authStore.model().bookmarks.includes(props.id)) {
-               
-                api
-                  .update({
+                if(bookmarked){
+                  api.update({
                     collection: "users",
                     id: api.authStore.model().id,
-                    cacheKey: "userBookmarks" + api.authStore.model().id,
-                    expand: ["bookmarks", "bookmarks.author"],
                     record: {
-                      bookmarks: [...api.authStore.model().bookmarks, props.id],
-                    },
+                      bookmarks: api.authStore.model().bookmarks.filter((id: any) => id != props.id)
+                    }
                   })
-                  .then((res: any) => {
-                    api.authStore.update();
-                   
-                    api.cacehStore.set(
-                      "bookmarks",
-                      res.expand.bookmarks || [],
-                      1200
-                    ); 
-                  }); 
-                setRefresh(!refresh);
-              } else {
-                console.log("unbookmark");
-                api
-                  .update({
+                  api.authStore.update()
+                  setBookmarked(false)
+                }else{
+                  api.update({
                     collection: "users",
                     id: api.authStore.model().id,
-                    cacheKey: "userBookmarks" + api.authStore.model().id,
-                    expand: ["bookmarks", "bookmarks.author"],
                     record: {
-                      bookmarks: api.authStore
-                        .model()
-                        .bookmarks.filter((e: any) => e != props.id),
-                    },
+                      bookmarks: [...api.authStore.model().bookmarks, props.id]
+                    }
                   })
-                  .then((res: any) => {
-                    api.authStore.update();
-                    api.cacehStore.set(
-                      "bookmarks",
-                      res.expand ? res.expand.bookmarks : [],
-                      1200
-                    );
-                    props.deleteBookmark && props.deleteBookmark();
-                  });
-                setRefresh(!refresh);
-              } 
-              setBookmarked(!bookmarked);
+                  api.authStore.update()
+                  setBookmarked(true)
+                }
             }}
           />
           </div>

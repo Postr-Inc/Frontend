@@ -717,6 +717,43 @@ export  default class postrSdk {
       
         
     }
+    public search(data: {collection: string,   query: any ,expand?: String[], limit?: number, page?:number, cacheKey?:string}){
+        return new Promise((resolve, reject) => {
+            let key = crypto.randomUUID();
+            !data.collection ? (reject(new Error("collection is required"))) : null;
+            !this.authStore.isValid ? (reject(new Error("token is expired"))) : null;
+    
+            this.callbacks.set(key, (responseData: any) => {
+                if (responseData.error) reject(new Error(JSON.stringify(responseData)));
+                else resolve(responseData);
+                this.callbacks.delete(key);
+            });
+    
+            let  query = ''
+            Object.keys(data.query).forEach((key, index) => {
+                if(index === 0) query += `${key}?~"${data.query[key]}"`
+                else query += `&&${key}?~${data.query[key]}`
+            })
+            this.sendMessage(JSON.stringify({
+                    type: "search", 
+                    key: key, 
+                    token: this.token, 
+                    data: {
+                    collection: data.collection,
+                    query: query,
+                    cacheKey: data.cacheKey || null,
+                    limit: data.limit,
+                    offset: data.page,
+                    id: this.authStore.model()?.id || null,
+                    expand: data.expand || null
+                },
+                session: this.sessionID
+            }));
+    
+            
+            
+        });
+    }
     public close() {
         this.ws.close()
     }

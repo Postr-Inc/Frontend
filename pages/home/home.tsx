@@ -8,7 +8,7 @@ import Post from "@/src/components/post";
 //@ts-ignore
  
 import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
+import { SideBarLeft, SideBarRight, SidebarP } from "@/src/components/Sidebars";
 import { BottomNav } from "@/src/components/BottomNav";
  
 export default function Home(props: {
@@ -263,7 +263,8 @@ export default function Home(props: {
             currentPage={props.currentPage}
             swapPage={props.swapPage}
           />
-
+ 
+         
           <div
             className=" xl:mx-24     text-md   
          relative 
@@ -383,9 +384,7 @@ export default function Home(props: {
                             ) : (
                               ""
                             )}
-                            <li>
-                              <a>Set Status</a>
-                            </li>
+                             
                             <li>
                               <a
                                 onClick={() => {
@@ -620,6 +619,8 @@ export default function Home(props: {
               />
             </div>
           </div>
+
+       
           {poorConnection && !dismissToast ? (
             <div
               onClick={() => {
@@ -660,6 +661,7 @@ export default function Home(props: {
             currentPage={props.currentPage}
             swapPage={props.swapPage}
           />
+           
           <LogoutModal />
         </div>
       ) : (

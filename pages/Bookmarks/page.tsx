@@ -88,7 +88,7 @@ export default function Bookmarks(props: any) {
              xl:text-sm md:text-sm"
             >
               <div className="mb-32">
-                {api.authStore.model().bookmarks.length > 0 ? (
+                {bookmarks.length > 0 ? (
                   bookmarks.map((post: any) => {
                     return (
                       <Post

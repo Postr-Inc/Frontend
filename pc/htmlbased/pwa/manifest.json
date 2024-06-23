@@ -1,0 +1,142 @@
+{
+    "short_name": "Postr",
+    "name": "Postr",
+    "scope": "/",
+    "start_url": "/",
+    "lang": "en-US",
+    "categories": [
+      "photo",
+      "productivity",
+      "social"
+    ],
+    "iarc_rating_id ":"5e7460f8-0cb9-4221-ba81-377b6f4b5b96",
+    "description": "Open Source is Simply Better",
+    "id": "m3wCbiSVYAMMWIaBybj2",
+    "orientation": "portrait",
+    "display_override": [
+      "fullscreen",
+      "window-controls-overlay"
+    ],
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "handle_links": "prefered",
+    "icons": [
+      {
+        "src": "/icons/icon-blue.jpg",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      }
+    ],
+    "screenshots": [
+      {
+          "src": "/images/ss/1.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "Minimal Aesthetic Ui",
+          "form_factor": "wide"
+      },
+      {
+          "src": "/images/ss/2.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "User Select Feeds - Choose What you want to see",
+          "form_factor": "wide"
+      },
+      {
+          "src": "/images/ss/3.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "Pinned Posts - Pin your top posts for your followers to see!",
+          "form_factor": "wide"
+      },
+      {
+          "src": "/images/ss/4.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "Bookmarks - Save posts that you want to revisit later!",
+          "form_factor": "wide"
+      },
+      {
+          "src": "/images/ss/5.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "Leave Comments - Interact more in the comment section",
+          "form_factor": "wide"
+      },
+      {
+          "src": "/images/ss/6.jpg",
+          "type": "image/jpeg",
+          "sizes": "900x1600",
+          "label": "Notifications - Keep up with interactions, by using push notifications",
+          "form_factor": "wide"
+      }
+  ],
+    "protocol_handlers": [
+      {
+        "protocol": "web+postr",
+        "url": "/launch?type=%s"
+      },
+      {
+        "protocol": "web+user",
+        "url": "/u/?type=%s"
+      },
+      {
+        "protocol": "web+notifications",
+        "url": "/notifications?type=%s"
+      }
+    ],
+    "related_applications": [
+      {
+        "platform": "webapp",
+        "url": "https://v6-0.pages.dev/manifest.json",
+        "id": ""
+      }
+    ],
+    "shortcuts": [
+      {
+        "name": "Settings",
+        "url": "/app/settings",
+        "description": "Quickly access your settings",
+        "icons": [
+          {
+            "src": "/icons/logo.png",
+            "sizes": "238x238"
+          }
+        ]
+      },
+      {
+        "name": "Feed",
+        "url": "/",
+        "icons": [
+          {
+            "src": "/icons/logo.png",
+            "sizes": "238x238"
+          }
+        ]
+      },
+      {
+        "name": "Privacy Policy",
+        "url": "/information/privacy.pdf",
+        "icons": [
+          {
+            "src": "/icons/eye.png",
+            "sizes": "238x238"
+          }
+        ]
+      },
+      {
+        "name": "Terms of Service",
+        "url": "/information/terms.pdf",
+        "icons": [
+          {
+            "src": "/icons/logo.png",
+            "sizes": "238x238"
+          }
+        ]
+      }
+    ],
+    "prefer_related_applications": false,
+    "dir": "ltr"
+  }

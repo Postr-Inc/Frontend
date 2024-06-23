@@ -8,17 +8,11 @@ import Post from "@/src/components/post";
 //@ts-ignore
  
 import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight, SidebarP } from "@/src/components/Sidebars";
+import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 import { BottomNav } from "@/src/components/BottomNav";
+import { Props } from "@/src/@types/types";
  
-export default function Home(props: {
-  swapPage: Function;
-  setParams: Function;
-  setLastPage: Function;
-  params: any;
-  lastPage: any;
-  currentPage: string;
-}) {
+export default function Home(props: Props) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -87,6 +81,7 @@ export default function Home(props: {
          
      
     setPosts([]);
+    console.log(true)
     api
       .list({
         collection:  "posts",
@@ -159,8 +154,7 @@ export default function Home(props: {
           }" && author.followers !~"${api.authStore.model().id}"`
         : pageValue === "trending"
         ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
-        : "";
-        console.log(filterString);
+        : ""; 
         await api
           .list({
             collection: "posts",
@@ -170,13 +164,7 @@ export default function Home(props: {
             filter: filterString,
             cacheTime: 1200,
             expand: [
-              "author",
-              "comments.user",
-              "likes",
-              "author.followers",
-              "author.following",
-              "author.following.followers",
-              "author.following.following",
+              "author", 
             ],
             sort: `created`,
           })
@@ -209,7 +197,7 @@ export default function Home(props: {
       let filterString =
       pageValue === "following"
         ? ` author.followers ~"${
-            api.authStore.model().id
+            api.authStore.model()?.id
           }"`
         : pageValue === "recommended"
         ? `likes:length > 1 && author.id !="${
@@ -224,7 +212,7 @@ export default function Home(props: {
           collection: "posts",
           limit: 10,
           page: 1,
-          cacheKey: `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
+          cacheKey: `user-home-${pageValue}-posts-1-${api.authStore.model()?.id}`,
           cacheTime: 1200,
           filter: filterString,
           expand: [
@@ -257,14 +245,10 @@ export default function Home(props: {
     <>
       {isClient ? (
         <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
-          <SideBarLeft
-            params={props.params}
-            setParams={props.setParams}
-            currentPage={props.currentPage}
-            swapPage={props.swapPage}
+          <SideBarLeft 
+           {...props}
           />
- 
-         
+
           <div
             className=" xl:mx-24     text-md   
          relative 
@@ -305,7 +289,7 @@ export default function Home(props: {
                           <div className="w-8">
                             <img
                               src={`
-                     https://bird-meet-rationally.ngrok-free.app/api/files/_pb_users_auth_/${post?.expand.author.id}/${post?.expand.author.avatar}
+                     ${api.pbUrl}/api/files/_pb_users_auth_/${post?.expand.author.id}/${post?.expand.author.avatar}
                     `}
                               alt="avatar"
                               className="rounded-full object-contain w-full h-full"
@@ -332,10 +316,9 @@ export default function Home(props: {
                       <div className="flex flex-row  gap-2  ">
                         <div className="dropdown     ">
                           <label tabIndex={0}>
-                            {typeof window != "undefined" &&
-                            api.authStore.isValid() ? (
+                            {typeof window != "undefined"  ? (
                               <>
-                                {api.authStore.model().avatar ? (
+                                {api.authStore.model()?.avatar ? (
                                   <img
                                     src={api.authStore.img()}
                                     alt={api.authStore.model().username}
@@ -384,7 +367,9 @@ export default function Home(props: {
                             ) : (
                               ""
                             )}
-                             
+                            <li>
+                              <a>Set Status</a>
+                            </li>
                             <li>
                               <a
                                 onClick={() => {
@@ -426,7 +411,9 @@ export default function Home(props: {
                             props.swapPage("bookmarks");
                           }}
                         />
-                        <Settings className="w-7 h-7 cursor-pointer" />
+                        <Settings onClick={()=> {
+                          props.swapPage("settings")
+                        }} className="w-7 h-7 cursor-pointer" />
                       </div>
                     </div>
                    
@@ -516,6 +503,7 @@ export default function Home(props: {
             >
               {posts.length > 0
                 ? posts.map((e: any) => {
+                  console.log(e)
                     return (
                       <div
                         className="   xl:border   sm:p-3 border-[#f2f0f0]  "
@@ -619,8 +607,6 @@ export default function Home(props: {
               />
             </div>
           </div>
-
-       
           {poorConnection && !dismissToast ? (
             <div
               onClick={() => {
@@ -661,7 +647,6 @@ export default function Home(props: {
             currentPage={props.currentPage}
             swapPage={props.swapPage}
           />
-           
           <LogoutModal />
         </div>
       ) : (

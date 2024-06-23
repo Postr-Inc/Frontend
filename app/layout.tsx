@@ -21,11 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <body className={inter.className}>{children}</body>
-      <Head>
+     
       <link rel="shortcut icon" href="/icons/icon-blue.jpg" type="image/x-icon" />
-      <link rel='manifest' href='/pwa/manifest.json' />
+       <link rel="manifest" href="/pwa/manifest.json" />
       <link rel="stylesheet" href="/css.css"  key="test"/>
-      </Head>
     </html>
   )
 }

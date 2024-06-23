@@ -14,12 +14,7 @@ export default function Bookmarks(props: any) {
   let initialized = useRef(false);
   let [bookmarks, setBookmarks] = useState<any>([]);
   let [isClient, setClient] = useState(false);
-  async function loadBookmarks() {
-    if (api.cacehStore.has("bookmarks")) {
-      let cache = JSON.parse(api.cacehStore.get("bookmarks")).value;
-      setBookmarks(cache);
-      return;
-    }
+  async function loadBookmarks() { 
     let res: any = await api.read({
       collection: "users",
       id: api.authStore.model().id,
@@ -30,11 +25,7 @@ export default function Bookmarks(props: any) {
         "bookmarks.comments.user",
       ],
     }); 
-    api.cacehStore.set(
-      "bookmarks",
-      res.expand["bookmarks"] ? res.expand["bookmarks"] : [],
-      1200
-    );
+    
     setBookmarks(res.expand["bookmarks"] ? res.expand["bookmarks"] : []);
   }
   if (!initialized.current && typeof window !== "undefined") {
@@ -88,7 +79,7 @@ export default function Bookmarks(props: any) {
              xl:text-sm md:text-sm"
             >
               <div className="mb-32">
-                {bookmarks.length > 0 ? (
+                {api.authStore.model().bookmarks.length > 0 ? (
                   bookmarks.map((post: any) => {
                     return (
                       <Post

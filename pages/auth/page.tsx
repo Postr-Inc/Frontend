@@ -17,7 +17,9 @@ export default function Login(props:any) {
 
    async  function oauth(type:string){
       
-       await api.oauth({provider:type, redirect_uri:'/'})
+       await api.oauth({provider:type, redirect_uri:'/'}).then((res:any)=>{
+          console.log(res)
+       })
        props.setLastPage('login')
        props.swapPage('home')
    }

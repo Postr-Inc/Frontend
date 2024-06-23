@@ -23,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>{children}</body>
      
       <link rel="shortcut icon" href="/icons/icon-blue.jpg" type="image/x-icon" />
-       <link rel="manifest" href="/pwa/manifest.json" />
+       <link 
+      crossOrigin='use-credentials'
+       rel="manifest" href="/pwa/manifest.json" />
       <link rel="stylesheet" href="/css.css"  key="test"/>
     </html>
   )

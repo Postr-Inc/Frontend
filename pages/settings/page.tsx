@@ -6,6 +6,7 @@ import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 import { api } from "@/src/api/api";
 
 export default function Settings(props: Props){
+   if(typeof window === "undefined") return null
     return (
         <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
              
@@ -16,7 +17,30 @@ export default function Settings(props: Props){
                  * @todo add back arrow
                  */
               }
-              <h1 className="text-xl flex hero gap-2"><SettingsIcon className="w-7 h-7"></SettingsIcon>  Settings</h1>
+              <div className="flex hero gap-5">
+              <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
+            <svg
+              onClick={() => {
+                let lastPage = props.lastPage; 
+                props.swapPage(lastPage);
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="xl:w-6 xl:h-6 w-5 h-5 cursor-pointer
+           
+              
+             "
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </div>
+              <h1 className="text-xl flex hero gap-2"> Settings</h1>
+              </div>
               <div className="flex flex-col">
                 <div className="flex flex-col ">
                     <h1>Account Management</h1>

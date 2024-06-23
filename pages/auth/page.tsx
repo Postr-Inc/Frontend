@@ -4,6 +4,7 @@ import { api } from '@/src/api/api'
 import Footer from '@/app/footer'
  
 export default function Login(props:any) {
+   if(typeof  window === "undefined") return null
    let [isClient, setClient] = useState(false)
    useEffect(() => {
       if(typeof window !== "undefined") setClient(true)

@@ -132,7 +132,7 @@ export function SideBarLeft(props: Props) {
             },
           });
           //@ts-ignore
-          props.setParams({ user: api.authStore.model(), scrollTo: post?.id });
+          props.setParams({ user: api.authStore.model().id, scrollTo: post?.id });
           props.swapPage("user");
 
           setPostimgs([]);
@@ -278,7 +278,7 @@ export function SideBarLeft(props: Props) {
                   }
                   `}
                 onClick={() => { 
-                  props.setParams({ user: api.authStore.model() });
+                  props.setParams({ user: api.authStore.model().id });
                   props.swapPage("user");
                 }}
               >

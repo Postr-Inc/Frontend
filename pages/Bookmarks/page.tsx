@@ -14,9 +14,12 @@ export default function Bookmarks(props: any) {
   let initialized = useRef(false);
   let [bookmarks, setBookmarks] = useState<any>([]);
   let [isClient, setClient] = useState(false);
+  let [loading, setLoading] = useState(false);
   async function loadBookmarks() { 
+    setLoading(true);
     let res: any = await api.read({
       collection: "users",
+      cacheKey: `bookmarks-${api.authStore.model().id}`,
       id: api.authStore.model().id,
       expand: [
         "bookmarks",
@@ -25,8 +28,11 @@ export default function Bookmarks(props: any) {
         "bookmarks.comments.user",
       ],
     }); 
-    
+ 
     setBookmarks(res.expand["bookmarks"] ? res.expand["bookmarks"] : []);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }
   if (!initialized.current && typeof window !== "undefined") {
     loadBookmarks();
@@ -79,78 +85,58 @@ export default function Bookmarks(props: any) {
              xl:text-sm md:text-sm"
             >
               <div className="mb-32">
-                {api.authStore.model().bookmarks.length > 0 ? (
-                  bookmarks.map((post: any) => {
-                    return (
-                      <Post
-                        {...post}
-                        key={post.id}
-                        post={post}
-                        page={"bookmarks"}
-                        params={props.params}
-                        setParams={props.setParams}
-                        currentPage={props.currentPage}
-                        swapPage={props.swapPage}
-                        deleteBookmark={async () => {
-                          setBookmarks(
-                            bookmarks.filter(
-                              (bookmark: any) => bookmark.id !== post.id
-                            )
-                          );
-                        }}
-                        updateCache={(key: string, value: any) => {
-                          console.log("updating cache");
-                          let cache = JSON.parse(
-                            api.cacehStore.get("bookmarks")
-                          );
-                          cache.value.forEach((e: any, index: number) => {
-                            if (e.id === key) {
-                              cache.value[index] = value;
-                            }
-                          });
-                          for (var i in api.cacehStore.keys()) {
-                            let key = api.cacehStore.keys()[i];
-                            if (key.includes("user-feed") || key.includes("home")) {
+                 {
+                  loading ? (
+                    <div>
+                      <Loading />
+                    </div>
+                  )  : (
+                    <div>
+                      
+                      {
+                        bookmarks.length > 0 ? bookmarks.map((post: any) => {
+                          return (
+                            <Post
+                              {...post}
+                              key={post.id}
+                              post={post}
+                              page={"bookmarks"}
+                              params={props.params}
+                              setParams={props.setParams}
+                              currentPage={props.currentPage}
+                              swapPage={props.swapPage}
+                              deleteBookmark={async () => {
+                                setBookmarks(
+                                  bookmarks.filter(
+                                    (bookmark: any) => bookmark.id !== post.id
+                                  )
+                                );
+                              }}
                                
-                                let cache = JSON.parse(api.cacehStore.get(key));
-                                cache.value.items.forEach((e: any, index: number) => {
-                                  if (e.id ===  value.id) {
-                                    cache.value.items[index] = value;
-                                    api.update({id: e.id, collection: "posts", record: value, cacheKey: key})
-                                    
-                                  }
-                                });
-                                api.cacehStore.set(key, cache.value, 1000 * 60 * 60 * 24 * 7);
-                                
-                            }
-                          }
-                          api.cacehStore.set(
-                            "bookmarks",
-                            cache.value,
-                            1000 * 60 * 60 * 24 * 7
-                          );
-                        }}
-                      />
-                    );
-                  })
-                ) : (
-                  <div
-                    className="  flex flex-col mt-6 xl:justify-center xl:mx-auto  xl:p-5 lg:p-5 lg:justify-center lg:mx-auto
-              w-[22rem] xl:w-[30rem]
-             drop-shadow-md not-sr-only  
-          
-        "
-                  >
-                    <span className="  font-bold text-2xl mt-2 ">
-                      Save posts to view them here
-                    </span>
-                    <span className="text-sm">
-                      Dont let your favorite posts get away. Tap the bookamark
-                      icon on the bottom of any post to add it to this
-                      collection. So you can easily find it later.
-                    </span>
-                  </div>
-                )}
+                            />
+                          )  
+                        })
+                          :   <div
+                          className="  flex flex-col mt-6 xl:justify-center xl:mx-auto  xl:p-5 lg:p-5 lg:justify-center lg:mx-auto
+                    w-[22rem] xl:w-[30rem]
+                   drop-shadow-md not-sr-only  
+                
+              "
+                        >
+                          <span className="  font-bold text-2xl mt-2 ">
+                            Save posts to view them here
+                          </span>
+                          <span className="text-sm">
+                            Dont let your favorite posts get away. Tap the bookamark
+                            icon on the bottom of any post to add it to this
+                            collection. So you can easily find it later.
+                          </span>
+                        </div>
+                         
+                      }
+                      
+                      </div>
+                    )} 
               </div>
 
               <div className="xl:hidden lg:hidden">

@@ -36,7 +36,7 @@ export default function Home(props: Props) {
       //@ts-ignore
       let data = d.detail.online.get("latency");
 
-      if (data > 1000) {
+      if (data > 2000) {
         setPoorConnection(true);
       } else {
         setPoorConnection(false);
@@ -50,24 +50,7 @@ export default function Home(props: Props) {
   }) {}
   function swapFeed(pageValue: string, pg: number = 0) {
     setPageValue(pageValue);
-    setIsFetching(true);
-    if (
-      api.cacehStore.has(
-        `user-home-${pageValue}-posts-1-${api.authStore.model().id}`
-      )
-    ) {
-      let cache = JSON.parse(
-        api.cacehStore.get(
-          `user-home-${pageValue}-posts-1-${api.authStore.model().id}`
-        )
-      );
-      console.log(cache);
-      setPosts(cache.value.items);
-      setTotalPages(cache.value.totalPages);
-      setHasMore(true);
-      setIsFetching(false);
-      return;
-    } 
+    setIsFetching(true); 
     let filterString =
        pageValue === "following"
         ? `author.followers ?~"${
@@ -87,6 +70,8 @@ export default function Home(props: Props) {
         collection:  "posts",
         limit: 10,
         filter: filterString,
+        refresh: true,
+        refreshEvery: 1200, // 20 minutes
         cacheKey: `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
         expand: [
           "author",
@@ -102,14 +87,8 @@ export default function Home(props: Props) {
         page: 0,
         sort: `-created`,
       })
-      .then((e: any) => {
-        console.log(e);
-        api.cacehStore.set(
-          `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
-          e,
-          1200
-        );
-
+      .then((e: any) => { 
+        console.log(e)
         setPosts(e.items);
         setTotalPages(e.totalPages);
 
@@ -129,19 +108,7 @@ export default function Home(props: Props) {
 
       case page >= totalPages:
         setHasMore(false);
-        break;
-      case api.cacehStore.has(
-        `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`
-      ):
-        let cache = JSON.parse(
-          api.cacehStore.get(
-            `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`
-          )
-        );
-        setPosts([...posts, ...cache.value.items]);
-        setTotalPages(cache.value.totalPages);
-        setPage((page) => page + 1);
-        break;
+        break; 
       default:
         let filterString =
       pageValue === "following"
@@ -169,11 +136,7 @@ export default function Home(props: Props) {
             sort: `created`,
           })
           .then((e: any) => {
-            api.cacehStore.set(
-              `user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`,
-              e,
-              1200
-            );
+            
             setPosts([...posts, ...e.items]);
             setTotalPages(e.totalPages);
             setPage((page) => page + 1);
@@ -230,17 +193,17 @@ export default function Home(props: Props) {
           setTotalPages(e.totalPages);
           setPosts(e.items);
           setIsFetching(false);
-          api.cacehStore.set(
-            `user-home-${pageValue}-posts-1-${api.authStore.model().id}`,
-            e,
-            1200
-          );
+           
         });
     }
+    document.title = `Postr - ${pageValue}`;
     return () => {
       hasRan.current = true;
     };
   }, []);
+  useEffect(() => {
+    document.title = `Postr - ${pageValue.charAt(0).toUpperCase() + pageValue.slice(1)}`;
+  }, [pageValue]);
   return (
     <>
       {isClient ? (
@@ -346,7 +309,7 @@ export default function Home(props: Props) {
                               <a
                                 onClick={() => {
                                   props.setParams({
-                                    user: api.authStore.model(),
+                                    user: api.authStore.model().id,
                                   });
                                   props.swapPage("user");
                                 }}
@@ -510,52 +473,15 @@ export default function Home(props: Props) {
                         key={e.id}
                         id={e.id}
                       >
-                        <Post
-                          cache={api.cacehStore.get(
-                            `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`
-                          )}
+                        <Post 
                           cacheKey={`user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`}
                           {...e}
+                          expand={e.expand} 
+                          post={e}
                           swapPage={props.swapPage}
                           setParams={props.setParams}
                           page={props.currentPage}
-                          currentPage={page}
-                          updateCache={(key: string, value: any) => { 
-                            let cache = JSON.parse(
-                              api.cacehStore.get( `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`)
-                            );
-                            if(cache && cache.value?.items.length > 0){
-                             
-                              cache.value.items.forEach(
-                                (e: any, index: number) => {
-                                  if (e.id === key) {
-                                    cache.value.items[index] = value;
-                                  }
-                                }
-                              );
-                              for (var i in api.cacehStore.keys()) {
-                                let k  = api.cacehStore.keys()[i]; 
-                                if (k.includes("user")) { 
-                                  let items = JSON.parse(api.cacehStore.get(k)).value 
-  
-                                  items.items.forEach((e: any, index: number) => { 
-                                    if (e.id === key) { 
-                                      console.log(e, index)
-                                      items.items[index] = value; 
-                                    }
-                                  });
-                                  console.log(items)
-                                  api.cacehStore.set(k, items, 1200);
-                                }
-                              }
- 
-                              api.cacehStore.set(
-                                `user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`,
-                                cache.value,
-                                1200
-                              );
-                            }
-                          }}
+                          currentPage={page} 
                         ></Post>
                       </div>
                     );

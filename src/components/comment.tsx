@@ -28,36 +28,58 @@ export default function Comment(props: {
   }, []);
   async function likeComment() {
     switch (likes.includes(api.authStore.model().id)) {
-      case true:
-        console.log("unliking", likes);
-        setLikes(likes.filter((id: any) => id != api.authStore.model().id));
+      case true: 
+        setLikes(likes.filter((id: any) => id != api.authStore.model().id)); 
         await api.update({
-          collection: "comments",
-          cacheKey: `comments-${props.id}`,
-          id: props.id,
+          collection: "posts",
+          cacheKey:  props.post.cacheKey,
+          id:  props.post.id,
+          expand: ["author", "likes", "comments", "comments.user"],
+          skipDataUpdate: true, // do not update the data in the database
           record: {
-            likes: likes.filter((id: any) => id != api.authStore.model().id),
+             expand: {
+              comments: props.post.expand.comments.map((comment: any) => {
+                if (comment.id == props.id) { 
+                  if(!Array.isArray(comment.likes)) { 
+                    return { ...comment, likes: [] };
+                  }
+                  return { ...comment, likes: comment.likes.filter((id: any) => id != api.authStore.model().id) };
+                } else {
+                  return comment;
+                }
+               }), 
+               author: props.post.expand.author
+             }
           },
-        });
-        // up
-        props.updateCache(props.id, {
-          ...props,
-          likes: likes.filter((id: any) => id != api.authStore.model().id),
-        });
+        }); 
         break;
 
       default:
-        setLikes([...likes, api.authStore.model().id]);
+        setLikes([...likes, api.authStore.model().id]); 
+         
+
         await api.update({
-          collection: "comments",
-          cacheKey: `comments-${props.id}`,
-          id: props.id,
-          record: { likes: [...likes, api.authStore.model().id] },
-        });
-        props.updateCache(props.id, {
-          ...props,
-          likes: [...likes, api.authStore.model().id],
-        });
+          collection:  "posts",
+          cacheKey: props.post.cacheKey,
+          id: props.post.id,
+          expand: ["author", "likes", "comments", "comments.user"],
+          skipDataUpdate: true, // do not update the data in the database
+          record: {
+             expand: {
+               comments: props.post.expand.comments.map((comment: any) => {
+                if (comment.id == props.id) {  
+                  if(!Array.isArray(comment.likes)) { 
+                    return { ...comment, likes: [api.authStore.model().id] };
+                  }
+                  return { ...comment, likes: [...comment.likes, api.authStore.model().id] };
+                } else {
+                  return comment;
+                }
+               }), 
+               author: props.post.expand.author
+             }
+          },
+        }); 
         break;
     }
   }

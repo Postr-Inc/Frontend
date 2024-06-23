@@ -81,9 +81,9 @@ export default class postrSdk {
     );
     this.$memoryCache = new Map();
     //@ts-ignore
-    window.postr = {
+    typeof window !== "undefined"  ? window.postr = {
       version: " 1.7.0",
-    };
+    } : null;
     this.token = JSON.parse(store.get("postr_auth") || "{}")
       ? JSON.parse(store.get("postr_auth") || "{}").token
       : null;
@@ -390,6 +390,7 @@ export default class postrSdk {
         } else if (data.error) { 
           throw new Error(data);
         } else if (data.clientData){  
+          console.log(data.clientData)
           localStorage.setItem(
             "postr_auth",
             JSON.stringify({
@@ -677,6 +678,7 @@ export default class postrSdk {
     id: string;
     collection: string;
     returnable?: Array<string>;
+    cacheKey?: string;
     expand?: Array<string>;
     authKey?: string;
   }) {
@@ -699,7 +701,8 @@ export default class postrSdk {
           type: "read",
           key: key,
           collection: data.collection,
-          token: this.token,
+          token: JSON.parse(store.get("postr_auth") || "{}").token,
+          cacheKey: data.cacheKey || null,
           id: data.id,
           returnable: data.returnable,
           expand: data.expand,
@@ -722,6 +725,9 @@ export default class postrSdk {
     filter?: string;
     record: Object;
     sort?: string;
+    skipDataUpdate?: boolean;
+    invalidateCache?: string;
+    immediatelyUpdate?: boolean;
     expand?: Array<string>;
     cacheKey?: string;
   }) {
@@ -744,9 +750,12 @@ export default class postrSdk {
           data: data.record,
           expand: data.expand,
           collection: data.collection,
+          skipDataUpdate: data.skipDataUpdate || false,
+          invalidateCache: data.invalidateCache || null,
+          immediatelyUpdate: data.immediatelyUpdate || false,
           sort: data.sort,
           filter: data.filter,
-          token: this.token,
+          token: JSON.parse(store.get("postr_auth") || "{}").token,
           id: data.id,
           session: this.sessionID,
           cacheKey: data.cacheKey || null,
@@ -768,6 +777,8 @@ export default class postrSdk {
     page?: number;
     returnable?: Array<string>;
     expand?: Array<string>;
+    refresh?: boolean;
+    refreshEvery?: number;
     cacheKey?: string;
     cacheTime?: number;
   }) {
@@ -786,13 +797,15 @@ export default class postrSdk {
         JSON.stringify({
           type: "list",
           key: key,
-          token: this.token,
+          token: JSON.parse(store.get("postr_auth") || "{}").token,
           data: {
             returnable: data.returnable || null,
             collection: data.collection,
             sort: data.sort,
             filter: data.filter,
             cacheTime: data.cacheTime || null,
+            refresh: data.refresh || false,
+            refreshEvery: data.refreshEvery || 0,
             limit: data.limit,
             offset: data.page,
             id: this.authStore.model()?.id || null,

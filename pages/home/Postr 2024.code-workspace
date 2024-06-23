@@ -19,6 +19,12 @@
 		},
 		{
 			"path": "../../../../Embedify"
+		},
+		{
+			"path": "../../../PostrBot"
+		},
+		{
+			"path": "../../../Postr Ai"
 		}
 	],
 	"settings": {

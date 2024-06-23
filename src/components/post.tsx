@@ -337,9 +337,7 @@ function DeleteModal(props: any) {
             id: props.id,
             cacheKey: props.cacheKey,
           });
-          props.setArray(props.array.filter((e: any) => e.id != props.id));
-          api.cacehStore.delete(props.cacheKey)
-          //@ts-ignore
+          props.setArray(props.array.filter((e: any) => e.id != props.id)); 
           document.getElementById(props.id + 'delete')?.close()
         }}
         >Delete</button>
@@ -353,7 +351,7 @@ function DeleteModal(props: any) {
   )
 }
 
-export default function Post(props: any) { 
+export default function Post(props: any) {  
   let [likes, setLikes] = useState(props.likes);
   let [comments, setComments] = useState(props.expand?.comments || []);
   let [comment, setComment] = useState("");
@@ -370,6 +368,7 @@ export default function Post(props: any) {
         await api.update({
           collection: "posts",
           cacheKey: props.cacheKey,
+          expand: ["author", "likes", "comments", "comments.user"],
           id: props.id,
           record: {
             likes: likes.filter((id: any) => id != api.authStore.model().id),
@@ -383,6 +382,7 @@ export default function Post(props: any) {
         await api.update({
           collection: "posts",
           cacheKey: props.cacheKey,
+          expand: ["author", "likes", "comments", "comments.user"],
           id: props.id,
           record: { likes: [...likes, api.authStore.model().id] },
         });
@@ -430,7 +430,7 @@ export default function Post(props: any) {
         <CommentModal
           id={props.id + "comments"}
           comments={comments}
-          post={props}
+          post={props} 
           setComments={setComments}
           cacheKey={props.cacheKey}
           setParams={props.setParams}
@@ -440,9 +440,8 @@ export default function Post(props: any) {
         <div className="flex flex-row  gap-2   ">
           {
             props.expand?.author.avatar ?  <img
-            onClick={() => {
-              console.log(props.expand.author);
-              props.setParams({ user: props.expand.author });
+            onClick={() => { 
+              props.setParams({ user: props.author });
               props.swapPage("user");
             }}
             src={api.cdn.url({collection: "users", file: props.expand.author?.avatar, id: props.expand.author?.id})}
@@ -451,14 +450,13 @@ export default function Post(props: any) {
           ></img>
           :  <div className="avatar placeholder">
           <div 
-           onClick={() => {
-            console.log(props.expand.author);
-            props.setParams({ user: props.expand.author });
+           onClick={() => { 
+            props.setParams({ user: props.author });
             props.swapPage("user");
           }}
           className="bg-base-200 text-black rounded w-12 h-12 avatar cursor-pointer   ">
             <span className="text-2xl">
-              {props.expand.author.username.charAt(0).toUpperCase()}
+              {props.expand.author?.username.charAt(0).toUpperCase()}
             </span>
           </div>
         </div>
@@ -466,9 +464,8 @@ export default function Post(props: any) {
           <div className="flex flex-col   heros">
             <div className="flex flex-row h-0 mt-2 gap-2 hero">
               <p
-                onClick={() => {
-                  console.log(props.expand.author);
-                  props.setParams({ user: props.expand.author });
+                onClick={() => { 
+                  props.setParams({ user: props.author });
                   props.swapPage("user");
                 }}
               >
@@ -740,21 +737,43 @@ export default function Post(props: any) {
                 if(bookmarked){
                   api.update({
                     collection: "users",
-                    id: api.authStore.model().id,
+                    cacheKey:`users-${api.authStore.model().id}`,
+                    id: api.authStore.model().id, 
                     record: {
                       bookmarks: api.authStore.model().bookmarks.filter((id: any) => id != props.id)
                     }
                   })
+                  api.update({
+                    collection: "posts",
+                    cacheKey: props.cacheKey,
+                    id: props.id,
+                    record: {
+                      bookmarks:  api.authStore.model().bookmarks.filter((id: any) => id != props.id)
+                    }
+                  })
                   api.authStore.update()
                   setBookmarked(false)
+                  if(props.deleteBookmark){
+                    props.deleteBookmark()
+                  }
                 }else{
                   api.update({
                     collection: "users",
+                    cacheKey:`users-${api.authStore.model().id}`,
                     id: api.authStore.model().id,
                     record: {
                       bookmarks: [...api.authStore.model().bookmarks, props.id]
                     }
                   })
+                  api.update({
+                    collection: "posts",
+                    cacheKey: props.cacheKey,
+                    id: props.id,
+                    record: {
+                      bookmarks: [...api.authStore.model().bookmarks, props.id]
+                    }
+                  })
+                   
                   api.authStore.update()
                   setBookmarked(true)
                 }

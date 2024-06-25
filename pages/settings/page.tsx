@@ -11,7 +11,8 @@ export default function Settings(props: Props){
         <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
              
              <SideBarLeft {...props} />
-             <div className="w-screen  p-5 mt-5  mx-auto flex flex-col gap-5">
+             <div className=" xl:w-[35vw]
+         md:w-[50vw]   p-5 mt-5  mx-auto flex flex-col gap-5">
               {
                 /**
                  * @todo add back arrow

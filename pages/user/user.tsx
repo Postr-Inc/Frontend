@@ -149,7 +149,7 @@ export default function User(props: Props) {
             collection: "users",
             id:  user.id,
             cacheKey: `user-${user.id}`, 
-            invalidateCache: `user-profile-${user.id}`,
+            invalidateCache: [`user-profile-${user.id}`],
             immediatelyUpdate: true, // update database immediately
             expand: ["followers", "following", "following.followers", "following.following"],
             record: {
@@ -164,7 +164,7 @@ export default function User(props: Props) {
               .update({
                 collection: "users",
                 id: api.authStore.model().id,
-                invalidateCache: `user-home-${api.authStore.model().id}`,
+                invalidateCache: [`user-home-${api.authStore.model().id}`],
                 immediatelyUpdate: true, // update database immediately
                 cacheKey: `user-${api.authStore.model().id}`,
                 expand: ["followers", "following", "following.followers", "following.following"],
@@ -188,7 +188,7 @@ export default function User(props: Props) {
             collection: "users",
             id:  user.id,
             cacheKey: `user-${user.id}`, 
-            invalidateCache: `user-profile-${user.id}`,
+            invalidateCache: [`user-profile-${user.id}`],
             immediatelyUpdate: true, // update database immediately
             expand: ["followers", "following", "following.followers", "following.following"],
             record: {
@@ -201,7 +201,7 @@ export default function User(props: Props) {
                 collection: "users",
                 cacheKey: `user-${api.authStore.model().id}`,
                 id: api.authStore.model().id,
-                invalidateCache: `user-home-${api.authStore.model().id}`,
+                invalidateCache: [`user-home-${api.authStore.model().id}`],
                 immediatelyUpdate: true, // update database immediately
                 expand: ["followers", "following", "following.followers", "following.following"],
                 record: {
@@ -266,7 +266,7 @@ export default function User(props: Props) {
           collection: "posts",
           limit: 10,
           filter: `author.id ="${props.params.user}"`,
-          cacheKey: `posts-${props.params.user}`,
+          cacheKey: `user-feed-${feedPage}-${page}-${props.params.user}`,
           expand: [
             "author",
             "comments.user",
@@ -350,7 +350,7 @@ export default function User(props: Props) {
           "author.following.following",
           "likes",
         ],
-        page: 0,
+        page: 1,
         sort:   pageValue !== "posts" ? `-created` : `-pinned, -created`,
       })
       .then((e: any) => {
@@ -370,9 +370,11 @@ export default function User(props: Props) {
       });
   }
 
+  console.log(totalPages)
   function loadMore() {
+    console.clear(); 
     switch (true) {
-      case page >= totalPages:
+      case page >= totalPages: 
         console.log("no more");
         setHasMore(false);
         return; 
@@ -380,9 +382,10 @@ export default function User(props: Props) {
         if(feedPage === "collections"){
           return
         } 
+        alert(page + 1)
         api
           .list({
-            cacheKey: `user-feed-${feedPage}-${page}-${user.id}`,
+            cacheKey: `user-feed-${feedPage}-${page + 1}-${user.id}`,
             collection:
               feedPage === "posts"
                 ? "posts"
@@ -396,7 +399,7 @@ export default function User(props: Props) {
             limit: 10,
             filter:
               feedPage === "posts"
-                ? `author.id ="${user.id}"`
+                ? `author.id ="${user.id}" && pinned=false`
                 : feedPage === "likes"
                 ? `likes?~"${user.id}" && author.id != "${user.id}"`
                 : feedPage === "replies"
@@ -423,9 +426,7 @@ export default function User(props: Props) {
             if (feedPage === "media") {
               e.items = e.items.filter((e: any) => e.file.length > 0);
             }
-            setArray([...array, ...e.items]);
-            setTotalPages(e.totalPages);
-            setTotalItems(e.totalItems);
+            setArray([...array, ...e.items]); 
             setHasMore(true);
             setPage(page + 1);
             
@@ -452,9 +453,8 @@ export default function User(props: Props) {
         break;
       case user.bio !== props.params.user.bio && user.bio.length < 3:
         console.log("bio too short");
-      case  user.social !== props.params.user.social &&  user.social.match(linkreg) == null:
-        return alert("Invalid link");
-        return;
+      case  user.social.length > 0 && !user.social.match(linkreg):
+        return alert("Invalid link"); 
       default: 
         break;
     } 
@@ -503,17 +503,15 @@ export default function User(props: Props) {
         let res: any = await api.update({
           collection: "users",
           id:  user.id,
+          immediatelyUpdate: true,
+          invalidateCache: [`user-profile-${user.id}`],
           record: userObj,
-          cacheKey: `user-${user.id}`,
+          cacheKey: `user-profile-${api.authStore.model().id}`,
           expand: ["followers", "following", "following.followers", "following.following"],
-        });
-        api.authStore.update();
-        setAvatar(null);
-        setBannerBlob(null);
-        setBannerFile(null); 
+        }) 
+        api.authStore.update(); 
         setUser(res);
-        setBanner(res.banner);
-   
+        setBanner(res.banner); 
         setSaving(false);
       }
       //@ts-ignore
@@ -611,11 +609,7 @@ export default function User(props: Props) {
         )}
         <div className="flex justify-between sm:mb-6 xsm:mb-6 relative w-full">
           <div className="indicator w-24  ">
-            {online ? (
-              <span className="indicator-item absolute mt-[2vh] right-0 bg-green-500 badge"></span>
-            ) : (
-              <span className="indicator-item absolute mt-[2vh] right-0 bg-[#4a4a4a] badge"></span>
-            )}
+             
             {user && user.avatar ? (
               <img
                 src={api.cdn.url({
@@ -639,21 +633,8 @@ export default function User(props: Props) {
           <div className="absolute right-2 flex gap-5 ">
             {user && user.id !== api.authStore.model().id ? (
               <>
-                <button className="   btn-outline border-slate-200   ">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-7 h-7"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                    />
-                  </svg>
+                 <button className="btn border-none text-white hover:bg-black  btn-sm rounded-full bg-black">
+                  Message
                 </button>
               </>
             ) : (
@@ -668,7 +649,7 @@ export default function User(props: Props) {
                       ?.showModal() as HTMLDialogElement)
                   : follow();
               }}
-              className="btn  text-white hover:bg-black  btn-sm rounded-full bg-black"
+              className="btn border-none  text-white hover:bg-black  btn-sm rounded-full bg-black"
             >
               {user && user.id === api.authStore.model().id
                 ? "Edit Profile"
@@ -1005,16 +986,18 @@ export default function User(props: Props) {
                   return (
                     <div
                       className={
-                        index === array.length - 1 ? "sm:mt-3" : "mb-6"
+                        index === array.length - 1 ? "sm:mt-3" : ""
                       }
                       
                     >
                       <Post 
-                        {...e}
-                        {...user ? {cacheKey: `posts-${user.id}`} : {}}
+                        {...e} 
+                        user={user}
+                        page={props.page}
+                        params={props.params}
                         swapPage={props.swapPage}
-                        setParams={props.setParams}
-                        params={props.params} 
+                        setParams={props.setParams} 
+                        cacheKey={user && `user-feed-posts-${page}-${user.id}`}
                         key={e.id}
                         setArray={setArray}
                         array={array}
@@ -1042,7 +1025,12 @@ export default function User(props: Props) {
                               }
                             }
                             
-                            api.update({ collection: "posts", id: id, record: { pinned: false }, cacheKey: `user-feed-posts-${page}-${user.id}` });
+                            api.update({ 
+                            collection: "posts",  
+                            id: e.id,
+                            record: { pinned: false }, 
+                            cacheKey: `user-feed-posts-${page}-${user.id}`,
+                            });
                             setArray(arr);
                             return;
                           }
@@ -1065,7 +1053,7 @@ export default function User(props: Props) {
                   <p className="text-center text-xl font-bold mt-10">
                     {user && user.id === api.authStore.model().id
                       ? "You"
-                      : user.username}
+                      : user && user.username}
                     {
                       feedPage === "posts"
                         ? " haven't posted anything yet."
@@ -1535,7 +1523,9 @@ export default function User(props: Props) {
         </div>
       </Modal>
     </div>
-    <SideBarRight></SideBarRight>
+    <SideBarRight
+    {...props}
+    ></SideBarRight>
     <div className="xl:hidden lg:hidden md:hidden">
       <BottomNav swapPage={props.swapPage} />
     </div>

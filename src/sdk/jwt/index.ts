@@ -76,9 +76,7 @@ export function isTokenExpired(token: string, expirationThreshold: number = 0) {
         // Token does not have an expiration time, so it's considered valid
         return false;
     }
-
-    // Calculate if the token expiration time is past the current time minus expiration threshold
-    var isExpired = Date.now() >= exp * 1000 - expirationThreshold * 1000;
-
+    var isExpired = Date.now() >= (exp - expirationThreshold) * 1000 // Convert to milliseconds
+    
     return isExpired;
 }

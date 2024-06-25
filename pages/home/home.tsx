@@ -17,6 +17,7 @@ export default function Home(props: Props) {
 
   useEffect(() => {
     setIsClient(true);
+    window.history.pushState({}, "", "/");
   }, []);
   let hasRan = useRef(false);
   let [posts, setPosts] = useState<any>([]);
@@ -573,7 +574,11 @@ export default function Home(props: Props) {
             currentPage={props.currentPage}
             swapPage={props.swapPage}
           />
-          <LogoutModal />
+          <LogoutModal
+            changePage={props.swapPage}
+            setParams={props.setParams}
+            params={props.params}
+          />
         </div>
       ) : (
         ""
@@ -582,7 +587,7 @@ export default function Home(props: Props) {
   );
 }
 
-function LogoutModal() {
+function LogoutModal(props: any) {
   return (
     <>
       <dialog
@@ -605,6 +610,7 @@ function LogoutModal() {
             className="btn btn-ghost rounded-full w-full bg-black  text-white mt-5"
             onClick={() => {
               api.authStore.clear();
+              props.changePage("login");
             }}
           >
             Logout

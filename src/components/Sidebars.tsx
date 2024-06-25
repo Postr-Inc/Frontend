@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { api } from "../api/api";
 import { Props } from "../@types/types";
 
@@ -6,6 +6,30 @@ export function SideBarRight(props: any) {
   let [text, setText] = useState<any>("");
   let maxlength = 140;
   let [postimgs, setPostimgs] = useState<any>([]);
+  let [relevantPeople, setRelevantPeople] = useState<any>([]);
+  let [refresh, setRefresh] = useState<any>(false);
+  function fetchRelenvantPeople() {
+    api
+      .list({
+        collection: "users",
+        expand: ["followers", "following"],
+        sort: "+followers",
+        filter: `followers !~"${api.authStore.model().id}" && id != "${api.authStore.model().id}"`, // get users that are not following the current user
+        cacheKey: "relevant-people-" + api.authStore.model().id,
+        limit: 3,
+        page: 1,
+      })
+      .then((res: any) => {
+        setRelevantPeople(res.items);
+      });
+  
+  }
+  useEffect(() => {
+        fetchRelenvantPeople();
+  }, []);
+  useEffect(() => {
+    fetchRelenvantPeople();
+  }, [refresh]);
   return (
     <>
       <div className="xl:drawer   xl:w-[auto] xl:drawer-end xl:drawer-open lg:drawer-open   ">
@@ -17,25 +41,108 @@ export function SideBarRight(props: any) {
             aria-label="close sidebar"
             className="drawer-overlay"
           ></label>
-          <ul className="p-4  w-80  min-h-full   text-base-content">
+          <ul className="p-4   w-80  min-h-full   text-base-content">
             {/* Sidebar content here */}
-            <li className="flex flex-col gap-5 text-sm">
-               {
-                 !api.authStore.model().postr_plus ? <li>
-                 <a className=" bg-base-200 w-full rounded  menu text-md">
-                   <p>
-                     Subscribe to{" "}
-                     <span className="from-blue-500 to-purple-500 bg-gradient-to-r text-white text-transparent bg-clip-text font-bold">
-                       Postr ++
-                     </span>
-                     <p>Become a supporter and unlock exclusive benefits</p>
-                   </p>
-                   <button className="btn btn-primary btn-sm rounded-full  mt-2 w-[50%]">
-                     Subscribe
-                   </button>
-                 </a>
-               </li> : <></>
-               }
+            <li className="border-2 border-[#ecececd8] p-5 rounded-lg">
+              <a  className="w-full relative" >
+                <h1 className="font-bold text-lg">Relevant People</h1>
+                {
+                  relevantPeople.map((user: any, index: number) => {
+                    return (
+                      <div className={`flex flex-row gap-2
+                      ${index !== 0 ? "mt-5" : "mt-5"}
+                      `}>
+                        <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                         {
+                            user.avatar ? <img
+                          
+                            src={
+                              api.cdn.url({
+                                id: user.id,
+                                collection: "users", 
+                                file: user.avatar,
+                              })
+                            }
+                            className="w-10 h-10 rounded"
+                          ></img> 
+                          : <div className="avatar placeholder  ">
+                           <div className="bg-base-200 text-black rounded w-10 h-10   avatar    border-2   shadow   border-white">
+                            <span className="text-2xl">
+                              {user.username.charAt(0).toUpperCase() || "U"}
+                            </span>
+                          </div>
+                        </div>
+                         }
+                         
+                        <div className="flex hero justify-between">
+                          
+                        <span className="flex flex-col gap-2"> 
+                          <p
+                          className="cursor-pointer"
+                          onClick={()=>{
+                            props.setParams({ user: user.id });
+                            props.swapPage("user");
+                          }}
+                          >{user.username}</p> 
+                          <p></p>
+                        </span>
+                        <button 
+                        onClick={()=>{
+                          api
+                          .update({
+                            collection: "users",
+                            id:  user.id,
+                            cacheKey: `relevant-people-${api.authStore.model().id}`,
+                            invalidateCache:[ `relevant-people-${api.authStore.model().id}`, `user-following-${api.authStore.model().id}`],
+                            immediatelyUpdate: true, // update database immediately
+                            expand: ["followers", "following", "following.followers", "following.following"],
+                            record: {
+                              followers: user.followers.concat(api.authStore.model().id),
+                            },
+                          })
+                          .then((e: any) => {
+                            console.log(e);
+                            api
+                              .update({
+                                collection: "users",
+                                id: api.authStore.model().id,
+                                invalidateCache: `user-home-${api.authStore.model().id}`,
+                                immediatelyUpdate: true, // update database immediately
+                                cacheKey: `user-${api.authStore.model().id}`,
+                                expand: ["followers", "following", "following.followers", "following.following"],
+                                record: {
+                                  following: api.authStore.model().following.concat(user.id),
+                                },
+                              })
+                              .then((e: any) => {
+                                api.authStore.update();
+                                setRefresh(!refresh);
+                              });
+                          });
+                        }}
+                        className="btn absolute right-1 btn-sm bg-black rounded-full text-white border-none">
+                          {
+                            user.followers.includes(api.authStore.model().id) ? "Unfollow" : "Follow"
+                          }
+                        </button>
+                        </div>
+                        </div>
+                        
+                        <p className="w-[200px]">
+                          {user.bio}
+                        </p>
+                        </div>
+                        
+                        
+                      </div>
+                    );
+                  })
+                }
+              </a>
+            </li> 
+            <li className="flex flex-col gap-5 mt-2 p-2 text-sm">
+                
               <li className="flex flex-row gap-5">
                 <a className="cursor-pointer hover:underline">
                   Terms of service
@@ -119,7 +226,8 @@ export function SideBarLeft(props: Props) {
           setPosting(true);
           let post = await api.create({
             collection: "posts",
-            expand: ["author"], 
+            expand: ["author","likes","comments"], 
+            invalidateCache: ["home-following", `user-feed-${api.authStore.model().id}`, 'home-recommended'],
             record: {
               author: api.authStore.model().id,
               content: text,
@@ -129,11 +237,13 @@ export function SideBarLeft(props: Props) {
               },
               comments: [],
               likes: [],
+              mentioned: [],
             },
           });
+          console.log(post);
           //@ts-ignore
-          props.setParams({ user: api.authStore.model().id, scrollTo: post?.id });
-          props.swapPage("user");
+          props.setParams({ id: post.id , type: "posts"});
+          props.swapPage("view");
 
           setPostimgs([]);
           setText("");
@@ -193,9 +303,10 @@ export function SideBarLeft(props: Props) {
                 ></img>
               </a>
             </li>
-            <li className="">
+            <li  >
               <a
-                className={`text-xl  ${
+              
+                className={`text-xl focus:bg-none ${
                   props.currentPage == "home"
                     ? "font-semibold text-blue-500"
                     : ""
@@ -328,6 +439,18 @@ export function SideBarLeft(props: Props) {
                 </svg>
                 Collections
               </a>
+            </li>
+            <li className="text-lg">
+               <a
+               onClick={()=>{
+                // @ts-ignore
+                  document.getElementById("postr_plus").showModal();
+               }}
+               >
+               <img src="/icons/icon-blue.jpg" className="rounded w-7 h-7"  
+              ></img>
+              <p>Premium</p>
+               </a>
             </li>
             <li className="text-lg  text-start hover:outline-none  hover:text-lg  hover:justify-start hover:rounded-full">
               <a>
@@ -564,6 +687,39 @@ export function SideBarLeft(props: Props) {
             }
           </div>
         </div>
+      </dialog>
+      <dialog id="postr_plus" className="modal max-w-[100vw] max-h-[100vh] w-screen h-screen  ">
+       
+          <div className="modal-box w-screen h-screen max-w-[100vw] max-h-[100vh] rounded-none">
+            {/** gradient blue to white background */}
+            <div className="flex flex-col bg-gradient-to-t fixed top-0 left-0 from-slate-50 to-blue-100 w-full h-full">
+               
+                  <span className="cursor-pointer absolute top-5 left-5  rounded-full
+                  "
+                  onClick={()=>{
+                    //@ts-ignore
+                    document.getElementById("postr_plus")?.close();
+                  }}
+                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+</svg>
+
+                  </span>
+                  <div className="justify-center  flex text-center mx-auto">
+                  <div className="justify-center flex flex-col gap-3 text-center  ">
+                  <h1 
+                  className="text-6xl text-sans font-bold text-center text-[#121212] mt-20"
+                  >Subscribe to Postr Premium</h1>
+                  <p className="w-[50rem]" >
+                    Get access to new features before everyone, a sleek badge and heatfelt commendment for becoming a supporter of the project.
+                  </p>
+                 </div>
+                  </div>
+
+            </div>
+          </div>
+          
       </dialog>
     </>
   );

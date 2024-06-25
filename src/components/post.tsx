@@ -55,27 +55,38 @@ function CommentModal(props: any) {
         break;
       default:
         try {
-          let res: any = await api.create({
-            collection: "comments",
-            record: {
-              user: api.authStore.model().id,
-              post: props.post.id,
-              text: commentV,
-              cacheKey: props.cacheKey,
-              likes: [],
-            },
-            expand: ["user"],
-          }); 
-          props.setComments([...props.comments, res]);
 
-          api.update({
-            collection: "posts",
-            cacheKey: props.cacheKey,
-            id: props.post.id,
-            record: {
-              comments: [...props.comments.map((e: any) => e.id), res.id],
-            },
-          });
+          let user = api.authStore.model();
+          delete user.token;
+          
+          api.create({
+             collection: "comments", 
+             record: {
+               user: api.authStore.model().id,
+               text: commentV,
+               post: props.post.id,
+               likes: [], 
+             },
+             expand: ["user"]
+          }).then(async (res: any) => { 
+            let newCommentsArray = [...props.comments, res];
+            await api.update({
+              collection: "posts",
+              cacheKey: props.cacheKey, 
+              id: props.post.id,
+              immediatelyUpdate: true,
+              record: {
+                 expand:{
+                    comments:  newCommentsArray,
+                    author: props.post.expand.author
+                 },
+                 comments: [...props.comments.map((e: any) => e.id), res.id]
+              },
+            })
+            props.setComments(newCommentsArray);
+          })
+           
+           
            
         } catch (error) {
           console.log(error);
@@ -118,15 +129,16 @@ function CommentModal(props: any) {
           </div>
         </div>
 
-        <div className={`flex flex-col lg:mb-32 md:mb-32 xl:mb-32 mb-32 mt-8  p-4 
+        <div className={`flex flex-col lg:mb-32 md:mb-32 xl:mb-32   mt-8  p-4 
         ${
           mentions.length > 0 ? "sm:mb-64" : ""
         }
         sm:p-2 gap-5`}>
           {props.comments.length > 0 ? (
-            props.comments.map((comment: any) => {
+            props.comments.map((comment: any, index: number) => {
               return (
                 <Comment
+                  isLast={index == props.comments.length - 1}
                   id={comment.id}
                   key={comment.id}
                   expand={comment.expand}
@@ -260,11 +272,7 @@ function CommentModal(props: any) {
             </p>
           </div>
           <div className="flex flex-row gap-5  sm:mb-5 mb-2 w-full items-center">
-            <img
-              src={api.authStore.img()}
-              alt="profile"
-              className="rounded object-cover w-12 h-12 cursor-pointer"
-            ></img>
+            
              
             <div className="relative rounded  w-full  border-slate-200 ">
               <input
@@ -389,13 +397,13 @@ export default function Post(props: any) {
          
         break;
     }
-  }
+  }  
 
   return (
     <div
       key={props.id}
       id={props.id}
-      className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
+      className={`xl:mt-0 w-full   relative  xl:p-3  xl:mb-0 mb-6   ${
         props.page !== "user" &&
         props.page !== "bookmarks" &&
         props.page !== "home"
@@ -405,11 +413,10 @@ export default function Post(props: any) {
           : ""
       }`}
     >
-      {props.pinned &&
-      props.page == "user" &&
-      props.params &&
-      props.params.user.id == props.expand.author.id ? (
-        <div className="flex hero gap-5 mb-5">
+      { props.pinned  && props.page == "user"
+      && props.params.user == props.author
+      ? (
+        <div className="flex hero   gap-5 mb-5">
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
@@ -554,13 +561,25 @@ export default function Post(props: any) {
                 </svg>
   </summary>
   <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+    <li>
+      <a onClick={() => {
+        navigator.clipboard.writeText(props.id)
+      } }>
+        Copy Id
+      </a>
+    </li>
+    <li>
+      <a onClick={() => {document.getElementById(props.id + "embed")?.showModal()}}>
+        Embed Post
+      </a>
+      
+    </li>
     {
       props.expand?.author && props.expand.author.id == api.authStore.model().id
        ? 
       <li>
       <a onClick={() => {
-         props.pin(props.id)
-         props.updateCache(props.id, { ...props, pinned: props.pinned })
+         props.pin(props.id) 
       }}>
 
         {
@@ -590,8 +609,16 @@ export default function Post(props: any) {
           </div>
         </div>
       </div>
-      <div className="mt-3 mb-4 ">
+      <div 
+       
+      className="mt-3 mb-4 ">
         <p
+        style={{cursor:'pointer'}}
+        onClick={() => {
+          props.setParams({ post: props, type: "posts"});
+          props.swapPage("view") 
+          window.history.pushState({}, "", "/?view=status&id=" + props.id + "&type=posts");
+        }}
           className="mt-2"
           ref={(e) => {
             if (e && props.content) {
@@ -612,6 +639,9 @@ export default function Post(props: any) {
               {props.file.map((file: any, index: Number) => {
                 return (
                   <img
+                    onClick={() => {
+                      document.getElementById(props.id + "imageViewer" + index)?.showModal();
+                    }} 
                     className={` w-full object-cover
     
                     ${
@@ -630,7 +660,7 @@ export default function Post(props: any) {
                     
                     `}
                     src={api.cdn.url({
-                      id: props.id,
+                      id: props.id || props.params.id,
                       collection: "posts",
                       file: file,
                     })}
@@ -646,7 +676,7 @@ export default function Post(props: any) {
 
         {/**Heart Icon */}
         <div className="flex    mt-5">
-          <div className="w-fit   hero"> 
+          <div className="w-fit flex gap-2  hero"> 
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -671,6 +701,7 @@ export default function Post(props: any) {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
             />
           </svg>
+          {likes.length}
           </div>
 
           <div className="flex gap-2 hero  p-2 w-fit ">
@@ -702,12 +733,13 @@ export default function Post(props: any) {
           />
 
           <div className="w-fit p-2 hero flex">
+          <span className="tooltip tooltip-bottom" data-tip="share">
           <svg
             onClick={() => {
               navigator.share({
-                title: "View " + props.expand.author?.username + "'s post",
+                title: props.expand.author.username + " on Postr ",
                 text: props.content.slice(0, 100),
-                url: window.location.href,
+                url: `https://embedify-v1.vercel.app/embed/posts/${props.id}/meta`
               });
             }}
             xmlns="http://www.w3.org/2000/svg"
@@ -723,6 +755,7 @@ export default function Post(props: any) {
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
             />
           </svg>
+          </span>
           </div>
 
           <div className="w-fit p-2 hero flex">
@@ -746,6 +779,9 @@ export default function Post(props: any) {
                   api.update({
                     collection: "posts",
                     cacheKey: props.cacheKey,
+                    invalidateCache: [
+                      "bookmarks-" + api.authStore.model().id,
+                    ],
                     id: props.id,
                     record: {
                       bookmarks:  api.authStore.model().bookmarks.filter((id: any) => id != props.id)
@@ -768,6 +804,9 @@ export default function Post(props: any) {
                   api.update({
                     collection: "posts",
                     cacheKey: props.cacheKey,
+                    invalidateCache: [
+                      "bookmarks-" + api.authStore.model().id,
+                    ],
                     id: props.id,
                     record: {
                       bookmarks: [...api.authStore.model().bookmarks, props.id]
@@ -785,7 +824,9 @@ export default function Post(props: any) {
       <div className="flex gap-5 mt-5  ">
         {props.expand?.likes &&
         props.expand?.likes[0].id !== api.authStore.model().id &&
-        props.expand.likes[0].avatar ? (
+        props.expand.likes[0].avatar &&
+        props.currentPage !== "view"
+        ? (
           <div className="flex gap-2">
             {
               <>
@@ -799,7 +840,12 @@ export default function Post(props: any) {
                   className="rounded-full w-6 h-6 cursor-pointer"
                 ></img>
                 Liked by{" "}
-                <span className="font-bold hover:underline cursor-pointer">
+                <span 
+                onClick={() => {
+                  props.setParams({ user: props.expand?.likes[0].id });
+                  props.swapPage("user");
+                }}
+                className="font-bold hover:underline cursor-pointer">
                   {props.expand?.likes[0].username ==
                   api.authStore.model().username
                     ? "you"
@@ -810,19 +856,20 @@ export default function Post(props: any) {
             }
           </div>
         ) : (
-          <p>
-            {likes.length} {likes.length == 1 ? "like" : "likes"}
-          </p>
+          ""
         )}
+        
       </div>
-
+      
       {props.file ? (
-        <Modal id={props.id + "file"} height=" h-[100vh]">
-          <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
+         props.file.map((file: any, index: number) => {
+            return (
+              <Modal id={props.id + "imageViewer" + index} height="h-[100vw]" width="w-[100vw]">
+          <div className="flex flex-col overflow-hidden justify-center items-center    relative  ">
             <svg
               onClick={() => {
                 //@ts-ignore
-                document.getElementById(props.id + "file")?.close();
+                document.getElementById(props.id +  "imageViewer" + index)?.close();
               }}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -833,14 +880,45 @@ export default function Post(props: any) {
             </svg>
 
             <img
-              src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
+              src={
+                api.cdn.url({
+                  id: props.id || props.params.id,
+                  collection: "posts",
+                  file: file,
+                })
+              }
               alt={props.file}
-              className=" xl:w-[60vw] w-full h-full  object-cover  cursor-pointer"
+              className="object-cover  cursor-pointer"
             ></img>
           </div>
         </Modal>
+            )
+         })
       ) : null}
       <DeleteModal id={props.id} {...props}></DeleteModal>
+      <dialog id={props.id + "embed"} className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none">
+  <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
+    <h3 className="font-bold text-lg">Embed Post</h3>
+    <p className="py-4">
+      Embed this post on your website or blog by copying the code below.
+    </p>
+    <div className="modal-action gap-5">
+       <div className="flex gap-5 justify-start  p-2">
+       <input type="text" className="w-full p-2 rounded bg-base-200" value={`<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`}></input>
+       <button className="btn btn-sm btn-ghost" onClick={() => {
+          navigator.clipboard.writeText(`<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`)
+       } }>Copy</button>
+       </div>
+      
+      </div>
+    </div>
+    <form method="dialog" className="flex gap-5">
+        <textarea className="w-full p-2 rounded bg-base-200" rows={5} value={`<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`}></textarea>
+        <button className=" " data-close>
+          Close
+        </button>
+      </form>
+    </dialog>
     </div>
   );
 }

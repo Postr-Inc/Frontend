@@ -69,21 +69,23 @@ export default class postrSdk {
   constructor(data: { wsUrl: string; pbUrl: string; cancellation: any }) {
     this.onlineEvent = new CustomEvent("online");
     this.changeEvent = new CustomEvent("change");
-    this.sessionID = crypto.randomUUID(); 
+    this.sessionID = crypto.randomUUID();
     this.isStandalone = false;
     this.ws = new WebSocket(
       `${
         data.wsUrl.trim().startsWith("127") ||
-        data.wsUrl.trim().startsWith("localhost") 
+        data.wsUrl.trim().startsWith("localhost")
           ? "ws"
           : "wss"
       }://${data.wsUrl}`
     );
     this.$memoryCache = new Map();
     //@ts-ignore
-    typeof window !== "undefined"  ? window.postr = {
-      version: " 1.7.0",
-    } : null;
+    typeof window !== "undefined"
+      ? (window.postr = {
+          version: " 1.7.0",
+        })
+      : null;
     this.token = JSON.parse(store.get("postr_auth") || "{}")
       ? JSON.parse(store.get("postr_auth") || "{}").token
       : null;
@@ -101,8 +103,8 @@ export default class postrSdk {
     this.pbUrl = data.pbUrl;
     this.callbacks = new Map();
     this.ws.onmessage = (e) => this.onmessage(e);
-
-    this.ws.onopen = () => {
+    const onConnect = () => {
+      console.log("Connected to server");
       this.ws.send(
         JSON.stringify({
           type: "authSession",
@@ -110,21 +112,15 @@ export default class postrSdk {
           session: this.sessionID,
         })
       );
-
-      setInterval(() => {
-        if (this.authStore.isValid())
-          this.ws.send(
-            JSON.stringify({
-              type: "ping",
-              token: this.token,
-              session: this.sessionID,
-              time: Date.now(),
-            })
-          );
-      }, 1000);
+    };
+    this.ws.onopen = () => {
+      onConnect();
     };
 
-    this.ws.onclose = () => {
+    let isAwaiting = false;
+    let reconnectTimeout = null;
+
+    const connectWebSocket = () => {
       this.ws = new WebSocket(
         `${
           data.wsUrl.trim().startsWith("127") ||
@@ -133,6 +129,35 @@ export default class postrSdk {
             : "wss"
         }://${data.wsUrl}`
       );
+
+      this.ws.onmessage = (e) => this.onmessage(e);
+      this.ws.onopen = () => {
+        onConnect();
+        this.authStore.refreshToken();
+        isAwaiting = false; // Reset the flag on successful connection
+      };
+
+      this.ws.onclose = () => {
+        console.log("Connection closed unexpectedly");
+        isAwaiting = false; // Reset the flag on unexpected close
+        scheduleReconnect(); // Schedule another reconnect attempt
+      };
+
+      console.log("Reconnecting to server");
+    };
+
+    function scheduleReconnect() {
+      if (!isAwaiting) {
+        isAwaiting = true;
+
+        reconnectTimeout = setTimeout(() => {
+          connectWebSocket();
+        }, 1000); // Reconnect attempt after 1 second
+      }
+    }
+
+    this.ws.onclose = () => {
+      scheduleReconnect();
     };
 
     this.online = new Map();
@@ -156,7 +181,7 @@ export default class postrSdk {
         let cache = JSON.parse(value);
 
         if (cache.time) {
-          if (new Date().getTime() - cache.time > cache.cacheTime) { 
+          if (new Date().getTime() - cache.time > cache.cacheTime) {
             this.$memoryCache.delete(key);
             clearInterval(timer);
           }
@@ -176,6 +201,31 @@ export default class postrSdk {
     if (this.ws.readyState === WebSocket.OPEN) return true;
     else return false;
   }
+
+  /**
+   * @method events
+   * @description Listen for events
+   * @returns {events}
+   * @example
+   * ```typescript
+   * api.events.on("event", (data) => {
+   * console.log(data)
+   * })
+   * api.events.emit("event", {data: "data"})
+   * ```
+   */
+  public events = {
+    emit: (event: string, data: any) => {
+      if (typeof window == "undefined") return;
+      window.dispatchEvent(new CustomEvent(event, { detail: data }));
+    },
+    on: (event: string, callback: Function) => {
+      if (typeof window == "undefined") return;
+      window.addEventListener(event, (e: any) => {
+        callback(e);
+      });
+    },
+  };
 
   public search(data: {
     collection: string;
@@ -205,7 +255,7 @@ export default class postrSdk {
         JSON.stringify({
           type: "search",
           key: key,
-          token: this.token,
+          token: this.authStore.model().token,
           data: {
             collection: data.collection,
             query: query,
@@ -305,7 +355,7 @@ export default class postrSdk {
             collection: data.collection,
             field: data.field,
             recordID: data.recordId,
-            token: this.token,
+            token: this.authStore.model().token,
             session: this.sessionID,
           })
         );
@@ -327,7 +377,7 @@ export default class postrSdk {
      * @param cacheTime
      * @returns
      */
-    set: (key: string, value: any, cacheTime: number) => { 
+    set: (key: string, value: any, cacheTime: number) => {
       if (typeof window == "undefined") return;
       if (cacheTime) {
         let cache = {
@@ -381,29 +431,57 @@ export default class postrSdk {
    *
    */
   public authStore = {
+    /**
+     * @description Refresh the current token
+     * @method refreshToken
+     * @returns {Auth_Object}
+     */
+    refreshToken: () => {
+      if (typeof window == "undefined") return;
+      this.callbacks.set("tokenRefresh", (data: any) => {
+        if (data.error) throw new Error(data.message);
+        console.log("refreshed token");
+        localStorage.setItem(
+          "postr_auth",
+          JSON.stringify({
+            model: this.authStore.model(),
+            token: data.token,
+          })
+        );
+        window.dispatchEvent(this.changeEvent);
+      });
+
+      this.sendMessage(
+        JSON.stringify({
+          type: "refreshToken",
+          key: "tokenRefresh",
+          token: this.authStore.model().token,
+          session: this.sessionID,
+        })
+      );
+    },
     update: () => {
       if (typeof window == "undefined" || !localStorage.getItem("postr_auth"))
         return;
       this.callbacks.set("authUpdate", (data: any) => {
         if (data.error && data.hasOwnProperty("isValid") && !data.isValid) {
           this.authStore.clear();
-        } else if (data.error) { 
+        } else if (data.error) {
           throw new Error(data);
-        } else if (data.clientData){  
-          console.log(data.clientData)
+        } else if (data.clientData) {
           localStorage.setItem(
             "postr_auth",
             JSON.stringify({
               model: data.clientData,
-              token: this.token
+              token: this.authStore.model().token,
             })
-          ); 
-        } 
+          );
+        }
       });
       this.sendMessage(
         JSON.stringify({
           type: "authUpdate",
-          token: this.token,
+          token: this.authStore.model().token,
           key: "authUpdate",
           data: JSON.parse(localStorage.getItem("postr_auth") as any).model,
           session: this.sessionID,
@@ -417,7 +495,10 @@ export default class postrSdk {
      */
     model: () => {
       if (typeof window == "undefined") return;
-      return JSON.parse(store.get("postr_auth") || "{}").model;
+      return {
+        ...JSON.parse(store.get("postr_auth") || "{}").model,
+        token: JSON.parse(store.get("postr_auth") || "{}").token,
+      };
     },
     onChange: (callback: Function) => {
       if (typeof window == "undefined") return;
@@ -435,8 +516,8 @@ export default class postrSdk {
       let token = localStorage.getItem("postr_auth")
         ? JSON.parse(store.get("postr_auth") || "{}").token
         : null;
-       if(!token) return false;
-        return isTokenExpired(token) ? false : true;
+      if (!token) return false;
+      return isTokenExpired(token) ? false : true;
     },
     img: () => {
       if (typeof window == "undefined") return;
@@ -461,7 +542,7 @@ export default class postrSdk {
           JSON.stringify({
             type: "isRatelimited",
             key: "isRatelimited",
-            token: this.token,
+            token: this.authStore.model().token,
             method: type,
             session: this.sessionID,
           })
@@ -469,9 +550,13 @@ export default class postrSdk {
       });
     },
     clear: () => {
-      if (typeof window == "undefined") return;
-      store.remove("postr_auth");
-      window.dispatchEvent(this.changeEvent);
+      try {
+        if (typeof window == "undefined") return;
+        store.remove("postr_auth");
+        window.dispatchEvent(this.changeEvent);
+      } catch (error) {
+        console.error(error);
+      }
     },
   };
 
@@ -487,7 +572,7 @@ export default class postrSdk {
           type: "checkUsername",
           key: "checkUsername",
           data: { username: username },
-          token: this.token,
+          token: this.authStore.model().token,
           session: this.sessionID,
         })
       );
@@ -581,7 +666,7 @@ export default class postrSdk {
 
   public getAsByteArray(file: File): Promise<Uint8Array> {
     return new Promise<Uint8Array>((resolve, reject) => {
-      let reader = new FileReader(); 
+      let reader = new FileReader();
       reader.onload = () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
@@ -616,7 +701,7 @@ export default class postrSdk {
         let { provider, redirect_uri, redirect } = data;
         this.callbacks.set("oauth", (data: any) => {
           if (typeof window == "undefined") return;
-          data.url ? window.open(data.url) : null; 
+          data.url ? window.open(data.url) : null;
           if (data.clientData) {
             localStorage.setItem(
               "postr_auth",
@@ -639,12 +724,12 @@ export default class postrSdk {
   }
 
   private onmessage(e: any) {
-    let data = JSON.parse(e.data); 
- 
-    if (this.callbacks.has(data.key)) { 
-      let func = this.callbacks.get(data.key); 
-      func(data.data ? data.data : data); 
-    }   else if (data.type === "status") {
+    let data = JSON.parse(e.data);
+
+    if (this.callbacks.has(data.key)) {
+      let func = this.callbacks.get(data.key);
+      func(data.data ? data.data : data);
+    } else if (data.type === "status") {
       data.data.forEach((d: any) => {
         this.online.set("online", d);
         if (typeof window !== "undefined") {
@@ -654,9 +739,8 @@ export default class postrSdk {
           }, 1000);
         }
       });
-      
     } else if (data.type == "pong") {
-      let latency = Date.now() - data.time; 
+      let latency = Date.now() - data.time;
       this.online.set("latency", latency);
       if (typeof window !== "undefined") {
         let timer = setTimeout(() => {
@@ -726,7 +810,7 @@ export default class postrSdk {
     record: Object;
     sort?: string;
     skipDataUpdate?: boolean;
-    invalidateCache?: string;
+    invalidateCache?: Array<string>;
     immediatelyUpdate?: boolean;
     expand?: Array<string>;
     cacheKey?: string;
@@ -846,7 +930,7 @@ export default class postrSdk {
           collection: data.collection,
           ownership: this.authStore.model().id,
           filter: data.filter,
-          token: this.token,
+          token: this.authStore.model().token,
           id: data.id || null,
           session: this.sessionID,
           cacheKey: data.cacheKey || null,
@@ -864,6 +948,8 @@ export default class postrSdk {
     collection: string;
     record: object;
     expand: Array<string>;
+    invalidateCache?: string;
+    immediatelyUpdate?: boolean;
     cacheKey?: string;
   }) {
     return new Promise((resolve, reject) => {
@@ -883,10 +969,11 @@ export default class postrSdk {
           method: "create",
           type: "create",
           key: key,
+          invalidateCache: data.invalidateCache || null,
           expand: data.expand,
           record: data.record,
           collection: data.collection,
-          token: this.token || null,
+          token: this.authStore.model().token,
           id: this.authStore.model().id || null,
           session: this.sessionID,
           cacheKey: data.cacheKey || null,
@@ -921,6 +1008,7 @@ export default class postrSdk {
         collection: data.collection,
         id: data.id,
         token: this.token,
+        session: this.sessionID,
       })
     );
     return {

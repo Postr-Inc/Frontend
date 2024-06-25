@@ -4,6 +4,7 @@ import { api } from "../api/api";
 export default function Comment(props: {
   id: string;
   text: string;
+  isLast: boolean;
   deleteComment?: any;
   user: any;
   post: any;
@@ -16,6 +17,7 @@ export default function Comment(props: {
   likes: any;
   level: number;
   updateCache?: any;
+  statusPage?: any;
   setComment?: any;
   comment?: any;
   mentions?: any;
@@ -124,9 +126,17 @@ export default function Comment(props: {
     <div
       className={`flex flex-col w-full  
      ${props.level == 2 ? "p-5" : ""} 
+     ${
+       props.isLast ? "xl:mb-auto lg:mb-auto md:mb-auto mb-[10rem]" : ""
+     }
+     ${
+      props.statusPage  ? `border-b-2 border-[#f8f7f7]  xl:p-5
+      hover:bg-[#f2f2f2d0]
+      ` : ""
+     }
     `}
     >
-      <div className="flex flex-col relative  gap-2 p-2 w-full  ">
+      <div className={`flex flex-col relative  gap-2 ${!props.statusPage ? 'p-2' : ''} w-full  `}>
         <div className="flex flex-row">
           <img
             src={api.cdn.url({
@@ -173,7 +183,7 @@ export default function Comment(props: {
                     : props.post.expand.author.username}
                 </div>
               </div>
-            ) : null}
+            ) : null} 
             {props.expand.user.validVerified ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -227,9 +237,10 @@ export default function Comment(props: {
         </div>
         <p className=" overflow-hidden break-words ">{props.text}</p>
       </div>
-      <div className="flex flex-row gap-5 p-2">
-        <div className="relative">
-          <svg
+      <div className={`flex flex-row gap-5 ${!props.statusPage ? 'p-2' : 'mt-2  mb-5'} `}>
+        <div className="relative flex "
+        style={{alignItems:'center',justifyContent:'center'}}>
+          <svg 
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -252,6 +263,9 @@ export default function Comment(props: {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
             />
           </svg>
+          {
+            likes.length > 0 ? <p className="mx-2">{likes.length}</p> : ""
+          }
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -283,7 +297,7 @@ export default function Comment(props: {
         </svg>
       </div>
       {
-        !props.isUserReplyPage ?  <p
+        !props.isUserReplyPage && !props.statusPage ?  <p
         onClick={() => {
           props.setComment(props?.comment + `@${props.user.username} `);
           props.setMentions([...props?.mentions, props.user.username]);

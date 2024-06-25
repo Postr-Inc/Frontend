@@ -6,15 +6,19 @@ import Login from "@/pages/auth/page";
 import { api } from "@/src/api/api";
 import Bookmarks from "@/pages/Bookmarks/page";
 import Collections from "@/pages/collections/page";
-import Post from "@/pages/post/page";
+import Post from "@/pages/status/page";
 import Settings from "@/pages/settings/page";
+import Status from "@/pages/status/page";
 export default function Page() {
-if(typeof window === "undefined") return null
-let [page, changePage] = useState("home");
+if(typeof window === "undefined") return null 
+let searchParams = new URLSearchParams(window.location.search);
+
+let [page, changePage] = useState(api.authStore.model() ? searchParams.get("view") || "home" : "login");
 let [params, setParams] = useState<any>({});
-let [lastPage, setLastPage] = useState(typeof window !== "undefined" ? localStorage.getItem("lastPage") : "home");
+let [lastPage, setLastPage] = useState("home");
 let [poorConnection, setPoorConnection] = useState(false);
 let [dismissToast, setDismissToast] = useState(false);
+let [isViewingStatus, setIsViewingStatus] = useState(searchParams.has("view"));
 let [dontShowAlert, setDontShowAlert] = useState(false);
 let hasInitialized = useRef(false);
  
@@ -28,40 +32,46 @@ window.addEventListener("online", (d) => {
   }
 });
 
-useEffect(() => {
+useEffect(() => { 
   if (!hasInitialized.current && typeof window !== "undefined") {
     hasInitialized.current = true;
-    if(!api.authStore.model){
-      alert(true)
-    } 
-    api.authStore.onChange(() => {
-      console.log("Auth store changed"); 
-      if (!api.authStore.isValid()) {
-        changePage("login");
-      }else if(api.authStore.isValid()){
-        console.log("Auth store is valid")
+      
+    api.events.on("offline", () => {
+      setPoorConnection(true);
+    }); 
+    api.authStore.onChange(() => { 
+      if (!api.authStore.isValid() && api.authStore.model() && page !== "login"
+    && !isViewingStatus
+    ) {
+         api.authStore.refreshToken()
+      }else if(api.authStore.isValid()){ 
         changePage("home") 
+      }else{
+         api.authStore.clear()
       }
     });
-    api.authStore.update()
+    setInterval(() => {
+      if(!api.authStore.isValid() && !api.authStore.model() && page !== "login" && !isViewingStatus){ 
+         api.authStore.refreshToken()
+      } 
+    }, 1000);  
   }
   return () => { hasInitialized.current = false };
   
 }, []);
 
-useEffect(() => {
-  // Check if the target page is 'users', prevent navigation if it is
-    if (page !== lastPage && page !== 'user' && page !== 'settings') {
-    console.log("Navigating to page", page);
+ 
+useEffect(() => { 
+  if (page !== lastPage && page !== 'user' && page !== 'settings' && page !== 'view') {
     setLastPage(page);
-  }
+  } 
 }, [page, lastPage]);
 
    return <div>
 
 {
 
-   api.authStore.isValid() && page == "home" ? (
+    page == "home"   ? (
     <Home 
       key={crypto.randomUUID()}
       swapPage={changePage}
@@ -71,7 +81,7 @@ useEffect(() => {
       currentPage={page}
       lastPage={lastPage}
     />
-   ) :  api.authStore.isValid() && page == "user" ? (
+   ) :   page == "user" ? (
     <User
       currentPage={page}
       key={crypto.randomUUID()}
@@ -80,8 +90,9 @@ useEffect(() => {
       params={params}
       setLastPage={setLastPage}
       lastPage={lastPage} 
+      page={page}
     />
-    )  :  api.authStore.isValid() && page == "bookmarks" ? (
+    )  :  page == "bookmarks" ? (
     <Bookmarks
       key={crypto.randomUUID()}
       swapPage={changePage}
@@ -91,9 +102,9 @@ useEffect(() => {
       lastPage={lastPage}
       page={page}
     />
-    ) : api.authStore.isValid() && page == "post" ? (
+    ) :  page == "post" ? (
     <></>
-    ) : api.authStore.isValid() && page == "collections" ? (
+    ) : page == "collections" ? (
     <Collections 
       key={crypto.randomUUID()}
       swapPage={changePage}
@@ -103,7 +114,7 @@ useEffect(() => {
       lastPage={lastPage}
       currentPage={page}
     />
-    ) : api.authStore.isValid() && page == "settings" ? (
+    ) : page == "settings" ? (
     <Settings 
       key={crypto.randomUUID()}
       swapPage={changePage}
@@ -113,7 +124,24 @@ useEffect(() => {
       lastPage={lastPage}
       currentPage={page}
     />
-    ) : (
+    ) :
+    page == "view" ||   isViewingStatus ? (
+       <Status 
+        {...{
+          key: crypto.randomUUID(),
+          swapPage: changePage,
+          setParams: setParams,
+          params: params,
+          setLastPage: setLastPage,
+          lastPage: lastPage,
+          currentPage: page,
+          id: searchParams.get("id") || "",
+          type: searchParams.get("type") || "",
+        }}
+        ></Status>
+    )
+    :
+    (
     <Login
       key={crypto.randomUUID()}
       swapPage={changePage}

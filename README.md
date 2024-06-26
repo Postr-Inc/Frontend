@@ -1,5 +1,7 @@
 <p align="center"><img src="https://v6-0.pages.dev/icons/icon-blue.jpg"/></p>
 
+<p>Postr - building a space safe for all ( open source is simply better. )</p>
+
 # Setup
 
 1. Fork Repo

@@ -1,5 +1,7 @@
 <p align="center"><img src="https://v6-0.pages.dev/icons/icon-blue.jpg"/></p>
+
 # Setup
+
 1. Fork Repo
 2. run `npm install` & `npm run dev`
 3. goto localhost:3000

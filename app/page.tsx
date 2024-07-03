@@ -7,13 +7,17 @@ import { api } from "@/src/api/api";
 import Bookmarks from "@/pages/Bookmarks/page";
 import Collections from "@/pages/collections/page";
 import Post from "@/pages/status/page";
+import ResettPassword from "@/pages/auth/forgotPassword/forgotPassword";
+import ResetPassword from "@/pages/auth/forgotPassword/ResetPassword";
 import Settings from "@/pages/settings/page";
 import Status from "@/pages/status/page";
+import Register from "@/pages/auth/register/page";
+import Finish from "@/pages/auth/register/continue/FinishSignup";
 export default function Page() {
 if(typeof window === "undefined") return null 
 let searchParams = new URLSearchParams(window.location.search);
 
-let [page, changePage] = useState(api.authStore.model() ? searchParams.get("view") || "home" : "login");
+let [page, changePage] = useState(searchParams.get("view") ||  searchParams.has("forgot_password") ? "resetPassword" : "home");
 let [params, setParams] = useState<any>({});
 let [lastPage, setLastPage] = useState("home");
 let [poorConnection, setPoorConnection] = useState(false);
@@ -21,6 +25,10 @@ let [dismissToast, setDismissToast] = useState(false);
 let [isViewingStatus, setIsViewingStatus] = useState(searchParams.has("view"));
 let [dontShowAlert, setDontShowAlert] = useState(false);
 let hasInitialized = useRef(false);
+let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+window.theme = darkMode ? "dark" : "light";
+//@ts-ignore
+window.theme = darkMode ? "dark" : "light";
  
 window.addEventListener("online", (d) => {
   //@ts-ignore
@@ -33,32 +41,50 @@ window.addEventListener("online", (d) => {
 });
 
 useEffect(() => { 
+   
+if (darkMode) {
+  document.documentElement.setAttribute("data-theme", "black"); 
+}
   if (!hasInitialized.current && typeof window !== "undefined") {
     hasInitialized.current = true;
       
     api.events.on("offline", () => {
       setPoorConnection(true);
-    }); 
+    });
+
+     
     api.authStore.onChange(() => { 
+      console.log(api.authStore.isValid())
       if (!api.authStore.isValid() && api.authStore.model() && page !== "login"
     && !isViewingStatus
     ) {
          api.authStore.refreshToken()
-      }else if(api.authStore.isValid()){ 
-        changePage("home") 
-      }else{
-         api.authStore.clear()
-      }
-    });
-    setInterval(() => {
-      if(!api.authStore.isValid() && !api.authStore.model() && page !== "login" && !isViewingStatus){ 
-         api.authStore.refreshToken()
+      }else if(api.authStore.isValid()){
+        console.log("Auth store is valid")
+        changePage("home")
       } 
-    }, 1000);  
+    });
+    
+    
+
+    // refresh every 15 minutes
+    const  refresh = () => {
+       api.authStore.refreshToken()
+       setTimeout(() => {
+        refresh()
+       }, 1000 * 60 * 15);
+    }
+    refresh()
   }
   return () => { hasInitialized.current = false };
   
 }, []);
+
+ 
+if(!api.authStore.isValid() && page !== "login" && page !== "register" && page !== "signup/finish" && page !== "forgotPassword"
+&& page !== "resetPassword"){  
+  changePage("login")
+}
 
  
 useEffect(() => { 
@@ -66,23 +92,23 @@ useEffect(() => {
     setLastPage(page);
   } 
 }, [page, lastPage]);
-
-   return <div>
-
-{
-
-    page == "home"   ? (
-    <Home 
+ 
+ 
+switch(true){
+  case  page == "home":
+    return <Home 
       key={crypto.randomUUID()}
       swapPage={changePage}
       setParams={setParams}
       params={params}
+      theme={darkMode ? "dark" : "light"}
       setLastPage={setLastPage}
       currentPage={page}
       lastPage={lastPage}
     />
-   ) :   page == "user" ? (
-    <User
+  
+  case api.authStore.isValid() && page == "user":
+    return <User
       currentPage={page}
       key={crypto.randomUUID()}
       swapPage={changePage}
@@ -92,8 +118,8 @@ useEffect(() => {
       lastPage={lastPage} 
       page={page}
     />
-    )  :  page == "bookmarks" ? (
-    <Bookmarks
+  case api.authStore.isValid() && page == "bookmarks":
+    return <Bookmarks
       key={crypto.randomUUID()}
       swapPage={changePage}
       setParams={setParams}
@@ -102,10 +128,10 @@ useEffect(() => {
       lastPage={lastPage}
       page={page}
     />
-    ) :  page == "post" ? (
-    <></>
-    ) : page == "collections" ? (
-    <Collections 
+  case api.authStore.isValid() && page == "post":
+    return <></>
+  case api.authStore.isValid() && page == "collections":
+    return <Collections
       key={crypto.randomUUID()}
       swapPage={changePage}
       setParams={setParams}
@@ -114,8 +140,8 @@ useEffect(() => {
       lastPage={lastPage}
       currentPage={page}
     />
-    ) : page == "settings" ? (
-    <Settings 
+  case api.authStore.isValid() && page == "settings":
+    return <Settings
       key={crypto.randomUUID()}
       swapPage={changePage}
       setParams={setParams}
@@ -124,9 +150,8 @@ useEffect(() => {
       lastPage={lastPage}
       currentPage={page}
     />
-    ) :
-    page == "view" ||   isViewingStatus ? (
-       <Status 
+  case api.authStore.isValid() && page == "view" || api.authStore.isValid() && isViewingStatus:
+    return <Status 
         {...{
           key: crypto.randomUUID(),
           swapPage: changePage,
@@ -139,56 +164,58 @@ useEffect(() => {
           type: searchParams.get("type") || "",
         }}
         ></Status>
-    )
-    :
-    (
-    <Login
+  case page == "register":
+    return <Register {...{
+      key: crypto.randomUUID(),
+      swapPage: changePage,
+      setParams: setParams,
+      params: params,
+      currentPage: page,
+      setLastPage: setLastPage,
+      lastPage: lastPage,
+    }}/>
+  case page == "signup/finish":
+    return <Finish {...{
+      key: crypto.randomUUID(),
+      swapPage: changePage,
+      setParams: setParams,
+      params: params,
+      currentPage: page,
+      setLastPage: setLastPage,
+      lastPage: lastPage,
+    }} />
+    case page == "forgotPassword":
+      return <ResettPassword 
+        key={crypto.randomUUID()}
+        swapPage={changePage}
+        setParams={setParams}
+        params={params}
+        setLastPage={setLastPage}
+        lastPage={lastPage}
+        currentPage={page}
+      />
+    case page == "resetPassword":
+      return <ResetPassword
+        key={crypto.randomUUID()}
+        swapPage={changePage}
+        setParams={setParams}
+        params={params}
+        setLastPage={setLastPage}
+        lastPage={lastPage}
+        currentPage={page}
+      />
+  default: 
+    return <Login
       key={crypto.randomUUID()}
       swapPage={changePage}
       setParams={setParams}
       params={params}
+      currentPage={page}
       setLastPage={setLastPage}
       lastPage={lastPage}
     />
-    )
 }
-   
-{poorConnection && !dismissToast && !dontShowAlert ? (
-            <div
-              onClick={() => {
-                setDismissToast(true);
-                setDontShowAlert(true);
-              }}
-              className="toast toast-end sm:toast-center  text-sm sm:hidden xsm:hidden  sm:top-0 "
-            >
-              <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
-                <span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                    />
-                  </svg>
-                </span>
-                <p>
-                  Poor connection detected.
-                  <p>Likely due to your internet connection.</p>
-                  <span className="text-sm"> Click to Dismiss</span>
-                </p>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-   </div>
+ 
 
    
 }

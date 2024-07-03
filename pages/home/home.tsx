@@ -1,20 +1,21 @@
 "use client";
 import Bookmark from "@/src/components/icons/bookmark";
 import Settings from "@/src/components/icons/settings";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import Scroller from "react-infinite-scroll-component";
+import LogoutModal from "@/src/components/modals/logoutmodal";
 import { Loading } from "@/src/components/icons/loading";
-import Post from "@/src/components/post";
+import Post from "@/src/components/post"; 
 //@ts-ignore
  
 import { api } from "@/src/api/api";
 import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 import { BottomNav } from "@/src/components/BottomNav";
-import { Props } from "@/src/@types/types";
- 
+import { Props } from "@/src/@types/types"; 
+import MainPage from "@/src/components/shared/page";
 export default function Home(props: Props) {
-  const [isClient, setIsClient] = useState(false);
-
+  if(typeof window === "undefined") return null
+  const [isClient, setIsClient] = useState(false); 
   useEffect(() => {
     setIsClient(true);
     window.history.pushState({}, "", "/");
@@ -24,14 +25,13 @@ export default function Home(props: Props) {
   let [totalPages, setTotalPages] = useState(0);
   let [page, setPage] = useState(1);
   let [isFetching, setIsFetching] = useState(false);
-  let [pageValue, setPageValue] = useState("following" as string);
+  let [pageValue, setPageValue] = useState(window?.page || "recommended");
   let [isInitialLoad, setIsInitialLoad] = useState(true);
   let [windowScroll, setWindowScroll] = useState(
     typeof window !== "undefined" ? window.scrollY : 0
   );
   let [poorConnection, setPoorConnection] = useState(false);
-  let [dismissToast, setDismissToast] = useState(false);
-
+  let [dismissToast, setDismissToast] = useState(false); 
   typeof window != "undefined" &&
     window.addEventListener("online", (d) => {
       //@ts-ignore
@@ -50,15 +50,27 @@ export default function Home(props: Props) {
     used: Number;
   }) {}
   function swapFeed(pageValue: string, pg: number = 0) {
+    //@ts-ignore
+    window.page = pageValue
     setPageValue(pageValue);
     setIsFetching(true); 
+
+    if(api.cacheStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)){
+      let data = JSON.parse(api.cacheStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)).value; 
+      setPosts(data.items);
+      setTotalPages(data.totalPages);
+      setHasMore(true);
+      setIsFetching(false);
+      return
+    }
+    
     let filterString =
        pageValue === "following"
         ? `author.followers ?~"${
             api.authStore.model().id
           }"`
         : pageValue === "recommended"
-        ? ` author.id !="${ api.authStore.model().id}" && author.followers !~ "${api.authStore.model().id}"`
+        ? ` author !="${ api.authStore.model().id}" && author.followers !~ "${api.authStore.model().id}"`
         : pageValue === "trending"
         ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
         : "";
@@ -66,6 +78,7 @@ export default function Home(props: Props) {
      
     setPosts([]);
     console.log(true)
+    console.log(filterString)
     api
       .list({
         collection:  "posts",
@@ -85,23 +98,22 @@ export default function Home(props: Props) {
           "author.following.followers",
           "author.following.following",
         ],
-        page: 0,
+        page: 0, 
         sort: `-created`,
       })
-      .then((e: any) => { 
-        console.log(e)
+      .then((e: any) => {  
         setPosts(e.items);
-        setTotalPages(e.totalPages);
-
+        setTotalPages(e.totalPages); 
+        if(!api.cacheStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`)){
+           api.cacheStore.set(`user-home-${pageValue}-posts-1-${api.authStore.model().id}`, {items:e.items, totalPages:e.totalPages}, 1200) // 20 minutes
+        }
         setHasMore(true);
         setIsFetching(false);
       });
   }
   async function loadMore() {
-    let { ratelimited, limit, duration, used } =
-      await api.authStore.isRatelimited("list");
-      console.log(ratelimited, limit, duration, used);
-
+    let { ratelimited, limit, duration, used } = await api.authStore.isRatelimited("list");
+     
     switch (true) {
       case ratelimited:
         handleRatelimit({ limit, duration, used });
@@ -110,6 +122,11 @@ export default function Home(props: Props) {
       case page >= totalPages:
         setHasMore(false);
         break; 
+      case api.cacheStore.has(`user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`):
+        let data = api.cacheStore.get(`user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`);
+        setPosts([...posts, ...data]);
+        setPage((page) => page + 1);
+        break;
       default:
         let filterString =
       pageValue === "following"
@@ -134,10 +151,10 @@ export default function Home(props: Props) {
             expand: [
               "author", 
             ],
-            sort: `created`,
+            sort: `-created`,
           })
           .then((e: any) => {
-            
+            api.cacheStore.set(`user-home-${pageValue}-posts-${page + 1}-${api.authStore.model().id}`, e.items, 1200) // 20 minutes
             setPosts([...posts, ...e.items]);
             setTotalPages(e.totalPages);
             setPage((page) => page + 1);
@@ -149,9 +166,18 @@ export default function Home(props: Props) {
     }
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIsFetching(true);
-    if (!hasRan.current && typeof window !== "undefined") {
+    if(api.cacheStore.has(`user-home-${pageValue}-posts-1-${api.authStore.model()?.id}`)){
+      let data = JSON.parse(api.cacheStore.get(`user-home-${pageValue}-posts-1-${api.authStore.model()?.id}`)).value; 
+      setPosts(data.items);
+      setTotalPages(data.totalPages);
+      setHasMore(true);
+      setTimeout(() => {
+        setIsFetching(false);
+      }, 1000);
+    }
+    else {
       typeof window !== "undefined"
         ? (window.onscroll = () => {
             setWindowScroll(window.scrollY);
@@ -164,9 +190,7 @@ export default function Home(props: Props) {
             api.authStore.model()?.id
           }"`
         : pageValue === "recommended"
-        ? `likes:length > 1 && author.id !="${
-            api.authStore.model().id
-          }" && author.followers !~"${api.authStore.model().id}"`
+        ?  ` author !="${ api.authStore.model()?.id}" && author.followers !~ "${api.authStore.model()?.id}"`
         : pageValue === "trending"
         ? `likes:length > 5 && author.id !="${api.authStore.model().id}" && author.followers !~"${api.authStore.model().id}"`
         : "";
@@ -191,13 +215,52 @@ export default function Home(props: Props) {
           sort: `-created`,
         })
         .then((e: any) => {
+          api.cacheStore.set(`user-home-${pageValue}-posts-1-${api.authStore.model()?.id}`, {totalPages:e.totalPages, items:e.items}, 1200) // 20 minutes
           setTotalPages(e.totalPages);
           setPosts(e.items);
           setIsFetching(false);
            
         });
-    }
+    } 
+    //@ts-ignore
+     
     document.title = `Postr - ${pageValue}`;
+    if(api.authStore.isValid() && !api.isSubscribed("posts") && !api.isSubscribed("users")){
+      api.subscribe({collection:"posts", event:"*"}, (e: any) => { 
+         if(e.event == "update" && e.record.author.id !== api.authStore.model().id){
+              for(var i of api.cacheStore.keys()){
+                  let data = JSON.parse(api.cacheStore.get(i)).value.items;
+                  console.log(data)
+                  for(var post of data){
+                    if(post.id === e.record.id){
+                      post = e.record;
+                      data = data.map((e: any) => e.id === post.id ? post : e)
+                    }
+                  }  
+                  api.cacheStore.set(i, {totalPages:api.cacheStore.get(i).totalPages, items:data}, 1200)
+              }
+         }
+      });
+      api.subscribe({collection:"users", event:"*"}, (e: any) => {
+        if(e.event == "update" && e.record.id === api.authStore.model().id){
+          api.authStore.model(e.record)
+        }else{ 
+          for(var i of api.cacheStore.keys()){ 
+            if(i.includes('user-profile') && i.includes(e.record.id)){
+              console.log(i)
+              let data = JSON.parse(api.cacheStore.get(i)).value;
+              data = e.record;
+              api.cacheStore.set(i, data, 1200) 
+            }else if(i.includes('user-home') && i.includes('following') &&  !e.record.followers.includes(api.authStore.model().id)){  
+              api.cacheStore.delete(i)
+            }else{
+              api.cacheStore.delete(i)
+            }
+          }
+        }
+      });
+      console.log("Subscribed to posts")
+    } 
     return () => {
       hasRan.current = true;
     };
@@ -207,14 +270,9 @@ export default function Home(props: Props) {
   }, [pageValue]);
   return (
     <>
-      {isClient ? (
-        <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
-          <SideBarLeft 
-           {...props}
-          />
-
-          <div
-            className=" xl:mx-24     text-md   
+      <MainPage {...props}>
+      <div
+         className=" xl:mx-24     text-md   
          relative 
          xl:w-[35vw]
          md:w-[50vw]  
@@ -252,9 +310,14 @@ export default function Home(props: Props) {
                         <div className="avatar border-none">
                           <div className="w-8">
                             <img
-                              src={`
-                     ${api.pbUrl}/api/files/_pb_users_auth_/${post?.expand.author.id}/${post?.expand.author.avatar}
-                    `}
+                              src={
+                                api.cdn.url(
+                                   {
+                                    id: post?.expand.author.id,
+                                    collection:"users",
+                                    file: post?.expand.author.avatar,
+                                   }
+                                )}
                               alt="avatar"
                               className="rounded-full object-contain w-full h-full"
                             />
@@ -270,9 +333,16 @@ export default function Home(props: Props) {
               ""
             )}
 
-            <div className="  xl:sticky xl:top-0  border  border-[#f6f4f4]     w-[100%]  xl:z-[999] flex flex-col  
-           bg-opacity-75 bg-white
-            ">
+            <div 
+            style={{
+               borderBottom: 'none'
+            }}
+            className={` xl:sticky xl:top-0       w-[100%]  xl:z-[999] flex flex-col 
+            ${
+              theme  === "dark" ? "bg-black  border-[#121212] border-2 border-b-none " : "bg-white  border   border-[#f6f4f4] bg-opacity-75 bg-white "
+            
+            }  
+            `}>
               <div className="flex xl:p-5 w-full sm:p-3  justify-between ">
                 <div className="flex gap-2 hero">
                   <div className="flex flex-col   w-full">
@@ -304,10 +374,15 @@ export default function Home(props: Props) {
                           </label>
                           <ul
                             tabIndex={0}
+                            style={{
+                               border: theme === 'dark' ? '1px solid #2d2d2d' : '1px solid #f9f9f9',
+                               borderRadius: '10px'
+                            }}
                             className="dropdown-content z-[1] menu   w-[16rem] shadow bg-base-100  rounded "
                           >
                             <li>
                               <a
+                              className="rounded-full"
                                 onClick={() => {
                                   props.setParams({
                                     user: api.authStore.model().id,
@@ -321,7 +396,7 @@ export default function Home(props: Props) {
                             {typeof window != "undefined" &&
                             api.authStore.model().postr_plus ? (
                               <li>
-                                <a>
+                                <a className="rounded-full">
                                   Your benefits
                                   <span className="badge badge-outline border-blue-500 text-blue-500">
                                     ++
@@ -332,10 +407,10 @@ export default function Home(props: Props) {
                               ""
                             )}
                             <li>
-                              <a>Set Status</a>
+                              <a className="rounded-full">Set Status</a>
                             </li>
                             <li>
-                              <a
+                              <a className="rounded-full"
                                 onClick={() => {
                                   //@ts-ignore
                                   document
@@ -421,6 +496,17 @@ export default function Home(props: Props) {
               )}
 
               <div className="flex hero sm:p-3 xl:p-5        justify-between xl:mt-0  ">
+              <div className="flex flex-col">
+                 <p
+                 className="cursor-pointer"
+                onClick={()=>{
+                  swapFeed('recommended', 0)
+                }}
+                >Recommended</p>
+                  {
+                    pageValue === 'recommended' ? <div className=" rounded-md   h-1 bg-blue-500"></div> : ""
+                  }
+               </div>
                <div className="flex flex-col text-sm">
                <p
                className="cursor-pointer"
@@ -432,17 +518,7 @@ export default function Home(props: Props) {
                     pageValue === 'following' ? <div className=" rounded-md   h-1 bg-blue-500"></div> : ""
                   }
                  </div>
-                 <div className="flex flex-col">
-                 <p
-                 className="cursor-pointer"
-                onClick={()=>{
-                  swapFeed('recommended', 0)
-                }}
-                >Recommended</p>
-                  {
-                    pageValue === 'recommended' ? <div className=" rounded-md   h-1 bg-blue-500"></div> : ""
-                  }
-               </div>
+                  
                 <div className="flex flex-col">
                 <p
                 className="cursor-pointer"
@@ -466,19 +542,25 @@ export default function Home(props: Props) {
               loader={""}
             >
               {posts.length > 0
-                ? posts.map((e: any) => {
+                ? posts.map((e: any, index: number) => {
                   console.log(e)
                     return (
                       <div
-                        className="   xl:border   sm:p-3 border-[#f2f0f0]  "
+                        className={`     sm:p-3  
+                         ${
+                theme == 'dark' ? 'xl:border xl:border-[#121212]' : 'xl:border xl:border-[#ecececd8]'
+              }  
+                        `}
                         key={e.id}
                         id={e.id}
                       >
                         <Post 
+                          isLast={index === posts.length - 1}
                           cacheKey={`user-home-${pageValue}-posts-${page}-${api.authStore.model().id}`}
                           {...e}
                           expand={e.expand} 
                           post={e}
+                           
                           swapPage={props.swapPage}
                           setParams={props.setParams}
                           page={props.currentPage}
@@ -534,94 +616,9 @@ export default function Home(props: Props) {
               />
             </div>
           </div>
-          {poorConnection && !dismissToast ? (
-            <div
-              onClick={() => {
-                setDismissToast(true);
-              }}
-              className="toast toast-end sm:toast-center  text-sm sm:hidden xsm:hidden  sm:top-0 "
-            >
-              <div className="alert bg-[#f82d2df5] text-white  hero flex flex-row gap-2   font-bold shadow rounded-box">
-                <span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-                    />
-                  </svg>
-                </span>
-                <p>
-                  Poor connection detected.
-                  <p>Likely due to your internet connection.</p>
-                  <span className="text-sm"> Click to Dismiss</span>
-                </p>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-          <SideBarRight
-            params={props.params}
-            setParams={props.setParams}
-            currentPage={props.currentPage}
-            swapPage={props.swapPage}
-          />
-          <LogoutModal
-            changePage={props.swapPage}
-            setParams={props.setParams}
-            params={props.params}
-          />
-        </div>
-      ) : (
-        ""
-      )}
+      </MainPage>
+       
     </>
   );
 }
-
-function LogoutModal(props: any) {
-  return (
-    <>
-      <dialog
-        id="logout-modal"
-        className=" rounded-box   modal-middle bg-opacity-50   "
-      >
-        <div className="flex p-5 xl:w-[15vw] h-[45vh] xl:h-[35vh] rounded-box items-center bg-white justify-center flex-col mx-auto">
-          <img
-            src="/icons/icon-blue.jpg"
-            className="rounded"
-            alt="postr logo"
-            width={40}
-            height={40}
-          ></img>
-          <p className="font-bold text-xl mt-2">Loging out of Postr?</p>
-          <p className="text-sm mt-2">
-            You can always log back in at any time.
-          </p>
-          <button
-            className="btn btn-ghost rounded-full w-full bg-black  text-white mt-5"
-            onClick={() => {
-              api.authStore.clear();
-              props.changePage("login");
-            }}
-          >
-            Logout
-          </button>
-          <form method="dialog" className="w-full">
-            <button className="btn btn-ghost mt-5 w-full rounded-full bg-base-200 ">
-              Cancel
-            </button>
-          </form>
-        </div>
-      </dialog>
-    </>
-  );
-}
+ 

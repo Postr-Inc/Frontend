@@ -9,9 +9,6 @@
 			"path": "../.."
 		},
 		{
-			"path": "../../../../Frontend-7-nextjs"
-		},
-		{
 			"path": "../../../../Native_Postr_App"
 		},
 		{
@@ -25,6 +22,12 @@
 		},
 		{
 			"path": "../../../Postr Ai"
+		},
+		{
+			"path": "../../../Postr SDK"
+		},
+		{
+			"path": "../../../../../OneDrive/Documents/postr-next"
 		}
 	],
 	"settings": {

@@ -1,5 +1,8 @@
 "use client";
+import { MessageTypes } from "./enums/MessageTypes";
 import { isTokenExpired } from "./jwt/index";
+import { authStore, isRatelimited, model } from "./types/AuthStore";
+import { subscribeOptions } from "./types/Subscribe";
 const store = {
   get: (key: string) => {
     if (typeof window == "undefined") return;
@@ -20,32 +23,6 @@ const store = {
   },
 };
 
-interface authStore {
-  model: {
-    id: string;
-    avatar: string;
-    username: string;
-    created: string;
-    updated: string;
-
-    token: string;
-  };
-  onChange: Function;
-  update: Function;
-  clear: Function;
-  isValid: Function;
-  img: Function;
-  isRatelimited: Function;
-  global: any;
-}
-
-interface isRatelimited {
-  limit: number;
-  duration: number;
-  used: number;
-  ratelimited: boolean;
-}
-
 /**
  * @class PostrSDK
  * @description PostrSDK - the official Postr hapta client sdk
@@ -54,7 +31,7 @@ interface isRatelimited {
 
 export default class postrSdk {
   private ws: WebSocket;
-  private sendMessage: (e: any) => void;
+  private sendMessage: (e: any) => Promise<unknown>;
   private callbacks: Map<string, any>;
   private isStandalone: boolean;
   onlineEvent: CustomEvent;
@@ -63,6 +40,7 @@ export default class postrSdk {
   online: Map<string, any>;
   sessionID: string;
   pbUrl: string;
+  subscriptions: Map<string, boolean>;
   currType: string;
   private $memoryCache: Map<string, any>;
   token: string;
@@ -71,6 +49,7 @@ export default class postrSdk {
     this.changeEvent = new CustomEvent("change");
     this.sessionID = crypto.randomUUID();
     this.isStandalone = false;
+    this.subscriptions = new Map();
     this.ws = new WebSocket(
       `${
         data.wsUrl.trim().startsWith("127") ||
@@ -82,7 +61,8 @@ export default class postrSdk {
     this.$memoryCache = new Map();
     //@ts-ignore
     typeof window !== "undefined"
-      ? (window.postr = {
+      ? //@ts-ignore
+        (window.postr = {
           version: " 1.7.0",
         })
       : null;
@@ -95,8 +75,11 @@ export default class postrSdk {
      */
     this.cancellation = data.cancellation;
     this.sendMessage = (e) => {
-      this.waitForSocketConnection(() => {
-        this.ws.send(e);
+      return new Promise((resolve, reject) => {
+        this.waitForSocketConnection(() => {
+          this.ws.send(e);
+          resolve(0);
+        });
       });
     };
     this.currType = "";
@@ -149,7 +132,6 @@ export default class postrSdk {
     function scheduleReconnect() {
       if (!isAwaiting) {
         isAwaiting = true;
-
         reconnectTimeout = setTimeout(() => {
           connectWebSocket();
         }, 1000); // Reconnect attempt after 1 second
@@ -173,6 +155,31 @@ export default class postrSdk {
       this.onlineEvent = new CustomEvent("online", {
         detail: { online: this.online },
       });
+
+      //@ts-ignore
+      window.onbeforeunload = () => {
+        // kill the session but also the token
+        this.sendMessage(
+          JSON.stringify({
+            type: "close",
+            token: this.token,
+            session: this.sessionID,
+          })
+        ).then(() => {
+          this.ws.close();
+        });
+
+        this.subscriptions.forEach((value, key) => {
+          this.sendMessage(
+            JSON.stringify({
+              type: "unsubscribe",
+              key: key,
+              token: this.authStore.model().token,
+              session: this.sessionID,
+            })
+          );
+        });
+      };
     }
 
     let timer = setInterval(() => {
@@ -196,10 +203,12 @@ export default class postrSdk {
       }
     }, 1000);
   }
+  queue = new Map();
 
   checkConnection() {
-    if (this.ws.readyState === WebSocket.OPEN) return true;
-    else return false;
+    if (this.ws.readyState === WebSocket.OPEN) {
+      return true;
+    } else return false;
   }
 
   /**
@@ -227,52 +236,12 @@ export default class postrSdk {
     },
   };
 
-  public search(data: {
-    collection: string;
-    query: any;
-    expand?: String[];
-    limit?: number;
-    page?: number;
-    cacheKey?: string;
-  }) {
-    return new Promise((resolve, reject) => {
-      let key = crypto.randomUUID();
-      !data.collection ? reject(new Error("collection is required")) : null;
-      !this.authStore.isValid ? reject(new Error("token is expired")) : null;
-
-      this.callbacks.set(key, (responseData: any) => {
-        if (responseData.error) reject(new Error(JSON.stringify(responseData)));
-        else resolve(responseData);
-        this.callbacks.delete(key);
-      });
-
-      let query = "";
-      Object.keys(data.query).forEach((key, index) => {
-        if (index === 0) query += `${key}?~"${data.query[key]}"`;
-        else query += `&&${key}?~${data.query[key]}`;
-      });
-      this.sendMessage(
-        JSON.stringify({
-          type: "search",
-          key: key,
-          token: this.authStore.model().token,
-          data: {
-            collection: data.collection,
-            query: query,
-            cacheKey: data.cacheKey || null,
-            limit: data.limit,
-            offset: data.page,
-            id: this.authStore.model()?.id || null,
-            expand: data.expand || null,
-          },
-          session: this.sessionID,
-        })
-      );
-    });
-  }
+  isSubscribed = (key: string) => {
+    return this.subscriptions.has(key);
+  };
   /**
-   * @method upload
-   * @description convert file into readable format
+   * @method  getRawFileData
+   * @description Convert File into Uint8Array format to be uploaded through the websocket connection
    * @param file
    * @returns
    */
@@ -298,6 +267,38 @@ export default class postrSdk {
 
       // Read the file as an ArrayBuffer
       reader.readAsArrayBuffer(file);
+    });
+  }
+
+  /**
+   * @method  checkName
+   * @param emailOrUsername 
+   * @description Check if a username or email exists
+   * @returns  {Promise<boolean>}
+   */
+  public checkName(emailOrUsername: string) {
+    return new Promise((resolve, reject) => { 
+      if (!emailOrUsername) {
+        reject(new Error("email or username is required"));
+      }
+      this.callbacks.set("checkname", (data: any) => {
+        if (data.error) {
+          reject(new Error(data.error));
+        } else {
+          resolve(data.exists);
+        } 
+      });
+      console.log({...(emailOrUsername.includes("@") ? {email: emailOrUsername} : {username: emailOrUsername})})
+      this.sendMessage(
+        JSON.stringify({
+          type: "checkname",
+          key:   "checkname",
+          data: {
+            ...(emailOrUsername.includes("@") ? {email: emailOrUsername} : {username: emailOrUsername})
+          },
+          session: this.sessionID,
+        })
+      );
     });
   }
 
@@ -364,11 +365,11 @@ export default class postrSdk {
   };
 
   /**
-   * @method cacehStore
+   * @method cacheStore
    * @description Cache values with exp duration in ms
-   * @returns {cacehStore}
+   * @returns {cacheStore}
    */
-  cacehStore = {
+  cacheStore = {
     /**
      * @method set
      * @description Set a value in the cache
@@ -388,6 +389,19 @@ export default class postrSdk {
         this.$memoryCache.set(key, JSON.stringify(cache));
       } else {
         this.$memoryCache.set(key, value);
+      }
+    },
+    update: (key: string, value: any) => {
+      if (typeof window == "undefined") return;
+      let cache = this.$memoryCache.get(key);
+      if (cache) {
+        if (cache.cacheTime) {
+          cache.value = value;
+          cache.time = new Date().getTime();
+          this.$memoryCache.set(key, JSON.stringify(cache));
+        } else {
+          this.$memoryCache.set(key, value);
+        }
       }
     },
     get: (key: string) => {
@@ -424,63 +438,152 @@ export default class postrSdk {
     },
   };
 
+  private appendToQueue(data: any) {
+    if (!data.requestID && !this.queue.has(data.requestID)) return;
+  }
+
   /**
    * @method authStore
    * @description Get the current authmodel data and listen for changes
    * @returns {authStore}
    *
    */
-  public authStore = {
+  public authStore: authStore = {
     /**
      * @description Refresh the current token
      * @method refreshToken
      * @returns {Auth_Object}
      */
-    refreshToken: () => {
+    refreshToken: async () => {
       if (typeof window == "undefined") return;
+      let t = this;
+      console.log("Refreshing token");
       this.callbacks.set("tokenRefresh", (data: any) => {
-        if (data.error) throw new Error(data.message);
-        console.log("refreshed token");
-        localStorage.setItem(
-          "postr_auth",
-          JSON.stringify({
-            model: this.authStore.model(),
-            token: data.token,
-          })
-        );
-        window.dispatchEvent(this.changeEvent);
+        return new Promise((resolve, reject) => {
+          if (data.error) return reject(data); 
+          localStorage.setItem(
+            "postr_auth",
+            JSON.stringify({
+              model: this.authStore.model(),
+              token: data.token || this.authStore.model().token,
+            })
+          );
+          window.dispatchEvent(this.changeEvent);
+        });
       });
-
       this.sendMessage(
         JSON.stringify({
           type: "refreshToken",
-          key: "tokenRefresh",
-          token: this.authStore.model().token,
+          key: MessageTypes.REFRESH_TOKEN,
+          token:  this.authStore.model().token,
           session: this.sessionID,
         })
       );
     },
+
+    resetPassword: async (token: string, password: string) => {
+      return new Promise((resolve, reject) => {
+        if (!password || !token)
+        return reject(new Error("email, password and token are required"));
+        this.callbacks.set("resetPassword", (data: any) => {
+          if (data.error) reject(data);
+          resolve(data);
+          this.callbacks.delete("resetPassword");
+        });
+        console.log({password, token})
+        this.sendMessage(
+          JSON.stringify({
+            type: "changePassword",
+            key: "resetPassword",
+            data: { 
+              password: password,
+              token: token,
+            },
+            session: this.sessionID,
+          })
+        );
+      }); 
+    },
+    requestPasswordReset: async (email: string) => {
+      return new Promise((resolve, reject) => {
+        if (!email) return reject(new Error("email is required"));
+        this.callbacks.set("requestPasswordReset", (data: any) => {
+          if (data.error) reject(data.error);
+          resolve(data);
+          this.callbacks.delete("requestPasswordReset");
+        });
+        this.sendMessage(
+          JSON.stringify({
+            type: "requestPasswordReset",
+            key: "requestPasswordReset",
+            data: { email },
+            session: this.sessionID,
+          })
+        );
+      });
+    },
+
+    login: async (emailOrUsername: string, password: string) => {
+      return new Promise((resolve, reject) => {
+         this.callbacks.set("auth&password", (data: any) => {
+          if (data.clientData) {
+            if (typeof window == "undefined") return;
+            if (typeof window !== undefined)
+              localStorage.setItem(
+                "postr_auth",
+                JSON.stringify({
+                  model: data.clientData.record,
+                  token: data.clientData.token,
+                })
+              );
+            resolve(data.clientData.record);
+            this.callbacks.delete("auth&password");
+            window.dispatchEvent(this.changeEvent);
+          } else if (data.error) {
+            reject(new Error(data.error));
+            this.callbacks.delete("auth&password");
+          }
+         })
+        this.sendMessage(JSON.stringify({
+          type: "auth&password",
+          data: { emailOrUsername, password },
+          key: "auth&password", 
+          session: this.sessionID
+        }))
+      })  
+    },
+    create: async (data: any) => {
+      return new Promise((resolve, reject) => {
+        if(!data.username || !data.email || !data.password) return reject(new Error("username, email and password are required"))
+        this.callbacks.set("authCreate", (data: any) => {
+            if(data.error) return reject(data) 
+            return resolve(data)
+        });
+        this.sendMessage(
+          JSON.stringify({
+            type: "authCreate",
+            key: "authCreate",
+            data: data,
+            session: this.sessionID,
+          })
+        );
+      })  
+    }, 
     update: () => {
       if (typeof window == "undefined" || !localStorage.getItem("postr_auth"))
         return;
       this.callbacks.set("authUpdate", (data: any) => {
-        if (data.error && data.hasOwnProperty("isValid") && !data.isValid) {
-          this.authStore.clear();
+        if (data.error && data.hasOwnProperty("isValid") && !data.isValid) { 
+          console.error(data);
         } else if (data.error) {
           throw new Error(data);
         } else if (data.clientData) {
-          localStorage.setItem(
-            "postr_auth",
-            JSON.stringify({
-              model: data.clientData,
-              token: this.authStore.model().token,
-            })
-          );
+           console.log("Auth updated" + data.clientData);
         }
       });
       this.sendMessage(
         JSON.stringify({
-          type: "authUpdate",
+          type: MessageTypes.AUTH_UPDATE,
           token: this.authStore.model().token,
           key: "authUpdate",
           data: JSON.parse(localStorage.getItem("postr_auth") as any).model,
@@ -493,12 +596,23 @@ export default class postrSdk {
      * @description Get the current authmodel data
      * @returns {Auth_Object}
      */
-    model: () => {
-      if (typeof window == "undefined") return;
-      return {
-        ...JSON.parse(store.get("postr_auth") || "{}").model,
-        token: JSON.parse(store.get("postr_auth") || "{}").token,
-      };
+    model: (data?: any) => {
+      if (data) { 
+        if (typeof window == "undefined") return;
+        localStorage.setItem(
+          "postr_auth",
+          JSON.stringify({
+            model: data,
+            token: JSON.parse(store.get("postr_auth") || "{}").token,
+          })
+        ); 
+      } else {
+        if (typeof window == "undefined") return;
+        return {
+          ...JSON.parse(store.get("postr_auth") || "{}").model,
+          token: JSON.parse(store.get("postr_auth") || "{}").token,
+        };
+      }
     },
     onChange: (callback: Function) => {
       if (typeof window == "undefined") return;
@@ -521,9 +635,11 @@ export default class postrSdk {
     },
     img: () => {
       if (typeof window == "undefined") return;
-      return `${this.pbUrl}/api/files/users/${this.authStore.model().id}/${
-        this.authStore.model().avatar
-      }`;
+      return this.cdn.url({
+        id: this.authStore.model().id,
+        collection: "users",
+        file: this.authStore.model().avatar,
+      });
     },
     /**
      * @method isRatelimited
@@ -531,7 +647,7 @@ export default class postrSdk {
      * @param type
      * @returns
      */
-    isRatelimited: (type: string): Promise<isRatelimited> => {
+    isRatelimited: async (type: string): Promise<isRatelimited> => {
       return new Promise((resolve, reject) => {
         this.callbacks.set("isRatelimited", (data: any) => {
           if (data.error) reject(data.error);
@@ -549,6 +665,10 @@ export default class postrSdk {
         );
       });
     },
+    /**
+     * @method clear
+     * @description Invalidate the current session
+     */
     clear: () => {
       try {
         if (typeof window == "undefined") return;
@@ -560,69 +680,7 @@ export default class postrSdk {
     },
   };
 
-  async checkUsername(username: string) {
-    return new Promise((resolve, reject) => {
-      this.callbacks.set("checkUsername", (data: any) => {
-        if (data.error) reject(data.error);
-        resolve(data.message);
-        this.callbacks.delete("checkUsername");
-      });
-      this.sendMessage(
-        JSON.stringify({
-          type: "checkUsername",
-          key: "checkUsername",
-          data: { username: username },
-          token: this.authStore.model().token,
-          session: this.sessionID,
-        })
-      );
-    });
-  }
-
-  /**
-   * @method authWithPassword
-   * @param emailOrUsername
-   * @param password
-   * @returns  {Promise<model>}
-   * @description Authenticate user with email or username and password
-   */
-
-  public authWithPassword(emailOrUsername: string, password: string) {
-    return new Promise((resolve, reject) => {
-      if (!emailOrUsername) {
-        throw new Error("email or username is required");
-      } else if (!password) {
-        throw new Error("password is required");
-      } else {
-        this.callbacks.set("auth&password", (data: any) => {
-          if (data.clientData) {
-            if (typeof window == "undefined") return;
-            if (typeof window !== undefined)
-              localStorage.setItem(
-                "postr_auth",
-                JSON.stringify({
-                  model: data.clientData,
-                  token: data.clientData.token,
-                })
-              );
-            resolve(data.clientData);
-            this.callbacks.delete("auth&password");
-            window.dispatchEvent(this.changeEvent);
-          } else if (data.error) {
-            reject(new Error(data.error));
-            this.callbacks.delete("auth&password");
-          }
-        });
-        this.sendMessage(
-          JSON.stringify({
-            type: "auth&password",
-            data: { emailOrUsername: emailOrUsername, password: password },
-            key: "auth&password",
-          })
-        );
-      }
-    });
-  }
+   
   private waitForSocketConnection(callback: Function) {
     const maxWaitTime = 5000; // Maximum waiting time in milliseconds (adjust as needed)
     const interval = 100; // Check the WebSocket state every 100 milliseconds
@@ -724,8 +782,7 @@ export default class postrSdk {
   }
 
   private onmessage(e: any) {
-    let data = JSON.parse(e.data);
-
+    let data = JSON.parse(e.data); 
     if (this.callbacks.has(data.key)) {
       let func = this.callbacks.get(data.key);
       func(data.data ? data.data : data);
@@ -758,7 +815,7 @@ export default class postrSdk {
    * @description Read a record from a collection
    */
 
-  public read(data: {
+  public async read(data: {
     id: string;
     collection: string;
     returnable?: Array<string>;
@@ -767,23 +824,13 @@ export default class postrSdk {
     authKey?: string;
   }) {
     return new Promise((resolve, reject) => {
-      let key = crypto.randomUUID();
       !data.collection ? reject(new Error("collection is required")) : null;
       !this.authStore.isValid ? reject(new Error("token is expired")) : null;
-
-      this.callbacks.set(key, (responseData: any) => {
-        if (responseData.error) {
-          reject(responseData);
-        } else {
-          resolve(responseData);
-        }
-        this.callbacks.delete(key);
-      });
 
       this.sendMessage(
         JSON.stringify({
           type: "read",
-          key: key,
+          key: this.callback(resolve, reject),
           collection: data.collection,
           token: JSON.parse(store.get("postr_auth") || "{}").token,
           cacheKey: data.cacheKey || null,
@@ -821,16 +868,10 @@ export default class postrSdk {
       !data.record ? reject(new Error("data is required")) : null;
       !this.authStore.isValid ? reject(new Error("token is expired")) : null;
 
-      this.callbacks.set(key, (data: any) => {
-        if (data.error) reject(data);
-        resolve(data);
-        this.callbacks.delete(key);
-      });
-
       this.sendMessage(
         JSON.stringify({
           type: "update",
-          key: key,
+          key: this.callback(resolve, reject),
           data: data.record,
           expand: data.expand,
           collection: data.collection,
@@ -867,21 +908,14 @@ export default class postrSdk {
     cacheTime?: number;
   }) {
     return new Promise((resolve, reject) => {
-      let key = crypto.randomUUID();
       this.currType = "list";
       !data.collection ? reject(new Error("collection is required")) : null;
       !this.authStore.isValid ? reject(new Error("token is expired")) : null;
-
-      this.callbacks.set(key, (responseData: any) => {
-        if (responseData.error) reject(responseData);
-        else resolve(responseData);
-        this.callbacks.delete(key);
-      });
       this.sendMessage(
         JSON.stringify({
           type: "list",
-          key: key,
-          token: JSON.parse(store.get("postr_auth") || "{}").token,
+          key: this.callback(resolve, reject),
+          token: this.authStore.model().token,
           data: {
             returnable: data.returnable || null,
             collection: data.collection,
@@ -915,14 +949,9 @@ export default class postrSdk {
     cacheKey?: string;
   }) {
     return new Promise((resolve, reject) => {
-      let key = crypto.randomUUID();
       !data.collection ? reject(new Error("collection is required")) : null;
       !this.authStore.isValid ? reject(new Error("token is expired")) : null;
-      this.callbacks.set(key, (data: any) => {
-        if (data.error) reject(data);
-        resolve(data);
-      });
-
+      let key = this.callback(resolve, reject);
       this.sendMessage(
         JSON.stringify({
           type: "delete",
@@ -938,17 +967,32 @@ export default class postrSdk {
       );
     });
   }
+
+  /**
+   * @description Set callback for response
+   * @param resolve
+   * @param reject
+   */
+  private callback(resolve: Function, reject: Function) {
+    let caller = crypto.randomUUID();
+    this.callbacks.set(caller, (data: any) => {
+      if (data.error) reject(data.error);
+      this.callbacks.delete(caller);
+      resolve(data);
+    });
+    return caller;
+  }
   /**
    * @method create
    * @param data
    * @returns  {Promise<any>}
    * @description Create a record in a collection
    */
-  public create(data: {
+  public async create(data: {
     collection: string;
     record: object;
-    expand: Array<string>;
-    invalidateCache?: string;
+    expand?: Array<string>;
+    invalidateCache?: Array<string>;
     immediatelyUpdate?: boolean;
     cacheKey?: string;
   }) {
@@ -959,16 +1003,11 @@ export default class postrSdk {
       if (data.collection !== "users" && !this.authStore.isValid) {
         reject(new Error("token is expired"));
       }
-      this.callbacks.set(key, (data: any) => {
-        if (data.error) reject(new Error(data));
-        resolve(data);
-      });
-
       this.sendMessage(
         JSON.stringify({
           method: "create",
           type: "create",
-          key: key,
+          key: this.callback(resolve, reject),
           invalidateCache: data.invalidateCache || null,
           expand: data.expand,
           record: data.record,
@@ -982,9 +1021,15 @@ export default class postrSdk {
     });
   }
 
-  public on(
-    data: { event: string; id: string; collection: string },
-    callback: Function
+  /**
+   *
+   * @param data
+   * @param callback
+   * @returns
+   */
+  public subscribe(
+    data: { event: string; collection: string },
+    callback: (data: subscribeOptions) => void
   ) {
     let key = crypto.randomUUID();
     if (!event) {
@@ -994,26 +1039,34 @@ export default class postrSdk {
     !callback || typeof callback === "function"
       ? new Error("callback is required")
       : null;
-    if (!data.id) throw new Error("id is required");
 
+    if (this.subscriptions.has(`${this.sessionID}-${data.collection}`)) return;
     this.callbacks.set(key, (d: any) => {
       if (d.error) throw new Error(d.error);
       callback(d);
     });
+    this.subscriptions.set(`${this.sessionID}-${data.collection}`, true);
+    console.log("Subscribing to event", data.event);
     this.sendMessage(
       JSON.stringify({
-        type: "subscribe",
+        type: "realtime",
         key: key,
         eventType: data.event,
         collection: data.collection,
-        id: data.id,
-        token: this.token,
+        token: this.authStore.model().token,
         session: this.sessionID,
       })
     );
     return {
       unsubscribe: () => {
         this.callbacks.delete(key);
+        this.sendMessage(
+          JSON.stringify({
+            type: "unsubscribe",
+            key: key,
+            session: this.sessionID,
+          })
+        );
       },
     };
   }

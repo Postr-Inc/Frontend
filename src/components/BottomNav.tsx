@@ -14,6 +14,7 @@ export   function BottomNav(props: any) {
      "
     >
       <ul
+      style={{borderRadius: "1rem"}}
         className={`menu menu-horizontal rounded-box  w-fit 
     ${
       typeof window !== "undefined" &&

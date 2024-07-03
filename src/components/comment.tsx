@@ -45,11 +45,13 @@ export default function Comment(props: {
                   if(!Array.isArray(comment.likes)) { 
                     return { ...comment, likes: [] };
                   }
-                  return { ...comment, likes: comment.likes.filter((id: any) => id != api.authStore.model().id) };
+                  comment.likes = comment.likes.filter((id: any) => id != api.authStore.model().id);
+                  return comment;
                 } else {
                   return comment;
                 }
                }), 
+               likes: props.post.expand.likes,
                author: props.post.expand.author
              }
           },
@@ -73,11 +75,13 @@ export default function Comment(props: {
                   if(!Array.isArray(comment.likes)) { 
                     return { ...comment, likes: [api.authStore.model().id] };
                   }
-                  return { ...comment, likes: [...comment.likes, api.authStore.model().id] };
+                  comment.likes.push(api.authStore.model().id); 
+                  return comment;
                 } else {
                   return comment;
                 }
                }), 
+                likes: props.post.expand.likes,
                author: props.post.expand.author
              }
           },
@@ -130,8 +134,15 @@ export default function Comment(props: {
        props.isLast ? "xl:mb-auto lg:mb-auto md:mb-auto mb-[10rem]" : ""
      }
      ${
-      props.statusPage  ? `border-b-2 border-[#f8f7f7]  xl:p-5
-      hover:bg-[#f2f2f2d0]
+      props.currentPage == 'view' ? 'p-2 xl:p-0 mt-2' : ''
+     }
+     ${
+      props.statusPage  ? ` xl:p-5
+      ${
+        theme == 'dark' ? 'hover:bg-[#090909] text-white ' : 'hover:bg-[#f2f2f2d0]'
+      }
+        
+       
       ` : ""
      }
     `}
@@ -221,7 +232,17 @@ export default function Comment(props: {
                     />
                   </svg>
                 </summary>
-                <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+                <ul 
+                style={{
+                   borderRadius: '10px',
+                }}
+                className={`p-2 shadow menu dropdown-content z-[1]  
+                  ${
+                    theme == "dark"
+                      ? "bg-black text-white border-[#121212] border-2"
+                      : "bg-white text-black"
+                  }
+                  rounded-box w-52`}>
                   {props.user.id == api.authStore.model().id ? (
                     <li>
                       <a onClick={props.deleteComment}>Delete</a>
@@ -298,11 +319,13 @@ export default function Comment(props: {
       </div>
       {
         !props.isUserReplyPage && !props.statusPage ?  <p
-        onClick={() => {
-          props.setComment(props?.comment + `@${props.user.username} `);
-          props.setMentions([...props?.mentions, props.user.username]);
+        onClick={() => { 
+          if(!props.mentions.includes(props.user.username)){ 
+            props.setComment(props?.comment + `@${props.user.username} `);
+            props.setMentions([...props?.mentions, props.user.username]);
+          } 
         }}
-        className="mx-2 text-sm"
+        className="mx-2 text-sm cursor-pointer"
       >
         Reply
       </p>

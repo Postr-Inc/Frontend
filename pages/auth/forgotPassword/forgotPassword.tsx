@@ -5,7 +5,11 @@ import { api } from "@/src/api/api";
 import { Props } from "@/src/@types/types";
 export default function PasswordRest(
     props: Props
-){
+){ 
+  if(typeof window === "undefined") return null;
+  let [loading, setLoading] = useState(false);
+  let [error, setError] = useState("");
+  let [success, setSuccess] = useState(""); 
     function request(){
         let email = (document.querySelector('input[type="email"]') as HTMLInputElement).value;
         if(email.length === 0){
@@ -29,7 +33,7 @@ export default function PasswordRest(
             }, 2000);
             return;
         } 
-      api.authStore.resetPassword(token, password).then((data) => { 
+      api.authStore.requestPasswordReset(email).then(() => {
       setLoading(false);
       setSuccess("Password reset successfully");
       let timeout = setTimeout(() => {
@@ -38,9 +42,12 @@ export default function PasswordRest(
       }, 2000); 
         document.getElementById("passwordResetModal").showModal();
       }).catch((error) => { 
-          console.log(error);
-          setError(error.message);
-          setHasError(true);
+        setLoading(false);
+        setError("An error occurred. Please try again later");
+        let timeout = setTimeout(() => {
+            setError("");
+            clearTimeout(timeout);
+        }, 2000);
       })
     }
   return (

@@ -6,6 +6,7 @@ import { useState } from "react";
 export default function ResetPassword(
     props: Props
 ){
+    if(typeof window === "undefined") return null;
     let [password, setPassword] = useState("");
     let [confirmPassword, setConfirmPassword] = useState("");
     let [email, setEmail] = useState("");
@@ -95,20 +96,22 @@ export default function ResetPassword(
         let token = params.get("token");
         console.log({token, password})
         document.getElementById("passwordResetModal").showModal();
-        
-        api.authStore.resetPassword(token, password).then((data) => { 
         setLoading(false);
-        setSuccess("Password reset successfully");
-        let timeout = setTimeout(() => {
-            setSuccess("");
-            clearTimeout(timeout);
-        }, 2000);
-            document.getElementById("passwordResetModal").showModal();
-        }).catch((error) => { 
-            console.log(error);
-            setError(error.message);
-            setHasError(true);
-        })
+        setSuccess("Password reset successfully");    
+        api.authStore.resetPassword(token, password).then((data) => { 
+            setLoading(false);
+            setSuccess("Password reset successfully");   
+             let timeout = setTimeout(() => {
+                setSuccess("");
+                clearTimeout(timeout);
+            }, 2000);
+                document.getElementById("passwordResetModal").showModal();
+            }).catch((error) => { 
+                console.log(error);
+                setError(error.message);
+                setHasError(true);
+       })
+         
     }
 
     return (
@@ -175,6 +178,7 @@ export default function ResetPassword(
               <button
                 onClick={() => {
                     document.getElementById("passwordResetModal").close();
+                    window.history.pushState({}, document.title, "/")
                     props.swapPage("login");
                 }}
                 className="btn bg-blue-500 rounded"

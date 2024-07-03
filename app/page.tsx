@@ -18,6 +18,10 @@ if(typeof window === "undefined") return null
 let searchParams = new URLSearchParams(window.location.search);
 
 let [page, changePage] = useState(searchParams.has("view") ? "view" :  searchParams.has("forgot_password") ? "resetPassword" : "home");
+if(!window.location.href.includes('forgot_password') && page == "resetPassword"){
+  changePage("home") 
+}
+ 
 let [params, setParams] = useState<any>({});
 let [lastPage, setLastPage] = useState("home");
 let [poorConnection, setPoorConnection] = useState(false);
@@ -79,6 +83,8 @@ if (darkMode) {
   return () => { hasInitialized.current = false };
   
 }, []);
+
+console.log(page)
 
  
 if(!api.authStore.isValid() && page !== "login" && page !== "register" && page !== "signup/finish" && page !== "forgotPassword"

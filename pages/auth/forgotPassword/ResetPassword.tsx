@@ -96,7 +96,19 @@ export default function ResetPassword(
         console.log({token, password})
         document.getElementById("passwordResetModal").showModal();
         
-        
+        api.authStore.resetPassword(token, password).then((data) => { 
+        setLoading(false);
+        setSuccess("Password reset successfully");
+        let timeout = setTimeout(() => {
+            setSuccess("");
+            clearTimeout(timeout);
+        }, 2000);
+            document.getElementById("passwordResetModal").showModal();
+        }).catch((error) => { 
+            console.log(error);
+            setError(error.message);
+            setHasError(true);
+        })
     }
 
     return (

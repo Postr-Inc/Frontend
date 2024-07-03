@@ -17,7 +17,7 @@ export default function Page() {
 if(typeof window === "undefined") return null 
 let searchParams = new URLSearchParams(window.location.search);
 
-let [page, changePage] = useState(searchParams.get("view") ? "view" :  searchParams.has("forgot_password") ? "resetPassword" : "home");
+let [page, changePage] = useState(searchParams.has("view") ? "view" :  searchParams.has("forgot_password") ? "resetPassword" : "home");
 let [params, setParams] = useState<any>({});
 let [lastPage, setLastPage] = useState("home");
 let [poorConnection, setPoorConnection] = useState(false);

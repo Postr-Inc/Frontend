@@ -11,8 +11,7 @@
 
 # Feature List
 
-## Upcoming 
-- [ ] Client Side Cache
+## Upcoming  
 - [ ] Reposting & Replies
 - [ ] Polls
 - [ ] Ability to mute & block creators
@@ -23,8 +22,7 @@
 - [ ] Private Creator Dashboards & analytics
 - [ ] Embedding outside content from different platforms
 - [ ] Developer Dashboards 
-- [ ] E2E Messaging
-- [ ] Rolling our own authentication 
+- [ ] E2E Messaging 
 
 
 ## Features that are finished
@@ -36,3 +34,5 @@
 - [x] Fast navigation
 - [x] Relevant who to follow side view
 - [x] Badges - showcasing who is subscriber and who is verified 
+- [x] Rolling our own authentication  
+- [x] Client Side Cache

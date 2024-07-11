@@ -15,7 +15,7 @@ function connectWebSocket() {
         return;
     }
     
-    ws = new WebSocket('ws://localhost:8080');
+    ws = new WebSocket('wss://anemic.postr.rf.gd');
     
     ws.onopen = () => {
         console.log('Connection opened');

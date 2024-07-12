@@ -11,8 +11,7 @@
 
 # Feature List
 
-## Upcoming  
-- [ ] Reposting & Replies
+## Upcoming   
 - [ ] Polls
 - [ ] Ability to mute & block creators
 - [ ] Notifications
@@ -22,12 +21,11 @@
 - [ ] Private Creator Dashboards & analytics
 - [ ] Embedding outside content from different platforms
 - [ ] Developer Dashboards 
-- [ ] E2E Messaging 
+- [ ] Messaging 
 
 
 ## Features that are finished
-
-- [x] Ability to oauth login
+- [x] Reposting & Replies
 - [x] Create content with images
 - [x] View user profiles
 - [x] Embedding content within other applications

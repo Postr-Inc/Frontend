@@ -1,13 +1,9 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import Post from "@/src/components/post";
-import { Loading } from "@/src/components/icons/loading";
-import BottomModal from "@/src/components/Bottomupmodal";
+import { Loading } from "@/src/components/icons/loading"; 
 import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-import Scroller from "react-infinite-scroll-component";
- 
-import Bookmark from "@/src/components/icons/bookmark";
+import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars"; 
 import { BottomNav } from "@/src/components/BottomNav";
 
 export default function Bookmarks(props: any) {
@@ -23,13 +19,10 @@ export default function Bookmarks(props: any) {
       id: api.authStore.model().id,
       expand: [
         "bookmarks",
-        "bookmarks.author",
-        "bookmarks.comments",
-        "bookmarks.comments.user",
+        "bookmarks.author", 
       ],
-    }); 
- 
-    setBookmarks(res.expand["bookmarks"] ? res.expand["bookmarks"] : []);
+    });  
+    setBookmarks(res.hasOwnProperty("bookmarks") ? res.expand.bookmarks : []);
     setTimeout(() => {
       setLoading(false);
     }, 1000);
@@ -47,13 +40,16 @@ export default function Bookmarks(props: any) {
       {isClient ? (
         <div className="relative xl:flex  sm:p-2  lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
           <SideBarLeft
-            params={props.params}
-            setParams={props.setParams}
-            currentPage={props.currentPage}
-            swapPage={props.swapPage}
+            {...props}
           />
           <div className="flex flex-col gap-5">
-            <div className="sticky bg-white z-[999] xl:mx-24 p-3 sm:p-2 top-0">
+            <div className={`
+              sticky  
+              ${
+                theme === "dark"  ? "bg-transparent" : "bg-white"
+              }
+              z-[999] xl:mx-24 p-3 sm:p-2 top-0"
+              `}>
               <div className="flex flex-row justify-between">
                 <div className="flex flex-col ">
                   <p className="font-bold">Bookmarks</p>
@@ -77,7 +73,7 @@ export default function Bookmarks(props: any) {
             </div>
 
             <div
-              className=" xl:mx-24  sm:p-2   text-md   
+              className=" xl:mx-24      text-md   
       relative 
       xl:w-[35vw]
       md:w-[80vw]
@@ -87,7 +83,7 @@ export default function Bookmarks(props: any) {
               <div className="mb-32">
                  {
                   loading ? (
-                    <div>
+                    <div className="sm:p-2">
                       <Loading />
                     </div>
                   )  : (
@@ -95,6 +91,7 @@ export default function Bookmarks(props: any) {
                       
                       {
                         bookmarks.length > 0 ? bookmarks.map((post: any) => {
+                          console.log(post);
                           return (
                             <Post
                               {...post}
@@ -117,9 +114,9 @@ export default function Bookmarks(props: any) {
                           )  
                         })
                           :   <div
-                          className="  flex flex-col mt-6 xl:justify-center xl:mx-auto  xl:p-5 lg:p-5 lg:justify-center lg:mx-auto
+                          className="  flex flex-col sm:mt-2 mt-6 xl:justify-center xl:mx-auto  xl:p-5 lg:p-5 lg:justify-center lg:mx-auto
                     w-[22rem] xl:w-[30rem]
-                   drop-shadow-md not-sr-only  
+                   drop-shadow-md not-sr-only   p-2
                 
               "
                         >
@@ -141,10 +138,7 @@ export default function Bookmarks(props: any) {
 
               <div className="xl:hidden lg:hidden">
                 <BottomNav
-                  params={props.params}
-                  setParams={props.setParams}
-                  currentPage={props.currentPage}
-                  swapPage={props.swapPage}
+                   {...props}
                 />
               </div>
             </div>

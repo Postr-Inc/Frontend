@@ -1,10 +1,18 @@
+import { api } from "@/src/api/api";
 export function DeleteModal(props: any) {
     return (
       <dialog
         id={props.id + "delete"}
-        className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none"
+        
+        className="  dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none rounded    "
       >
-        <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
+        <div 
+         style={{
+          border: theme == 'dark' ? '1px solid #2d2d2d' : '1px solid #f9f9f9',
+          background: theme == 'dark' ? '#121212' : '#f8f7f7',
+          borderRadius: '10px',
+        }}
+        className="modal-box xl:shadow-none lg:shadow-none md:shadow-none rounded bg-transparent">
           <h3 className="font-bold text-lg">Delete Post ?</h3>
           <p className="py-4">
             Are you sure you want to delete this post? This action cannot be

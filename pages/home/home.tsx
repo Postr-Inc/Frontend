@@ -1,3 +1,4 @@
+//@ts-nocheck
 "use client";
 import Bookmark from "@/src/components/icons/bookmark";
 import Settings from "@/src/components/icons/settings";
@@ -76,9 +77,7 @@ export default function Home(props: Props) {
         : "";
          
      
-    setPosts([]);
-    console.log(true)
-    console.log(filterString)
+    setPosts([]); 
     api
       .list({
         collection:  "posts",
@@ -97,6 +96,13 @@ export default function Home(props: Props) {
           "author.following",
           "author.following.followers",
           "author.following.following",
+          "repost",
+          "repost.author",
+          "repost.author.followers",
+          "repost.author.following",
+          "repost.likes",
+          "repost.comments.user",
+          "likes",
         ],
         page: 0, 
         sort: `-created`,
@@ -149,7 +155,24 @@ export default function Home(props: Props) {
             filter: filterString,
             cacheTime: 1200,
             expand: [
-              "author", 
+              "author",
+              "comments.user",
+              "user",
+              "post",
+              "post.author",
+              "author.followers",
+              "author.following",
+              "author.following.followers",
+              "author.following.following",
+              "repost",
+              "repost.author",
+              "repost.author.followers",
+              "repost.author.following",
+              "repost.likes",
+              "repost.comments", 
+              "repost.comments.user",
+              "likes",
+              "likes",
             ],
             sort: `-created`,
           })
@@ -204,13 +227,24 @@ export default function Home(props: Props) {
           cacheTime: 1200,
           filter: filterString,
           expand: [
-            "author",
-            "comments.user",
-            "author.followers",
-            "author.following",
-            "author.following.followers",
-            "author.following.following",
-            "likes",
+           "author",
+          "comments.user",
+          "user",
+          "post",
+          "post.author",
+          "author.followers",
+          "author.following",
+          "author.following.followers",
+          "author.following.following",
+          "repost",
+          "repost.author",
+          "repost.author.followers",
+          "repost.author.following",
+          "repost.likes",
+          "repost.comments", 
+          "repost.comments.user",
+          "comments",
+          "likes",
           ],
           sort: `-created`,
         })
@@ -225,42 +259,7 @@ export default function Home(props: Props) {
     //@ts-ignore
      
     document.title = `Postr - ${pageValue}`;
-    if(api.authStore.isValid() && !api.isSubscribed("posts") && !api.isSubscribed("users")){
-      api.subscribe({collection:"posts", event:"*"}, (e: any) => { 
-         if(e.event == "update" && e.record.author.id !== api.authStore.model().id){
-              for(var i of api.cacheStore.keys()){
-                  let data = JSON.parse(api.cacheStore.get(i)).value.items;
-                  console.log(data)
-                  for(var post of data){
-                    if(post.id === e.record.id){
-                      post = e.record;
-                      data = data.map((e: any) => e.id === post.id ? post : e)
-                    }
-                  }  
-                  api.cacheStore.set(i, {totalPages:api.cacheStore.get(i).totalPages, items:data}, 1200)
-              }
-         }
-      });
-      api.subscribe({collection:"users", event:"*"}, (e: any) => {
-        if(e.event == "update" && e.record.id === api.authStore.model().id){
-          api.authStore.model(e.record)
-        }else{ 
-          for(var i of api.cacheStore.keys()){ 
-            if(i.includes('user-profile') && i.includes(e.record.id)){
-              console.log(i)
-              let data = JSON.parse(api.cacheStore.get(i)).value;
-              data = e.record;
-              api.cacheStore.set(i, data, 1200) 
-            }else if(i.includes('user-home') && i.includes('following') &&  !e.record.followers.includes(api.authStore.model().id)){  
-              api.cacheStore.delete(i)
-            }else{
-              api.cacheStore.delete(i)
-            }
-          }
-        }
-      });
-      console.log("Subscribed to posts")
-    } 
+   
     return () => {
       hasRan.current = true;
     };
@@ -387,7 +386,7 @@ export default function Home(props: Props) {
                                   props.setParams({
                                     user: api.authStore.model().id,
                                   });
-                                  props.swapPage("user");
+                                  props.changePage("user");
                                 }}
                               >
                                 View Profile
@@ -450,7 +449,7 @@ export default function Home(props: Props) {
                             props.swapPage("bookmarks");
                           }}
                         />
-                        <Settings onClick={()=> {
+                        <Settings onClick={()=> { 
                           props.swapPage("settings")
                         }} className="w-7 h-7 cursor-pointer" />
                       </div>
@@ -542,8 +541,7 @@ export default function Home(props: Props) {
               loader={""}
             >
               {posts.length > 0
-                ? posts.map((e: any, index: number) => {
-                  console.log(e)
+                ? posts.map((e: any, index: number) => { 
                     return (
                       <div
                         className={`     sm:p-3  
@@ -611,6 +609,7 @@ export default function Home(props: Props) {
               <BottomNav
                 params={props.params}
                 setParams={props.setParams}
+                changePage={props.changePage}
                 currentPage={props.currentPage}
                 swapPage={props.swapPage}
               />

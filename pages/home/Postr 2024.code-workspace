@@ -28,8 +28,18 @@
 		},
 		{
 			"path": "../../../../../OneDrive/Documents/postr-next"
+		},
+		{
+			"path": "../../../../Developer_Panel"
+		},
+		{
+			"path": "../../../Postr go"
+		},
+		{
+			"path": "../../../Postr Recommedation Algorithm"
 		}
 	],
 	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Hapta-Cache"
 	}
 }

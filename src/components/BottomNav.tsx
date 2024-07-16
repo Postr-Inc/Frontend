@@ -1,45 +1,45 @@
 "use client";
 
 import { useState } from "react";
-export   function BottomNav(props: any) {
+import { Props } from "../@types/types";
+export function BottomNav(props: Props) {
   let [activePage, setActivePage] = useState("home");
-  let theme = 
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "bg-darker"
-    : "bg-base-200";
+  let theme =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches == true
+      ? "text-white hover:fill-white"
+      : "text-black hover:fill-black";
   return (
     <div
-      className=" fixed bottom-8 left-[50%] transform -translate-x-1/2    w-80
+      className=" fixed bottom-0 left-0 w-full
      "
     >
-      <ul
-      style={{borderRadius: "1rem"}}
-        className={`menu menu-horizontal rounded-box  w-fit 
+      <ul 
+        className={` flex justify-between p-5   h-full
     ${
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "bg-darker text-white fill-white stroke-white"
-        : "bg-base-200"
+        ? "bg[#121212] text-white fill-white stroke-white border-t-[#53535322] border border-l-0 border-b-0 border-r-0"
+        : "bg-white"
     }
     `}
       >
-        <li
-        
-        >
+        <li className="mb-5">
           <a
-     onClick={() => {
-      props.swapPage("home");
-    }}  
-          
+            onClick={() => {
+              props.changePage("home");
+            }}
           >
             <svg
               className={`
                 w-7 h-7
                 cursor-pointer
-                 
+                 ${
+                   props.currentPage == `home`
+                     ? "text-white hover:fill-white"
+                     : "  opacity-50"
+                 }
                 `}
-              
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -53,8 +53,8 @@ export   function BottomNav(props: any) {
             </svg>
           </a>
         </li>
-        
-        <li>
+
+        <li className="mb-5">
           <a>
             <svg
               className="
@@ -77,7 +77,7 @@ export   function BottomNav(props: any) {
             </svg>
           </a>
         </li>
-        <li>
+        <li className="mb-5">
           <a>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +104,7 @@ export   function BottomNav(props: any) {
             </svg>
           </a>
         </li>
-        <li>
+        <li className="mb-5">
           <a>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -128,14 +128,61 @@ export   function BottomNav(props: any) {
             </svg>
           </a>
         </li>
-       <li>
-        <a>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className=" w-7 h-7">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0118 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0118 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 016 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5" />
-</svg>
-
-        </a>
-       </li>
+        <li className="mb-5">
+          <a
+            onClick={() => {
+              props.changePage("messages");
+            }}
+            className={`
+          ${
+            props.currentPage == `messages`
+              ? window.theme == "dark" ? "text-white hover:fill-white " : "text-black hover:fill-black"
+              : "text-gray-500 hover:fill-black"
+          }
+          `}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-7 h-7  "
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+              />
+            </svg>
+          </a>
+        </li>
+        <li className="mb-5">
+          <a>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className={`
+          w-7 h-7
+          cursor-pointer
+          ${
+            props.currentPage == `snippets`
+              ? "text-white hover:fill-white"
+              : " text-gray-500 "
+          }
+          `}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m7.848 8.25 1.536.887M7.848 8.25a3 3 0 1 1-5.196-3 3 3 0 0 1 5.196 3Zm1.536.887a2.165 2.165 0 0 1 1.083 1.839c.005.351.054.695.14 1.024M9.384 9.137l2.077 1.199M7.848 15.75l1.536-.887m-1.536.887a3 3 0 1 1-5.196 3 3 3 0 0 1 5.196-3Zm1.536-.887a2.165 2.165 0 0 0 1.083-1.838c.005-.352.054-.695.14-1.025m-1.223 2.863 2.077-1.199m0-3.328a4.323 4.323 0 0 1 2.068-1.379l5.325-1.628a4.5 4.5 0 0 1 2.48-.044l.803.215-7.794 4.5m-2.882-1.664A4.33 4.33 0 0 0 10.607 12m3.736 0 7.794 4.5-.802.215a4.5 4.5 0 0 1-2.48-.043l-5.326-1.629a4.324 4.324 0 0 1-2.068-1.379M14.343 12l-2.882 1.664"
+              />
+            </svg>
+          </a>
+        </li>
       </ul>
     </div>
   );

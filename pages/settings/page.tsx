@@ -2,17 +2,20 @@ import { Props } from "@/src/@types/types";
 import Modal from "@/src/components/Modal";
 import SettingsIcon from "@/src/components/icons/settings"
 import IconBack from "@/src/components/icons/backarrow"
+import { useState } from "react";
 import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
 import { api } from "@/src/api/api";
+import Page from "@/src/components/shared/Page.tsx";
 
 export default function Settings(props: Props){
    if(typeof window === "undefined") return null
+   let [shouldNotify, setShouldNotify] = useState(localStorage.getItem("notify") === "true" ? true : false);
+   
     return (
-        <div className="relative xl:flex   lg:flex   xl:w-[80vw]   justify-center xl:mx-auto    ">
-             
-             <SideBarLeft {...props} />
-             <div className=" xl:w-[35vw]
-         md:w-[50vw]   p-5 mt-5  mx-auto flex flex-col gap-5">
+      <Page 
+      {...props}>
+  <div className=" xl:w-[35vw]
+         md:w-[50vw]  xl:p-0 p-2  mt-5  mx-auto flex flex-col gap-5">
               {
                 /**
                  * @todo add back arrow
@@ -22,8 +25,7 @@ export default function Settings(props: Props){
               <div className="hover:border-slate-200 hover:bg-white btn-ghost btn btn-circle btn-sm bg-white">
             <svg
               onClick={() => {
-                let lastPage = props.lastPage; 
-                props.swapPage(lastPage);
+                 props.goBack()
               }}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -47,7 +49,7 @@ export default function Settings(props: Props){
                     <h1>Account Management</h1>
                     <p className="opacity-50 text-sm">Manage your account, change password details and more</p>
                 </div>
-                <div className="mt-2 gap-2 flex"> 
+                <div className="mt-4 gap-2 flex"> 
                   <button className="btn-ghost btn-sm rounded-full border-slate-200"
                   onClick={()=>{
                     //@ts-ignore
@@ -67,14 +69,30 @@ export default function Settings(props: Props){
                             <p className="from-blue-500 to-purple-500 bg-gradient-to-r  text-transparent bg-clip-text font-bold">Postr++</p>
                             <p>Status: Subscribed</p>
                             <p>Next Payment: 6/25/2024</p>
-                        </div> : <div className="p-5 bg-base-200">
+                        </div> : <div className="p-5 rounded-xl bg-base-200">
                             <p>Status: Not Subscribed</p>
                         </div>
                     }
               </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex">
+                    <h1>Post Notifications</h1> 
+                     
+                </div>
+                <span className="hero flex gap-2 mt-2">
+                    <input type="checkbox" className="toggle toggle-accent" switch 
+                    checked={shouldNotify}
+                    onChange={()=>{
+                        setShouldNotify(!shouldNotify);
+                        localStorage.setItem("notify", shouldNotify ? "false" : "true")
+                    }}
+                    />
+                    <label>{shouldNotify ? "Disable" : "Enable"} Notifications</label>
+                </span>
+              </div>
              </div>
-             <SideBarRight {...props} /> 
              <Modal  id="change_password" 
+             
              className="xl:h-[400px] md:h-[400px] h-[390px] xl:w-[500px] md:w-[500px] rounded-md"
              >
                 <form method="dialog">
@@ -93,6 +111,7 @@ export default function Settings(props: Props){
                 </div>
                 </form>
              </Modal>
-        </div>
+      </Page>
+         
     )
 }

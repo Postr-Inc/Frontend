@@ -1,7 +1,8 @@
+//@ts-nocheck
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Modal from "./Modal";
-import BottomModal from "./Bottomupmodal"; 
+import BottomModal from "./Bottomupmodal";
 import CommentModal from "./modals/CommentModal";
 import { DeleteModal } from "./modals/DeletePost";
 import { LazyImage } from "./Image";
@@ -45,9 +46,7 @@ const created = (created: any) => {
     default:
       break;
   }
-}; 
-
- 
+};
 
 export default function Post(props: any) {
   let [likes, setLikes] = useState(props.likes);
@@ -72,7 +71,6 @@ export default function Post(props: any) {
             likes: likes.filter((id: any) => id != api.authStore.model().id),
           },
         });
-
         break;
 
       default:
@@ -84,6 +82,18 @@ export default function Post(props: any) {
           id: props.id,
           record: { likes: [...likes, api.authStore.model().id] },
         });
+        if (props.author !== api.authStore.model().id) {
+          api.notify.send({
+            title: `${api.authStore.model().username} liked your post - Postr`,
+            body: props.content,
+            icon: api.cdn.url({
+              id: api.authStore.model().id,
+              collection: "users",
+              file: api.authStore.model().avatar,
+            }),
+            recipient: props.author,
+          });
+        }
 
         break;
     }
@@ -93,12 +103,37 @@ export default function Post(props: any) {
     <div
       key={props.id}
       id={props.id}
+      {...(props.notInteractable && {
+        onClick: () => {
+          if (!props.isCreating) {
+            let p = Object.assign({}, props);
+            p.notInteractable = false;
+
+            props.setParams({ post: p, type: "posts" });
+            props.swapPage("view");
+            window.history.pushState(
+              {},
+              "",
+              "/?view=status&id=" + props.id + "&type=posts"
+            );
+          }
+        },
+      })}
       className={`xl:mt-0 w-full h-fit  relative  xl:p-3 
+        ${theme == "dark" ? "text-white" : "text-black"}
         ${
-          theme == 'dark' ? 'text-white' : 'text-black'
+          props.notInteractable && props.isCreating
+            ? theme == "dark"
+              ? "border rounded-md border-[#2d2d2d]"
+              : "border-[#f9f9f9] rounded-md cursor-pointer"
+            : ""
+        }
+        xl:p-0 
+        ${
+          props.page == "user" || props.notInteractable && "p-3"
         }
         ${
-          props.currentPage == 'view' ? 'p-2 xl:p-0' : ''
+          props.page == "home" ? "p-0" : "p-2"
         }
         xl:mb-0 mb-6
         ${props.isLast ? "mb-[7rem]" : ""}
@@ -120,9 +155,7 @@ export default function Post(props: any) {
             viewBox="0 0 24 24"
             aria-hidden="true"
             className={`w-4 h-4
-              ${
-                theme == 'dark' ? 'fill-white' : 'fill-black'
-              }
+              ${theme == "dark" ? "fill-white" : "fill-black"}
         `}
           >
             <g>
@@ -177,16 +210,85 @@ export default function Post(props: any) {
           )}
           <div className="flex flex-col   heros">
             <div className="flex flex-row h-0 mt-2 gap-2 hero">
-              <p
-                onClick={() => {
-                  props.setParams({ user: props.author });
-                  props.swapPage("user");
-                }}
-              >
-                <span className="capitalize font-bold cursor-pointer">
-                  {props.expand.author?.username}
-                </span>
-              </p>
+              <div class="dropdown dropdown-hover dropdown-start">
+                <div tabindex="0" role="button" class="">
+                  <p
+                    onClick={() => {
+                      props.setParams({ user: props.author });
+                      props.swapPage("user");
+                    }}
+                  >
+                    <span className="capitalize font-bold cursor-pointer">
+                      {props.expand.author?.username}
+                    </span>
+                  </p>
+                </div>
+                <ul
+                  tabindex="0"
+                  class={`dropdown-content    bg-base-100 rounded-xl z-[1] w-64   p-2 shadow
+                    ${
+                      theme == "dark" ? "border border-[#2d2d2d] rounded-box" : "border border-[#e0e0e0]"
+                    }
+                    `}
+                >
+                     <div className="flex hero gap-2">
+                      {
+                        props.expand.author.avatar ? (
+                          <img
+                            src={api.cdn.url({
+                              collection: "users",
+                              file: props.expand.author.avatar,
+                              id: props.expand.author.id,
+                            })}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover"
+                          ></img>
+                        ) : (
+                          <div className="avatar placeholder">
+                            <div className="bg-base-200 text-black rounded w-8 h-8 avatar">
+                              <span className="text-2xl">
+                                {props.expand.author.username.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      }
+                    <div>
+                      <p className="font-bold">{props.expand.author?.username}</p>
+                      <p className=" text-sm">@{props.expand.author?.username}</p>
+                    </div>
+                     </div>
+                     <div className="mt-2"> 
+                        <p >{props.expand.author?.bio}</p>
+                     </div>
+                     <div className="mt-2"> 
+                        <p c >Joined {new Date(props.expand.author?.created).toLocaleDateString()}</p>
+                      </div>
+                      <div className="mt-2 flex gap-2">
+                        <p  >Followers: {props.expand.author?.followers.length}</p>
+                        <p >Following: {props.expand.author?.following.length}</p>
+                      </div>
+                      {
+                        props.expand.author.followers.map((follower: any) => {
+                           if(api.authStore.model().followers.includes(follower.id)){
+                              return (
+                                <div className="flex gap-2">
+                                  <img src={api.cdn.url({
+                                    collection: "users",
+                                    file: follower.avatar,
+                                    id: follower.id,
+                                  })} alt="" className="w-8 h-8 rounded-full object-cover"></img>
+                                  <div>
+                                    <p className="font-bold">{follower.username}</p>
+                                    <p className="opacity-50">@{follower.username}</p>
+                                  </div>
+                                </div>
+                              )
+                           }
+                        })
+                      }
+                </ul>
+              </div>
               <p
                 className="hover:underline opacity-50 text-sm md:hidden sm:hidden
               "
@@ -249,150 +351,213 @@ export default function Post(props: any) {
                 ""
               )}
               ·<span className="text-sm">{created(props.created)}</span>
-              <div className="flex gap-2   absolute end-2 ">
-                <div className="dropdown dropdown-left">
-                  <div tabIndex={0} role="button" className="m-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6"
+              {!props.notInteractable && (
+                <div className="flex gap-2   absolute end-2 ">
+                  <div className="dropdown dropdown-left">
+                    <div tabIndex={0} role="button" className="m-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                        />
+                      </svg>
+                    </div>
+                    <ul
+                      tabIndex={0}
+                      style={{
+                        borderRadius: "10px",
+                        border:
+                          theme == "dark"
+                            ? "1px solid #2d2d2d"
+                            : "1px solid #f9f9f9",
+                      }}
+                      className="dropdown-content menu bg-base-100 rounded-box font-bold z-[1] w-64 p-2 shadow-xl"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                      />
-                    </svg>
-                  </div>
-                  <ul
-                    tabIndex={0}
-                    style={{borderRadius: '10px',
-                      border: theme == 'dark' ? '1px solid #2d2d2d' : '1px solid #f9f9f9',
-                    }}
-                    className="dropdown-content menu bg-base-100 rounded-box font-bold z-[1] w-64 p-2 shadow-xl"
-                  >
-                     {props.expand?.author &&
-                    props.expand.author.id == api.authStore.model().id ? (
+                      {props.expand?.author &&
+                      props.expand.author.id == api.authStore.model().id ? (
+                        <li>
+                          <a
+                            className="text-red-500 flex hero gap-2"
+                            onClick={() => {
+                              //@ts-ignore
+                              document
+                                .getElementById(props.id + "delete")
+                                ?.showModal();
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                              />
+                            </svg>
+                            Delete
+                          </a>
+                        </li>
+                      ) : (
+                        ""
+                      )}
+
                       <li>
-                        <a 
-                          className="text-red-500 flex hero gap-2"
+                        <a
+                          className="hero flex gap-2"
                           onClick={() => {
-                            //@ts-ignore
                             document
-                              .getElementById(props.id + "delete")
+                              .getElementById(props.id + "embed")
                               ?.showModal();
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-</svg>
-
-                          Delete
+                          <svg
+                            className="w-4 h-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
+                            />
+                          </svg>
+                          Embed Post
                         </a>
                       </li>
-                    ) : (
-                      ""
-                    )}
-                     
-                    <li>
-                      <a
-                        className="hero flex gap-2"
+                      {props.expand?.author &&
+                        props.expand.author.id !== api.authStore.model().id && (
+                          <li>
+                            {!api.authStore
+                              .model()
+                              .blocked.includes(props.author) ? (
+                              <a className="hero flex gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                                  />
+                                </svg>
+                                Block @{props.expand?.author?.username}
+                              </a>
+                            ) : (
+                              <a className="hero flex gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                                  />
+                                </svg>
+                                Unblock @{props.expand?.author?.username}
+                              </a>
+                            )}
+                          </li>
+                        )}
+                      <li>
+                        <a 
                         onClick={() => {
-                          document
-                            .getElementById(props.id + "embed")
-                            ?.showModal();
+                          props.setParams({ post: props, type: "posts" });
+                          props.swapPage("postEngagement")
                         }}
-                      >
-                        <svg 
-                        className="w-4 h-4"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" >
-  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-</svg>
+                        className="hero flex gap-2">
+                          <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                            fill="currentColor"
+                            className="cursor-pointer   w-4 h-4  "
+                          >
+                            <g>
+                              <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
+                            </g>
+                          </svg>
+                          View Post Engagement
+                        </a>
+                      </li>
+                      {props.expand?.author &&
+                      props.expand.author.id == api.authStore.model().id ? (
+                        <li>
+                          <a
+                            className="hero flex gap-2"
+                            onClick={() => {
+                              props.pin(props.id);
+                            }}
+                          >
+                            <svg
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                              className="w-4 h-4
+           
+          "
+                            >
+                              <g>
+                                <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
+                              </g>
+                            </svg>
+                            {props.pinned ? "Unpin" : "Pin"}
+                          </a>
+                        </li>
+                      ) : (
+                        ""
+                      )}
 
-                        Embed Post
-                      </a>
-                      
-                    </li>
-                     {
-                      props.expand?.author &&
-                      props.expand.author.id !== api.authStore.model().id && 
-                      <li>
-                        {
-                          !api.authStore.model().blocked.includes(props.author) ? (
+                      {props.expand?.author &&
+                        props.expand.author.id == api.authStore.model().id && (
+                          <li>
                             <a className="hero flex gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-</svg>
-
-                              Block @{props.expand?.author?.username}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
+                                />
+                              </svg>
+                              Who can reply
                             </a>
-                          ) : (
-                            <a className="hero flex gap-2"> 
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-</svg>
-
-                              Unblock @{props.expand?.author?.username}
-                            </a>
-                          )
-                        }
-                      </li>
-                     }
-                     <li>
-                      <a className="hero flex gap-2">
-                      <svg viewBox="0 0 24 24" aria-hidden="true" 
-                      fill="currentColor"
-                      className="cursor-pointer   w-4 h-4  "><g><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path></g></svg>
-                       View Post Engagement
-                      </a>
-                     </li>
-                    {props.expand?.author &&
-                    props.expand.author.id == api.authStore.model().id ? (
-                      <li>
-                        <a
-                         className="hero flex gap-2"
-                          onClick={() => {
-                            props.pin(props.id);
-                          }}
-                        >
-                           <svg
-                           fill="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className="w-4 h-4
-         
-        "
-          >
-            <g>
-              <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
-            </g>
-          </svg>
-                          {props.pinned ? "Unpin" : "Pin"}
-                        </a>
-                      </li>
-                    ) : (
-                      ""
-                    )}
-
-                    {
-                      props.expand?.author &&
-                      props.expand.author.id == api.authStore.model().id &&
-                       <li>
-                        <a className="hero flex gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z" />
-</svg>
-                        Who can reply
-                        </a>
-                       </li>
-                    }
-                    
-                  </ul>
+                          </li>
+                        )}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -401,13 +566,15 @@ export default function Post(props: any) {
         <p
           style={{ cursor: "pointer" }}
           onClick={() => {
-            props.setParams({ post: props, type: "posts" });
-            props.swapPage("view");
-            window.history.pushState(
-              {},
-              "",
-              "/?view=status&id=" + props.id + "&type=posts"
-            );
+            if (!props.notInteractable) {
+              props.setParams({ post: props, type: "posts" });
+              props.swapPage("view");
+              window.history.pushState(
+                {},
+                "",
+                "/?view=status&id=" + props.id + "&type=posts"
+              );
+            }
           }}
           className="mt-2"
           ref={(e) => {
@@ -416,6 +583,23 @@ export default function Post(props: any) {
             }
           }}
         ></p>
+        {props.isRepost && (
+          <div
+            className={`mt-2 ${
+              theme == "dark"
+                ? " border border-[#2d2d2d] rounded-md"
+                : "border border-[#dbdbdb] rounded-md"
+            }`}
+          >
+            <Post
+              notInteractable={true}
+              id={props.expand?.repost?.id}
+              {...props.expand.repost}
+              setParams={props.setParams}
+              swapPage={props.swapPage}
+            ></Post>
+          </div>
+        )}
 
         {props.file.length > 0 ? (
           <div className="mt-2">
@@ -471,179 +655,174 @@ export default function Post(props: any) {
         )}
 
         {/**Heart Icon */}
-        <div className="flex    mt-5">
-          <div className="w-fit flex gap-2  hero">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className={`
-            hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-6 h-6 hover:text-rose-500
-            cursor-pointer ${
-              likes.includes(api.authStore.model().id)
-                ? "fill-rose-500 text-rose-500"
-                : ""
-            }`}
-              onClick={(e) => {
-                console.log("clicked");
-                handleLike();
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+        {!props.notInteractable && (
+          <div className="flex    mt-5">
+            <div className="w-fit flex gap-2  hero">
+              <input
+                type="checkbox"
+                className="toggle toggle-accent"
+                switch
+                hidden
+                name="likebtn"
+                onChange={() => {
+                  console.log("clicked");
+                }}
               />
-            </svg>
-            {likes.length}
-          </div>
-
-          <div className="flex gap-2 hero  p-2 w-fit ">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id + "comments")?.showModal();
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
-              />
-            </svg>
-            {comments.length}
-          </div>
-          <Repost
-            originalAuthor={props.expand?.author?.username}
-            originalPost={props}
-            postID={props.id}
-            cacheKey={props.cacheKey}
-          />
-
-          <span className="tooltip tooltip-bottom" data-tip="Post Views">
-          <div className="w-fit p-2 hero flex">
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              className={`cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
-                ${
-                  theme == 'dark' ? 'fill-white' : 'fill-black'
-                }
-                `}
-            >
-              <g>
-                <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
-              </g>
-            </svg>
-            <span>{props.views.length}</span>
-          </div>
-          </span>
-          <div className="absolute end-5 flex  gap-2">
-            <div className="w-fit p-2 hero flex">
-              <span className="tooltip tooltip-bottom" data-tip="share">
+              <label htmlFor="likebtn" className="cursor-pointer">
                 <svg
-                  onClick={() => {
-                    navigator.share({
-                      title: props.expand.author.username + " on Postr ",
-                      text: props.content.slice(0, 100),
-                      url: `https://embedify-v1.vercel.app/embed/posts/${props.id}/meta`,
-                    });
-                  }}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-7   h-7 hover:text-sky-500"
+                  className={`
+              hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-6 h-6 hover:text-rose-500
+              cursor-pointer ${
+                likes.includes(api.authStore.model().id)
+                  ? "fill-rose-500 text-rose-500"
+                  : ""
+              }`}
+                  onClick={(e) => {
+                    console.log("clicked");
+                    handleLike();
+                  }}
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
                   />
                 </svg>
-              </span>
+              </label>
+              {likes.length}
             </div>
 
-            <div className="w-fit p-2 hero flex">
-              <Bookmark
-                id={props.id}
-                className={`
-            cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
-            ${bookmarked ? "fill-blue-500 text-blue-500" : ""}`}
+            <div className="flex gap-2 hero  p-2 w-fit ">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
                 onClick={() => {
-                  if (bookmarked) {
-                    api.update({
-                      collection: "users",
-                      cacheKey: `users-${api.authStore.model().id}`,
-                      id: api.authStore.model().id,
-                      record: {
-                        bookmarks: api.authStore
-                          .model()
-                          .bookmarks.filter((id: any) => id != props.id),
-                      },
-                    });
-                    api.update({
-                      collection: "posts",
-                      cacheKey: props.cacheKey,
-                      invalidateCache: [
-                        "bookmarks-" + api.authStore.model().id,
-                      ],
-                      id: props.id,
-                      record: {
-                        bookmarks: api.authStore
-                          .model()
-                          .bookmarks.filter((id: any) => id != props.id),
-                      },
-                    });
-                    api.authStore.update();
-                    setBookmarked(false);
-                    if (props.deleteBookmark) {
-                      props.deleteBookmark();
-                    }
-                  } else {
-                    api.update({
-                      collection: "users",
-                      cacheKey: `users-${api.authStore.model().id}`,
-                      id: api.authStore.model().id,
-                      record: {
-                        bookmarks: [
-                          ...api.authStore.model().bookmarks,
-                          props.id,
-                        ],
-                      },
-                    });
-                    api.update({
-                      collection: "posts",
-                      cacheKey: props.cacheKey,
-                      invalidateCache: [
-                        "bookmarks-" + api.authStore.model().id,
-                      ],
-                      id: props.id,
-                      record: {
-                        bookmarks: [
-                          ...api.authStore.model().bookmarks,
-                          props.id,
-                        ],
-                      },
-                    });
-
-                    api.authStore.update();
-                    setBookmarked(true);
-                  }
+                  //@ts-ignore
+                  document.getElementById(props.id + "comments")?.showModal();
                 }}
-              />
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                />
+              </svg>
+              {comments.length}
+            </div>
+            <Repost
+              originalAuthor={props.expand?.author?.username}
+              originalPostID={props.id}
+              cacheKey={props.cacheKey}
+              post={props}
+            />
+
+            <span className="tooltip tooltip-bottom" data-tip="Post Views">
+              <div className="w-fit p-2 hero flex">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className={`cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
+                  ${theme == "dark" ? "fill-white" : "fill-black"}
+                  `}
+                >
+                  <g>
+                    <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
+                  </g>
+                </svg>
+                <span>{props.views.length}</span>
+              </div>
+            </span>
+            <div className="absolute end-5 flex  gap-2">
+              <div className="w-fit p-2 hero flex">
+                <span className="tooltip tooltip-bottom" data-tip="share">
+                  <svg
+                    onClick={() => {
+                      navigator.share({
+                        title: props.expand.author.username + " on Postr ",
+                        text: props.content.slice(0, 100),
+                        url: `https://embedify-v1.vercel.app/embed/posts/${props.id}/meta`,
+                      });
+                    }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-7   h-7 hover:text-sky-500"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                    />
+                  </svg>
+                </span>
+              </div>
+
+              <div className="w-fit p-2 hero flex">
+                <Bookmark
+                  id={props.id}
+                  className={`
+              cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
+              ${bookmarked ? "fill-blue-500 text-blue-500" : ""}`}
+                  onClick={() => {
+                    if (bookmarked) {
+                      api.update({
+                        collection: "users",
+                        cacheKey: `users-${api.authStore.model().id}`,
+                        invalidateCache: [`bookmarks-${api.authStore.model().id}`],
+                        immediatelyUpdate: true,
+                        id: api.authStore.model().id,
+                        expand: ["bookmarks"],
+                        record: {
+                          bookmarks: api.authStore
+                            .model()
+                            .bookmarks.filter((id: any) => id != props.id),
+                        },
+                      });
+                      
+                      api.authStore.update();
+                      setBookmarked(false);
+                      if (props.deleteBookmark) {
+                        props.deleteBookmark();
+                      }
+                    } else {
+                      api.update({
+                        collection: "users",
+                        cacheKey: `users-${api.authStore.model().id}`,
+                        id: api.authStore.model().id,
+                        immediatelyUpdate: true,
+                        expand: ["bookmarks"],
+                        invalidateCache: [
+                          `bookmarks-${api.authStore.model().id}`, 
+                          `user-feed-${api.authStore.model().id}`
+                        ],
+                        record: {
+                          bookmarks: [
+                            ...api.authStore.model().bookmarks,
+                            props.id,
+                          ],
+                        },
+                      });
+                     
+                      api.authStore.update();
+                      setBookmarked(true);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {props.file

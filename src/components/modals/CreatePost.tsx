@@ -1,6 +1,7 @@
 //@ts-nocheck
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/src/api/api";
+import Post from "../post";
 export default function CreatePostModal(
     props: { setParams: any; swapPage: any } | any
 ) {
@@ -10,30 +11,40 @@ export default function CreatePostModal(
   const params = window.postModalParemeters
   const [errors, setErrors] = useState([]);
   const [error, setError] = useState({});
+  let [isUploading, setIsUploading] = useState(false);
+  let [isPoll, setIsPoll] = useState(false);
+  let [pollOptions, setPollOptions] = useState([] as any);
+  let [pollEnds, setPollEnds] = useState(new Date().getTime() + 1000 * 60 * 60 * 24);
   const maxlength = 280;
+  const [postModalParams, setPostModalParams] = useState({} as any);
+  window.setPostModalParams = (params: any) => {
+    setPostModalParams(params);
+  } 
   async function createPost() {
     let hasErrored = {
       message: "",
       id: "",
     };
+
     if (postimgs.length > 0) {
-      postimgs = postimgs.map(async (img: any) => {
+      postimgs = await Promise.all(postimgs.map(async (img: any) => {
         if (img.size > 1800000) {
           hasErrored.message = `One or more of your images are too large`;
           hasErrored.id = img.name;
-          postimgs = postimgs.filter((img: any) => img.name !== hasErrored.id);
-          return;
+          setErrors((errors: any) => [...errors, hasErrored]);
+          return null;
         }
         let res = {
-          name: img.name,
-          type: img.type,
-          size: img.size,
-          data: await api.getAsByteArray(
-            new Blob([img.data], { type: img.type }) as File
-          ),
-        };
+           name: img.name,
+           type: img.type,
+           size: img.size,
+           data: await api.getAsByteArray(
+            new Blob([img], { type: img.type }) as File
+          )
+        }
         return res;
-      });
+      }));
+      postimgs = postimgs.filter(img => img !== null);
     }
 
     switch (true) {
@@ -46,60 +57,81 @@ export default function CreatePostModal(
       case postimgs.length > 4:
         alert("You can only upload 4 images");
         return;
+      case isUploading:
+        return;
       default:
         try {
+          setIsUploading(true);
           setPosting(true);
           let post = await api.create({
             collection: "posts",
-            expand: ["author", "likes", "comments"],
-            invalidateCache: [
-              "home-following",
-              `user-feed-${api.authStore.model().id}`,
-              "home-recommended",
-            ],
+            expand: ["repost", "author"], 
             record: {
               author: api.authStore.model().id,
-              content: text,
+              content: text, 
+              ...(isPoll && {
+                hasPoll: true,
+                pollOptions,
+                pollEnds,
+                pollVotes: [],
+               }),
+              ...(postModalParams.type == "repost" ? { repost: postModalParams.post.id , isRepost: true } : {}),
               file: {
                 isFile: true,
-                file: await Promise.all(postimgs),
+                file: await Promise.all(postimgs)
               },
               comments: [],
               likes: [],
-              mentioned: [],
             },
-          });
-          console.log(post);
-          //@ts-ignore
+          }); 
+          setPostimgs([]);
+          setIsUploading(false);
+          setText("");
           props.setParams({ id: post.id, type: "posts" });
           props.swapPage("view");
-
-          setPostimgs([]);
-          setText("");
           //@ts-ignore
           typeof window != "undefined" &&
-            //@ts-ignore
+          //@ts-ignore
             document.getElementById("createPost")?.close();
           setPosting(false);
-        } catch (error) {}
+        } catch (error) {
+          setIsUploading(false);
+          setPosting(false);
+          console.error(error);
+        }
         break;
     }
   }
+  useEffect(() => {
+    if (Object.keys(postModalParams).length > 0) {
+      //@ts-ignore
+      document.getElementById("createPost")?.showModal();
+    }
+  }, [postModalParams]);
   return (
     <dialog
-    style={{borderRadius: '10px',}}
+     
+    style={{borderRadius: '10px', }}
     id="createPost"
-    className="sm:modal  sm:modal-middle   p-5  xl:w-[25vw] rounded-box"
+    className={`sm:modal  sm:modal-middle    rounded-box
+    
+    `} 
   >
-    <div 
-    style={{borderRadius: '10px',}}
-    className="sm:modal-box ">
+    <div  
+    style={{borderRadius: '10px',  
+      border: theme == 'dark' ? '1px solid #2d2d2d' : '1px solid #f9f9f9',
+      }}
+    className="sm:modal-box p-5 xl:w-[25vw]">
       <div className="flex hero justify-between">
         <p
           className="cursor-pointer hover:text-red-500"
           onClick={() => {
             //@ts-ignore
             document.getElementById("createPost")?.close();
+            setPostModalParams({});
+            setIsUploading(false);
+            setPosting(false);
+            setPostimgs([]);
           }}
         >
           Cancel
@@ -123,7 +155,7 @@ export default function CreatePostModal(
 
 
       `}
-        style={{ height: text.length > 0 ? "auto" : " " }}
+        style={{ height: text.length  > 0 || postModalParams.type === "repost" ? "auto" : " " }}
       >
         <div className="flex flex-row      ">
           {api.authStore.model().avatar ? (
@@ -140,24 +172,39 @@ export default function CreatePostModal(
               </div>
             </div>
           )}
-          <div className="flex  flex-col w-full">
-            <textarea
-              className={`w-full mt-2 mx-3 
-          focus:outline  
-          h-32 overflow-y-hidden
-          resize-none outline-none`}
-              placeholder="What's happening?"
-              onChange={(e) => {
-                setText(e.target.value);
-              }}
-              maxLength={maxlength}
-            ></textarea>
+          <div className="flex  flex-col mx-2 w-full mb-12">
+          <textarea
+            className="w-full h-full bg-transparent focus:outline-none resize-none"
+            placeholder={postModalParams.type == "repost" ? `Add a comment` : "What's happening?" }
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+            }}
+          ></textarea>
+            
+             
           </div>
         </div>
+        {
+             postModalParams.type == "repost" ? (
+               <div className={
+                theme == 'dark' ? ' rounded-box border-[#121212] border ' : 'rounded-box border-[#d8d8d8]  border'
+               } 
+               >
+                <Post 
+               isCreating={true}
+               notInteractable={true}
+               {...postModalParams.post}
+               expand={postModalParams.post.expand}
+               {...props} 
+                />
+                </div>
+             ) : ""
+          }
 
         <div className="scroll overflow-y-hidden">
           {postimgs.length > 0 && (
-            <div className="sm:grid sm:grid-cols-2 flex flex-row flex-wrap flex-grow gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {Object.keys(postimgs).map((key: any) => {
                 let hasErrored = false;
                 console.log(errors);
@@ -165,7 +212,7 @@ export default function CreatePostModal(
                   ? (hasErrored = true)
                   : (hasErrored = false);
                 return (
-                  <div className="relative  w-32 h-32 ">
+                  <div className="relative  w-full" key={key}>
                     <img
                       src={URL.createObjectURL(postimgs[key])}
                       className={` object-cover w-32 h-32 rounded-md

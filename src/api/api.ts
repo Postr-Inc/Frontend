@@ -5,7 +5,9 @@ let urls = {
     prod: `anemic.postr.rf.gd`
 }
 export const api  = new postrSdk({
-    wsUrl: urls.prod,
+    wsUrl: urls.dev,
     pbUrl: "https://postrapi.pockethost.io",
     cancellation: true
 });
+
+ 

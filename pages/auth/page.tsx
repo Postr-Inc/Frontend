@@ -7,6 +7,7 @@ import { Props } from "@/src/@types/types";
 export default function Login(props:
   Props
 ) {
+  
   if (typeof window === "undefined") return null;
   let [isClient, setClient] = useState(false);
   let [password, setPassword] = useState("");

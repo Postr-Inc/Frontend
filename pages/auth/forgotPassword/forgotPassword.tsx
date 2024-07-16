@@ -5,7 +5,8 @@ import { api } from "@/src/api/api";
 import { Props } from "@/src/@types/types";
 export default function PasswordRest(
     props: Props
-){ 
+){
+  
   if(typeof window === "undefined") return null;
   let [loading, setLoading] = useState(false);
   let [error, setError] = useState("");

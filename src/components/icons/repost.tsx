@@ -1,5 +1,16 @@
-export default function Repost(props: any) {
-    return  <div className="    p-2 ">
+//@ts-nocheck
+export default function Repost(props: {
+  originalAuthor: string;
+  originalPostID: string; 
+  cacheKey: string;
+  post: any;
+}) { 
+    return  <div className="    p-2 "
+    
+    onClick={() => { 
+        window.setPostModalParams({...props, type: 'repost'})
+    }}
+    >
 
  
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 

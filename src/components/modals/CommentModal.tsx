@@ -138,6 +138,7 @@ export default function CommentModal(props: any) {
           >
             {props.comments.length > 0 ? (
               props.comments.map((comment: any, index: number) => {
+                
                 return (
                  <div 
                  style={{
@@ -155,7 +156,7 @@ export default function CommentModal(props: any) {
                     post={props.post}
                     text={comment.text}
                     created={comment.created}
-                    user={comment.expand.user}
+                    user={comment.expand?.user}
                     setParams={props.setParams}
                     setComment={setComment}
                     comment={commentV}

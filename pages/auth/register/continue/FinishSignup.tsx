@@ -1,9 +1,11 @@
+//@ts-nocheck
 "use client";
 import { Props } from "@/src/@types/types";
 import { api } from "@/src/api/api";
 import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 export default function (props: Props) {
+  if(typeof window === "undefined") return null;
   let [password, setPassword] = useState("");
   let passwordRef = useRef<any>();
 
@@ -19,23 +21,18 @@ export default function (props: Props) {
       }, 2000);
       return;
     }
-    try {
-        console.log(props.params)
-      let data = await api.authStore.create({
-        username: props.params.username,
-        email: props.params.email,
-        password: password,
-        followers: [],
-        following: [],
-        bookmarks: [],
-      }) 
-      props.swapPage("login");
-    } catch (error) {
-      console.log(error);
-    }
+    let data = await api.authStore.create({
+      username: props.params.username,
+      email: props.params.email,
+      password: password,
+      followers: [],
+      following: [],
+      bookmarks: [],
+    })   
+    document.getElementById("signupModal").showModal();
   }
   return (
-    <div
+    <div 
       className="relative    p-5 w-screen  justify-center flex flex-col gap-3 mx-auto
     xl:w-[30vw] lg:w-[50vw]"
     >
@@ -131,11 +128,34 @@ export default function (props: Props) {
       </p>
 
       <button
-        onClick={() => confirm()}
+        onClick={() => {confirm()}}
         className="btn  text-white hover:bg-blue-500 bg-blue-500    relative"
       >
         Signup
       </button>
+      <dialog id="signupModal" className="modal rounded-md">
+            <div className={`modal-box flex  rounded flex-col gap-5 
+             ${
+              theme  === "dark" ? "bg-black  border-[#121212] border-2 border-b-none " : "bg-white  border   border-[#f6f4f4] bg-opacity-75 bg-white "
+            
+            }  
+              p-5`}>
+              <p className="text-green-500">Succesfully Signed Up</p>
+              <p>
+                You have successfully signed up. Please check your email for a
+                verification link to verify your account.
+              </p>
+              <button
+                onClick={() => {
+                  document.getElementById("signupModal").close();
+                  props.swapPage("login");
+                }}
+                className="btn bg-blue-500 rounded"
+              >
+                Login
+              </button>
+            </div>
+          </dialog>
     </div>
   );
 }

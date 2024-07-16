@@ -5,6 +5,8 @@ import { Props } from '@/src/@types/types'
 export default function (
     props: Props
 ) {
+   
+  if(typeof window === "undefined") return null;
     const searchParams = useSearchParams() as URLSearchParams
    
     let curTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "darkMode" : "lightmode"
@@ -107,7 +109,8 @@ export default function (
      
  
     return (
-       <div className=" relative    p-5 w-screen  justify-center flex flex-col gap-5 mx-auto
+       <div  
+       className=" relative    p-5 w-screen  justify-center flex flex-col gap-5 mx-auto
        xl:w-[30vw] lg:w-[50vw]
        "  >
  

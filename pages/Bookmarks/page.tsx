@@ -1,10 +1,10 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
-import Post from "@/src/components/post";
-import { Loading } from "@/src/components/icons/loading"; 
-import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars"; 
-import { BottomNav } from "@/src/components/BottomNav";
+import Post from "src/components/post";
+import { Loading } from "/src/components/icons/loading"; 
+import { api } from "src/api/api";
+import { SideBarLeft, SideBarRight } from "src/components/Sidebars"; 
+import { BottomNav } from "src/components/BottomNav";
 
 export default function Bookmarks(props: any) {
   let initialized = useRef(false);

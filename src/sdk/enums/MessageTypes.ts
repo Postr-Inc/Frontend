@@ -13,4 +13,7 @@ export enum MessageTypes {
     REALTIME_SUBSCRIBE = "realtime",
     REALTIME_UNSUBSCRIBE = "unsubscribe",
     DELETE = "delete",
+    REQUEST_PASSWORD_RESET="requestPasswordReset",
+    RESET_PASSWORD="resetPassword",
+    CHECK_TOKEN="checkToken",
 }

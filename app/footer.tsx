@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "@/src/api/api";
+import { api } from "../src/api/api";
 import { useEffect, useState } from "react";
 
 export default function Footer(props:any){

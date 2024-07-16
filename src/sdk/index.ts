@@ -120,6 +120,10 @@ export default class postrSdk {
         isAwaiting = false; // Reset the flag on successful connection
       };
 
+
+      
+
+
       this.ws.onclose = () => {
         console.log("Connection closed unexpectedly");
         isAwaiting = false; // Reset the flag on unexpected close
@@ -129,6 +133,54 @@ export default class postrSdk {
       console.log("Reconnecting to server");
     };
 
+    const isLoggedIn = (callback: any) =>{
+      if (this.authStore.isValid()) {
+        callback();
+      } else { 
+        setTimeout(() => {
+          isLoggedIn(callback);
+        }, 1000 );
+      }
+    }
+
+
+    isLoggedIn(() => {
+      const broadcast = new BroadcastChannel('notify');
+      
+      navigator.serviceWorker.register('/serviceworker/worker.js')
+          .then((registration) => { 
+            registration.update();
+              console.log('Service worker registered:', registration); 
+              const token = this.authStore.model().token; // Ensure token is fetched correctly
+              broadcast.postMessage(JSON.stringify({ type: 'init', token: token }));
+          })
+          .catch((error) => {
+              console.error('Service worker registration failed:', error);
+          });
+      
+      navigator.serviceWorker.ready
+          .then((registration) => {
+              console.log('Service worker ready:', registration);
+          })
+          .catch((error) => {
+              console.error('Service worker readiness failed:', error);
+          });
+
+          // if already registered, update the token
+        broadcast.postMessage(JSON.stringify({ type: 'init', token: this.authStore.model().token }));
+  });
+  
+
+
+    // request notification permission
+    if (typeof window !== "undefined") {
+      Notification.requestPermission().then((permission) => {
+        console.log(permission);
+        if (permission === "granted") {
+          console.log("Notification permission granted");
+        }
+      });
+    }
     function scheduleReconnect() {
       if (!isAwaiting) {
         isAwaiting = true;
@@ -283,7 +335,7 @@ export default class postrSdk {
       }
       this.callbacks.set("checkname", (data: any) => {
         if (data.error) {
-          reject(new Error(data.error));
+          reject(new Error(data));
         } else {
           resolve(data.exists);
         } 
@@ -459,8 +511,14 @@ export default class postrSdk {
       let t = this;
       console.log("Refreshing token");
       this.callbacks.set("tokenRefresh", (data: any) => {
+        console.log(data);
         return new Promise((resolve, reject) => {
-          if (data.error) return reject(data); 
+          if (data.error && data.hasOwnProperty("isValid") && !data.isValid && localStorage.getItem("postr_auth")) {
+            localStorage.removeItem("postr_auth")
+            window.dispatchEvent(this.changeEvent);
+            reject(data);
+            return;
+          }
           localStorage.setItem(
             "postr_auth",
             JSON.stringify({
@@ -475,47 +533,65 @@ export default class postrSdk {
         JSON.stringify({
           type: "refreshToken",
           key: MessageTypes.REFRESH_TOKEN,
-          token:  this.authStore.model().token,
+          token: this.authStore.model().token,
           session: this.sessionID,
         })
       );
     },
 
+  checkToken: async () => {
+    return new Promise((resolve, reject) => {
+      this.callbacks.set("checkToken", (data: any) => {
+        if (data.error) reject(data);
+        resolve(data);
+        this.callbacks.delete("checkToken");
+      });
+      this.sendMessage(
+        JSON.stringify({
+          type: MessageTypes.CHECK_TOKEN,
+          key:  MessageTypes.CHECK_TOKEN,
+          token: this.authStore.model().token,
+          session: this.sessionID,
+        })
+      );
+    });
+  },
+
     resetPassword: async (token: string, password: string) => {
       return new Promise((resolve, reject) => {
         if (!password || !token)
-        return reject(new Error("email, password and token are required"));
+          return reject(new Error("email, password and token are required"));
         this.callbacks.set("resetPassword", (data: any) => {
           if (data.error) reject(data);
           resolve(data);
           this.callbacks.delete("resetPassword");
         });
-        console.log({password, token})
+        console.log({ password, token });
         this.sendMessage(
           JSON.stringify({
             type: "changePassword",
-            key: "resetPassword",
-            data: { 
+            key: MessageTypes.RESET_PASSWORD,
+            data: {
               password: password,
               token: token,
             },
             session: this.sessionID,
           })
         );
-      }); 
+      });
     },
     requestPasswordReset: async (email: string) => {
       return new Promise((resolve, reject) => {
         if (!email) return reject(new Error("email is required"));
         this.callbacks.set("requestPasswordReset", (data: any) => {
-          if (data.error) reject(data.error);
+          if (data.error) reject(data);
           resolve(data);
           this.callbacks.delete("requestPasswordReset");
         });
         this.sendMessage(
           JSON.stringify({
-            type: "requestPasswordReset",
-            key: "requestPasswordReset",
+            type: MessageTypes.REQUEST_PASSWORD_RESET,
+            key: MessageTypes.REQUEST_PASSWORD_RESET,
             data: { email },
             session: this.sessionID,
           })
@@ -525,7 +601,7 @@ export default class postrSdk {
 
     login: async (emailOrUsername: string, password: string) => {
       return new Promise((resolve, reject) => {
-         this.callbacks.set("auth&password", (data: any) => {
+        this.callbacks.set("auth&password", (data: any) => {
           if (data.clientData) {
             if (typeof window == "undefined") return;
             if (typeof window !== undefined)
@@ -540,24 +616,25 @@ export default class postrSdk {
             this.callbacks.delete("auth&password");
             window.dispatchEvent(this.changeEvent);
           } else if (data.error) {
-            reject(new Error(data.error));
+            reject(new Error(data));
             this.callbacks.delete("auth&password");
           }
-         })
+        });
         this.sendMessage(JSON.stringify({
           type: "auth&password",
           data: { emailOrUsername, password },
-          key: "auth&password", 
+          key: "auth&password",
           session: this.sessionID
-        }))
-      })  
+        }));
+      });
     },
     create: async (data: any) => {
       return new Promise((resolve, reject) => {
-        if(!data.username || !data.email || !data.password) return reject(new Error("username, email and password are required"))
+        if (!data.username || !data.email || !data.password) return reject(new Error("username, email and password are required"));
         this.callbacks.set("authCreate", (data: any) => {
-            if(data.error) return reject(data) 
-            return resolve(data)
+          console.log(data);
+          if (data.error) return reject(data);
+          return resolve(data);
         });
         this.sendMessage(
           JSON.stringify({
@@ -567,18 +644,18 @@ export default class postrSdk {
             session: this.sessionID,
           })
         );
-      })  
-    }, 
+      });
+    },
     update: () => {
       if (typeof window == "undefined" || !localStorage.getItem("postr_auth"))
         return;
       this.callbacks.set("authUpdate", (data: any) => {
-        if (data.error && data.hasOwnProperty("isValid") && !data.isValid) { 
+        if (data.error && data.hasOwnProperty("isValid") && !data.isValid) {
           console.error(data);
         } else if (data.error) {
           throw new Error(data);
         } else if (data.clientData) {
-           console.log("Auth updated" + data.clientData);
+          console.log("Auth updated" + data.clientData);
         }
       });
       this.sendMessage(
@@ -597,7 +674,7 @@ export default class postrSdk {
      * @returns {Auth_Object}
      */
     model: (data?: any) => {
-      if (data) { 
+      if (data) {
         if (typeof window == "undefined") return;
         localStorage.setItem(
           "postr_auth",
@@ -605,7 +682,7 @@ export default class postrSdk {
             model: data,
             token: JSON.parse(store.get("postr_auth") || "{}").token,
           })
-        ); 
+        );
       } else {
         if (typeof window == "undefined") return;
         return {
@@ -626,12 +703,10 @@ export default class postrSdk {
      * @description Check if the current token is valid
      * @returns
      */
-    isValid: () => {
-      let token = localStorage.getItem("postr_auth")
-        ? JSON.parse(store.get("postr_auth") || "{}").token
-        : null;
-      if (!token) return false;
-      return isTokenExpired(token) ? false : true;
+    isValid: () => { 
+      let tokeneists = JSON.parse(store.get("postr_auth") || "{}").token;
+      if (!tokeneists) return false;
+      return !isTokenExpired(tokeneists);
     },
     img: () => {
       if (typeof window == "undefined") return;
@@ -650,7 +725,7 @@ export default class postrSdk {
     isRatelimited: async (type: string): Promise<isRatelimited> => {
       return new Promise((resolve, reject) => {
         this.callbacks.set("isRatelimited", (data: any) => {
-          if (data.error) reject(data.error);
+          if (data.error) reject(data);
           resolve(data);
           this.callbacks.delete("isRatelimited");
         });
@@ -678,8 +753,39 @@ export default class postrSdk {
         console.error(error);
       }
     },
+    global: undefined
   };
 
+  /**
+   * @method notify
+   * @description pushes notifications to the user
+   */
+  public notify = {
+    /** 
+     * @param data
+     * @method send
+     * @description Send a notification to a user 
+     * @returns 
+     */
+    send: (data: { title: string; body: string; icon: string; recipient: string }) => {
+      return new Promise((resolve, reject) => { 
+        this.callbacks.set("notify", (data: any) => {
+          if (data.error) reject(data);
+          resolve(data);
+        });
+        this.sendMessage(
+          JSON.stringify({
+            type: "notify",
+            key: "notify",
+            data: data, 
+            session: this.sessionID,
+            token: this.authStore.model().token,
+          })
+        );
+      });
+    
+    }
+  }
    
   private waitForSocketConnection(callback: Function) {
     const maxWaitTime = 5000; // Maximum waiting time in milliseconds (adjust as needed)
@@ -724,19 +830,21 @@ export default class postrSdk {
 
   public getAsByteArray(file: File): Promise<Uint8Array> {
     return new Promise<Uint8Array>((resolve, reject) => {
-      let reader = new FileReader();
-      reader.onload = () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const uint8Array = new Uint8Array(arrayBuffer);
-        //@ts-ignore
-        resolve(Array.from(uint8Array));
-      };
-      reader.onerror = (error) => {
-        reject(error);
-      };
-      reader.readAsArrayBuffer(file);
+        let reader = new FileReader();
+        console.log(file)
+        reader.onload = () => {
+            const arrayBuffer = reader.result as ArrayBuffer;
+            const uint8Array = new Uint8Array(arrayBuffer);
+            //@ts-ignore
+            resolve(Array.from(uint8Array));
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsArrayBuffer(file);
     });
-  }
+}
+
 
   /**
    * @method oauth
@@ -771,7 +879,7 @@ export default class postrSdk {
             resolve(data.clientData);
             window.dispatchEvent(this.changeEvent);
           } else if (data.error) {
-            reject(new Error(data.error));
+            reject(new Error(data));
           }
         });
         this.sendMessage(
@@ -825,7 +933,7 @@ export default class postrSdk {
   }) {
     return new Promise((resolve, reject) => {
       !data.collection ? reject(new Error("collection is required")) : null;
-      !this.authStore.isValid ? reject(new Error("token is expired")) : null;
+      !this.authStore.isValid() ? reject(new Error("token is expired")) : null;
 
       this.sendMessage(
         JSON.stringify({
@@ -976,7 +1084,7 @@ export default class postrSdk {
   private callback(resolve: Function, reject: Function) {
     let caller = crypto.randomUUID();
     this.callbacks.set(caller, (data: any) => {
-      if (data.error) reject(data.error);
+      if (data.error) reject(data);
       this.callbacks.delete(caller);
       resolve(data);
     });
@@ -997,17 +1105,22 @@ export default class postrSdk {
     cacheKey?: string;
   }) {
     return new Promise((resolve, reject) => {
-      let key = crypto.randomUUID();
+      let key = `create-${crypto.randomUUID()}`
       !data.collection ? reject(new Error("collection is required")) : null;
       !data.record ? reject(new Error("record is required")) : null;
       if (data.collection !== "users" && !this.authStore.isValid) {
         reject(new Error("token is expired"));
       }
+      this.callbacks.set(key, (data: any) => {
+        if (data.error) reject(data);
+        resolve(data);
+      });
+      console.log('sending create message')
       this.sendMessage(
         JSON.stringify({
           method: "create",
           type: "create",
-          key: this.callback(resolve, reject),
+          key:  key,
           invalidateCache: data.invalidateCache || null,
           expand: data.expand,
           record: data.record,

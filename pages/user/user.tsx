@@ -1,8 +1,8 @@
 //@ts-nocheck
 "use client";
-import { BottomNav } from "@/src/components/BottomNav";
+import { BottomNav } from "../../src/components/BottomNav";
 import { useParams } from "next/navigation";
-import Modal from "@/src/components/Modal";
+import Modal from "../../src/components/Modal";
 import {
   useEffect,
   useState,
@@ -12,15 +12,15 @@ import {
   useLayoutEffect,
 } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Icon from "@/src/components/icons/location";
-import Post from "@/src/components/post";
-import { LazyImage } from "@/src/components/Image";
-import Comment from "@/src/components/comment";
-import { Loading } from "@/src/components/icons/loading";
-import { api } from "@/src/api/api";
-import Page from "@/src/components/shared/Page";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-import { Props } from "@/src/@types/types";
+import Icon from "../../src/components/icons/location";
+import Post from "../../src/components/post";
+import { LazyImage } from "../../src/components/Image";
+import Comment from "../../src/components/comment";
+import { Loading } from "../../src/components/icons/loading";
+import { api } from "../../src/api/api";
+import Page from "../../src/components/shared/Page";
+import { SideBarLeft, SideBarRight } from "../../src/components/Sidebars";
+import { Props } from "../../src/@types/types";
 export default function User(props: Props) {
   if (typeof window == "undefined") return null;
   let [followers, setFollowers] = useState<any>([]);
@@ -373,6 +373,7 @@ export default function User(props: Props) {
           "author.following.following",
           "repost",
           "repost.author",
+          
           "likes",
         ],
         page: 1,

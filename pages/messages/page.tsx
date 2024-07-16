@@ -1,11 +1,11 @@
 //@ts-nocheck
 "use client";
-import Page from "@/src/components/shared/Page";
+import Page from "../../src/components/shared/Page";
 import { use, useEffect, useLayoutEffect, useState } from "react";
-import { api } from "@/src/api/api";
-import { Props } from "@/src/@types/types";
-import Modal from "@/src/components/Modal";
-import { BottomNav } from "@/src/components/BottomNav";
+import { api } from "../../src/api/api";
+import { Props } from "../../src/@types/types";
+import Modal from "../../src/components/Modal";
+import { BottomNav } from "../../src/components/BottomNav";
 function debounce(func, timeout = 300) {
   let timer;
   return (...args) => {

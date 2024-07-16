@@ -1,7 +1,7 @@
 //@ts-nocheck
 "use client";
-import { Props } from "@/src/@types/types";
-import Page from "@/src/components/shared/Page";
+import { Props } from "../../src/@types/types";
+import Page from "../../src/components/shared/page";
 import { useEffect, useState } from "react";
 
 async function train(Session: any) {

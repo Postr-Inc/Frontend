@@ -9,6 +9,12 @@ export interface authStore {
     login: (emailOrUsername: string, password: string) => Promise<any>;
     requestPasswordReset: (email: string) => Promise<any>;
     resetPassword: (token: string, password: string) => Promise<any>;
+    /**
+     * @description Check if the token is valid
+     * @param token 
+     * @returns 
+     */
+    checkToken: (token: string) => Promise<any>;
     isValid: ( ) => boolean;
     img: Function;
     isRatelimited: Function;

@@ -1,4 +1,4 @@
-import { api } from "@/src/api/api"
+import {   api }from "../../api/api";
 
 export default function Premium(){
     let isAPremiumMember = api.authStore.model().postr_plus

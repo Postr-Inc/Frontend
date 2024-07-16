@@ -1,11 +1,11 @@
-import { Props } from "@/src/@types/types";
-import Modal from "@/src/components/Modal";
-import SettingsIcon from "@/src/components/icons/settings"
-import IconBack from "@/src/components/icons/backarrow"
+import { Props } from "../../src/@types/types";
+import Modal from "../../src/components/Modal";
+import SettingsIcon from "../../src/components/icons/settings"
+import IconBack from "../../src/components/icons/backarrow"
 import { useState } from "react";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-import { api } from "@/src/api/api";
-import Page from "@/src/components/shared/Page.tsx";
+import { SideBarLeft, SideBarRight } from "../../src/components/Sidebars";
+import { api } from "../../src/api/api";
+import Page from "../../src/components/shared/page";
 
 export default function Settings(props: Props){
    if(typeof window === "undefined") return null

@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { api } from "@/src/api/api";
-import Footer from "@/app/footer";
-import { Props } from "@/src/@types/types";
+import { api } from "../../src/api/api"; 
+import { Props } from "../../src/@types/types";
 
 export default function Login(props:
   Props

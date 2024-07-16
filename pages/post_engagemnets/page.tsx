@@ -1,8 +1,8 @@
 //@ts-nocheck
 "use client";
-import { Props } from "@/src/@types/types";
+import { Props } from "../../src/@types/types";
 import { useEffect, useState } from "react";
-import Page from "@/src/components/shared/Page";
+import Page from "../../src/components/shared/Page";
 export default function PostEngagements(
     props: Props
 ){

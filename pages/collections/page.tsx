@@ -1,8 +1,8 @@
 "use client";
-import { Props } from "@/src/@types/types";
-import { api } from "@/src/api/api";
-import { BottomNav } from "@/src/components/BottomNav";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
+import { Props } from "../../src/@types/types";
+import { api } from "../../src/api/api";
+import { BottomNav } from "../../src/components/BottomNav";
+import { SideBarLeft, SideBarRight } from "../../src/components/Sidebars";
 import { useEffect, useRef, useState } from "react";
 export default function Collections(props: Props) {
   let [isClient, setClient] = useState(false);

@@ -1,14 +1,14 @@
 // @ts-nocheck
 "use client"; 
-import { Props } from "@/src/@types/types";
-import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-import { Loading } from "@/src/components/icons/loading";
-import Post from "@/src/components/post";
+import { Props } from "../../src/@types/types";
+import { api } from "../../src/api/api";
+import { SideBarLeft, SideBarRight } from "../../src/components/Sidebars";
+import { Loading } from "../../src/components/icons/loading";
+import Post from "../../src/components/post";
 import { Comme } from "next/font/google";
 import { useEffect, useState } from "react";
-import Comment from "@/src/components/comment";
-import { BottomNav } from "@/src/components/BottomNav";
+import Comment from "../../src/components/comment";
+import { BottomNav } from "../../src/components/BottomNav";
 
 export default function Status(props: {
     setParams: (params: any) => void | any;

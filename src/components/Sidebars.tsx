@@ -5,6 +5,7 @@ import Premium from "./premium_modal/premium_modal";
 import CreatePostModal from "./modals/CreatePost";
 
 export function SideBarRight(props: any) {
+  console.log(props.params)
   let [text, setText] = useState<any>("");
   let maxlength = 140;
   let [postimgs, setPostimgs] = useState<any>([]);
@@ -86,7 +87,7 @@ export function SideBarRight(props: any) {
                                 className="cursor-pointer"
                                 onClick={() => {
                                   props.setParams({ user: user.id });
-                                  props.swapPage("user");
+                                  props.changePage("user");
                                 }}
                               >
                                 {user.username}
@@ -213,7 +214,7 @@ export function SideBarRight(props: any) {
     </>
   );
 }
-export function SideBarLeft(props: Props) {
+export function SideBarLeft(props: Props) { 
   let [postimgs, setPostimgs] = useState<any>([]);
   let [text, setText] = useState<any>("");
   let maxlength = 140;
@@ -277,7 +278,7 @@ export function SideBarLeft(props: Props) {
                     : ""
                 }`}
                 onClick={() => {
-                  props.swapPage("home");
+                  props.changePage("home");
                 }}
               >
                 <svg
@@ -304,6 +305,14 @@ export function SideBarLeft(props: Props) {
                 </svg>
                 Home
               </a>
+            </li>
+            <li  >
+              <a  className="text-lg  rounded-full flex hero">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+  <path strokeLinecap="round" strokeLinejoin="round" d="m7.848 8.25 1.536.887M7.848 8.25a3 3 0 1 1-5.196-3 3 3 0 0 1 5.196 3Zm1.536.887a2.165 2.165 0 0 1 1.083 1.839c.005.351.054.695.14 1.024M9.384 9.137l2.077 1.199M7.848 15.75l1.536-.887m-1.536.887a3 3 0 1 1-5.196 3 3 3 0 0 1 5.196-3Zm1.536-.887a2.165 2.165 0 0 0 1.083-1.838c.005-.352.054-.695.14-1.025m-1.223 2.863 2.077-1.199m0-3.328a4.323 4.323 0 0 1 2.068-1.379l5.325-1.628a4.5 4.5 0 0 1 2.48-.044l.803.215-7.794 4.5m-2.882-1.664A4.33 4.33 0 0 0 10.607 12m3.736 0 7.794 4.5-.802.215a4.5 4.5 0 0 1-2.48-.043l-5.326-1.629a4.324 4.324 0 0 1-2.068-1.379M14.343 12l-2.882 1.664" />
+</svg>
+Snippets
+</a> 
             </li>
             <li>
               <a className="text-lg  rounded-full">
@@ -346,16 +355,16 @@ export function SideBarLeft(props: Props) {
             <li>
               <a
                 className={`text-xl  rounded-full rounded-full
-                  ${
-                    props.currentPage == "user" &&
-                    props.params.user.username == api.authStore.model().username
-                      ? "font-semibold text-blue-500"
-                      : ""
-                  }
+                    ${
+                     props.currentPage == "user" &&
+                     props.params.user  == api.authStore.model().id
+                       ? "fill-blue-500 stroke-blue-500 text-blue-500"
+                       : ""
+                   }
                   `}
                 onClick={() => {
                   props.setParams({ user: api.authStore.model().id });
-                  props.swapPage("user");
+                  props.changePage("user");
                 }}
               >
                 <svg
@@ -366,13 +375,7 @@ export function SideBarLeft(props: Props) {
                   stroke="currentColor"
                   className={`
                    w-7 h-7
-                   ${
-                     props.currentPage == "user" &&
-                     props.params.user.username ==
-                       api.authStore.model().username
-                       ? "fill-blue-500"
-                       : ""
-                   }
+                  fill-inherit
                   `}
                 >
                   <path
@@ -384,28 +387,23 @@ export function SideBarLeft(props: Props) {
                 Profile
               </a>
             </li>
-            <li>
-              <a
-                className="text-lg  rounded-full"
-                onClick={() => {
-                  props.swapPage("collections");
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-7 h-7"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M6 4.75A.75.75 0 0 1 6.75 4h10.5a.75.75 0 0 1 0 1.5H6.75A.75.75 0 0 1 6 4.75ZM6 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H6.75A.75.75 0 0 1 6 10Zm0 5.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H6.75a.75.75 0 0 1-.75-.75ZM1.99 4.75a1 1 0 0 1 1-1H3a1 1 0 0 1 1 1v.01a1 1 0 0 1-1 1h-.01a1 1 0 0 1-1-1v-.01ZM1.99 15.25a1 1 0 0 1 1-1H3a1 1 0 0 1 1 1v.01a1 1 0 0 1-1 1h-.01a1 1 0 0 1-1-1v-.01ZM1.99 10a1 1 0 0 1 1-1H3a1 1 0 0 1 1 1v.01a1 1 0 0 1-1 1h-.01a1 1 0 0 1-1-1V10Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Collections
+            <li className="text-lg  rounded-full  text-start hover:outline-none  hover:text-lg  hover:justify-start hover:rounded-full">
+              <a 
+              
+              onClick={() => {
+                 props.changePage("ai")
+              }}
+              className=" rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"  
+              className="w-7 h-7">
+  <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+</svg>
+
+                Ai
               </a>
             </li>
+             
+          
             <li className="text-lg  rounded-full">
               <a
               className=" rounded-full"
@@ -422,7 +420,20 @@ export function SideBarLeft(props: Props) {
               </a>
             </li>
             <li className="text-lg  rounded-full  text-start hover:outline-none  hover:text-lg  hover:justify-start hover:rounded-full">
-              <a className=" rounded-full">
+              <a 
+              
+              onClick={() => {
+                  props.changePage("messages")
+              }}
+              
+              className={`
+                rounded-full
+                ${
+                  props.currentPage == "messages"
+                    ? "font-semibold text-blue-500"
+                    : ""
+                }
+                `}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

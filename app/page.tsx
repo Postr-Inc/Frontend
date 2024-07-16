@@ -1,22 +1,22 @@
 //@ts-nocheck
 'use client';
 import { use, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"; 
-import User from "@/pages/user/user";
-import Home from "@/pages/home/home";
-import Login from "@/pages/auth/page";
-import { api } from "@/src/api/api";
-import Bookmarks from "@/pages/Bookmarks/page";
-import Collections from "@/pages/collections/page";
-import Post from "@/pages/status/page";
-import ResettPassword from "@/pages/auth/forgotPassword/forgotPassword";
-import ResetPassword from "@/pages/auth/forgotPassword/ResetPassword";
-import Settings from "@/pages/settings/page";
-import Status from "@/pages/status/page";
-import Register from "@/pages/auth/register/page";
-import Finish from "@/pages/auth/register/continue/FinishSignup";
-import AI from "@/pages/ai/page";
-import PostEngagements from "@/pages/post_engagemnets/page";
-import Messages from "@/pages/messages/page";
+import User from "../pages/user/user";
+import Home from "../pages/home/home";
+import Login from "../pages/auth/page";
+import { api } from "../src/api/api";
+import Bookmarks from "../pages/Bookmarks/page";
+import Collections from "../pages/collections/page";
+import Post from "../pages/status/page";
+import ResettPassword from "../pages/auth/forgotPassword/forgotPassword";
+import ResetPassword from "../pages/auth/forgotPassword/ResetPassword";
+import Settings from "../pages/settings/page";
+import Status from "../pages/status/page";
+import Register from "../pages/auth/register/page";
+import Finish from "../pages/auth/register/continue/FinishSignup";
+import AI from "../pages/ai/page";
+import PostEngagements from "../pages/post_engagemnets/page";
+import Messages from "../pages/messages/page";
 export default function Page() {
 if(typeof window === "undefined") return null 
 let searchParams = new URLSearchParams(window.location.search);

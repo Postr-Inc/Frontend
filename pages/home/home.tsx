@@ -1,19 +1,19 @@
 //@ts-nocheck
 "use client";
-import Bookmark from "@/src/components/icons/bookmark";
-import Settings from "@/src/components/icons/settings";
+import Bookmark from "../../src/components/icons/bookmark";
+import Settings from "../../src/components/icons/settings";
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import Scroller from "react-infinite-scroll-component";
-import LogoutModal from "@/src/components/modals/logoutmodal";
-import { Loading } from "@/src/components/icons/loading";
-import Post from "@/src/components/post"; 
+import LogoutModal from "../../src/components/modals/logoutmodal";
+import { Loading } from "../../src/components/icons/loading";
+import Post from "../../src/components/post"; 
 //@ts-ignore
  
-import { api } from "@/src/api/api";
-import { SideBarLeft, SideBarRight } from "@/src/components/Sidebars";
-import { BottomNav } from "@/src/components/BottomNav";
-import { Props } from "@/src/@types/types"; 
-import MainPage from "@/src/components/shared/page";
+import { api } from "../../src/api/api";
+import { SideBarLeft, SideBarRight } from "../../src/components/Sidebars";
+import { BottomNav } from "../../src/components/BottomNav";
+import { Props } from "../../src/@types/types"; 
+import MainPage from "../../src/components/shared/page";
 export default function Home(props: Props) {
   if(typeof window === "undefined") return null
   const [isClient, setIsClient] = useState(false); 

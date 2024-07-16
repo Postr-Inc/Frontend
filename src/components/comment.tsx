@@ -4,6 +4,7 @@ import { api } from "../api/api";
 export default function Comment(props: {
   id: string;
   text: string;
+  isLast: boolean;
   deleteComment?: any;
   user: any;
   post: any;
@@ -16,6 +17,7 @@ export default function Comment(props: {
   likes: any;
   level: number;
   updateCache?: any;
+  statusPage?: any;
   setComment?: any;
   comment?: any;
   mentions?: any;
@@ -28,36 +30,62 @@ export default function Comment(props: {
   }, []);
   async function likeComment() {
     switch (likes.includes(api.authStore.model().id)) {
-      case true:
-        console.log("unliking", likes);
-        setLikes(likes.filter((id: any) => id != api.authStore.model().id));
+      case true: 
+        setLikes(likes.filter((id: any) => id != api.authStore.model().id)); 
         await api.update({
-          collection: "comments",
-          cacheKey: `comments-${props.id}`,
-          id: props.id,
+          collection: "posts",
+          cacheKey:  props.post.cacheKey,
+          id:  props.post.id,
+          expand: ["author", "likes", "comments", "comments.user"],
+          skipDataUpdate: true, // do not update the data in the database
           record: {
-            likes: likes.filter((id: any) => id != api.authStore.model().id),
+             expand: {
+              comments: props.post.expand.comments.map((comment: any) => {
+                if (comment.id == props.id) { 
+                  if(!Array.isArray(comment.likes)) { 
+                    return { ...comment, likes: [] };
+                  }
+                  comment.likes = comment.likes.filter((id: any) => id != api.authStore.model().id);
+                  return comment;
+                } else {
+                  return comment;
+                }
+               }), 
+               likes: props.post.expand.likes,
+               author: props.post.expand.author
+             }
           },
-        });
-        // up
-        props.updateCache(props.id, {
-          ...props,
-          likes: likes.filter((id: any) => id != api.authStore.model().id),
-        });
+        }); 
         break;
 
       default:
-        setLikes([...likes, api.authStore.model().id]);
+        setLikes([...likes, api.authStore.model().id]); 
+         
+
         await api.update({
-          collection: "comments",
-          cacheKey: `comments-${props.id}`,
-          id: props.id,
-          record: { likes: [...likes, api.authStore.model().id] },
-        });
-        props.updateCache(props.id, {
-          ...props,
-          likes: [...likes, api.authStore.model().id],
-        });
+          collection:  "posts",
+          cacheKey: props.post.cacheKey,
+          id: props.post.id,
+          expand: ["author", "likes", "comments", "comments.user"],
+          skipDataUpdate: true, // do not update the data in the database
+          record: {
+             expand: {
+               comments: props.post.expand.comments.map((comment: any) => {
+                if (comment.id == props.id) {  
+                  if(!Array.isArray(comment.likes)) { 
+                    return { ...comment, likes: [api.authStore.model().id] };
+                  }
+                  comment.likes.push(api.authStore.model().id); 
+                  return comment;
+                } else {
+                  return comment;
+                }
+               }), 
+                likes: props.post.expand.likes,
+               author: props.post.expand.author
+             }
+          },
+        }); 
         break;
     }
   }
@@ -102,9 +130,24 @@ export default function Comment(props: {
     <div
       className={`flex flex-col w-full  
      ${props.level == 2 ? "p-5" : ""} 
+     ${
+       props.isLast ? "xl:mb-auto lg:mb-auto md:mb-auto mb-[10rem]" : ""
+     }
+     ${
+      props.currentPage == 'view' ? 'p-2 xl:p-0 mt-2' : ''
+     }
+     ${
+      props.statusPage  ? ` xl:p-5
+      ${
+        theme == 'dark' ? 'hover:bg-[#090909] text-white ' : 'hover:bg-[#f2f2f2d0]'
+      }
+        
+       
+      ` : ""
+     }
     `}
     >
-      <div className="flex flex-col relative  gap-2 p-2 w-full  ">
+      <div className={`flex flex-col relative  gap-2 ${!props.statusPage ? 'p-2' : ''} w-full  `}>
         <div className="flex flex-row">
           <img
             src={api.cdn.url({
@@ -151,7 +194,7 @@ export default function Comment(props: {
                     : props.post.expand.author.username}
                 </div>
               </div>
-            ) : null}
+            ) : null} 
             {props.expand.user.validVerified ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +232,17 @@ export default function Comment(props: {
                     />
                   </svg>
                 </summary>
-                <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+                <ul 
+                style={{
+                   borderRadius: '10px',
+                }}
+                className={`p-2 shadow menu dropdown-content z-[1]  
+                  ${
+                    theme == "dark"
+                      ? "bg-black text-white border-[#121212] border-2"
+                      : "bg-white text-black"
+                  }
+                  rounded-box w-52`}>
                   {props.user.id == api.authStore.model().id ? (
                     <li>
                       <a onClick={props.deleteComment}>Delete</a>
@@ -205,9 +258,10 @@ export default function Comment(props: {
         </div>
         <p className=" overflow-hidden break-words ">{props.text}</p>
       </div>
-      <div className="flex flex-row gap-5 p-2">
-        <div className="relative">
-          <svg
+      <div className={`flex flex-row gap-5 ${!props.statusPage ? 'p-2' : 'mt-2  mb-5'} `}>
+        <div className="relative flex "
+        style={{alignItems:'center',justifyContent:'center'}}>
+          <svg 
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -230,6 +284,9 @@ export default function Comment(props: {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
             />
           </svg>
+          {
+            likes.length > 0 ? <p className="mx-2">{likes.length}</p> : ""
+          }
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -261,12 +318,14 @@ export default function Comment(props: {
         </svg>
       </div>
       {
-        !props.isUserReplyPage ?  <p
-        onClick={() => {
-          props.setComment(props?.comment + `@${props.user.username} `);
-          props.setMentions([...props?.mentions, props.user.username]);
+        !props.isUserReplyPage && !props.statusPage ?  <p
+        onClick={() => { 
+          if(!props.mentions.includes(props.user.username)){ 
+            props.setComment(props?.comment + `@${props.user.username} `);
+            props.setMentions([...props?.mentions, props.user.username]);
+          } 
         }}
-        className="mx-2 text-sm"
+        className="mx-2 text-sm cursor-pointer"
       >
         Reply
       </p>

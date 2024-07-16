@@ -1,8 +1,10 @@
+//@ts-nocheck
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Modal from "./Modal";
 import BottomModal from "./Bottomupmodal";
-import Comment from "./comment";
+import CommentModal from "./modals/CommentModal";
+import { DeleteModal } from "./modals/DeletePost";
 import { LazyImage } from "./Image";
 import Bookmark from "./icons/bookmark";
 import { api } from "../api/api";
@@ -45,320 +47,6 @@ const created = (created: any) => {
       break;
   }
 };
-function CommentModal(props: any) {
-  let [commentV, setComment] = useState("");
-  let [mentions, setMentions] = useState([]);
-
-  async function createComment() {
-    switch (true) {
-      case commentV.length < 1:
-        break;
-      default:
-        try {
-          let res: any = await api.create({
-            collection: "comments",
-            record: {
-              user: api.authStore.model().id,
-              post: props.post.id,
-              text: commentV,
-              cacheKey: props.cacheKey,
-              likes: [],
-            },
-            expand: ["user"],
-          });
-          props.setComments([...props.comments, res]);
-
-          api.update({
-            collection: "posts",
-            cacheKey: props.cacheKey,
-            id: props.post.id,
-            record: {
-              comments: [...props.comments.map((e: any) => e.id), res.id],
-            },
-          });
-          props.updateCache(props.post.id, {
-            ...props.post,
-            expand: {
-              ...props.post.expand,
-              comments: [...props.comments, res],
-            },
-          });
-          setComment("");
-        } catch (error) {
-          console.log(error);
-          return;
-        }
-        break;
-    }
-  }
-
-  return (
-    <dialog
-      id={props.id}
-      className="   fixed top-0 left-0 w-full sm:modal placeholder: xl:rounded-xl  m-auto   right-16  h-[80vh] f md:mt-5  md:rounded-xl  md:w-[40vw] xl:w-[30vw]     "
-    >
-      <div className="   xl:rounded-xl bg-base-100   scroll h-full w-full  shadow-none   ">
-        <div className="flex flex-col   p-3 w-full  ">
-          <div className="flex flex-row w-full justify-between absolute p-2    xl:p-6  z-[999] top-0 left-0   bg-white">
-            <button
-              className="btn btn-circle focus:outline-none btn-ghost btn-sm bg-none hover:bg-base-200"
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id)?.close();
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a.75.75 0 0 1-.75.75H4.66l2.1 1.95a.75.75 0 1 1-1.02 1.1l-3.5-3.25a.75.75 0 0 1 0-1.1l3.5-3.25a.75.75 0 1 1 1.02 1.1l-2.1 1.95h12.59A.75.75 0 0 1 18 10Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-            <div>Comments</div>
-            <div></div>
-          </div>
-        </div>
-
-        <div className={`flex flex-col lg:mb-32 md:mb-32 xl:mb-32 mb-32 mt-8  p-4 
-        ${
-          mentions.length > 0 ? "sm:mb-64" : ""
-        }
-        sm:p-2 gap-5`}>
-          {props.comments.length > 0 ? (
-            props.comments.map((comment: any) => {
-              return (
-                <Comment
-                  id={comment.id}
-                  key={comment.id}
-                  expand={comment.expand}
-                  comments={props.comments}
-                  level={1}
-                  likes={comment.likes}
-                  post={props.post}
-                  text={comment.text}
-                  created={comment.created}
-                  user={comment.expand.user}
-                  setParams={props.setParams}
-                  setComment={setComment}
-                  comment={commentV}
-                  setMentions={setMentions}
-                  mentions={mentions}
-                  swapPage={props.swapPage}
-                  updateCache={props.updateCache}
-                  deleteComment={() => {
-                    props.setComments(
-                      props.comments.filter((e: any) => e.id != comment.id)
-                    );
-                    props.updateCache(props.post.id, {
-                      ...props.post,
-                      expand: {
-                        ...props.post.expand,
-                        comments: props.comments.filter(
-                          (e: any) => e.id != comment.id
-                        ),
-                      },
-                    });
-
-                    api.delete({
-                      collection: "comments",
-                      id: comment.id,
-                      cacheKey: props.cacheKey,
-                    });
-                  }}
-                ></Comment>
-              );
-            })
-          ) : (
-            <div className="mx-auto justify-center w-full flex mt-2 hero flex-col">
-              <h1 className="text-2xl font-bold text-center">No Comments 😢</h1>
-
-              <p
-                className="text-gray-500 text-sm  text-center prose
-                w-[300px] break-normal mt-6
-                "
-              >
-                Be the first to comment on this post.
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className={`flex flex-col  gap-5 w-full absolute    bottom-0   left-0   p-2  bg-white  
-        
-        ${
-          mentions.length > 0 ? "sm:mt-32" : ""
-        }
-        `}>
-        {
-           mentions.length > 0  ?  <div className="flex gap-5 justify-start  p-2">
-           <div className="flex flex-col">
-           <p>
-             Mentions
-           </p>
-            <div className="flex gap-5 mt-2">
-            {
-                 mentions.length > 0 ? mentions.map((mention: any) => {
-                   return <p 
-                   onClick={() => {
-                     
-                   }}
-                   className="text-sm  btn rounded-full btn-sm text-sky-500">{mention}</p>
-                 }) : ""
-               }
-               </div>
-           </div>
-           </div> : ""
-        }
-          <div className="flex flex-row  xl:hidden justify-between w-full  p-2 text-xl">
-            <p
-              onClick={() => {
-                setComment(commentV + "❤️");
-              }}
-            >
-              ❤️
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "🔥");
-              }}
-            >
-              🔥
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "🥴");
-              }}
-            >
-              🥴
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "👏");
-              }}
-            >
-              👏
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "🐱‍💻");
-              }}
-            >
-              🐱‍💻
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "👀");
-              }}
-            >
-              👀
-            </p>
-            <p
-              onClick={() => {
-                setComment(commentV + "😂");
-              }}
-            >
-              😂
-            </p>
-          </div>
-          <div className="flex flex-row gap-5  mb-2 w-full items-center">
-            <img
-              src={api.authStore.img()}
-              alt="profile"
-              className="rounded object-cover w-12 h-12 cursor-pointer"
-            ></img>
-             
-            <div className="relative rounded  w-full  border-slate-200 ">
-              <input
-                className="   input justify-start  hero    border-slate-200  border  border-l-full w-full rounded-full line-clamp-1  resize-none  focus:outline-none  
-                text-sm  
-                "
-                placeholder={`Reply to ${props.post.expand?.author?.username}`}
-                onChange={(e) => {
-                  setComment(e.target.value);
-                  // turn @mentions into links
-                  let  mentions = e.target.value.match(/@\w+/g)
-                  if(mentions){
-                    setMentions(mentions as any)
-                  }else{
-                    setMentions([])
-                  }
-                }}
-                value={commentV}
-              />
-              <button className="btn  hover:bg-white  bg-white border-start-0 rounded-full border-l-transparent border  rounded-l-none border-slate-200 absolute end-0 top-0 h-full  border-l-0 ">
-                {commentV.length > 0 ? (
-                  <p
-                    className="text-sky-500"
-                    onClick={() => {
-                      createComment();
-                    }}
-                  >
-                    Post
-                  </p>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-8 h-8"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12.75 8.25v7.5m6-7.5h-3V12m0 0v3.75m0-3.75H18M9.75 9.348c-1.03-1.464-2.698-1.464-3.728 0-1.03 1.465-1.03 3.84 0 5.304 1.03 1.464 2.699 1.464 3.728 0V12h-1.5M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </dialog>
-  );
-}
-
-function DeleteModal(props: any) {
-  return (
- 
-<dialog id={props.id + 'delete'} className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none">
-  <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
-    <h3 className="font-bold text-lg">Delete Postr ?</h3>
-    <p className="py-4">
-      Are you sure you want to delete this postr? This action cannot be undone. This will permanently delete access accross the platform.
-    </p>
-    <div className="modal-action gap-5">
-      <form method="dialog" className="flex gap-5">
-        <button className="text-red-500"
-        onClick={() => {
-          api.delete({
-            collection: "posts",
-            id: props.id,
-            cacheKey: props.cacheKey,
-          });
-          props.setArray(props.array.filter((e: any) => e.id != props.id));
-          api.cacehStore.delete(props.cacheKey)
-          //@ts-ignore
-          document.getElementById(props.id + 'delete')?.close()
-        }}
-        >Delete</button>
-        <button className=" " data-close>
-          Cancel
-        </button>
-      </form>
-    </div>
-  </div>
-</dialog>
-  )
-}
 
 export default function Post(props: any) {
   let [likes, setLikes] = useState(props.likes);
@@ -373,20 +61,15 @@ export default function Post(props: any) {
   async function handleLike() {
     switch (likes.includes(api.authStore.model().id)) {
       case true:
-        console.log("unlike");
         setLikes(likes.filter((id: any) => id != api.authStore.model().id));
         await api.update({
           collection: "posts",
           cacheKey: props.cacheKey,
+          expand: ["author", "likes", "comments", "comments.user"],
           id: props.id,
           record: {
             likes: likes.filter((id: any) => id != api.authStore.model().id),
           },
-        });
-        // up
-        props.updateCache(props.id, {
-          ...props,
-          likes: likes.filter((id: any) => id != api.authStore.model().id),
         });
         break;
 
@@ -395,13 +78,23 @@ export default function Post(props: any) {
         await api.update({
           collection: "posts",
           cacheKey: props.cacheKey,
+          expand: ["author", "likes", "comments", "comments.user"],
           id: props.id,
           record: { likes: [...likes, api.authStore.model().id] },
         });
-        props.updateCache(props.id, {
-          ...props,
-          likes: [...likes, api.authStore.model().id],
-        });
+        if (props.author !== api.authStore.model().id) {
+          api.notify.send({
+            title: `${api.authStore.model().username} liked your post - Postr`,
+            body: props.content,
+            icon: api.cdn.url({
+              id: api.authStore.model().id,
+              collection: "users",
+              file: api.authStore.model().avatar,
+            }),
+            recipient: props.author,
+          });
+        }
+
         break;
     }
   }
@@ -410,27 +103,60 @@ export default function Post(props: any) {
     <div
       key={props.id}
       id={props.id}
-      className={`xl:mt-0 w-full    xl:p-3  xl:mb-0 mb-6   ${
-        props.page !== "user" &&
-        props.page !== "bookmarks" &&
-        props.page !== "home"
-          ? "xl:p-5 sm:p-2"
-          : props.page == "home"
-          ? "xl:p-5  "
-          : ""
-      }`}
+      {...(props.notInteractable && {
+        onClick: () => {
+          if (!props.isCreating) {
+            let p = Object.assign({}, props);
+            p.notInteractable = false;
+
+            props.setParams({ post: p, type: "posts" });
+            props.swapPage("view");
+            window.history.pushState(
+              {},
+              "",
+              "/?view=status&id=" + props.id + "&type=posts"
+            );
+          }
+        },
+      })}
+      className={`xl:mt-0 w-full h-fit  relative  xl:p-3 
+        ${theme == "dark" ? "text-white" : "text-black"}
+        ${
+          props.notInteractable && props.isCreating
+            ? theme == "dark"
+              ? "border rounded-md border-[#2d2d2d]"
+              : "border-[#f9f9f9] rounded-md cursor-pointer"
+            : ""
+        }
+        xl:p-0 
+        ${
+          props.page == "user" || props.notInteractable && "p-3"
+        }
+        ${
+          props.page == "home" ? "p-0" : "p-2"
+        }
+        xl:mb-0 mb-6
+        ${props.isLast ? "mb-[7rem]" : ""}
+        ${
+          props.page !== "user" &&
+          props.page !== "bookmarks" &&
+          props.page !== "home"
+            ? "xl:p-5  "
+            : props.page == "home"
+            ? "xl:p-5  "
+            : ""
+        }`}
     >
       {props.pinned &&
       props.page == "user" &&
-      props.params &&
-      props.params.user.id == props.expand.author.id ? (
-        <div className="flex hero gap-5 mb-5">
+      props.params.user == props.author ? (
+        <div className="flex hero   gap-5 mb-5">
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
-            className="w-4 h-4
-         
-        "
+            className={`w-4 h-4
+              ${theme == "dark" ? "fill-white" : "fill-black"}
+        `}
           >
             <g>
               <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
@@ -453,29 +179,116 @@ export default function Post(props: any) {
           updateCache={props.updateCache}
         ></CommentModal>
         <div className="flex flex-row  gap-2   ">
-          <img
-            onClick={() => {
-              console.log(props.expand.author);
-              props.setParams({ user: props.expand.author });
-              props.swapPage("user");
-            }}
-            src={api.cdn.url({collection: "users", file: props.expand.author?.avatar, id: props.expand.author?.id})}
-            alt="profile"
-            className="rounded object-cover w-12 h-12 cursor-pointer"
-          ></img>
-          <div className="flex flex-col   heros">
-            <div className="flex flex-row h-0 mt-2 gap-2 hero">
-              <p
+          {props.expand?.author.avatar ? (
+            <img
+              onClick={() => {
+                props.setParams({ user: props.author });
+                props.swapPage("user");
+              }}
+              src={api.cdn.url({
+                collection: "users",
+                file: props.expand.author?.avatar,
+                id: props.expand.author?.id,
+              })}
+              alt="profile"
+              className="rounded object-cover w-12 h-12 cursor-pointer"
+            ></img>
+          ) : (
+            <div className="avatar placeholder">
+              <div
                 onClick={() => {
-                  console.log(props.expand.author);
-                  props.setParams({ user: props.expand.author });
+                  props.setParams({ user: props.author });
                   props.swapPage("user");
                 }}
+                className="bg-base-200 text-black rounded w-12 h-12 avatar cursor-pointer   "
               >
-                <span className="capitalize font-bold cursor-pointer">
-                  {props.expand.author?.username}
+                <span className="text-2xl">
+                  {props.expand.author?.username.charAt(0).toUpperCase()}
                 </span>
-              </p>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-col   heros">
+            <div className="flex flex-row h-0 mt-2 gap-2 hero">
+              <div class="dropdown dropdown-hover dropdown-start">
+                <div tabindex="0" role="button" class="">
+                  <p
+                    onClick={() => {
+                      props.setParams({ user: props.author });
+                      props.swapPage("user");
+                    }}
+                  >
+                    <span className="capitalize font-bold cursor-pointer">
+                      {props.expand.author?.username}
+                    </span>
+                  </p>
+                </div>
+                <ul
+                  tabindex="0"
+                  class={`dropdown-content    bg-base-100 rounded-xl z-[1] w-64   p-2 shadow
+                    ${
+                      theme == "dark" ? "border border-[#2d2d2d] rounded-box" : "border border-[#e0e0e0]"
+                    }
+                    `}
+                >
+                     <div className="flex hero gap-2">
+                      {
+                        props.expand.author.avatar ? (
+                          <img
+                            src={api.cdn.url({
+                              collection: "users",
+                              file: props.expand.author.avatar,
+                              id: props.expand.author.id,
+                            })}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover"
+                          ></img>
+                        ) : (
+                          <div className="avatar placeholder">
+                            <div className="bg-base-200 text-black rounded w-8 h-8 avatar">
+                              <span className="text-2xl">
+                                {props.expand.author.username.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      }
+                    <div>
+                      <p className="font-bold">{props.expand.author?.username}</p>
+                      <p className=" text-sm">@{props.expand.author?.username}</p>
+                    </div>
+                     </div>
+                     <div className="mt-2"> 
+                        <p >{props.expand.author?.bio}</p>
+                     </div>
+                     <div className="mt-2"> 
+                        <p c >Joined {new Date(props.expand.author?.created).toLocaleDateString()}</p>
+                      </div>
+                      <div className="mt-2 flex gap-2">
+                        <p  >Followers: {props.expand.author?.followers.length}</p>
+                        <p >Following: {props.expand.author?.following.length}</p>
+                      </div>
+                      {
+                        props.expand.author.followers.map((follower: any) => {
+                           if(api.authStore.model().followers.includes(follower.id)){
+                              return (
+                                <div className="flex gap-2">
+                                  <img src={api.cdn.url({
+                                    collection: "users",
+                                    file: follower.avatar,
+                                    id: follower.id,
+                                  })} alt="" className="w-8 h-8 rounded-full object-cover"></img>
+                                  <div>
+                                    <p className="font-bold">{follower.username}</p>
+                                    <p className="opacity-50">@{follower.username}</p>
+                                  </div>
+                                </div>
+                              )
+                           }
+                        })
+                      }
+                </ul>
+              </div>
               <p
                 className="hover:underline opacity-50 text-sm md:hidden sm:hidden
               "
@@ -525,12 +338,12 @@ export default function Post(props: any) {
               )}
               {props.expand.author?.postr_plus ? (
                 <div
-                  className="tooltip tooltip-left "
+                  className="tooltip tooltip-middle cursor-pointer"
                   data-tip={`Subscriber since ${new Date(
                     props.expand.author?.plus_subscriber_since
                   ).toLocaleDateString()}`}
                 >
-                  <span className="badge badge-outline badge-sm   border-blue-500 z-[-1] text-sky-500">
+                  <span className="badge badge-outline badge-sm rounded-full  border-blue-500 z-[-1] text-sky-500">
                     Postr+ Sub
                   </span>
                 </div>
@@ -538,63 +351,231 @@ export default function Post(props: any) {
                 ""
               )}
               ·<span className="text-sm">{created(props.created)}</span>
-              <div className="flex gap-2   absolute end-2 ">
-              <details className="dropdown dropdown-left">
-  <summary className="m-1 cursor-pointer">
-  <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-                  />
-                </svg>
-  </summary>
-  <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-    {
-      props.expand?.author && props.expand.author.id == api.authStore.model().id
-       ? 
-      <li>
-      <a onClick={() => {
-         props.pin(props.id)
-         props.updateCache(props.id, { ...props, pinned: props.pinned })
-      }}>
+              {!props.notInteractable && (
+                <div className="flex gap-2   absolute end-2 ">
+                  <div className="dropdown dropdown-left">
+                    <div tabIndex={0} role="button" className="m-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                        />
+                      </svg>
+                    </div>
+                    <ul
+                      tabIndex={0}
+                      style={{
+                        borderRadius: "10px",
+                        border:
+                          theme == "dark"
+                            ? "1px solid #2d2d2d"
+                            : "1px solid #f9f9f9",
+                      }}
+                      className="dropdown-content menu bg-base-100 rounded-box font-bold z-[1] w-64 p-2 shadow-xl"
+                    >
+                      {props.expand?.author &&
+                      props.expand.author.id == api.authStore.model().id ? (
+                        <li>
+                          <a
+                            className="text-red-500 flex hero gap-2"
+                            onClick={() => {
+                              //@ts-ignore
+                              document
+                                .getElementById(props.id + "delete")
+                                ?.showModal();
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke-width="1.5"
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                              />
+                            </svg>
+                            Delete
+                          </a>
+                        </li>
+                      ) : (
+                        ""
+                      )}
 
-        {
-          props.pinned ? "Unpin" : "Pin"
-        }
-      </a>
-      </li> : ""
-    }
-    {
-      props.expand?.author && props.expand.author.id == api.authStore.model().id
-       ? 
-      <li>
-      <a onClick={() => {
-         //@ts-ignore
-         document.getElementById(props.id + 'delete')?.showModal()
-      }}>
+                      <li>
+                        <a
+                          className="hero flex gap-2"
+                          onClick={() => {
+                            document
+                              .getElementById(props.id + "embed")
+                              ?.showModal();
+                          }}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
+                            />
+                          </svg>
+                          Embed Post
+                        </a>
+                      </li>
+                      {props.expand?.author &&
+                        props.expand.author.id !== api.authStore.model().id && (
+                          <li>
+                            {!api.authStore
+                              .model()
+                              .blocked.includes(props.author) ? (
+                              <a className="hero flex gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                                  />
+                                </svg>
+                                Block @{props.expand?.author?.username}
+                              </a>
+                            ) : (
+                              <a className="hero flex gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+                                  />
+                                </svg>
+                                Unblock @{props.expand?.author?.username}
+                              </a>
+                            )}
+                          </li>
+                        )}
+                      <li>
+                        <a 
+                        onClick={() => {
+                          props.setParams({ post: props, type: "posts" });
+                          props.swapPage("postEngagement")
+                        }}
+                        className="hero flex gap-2">
+                          <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                            fill="currentColor"
+                            className="cursor-pointer   w-4 h-4  "
+                          >
+                            <g>
+                              <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
+                            </g>
+                          </svg>
+                          View Post Engagement
+                        </a>
+                      </li>
+                      {props.expand?.author &&
+                      props.expand.author.id == api.authStore.model().id ? (
+                        <li>
+                          <a
+                            className="hero flex gap-2"
+                            onClick={() => {
+                              props.pin(props.id);
+                            }}
+                          >
+                            <svg
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                              className="w-4 h-4
+           
+          "
+                            >
+                              <g>
+                                <path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path>
+                              </g>
+                            </svg>
+                            {props.pinned ? "Unpin" : "Pin"}
+                          </a>
+                        </li>
+                      ) : (
+                        ""
+                      )}
 
-        Delete
-      </a>
-      </li> : ""
-    }
-  </ul>
-</details>
-                
-              </div>
+                      {props.expand?.author &&
+                        props.expand.author.id == api.authStore.model().id && (
+                          <li>
+                            <a className="hero flex gap-2">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
+                                />
+                              </svg>
+                              Who can reply
+                            </a>
+                          </li>
+                        )}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       <div className="mt-3 mb-4 ">
         <p
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            if (!props.notInteractable) {
+              props.setParams({ post: props, type: "posts" });
+              props.swapPage("view");
+              window.history.pushState(
+                {},
+                "",
+                "/?view=status&id=" + props.id + "&type=posts"
+              );
+            }
+          }}
           className="mt-2"
           ref={(e) => {
             if (e && props.content) {
@@ -602,19 +583,45 @@ export default function Post(props: any) {
             }
           }}
         ></p>
+        {props.isRepost && (
+          <div
+            className={`mt-2 ${
+              theme == "dark"
+                ? " border border-[#2d2d2d] rounded-md"
+                : "border border-[#dbdbdb] rounded-md"
+            }`}
+          >
+            <Post
+              notInteractable={true}
+              id={props.expand?.repost?.id}
+              {...props.expand.repost}
+              setParams={props.setParams}
+              swapPage={props.swapPage}
+            ></Post>
+          </div>
+        )}
 
         {props.file.length > 0 ? (
           <div className="mt-2">
             <div
               className={` w-full 
            ${
-             props.file.length > 2 ?  "grid grid-cols-2 gap-2" :  props.file.length > 1 ? "grid grid-cols-2 gap-2" : ""
+             props.file.length > 2
+               ? "grid grid-cols-2 gap-2"
+               : props.file.length > 1
+               ? "grid grid-cols-2 gap-2"
+               : ""
            }
             col-span-2 grid-flow-dense  `}
             >
               {props.file.map((file: any, index: Number) => {
                 return (
                   <img
+                    onClick={() => {
+                      document
+                        .getElementById(props.id + "imageViewer" + index)
+                        ?.showModal();
+                    }}
                     className={` w-full object-cover
     
                     ${
@@ -624,16 +631,16 @@ export default function Post(props: any) {
                     }
                     
                      ${
-                      // last image colspan
-                      props.file.length > 2 && index == props.file.length - 1
-                        ? "col-span-2"
-                        : ""
+                       // last image colspan
+                       props.file.length > 2 && index == props.file.length - 1
+                         ? "col-span-2"
+                         : ""
                      }
                      
                     
                     `}
                     src={api.cdn.url({
-                      id: props.id,
+                      id: props.id || props.params.id,
                       collection: "posts",
                       file: file,
                     })}
@@ -648,207 +655,255 @@ export default function Post(props: any) {
         )}
 
         {/**Heart Icon */}
-        <div className="flex    mt-5">
-          <div className="w-fit   hero"> 
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className={`
-            hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-6 h-6 hover:text-rose-500
-            cursor-pointer ${
-              likes.includes(api.authStore.model().id)
-                ? "fill-rose-500 text-rose-500"
-                : ""
-            }`}
-            onClick={(e) => {
-              console.log("clicked");
-              handleLike();
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-            />
-          </svg>
-          </div>
-
-          <div className="flex gap-2 hero  p-2 w-fit ">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id + "comments")?.showModal();
-              }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+        {!props.notInteractable && (
+          <div className="flex    mt-5">
+            <div className="w-fit flex gap-2  hero">
+              <input
+                type="checkbox"
+                className="toggle toggle-accent"
+                switch
+                hidden
+                name="likebtn"
+                onChange={() => {
+                  console.log("clicked");
+                }}
               />
-            </svg>
-            {comments.length}
-          </div>
-          <Repost
-           originalAuthor={props.expand?.author?.username}
-           originalPost={props}
-           postID={props.id}
-           cacheKey={props.cacheKey}
-          />
+              <label htmlFor="likebtn" className="cursor-pointer">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={`
+              hover:rounded-full hover:bg-rose-500 hover:bg-opacity-20 hover:p-2   active:p-1  w-6 h-6 hover:text-rose-500
+              cursor-pointer ${
+                likes.includes(api.authStore.model().id)
+                  ? "fill-rose-500 text-rose-500"
+                  : ""
+              }`}
+                  onClick={(e) => {
+                    console.log("clicked");
+                    handleLike();
+                  }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  />
+                </svg>
+              </label>
+              {likes.length}
+            </div>
 
-          <div className="w-fit p-2 hero flex">
-          <svg
-            onClick={() => {
-              navigator.share({
-                title: "View " + props.expand.author?.username + "'s post",
-                text: props.content.slice(0, 100),
-                url: window.location.href,
-              });
-            }}
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-7   h-7 hover:text-sky-500"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            <div className="flex gap-2 hero  p-2 w-fit ">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 p-1   w-8 h-8 hover:text-sky-500  "
+                onClick={() => {
+                  //@ts-ignore
+                  document.getElementById(props.id + "comments")?.showModal();
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                />
+              </svg>
+              {comments.length}
+            </div>
+            <Repost
+              originalAuthor={props.expand?.author?.username}
+              originalPostID={props.id}
+              cacheKey={props.cacheKey}
+              post={props}
             />
-          </svg>
-          </div>
 
-          <div className="w-fit p-2 hero flex">
-          <Bookmark
-            id={props.id}
-            className={`
-            cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
-            ${
-              bookmarked ? "fill-blue-500 text-blue-500" : ""
-            }`}
-            onClick={() => {
-              if (!api.authStore.model().bookmarks.includes(props.id)) {
-               
-                api
-                  .update({
-                    collection: "users",
-                    id: api.authStore.model().id,
-                    cacheKey: "userBookmarks" + api.authStore.model().id,
-                    expand: ["bookmarks", "bookmarks.author"],
-                    record: {
-                      bookmarks: [...api.authStore.model().bookmarks, props.id],
-                    },
-                  })
-                  .then((res: any) => {
-                    api.authStore.update();
-                   
-                    api.cacehStore.set(
-                      "bookmarks",
-                      res.expand.bookmarks || [],
-                      1200
-                    ); 
-                  }); 
-                setRefresh(!refresh);
-              } else {
-                console.log("unbookmark");
-                api
-                  .update({
-                    collection: "users",
-                    id: api.authStore.model().id,
-                    cacheKey: "userBookmarks" + api.authStore.model().id,
-                    expand: ["bookmarks", "bookmarks.author"],
-                    record: {
-                      bookmarks: api.authStore
-                        .model()
-                        .bookmarks.filter((e: any) => e != props.id),
-                    },
-                  })
-                  .then((res: any) => {
-                    api.authStore.update();
-                    api.cacehStore.set(
-                      "bookmarks",
-                      res.expand ? res.expand.bookmarks : [],
-                      1200
-                    );
-                    props.deleteBookmark && props.deleteBookmark();
-                  });
-                setRefresh(!refresh);
-              } 
-              setBookmarked(!bookmarked);
-            }}
-          />
+            <span className="tooltip tooltip-bottom" data-tip="Post Views">
+              <div className="w-fit p-2 hero flex">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className={`cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
+                  ${theme == "dark" ? "fill-white" : "fill-black"}
+                  `}
+                >
+                  <g>
+                    <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
+                  </g>
+                </svg>
+                <span>{props.views.length}</span>
+              </div>
+            </span>
+            <div className="absolute end-5 flex  gap-2">
+              <div className="w-fit p-2 hero flex">
+                <span className="tooltip tooltip-bottom" data-tip="share">
+                  <svg
+                    onClick={() => {
+                      navigator.share({
+                        title: props.expand.author.username + " on Postr ",
+                        text: props.content.slice(0, 100),
+                        url: `https://embedify-v1.vercel.app/embed/posts/${props.id}/meta`,
+                      });
+                    }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1 w-7   h-7 hover:text-sky-500"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                    />
+                  </svg>
+                </span>
+              </div>
+
+              <div className="w-fit p-2 hero flex">
+                <Bookmark
+                  id={props.id}
+                  className={`
+              cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  p-1  w-7 h-7 hover:p-2 hover:text-sky-500
+              ${bookmarked ? "fill-blue-500 text-blue-500" : ""}`}
+                  onClick={() => {
+                    if (bookmarked) {
+                      api.update({
+                        collection: "users",
+                        cacheKey: `users-${api.authStore.model().id}`,
+                        invalidateCache: [`bookmarks-${api.authStore.model().id}`],
+                        immediatelyUpdate: true,
+                        id: api.authStore.model().id,
+                        expand: ["bookmarks"],
+                        record: {
+                          bookmarks: api.authStore
+                            .model()
+                            .bookmarks.filter((id: any) => id != props.id),
+                        },
+                      });
+                      
+                      api.authStore.update();
+                      setBookmarked(false);
+                      if (props.deleteBookmark) {
+                        props.deleteBookmark();
+                      }
+                    } else {
+                      api.update({
+                        collection: "users",
+                        cacheKey: `users-${api.authStore.model().id}`,
+                        id: api.authStore.model().id,
+                        immediatelyUpdate: true,
+                        expand: ["bookmarks"],
+                        invalidateCache: [
+                          `bookmarks-${api.authStore.model().id}`, 
+                          `user-feed-${api.authStore.model().id}`
+                        ],
+                        record: {
+                          bookmarks: [
+                            ...api.authStore.model().bookmarks,
+                            props.id,
+                          ],
+                        },
+                      });
+                     
+                      api.authStore.update();
+                      setBookmarked(true);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="flex gap-5 mt-5  ">
-        {props.expand?.likes &&
-        props.expand?.likes[0].id !== api.authStore.model().id &&
-        props.expand.likes[0].avatar ? (
-          <div className="flex gap-2">
-            {
-              <>
-                <img
-                  src={api.cdn.url({
-                    id: props.expand?.likes[0].id,
-                    collection: "users",
-                    file: props.expand?.likes[0].avatar,
-                  })}
-                  alt={props.expand?.likes[0].avatar}
-                  className="rounded-full w-6 h-6 cursor-pointer"
-                ></img>
-                Liked by{" "}
-                <span className="font-bold hover:underline cursor-pointer">
-                  {props.expand?.likes[0].username ==
-                  api.authStore.model().username
-                    ? "you"
-                    : props.expand?.likes[0].username}
-                </span>{" "}
-                and {props.expand?.likes.length - 1} others
-              </>
-            }
-          </div>
-        ) : (
-          <p>
-            {likes.length} {likes.length == 1 ? "like" : "likes"}
-          </p>
         )}
       </div>
 
-      {props.file ? (
-        <Modal id={props.id + "file"} height=" h-[100vh]">
-          <div className="flex flex-col overflow-hidden justify-center items-center h-full bg-[#121212]  relative  ">
-            <svg
-              onClick={() => {
-                //@ts-ignore
-                document.getElementById(props.id + "file")?.close();
-              }}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="  bg-base-200 btn btn-sm btn-circle fixed left-2 top-2"
-            >
-              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-            </svg>
+      {props.file
+        ? props.file.map((file: any, index: number) => {
+            return (
+              <Modal
+                id={props.id + "imageViewer" + index}
+                height="h-[100vw]"
+                width="w-[100vw]"
+              >
+                <div className="flex flex-col overflow-hidden justify-center items-center    relative  ">
+                  <svg
+                    onClick={() => {
+                      //@ts-ignore
+                      document
+                        .getElementById(props.id + "imageViewer" + index)
+                        ?.close();
+                    }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="  bg-base-200 btn btn-sm btn-circle fixed left-2 top-2"
+                  >
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
 
-            <img
-              src={`https://bird-meet-rationally.ngrok-free.app/api/files/w5qr8xrcpxalcx6/${props.id}/${props.file}`}
-              alt={props.file}
-              className=" xl:w-[60vw] w-full h-full  object-cover  cursor-pointer"
-            ></img>
-          </div>
-        </Modal>
-      ) : null}
+                  <img
+                    src={api.cdn.url({
+                      id: props.id || props.params.id,
+                      collection: "posts",
+                      file: file,
+                    })}
+                    alt={props.file}
+                    className="object-cover  cursor-pointer"
+                  ></img>
+                </div>
+              </Modal>
+            );
+          })
+        : null}
       <DeleteModal id={props.id} {...props}></DeleteModal>
+      <dialog
+        id={props.id + "embed"}
+        className="dialog sm:modal xl:shadow-none md:shadow-none lg:shadow-none bg-transparent focus:outline-none"
+      >
+        <div className="modal-box xl:shadow-none lg:shadow-none md:shadow-none">
+          <h3 className="font-bold text-lg">Embed Post</h3>
+          <p className="py-4">
+            Embed this post on your website or blog by copying the code below.
+          </p>
+          <div className="modal-action gap-5">
+            <div className="flex gap-5 justify-start  p-2">
+              <input
+                type="text"
+                className="w-full p-2 rounded bg-base-200"
+                value={`<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`}
+              ></input>
+              <button
+                className="btn btn-sm btn-ghost"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`
+                  );
+                }}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+        <form method="dialog" className="flex gap-5">
+          <textarea
+            className="w-full p-2 rounded bg-base-200"
+            rows={5}
+            value={`<iframe src="${window.location.origin}/embed/${props.id}" width="100%" height="100%" frameborder="0"></iframe>`}
+          ></textarea>
+          <button className=" " data-close>
+            Close
+          </button>
+        </form>
+      </dialog>
     </div>
   );
 }

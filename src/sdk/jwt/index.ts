@@ -1,11 +1,12 @@
-//@ts-nocheck
-var atobPolyfill:Function;
+ //@ts-nocheck
+
+var atobPolyfill: Function;
 
 if (typeof atob === 'function') {
     atobPolyfill = atob;
 } else {
     // Base64 polyfill for browsers that don't have atob
-    atobPolyfill = function (input:string) {
+    atobPolyfill = function(input: string) {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
         var str = String(input).replace(/=+$/, "");
@@ -25,7 +26,7 @@ if (typeof atob === 'function') {
 
             //@ts-ignore
             bs = bc % 4 ? bs * 64 + buffer : buffer;
-            
+
             if (bc++ % 4) {
                 output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
             }
@@ -38,12 +39,17 @@ if (typeof atob === 'function') {
 /**
  * Returns JWT token's payload data.
  */
-function getTokenPayload(token:string) {
+function getTokenPayload(token: string) {
     if (token) {
         try {
-            var encodedPayload = decodeURIComponent(atobPolyfill(token.split('.')[1]).split('').map(function (c:any) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
+            var encodedPayload = decodeURIComponent(
+                atobPolyfill(token.split('.')[1])
+                    .split('')
+                    .map(function(c: string) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    })
+                    .join('')
+            );
 
             return JSON.parse(encodedPayload) || {};
         } catch (e) {
@@ -62,18 +68,15 @@ function getTokenPayload(token:string) {
  * @param token The token to check.
  * @param expirationThreshold Time in seconds that will be subtracted from the token `exp` property.
  */
-export function isTokenExpired(token:string, expirationThreshold:any) {
+export function isTokenExpired(token: string, expirationThreshold: number = 0) {
     var decoded = getTokenPayload(token);
-    
+
     var exp = decoded.exp;
     if (!exp) {
+        // Token does not have an expiration time, so it's considered valid
         return false;
     }
-
-   
-    var isExpired = Date.now() >= exp * 1000 - (expirationThreshold || 0) * 1000;
-   
-    return isExpired ? false : true
-  
+    var isExpired = Date.now() >= (exp - expirationThreshold) * 1000 // Convert to milliseconds
+    
+    return isExpired;
 }
- 

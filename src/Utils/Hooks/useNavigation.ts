@@ -1,0 +1,86 @@
+import { createSignal } from "solid-js";
+
+let currentRoute = "/";
+const arrayOfNavigations = ["/"];
+let params = [{ route: "/", params: null }] as [{ route: string; params: any }];
+/**
+ * @description - A hook to handle navigation in a SolidJS application
+ * @param $route 
+ * @param $params 
+ * @returns 
+ */
+export default function useNavigation($route?: string, $params?: any) {
+  const [route, setRoute] = createSignal(
+    new URL(window.location.href).pathname || "/"
+  );
+  const [_params, setParams] = createSignal(
+    params.find((p) => p.route === currentRoute)?.params || null
+  );
+
+  const parseParams = (route: string) => {
+    const paramNames = route
+      .split("/")
+      .filter((part) => part.startsWith(":"))
+      .map((part) => part.slice(1));
+    const paramValues = new URL(window.location.href).pathname
+      .split("/")
+      .slice(2)
+      .filter((part) => !part.startsWith(":"));
+    const parsedParams = paramNames.reduce((acc, paramName, index) => {
+      acc[paramName] = paramValues[index];
+      return acc;
+    }, {} as any);
+    return parsedParams;
+  };
+
+  if ($route && $route.includes(":")) {
+    const $_params = parseParams($route);
+    setParams<{}>($_params);
+  }
+
+  const navigate = (route: string, $params?: any) => {
+    currentRoute = route;
+    arrayOfNavigations.push(route);
+    if ($params) {
+      params.push({ route, params: $params });
+      setParams($params);
+    } else {
+      setParams(params.find((p) => p.route === route)?.params || null);
+    }
+    window.history.pushState({}, "", route); // Update the URL
+    window.dispatchEvent(new Event("popstate")); // Trigger the popstate event
+    setRoute(route);
+  };
+
+  window.addEventListener("popstate", () => {
+    const path = new URL(window.location.href).pathname;
+    setRoute(path);
+    const matchingParams = params.find((p) => p.route === path)?.params || null;
+    setParams(matchingParams);
+  });
+
+  const goBack = () => {
+    const index = arrayOfNavigations.indexOf(currentRoute);
+    console.log(index);
+    if (index === 0)  navigate("/", null);
+    currentRoute = arrayOfNavigations[index - 1];
+    setRoute(currentRoute);
+    window.history.back();
+  };
+
+  const goForward = () => {
+    const index = arrayOfNavigations.indexOf(currentRoute);
+    if (index === arrayOfNavigations.length - 1) return;
+    currentRoute = arrayOfNavigations[index + 1];
+    setRoute(currentRoute);
+  };
+
+  window.onpopstate = () => {
+    const path = new URL(window.location.href).pathname;
+    setRoute(path);
+    const matchingParams = params.find((p) => p.route === path)?.params || null;
+    setParams(matchingParams);
+  };
+
+  return { route, navigate, goBack, goForward, params: _params };
+}

@@ -105,13 +105,16 @@ export default function useFeed(_for: string) {
     .then((data: any) => { 
       setPosts([...posts(), ...data?.items]);
       setLoading(false);
-      let relevantPeople = []
+      let relevantPeople: any[] = []
       for (let i = 0; i < data?.items.length; i++) {  
         if(data?.items[i].expand.author.followers.length < 1) continue;
         let followers = data?.items[i].expand.author.expand.followers
         if(followers.length < 1) continue;
-        for (let j = 0; j < followers.length; j++) {
-          if (followers[j].id !== api.authStore.model.id   && relevantPeople.length < 5 && !followers[j].followers.includes(api.authStore.model.id) ) {
+        for (let j = 0; j < followers.length; j++) { 
+          if (followers[j].id !== api.authStore.model.id   && relevantPeople.length < 5 && !followers[j].followers.includes(api.authStore.model.id) 
+          && !relevantPeople.find((i)=> i.id === followers[j].id)  
+          ) {
+            console
             relevantPeople.push(followers[j]);
           } 
         }

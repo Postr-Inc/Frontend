@@ -6,13 +6,7 @@ export const Card = (props: ComponentProps<"div">) => {
 	const [local, rest] = splitProps(props, ["class"]);
 
 	return (
-		<div
-			class={cn(
-				"rounded-xl border bg-card text-card-foreground shadow",
-				local.class,
-			)}
-			{...rest}
-		/>
+		<div class={cn( "rounded-xl", local.class)} {...rest} />
 	);
 };
 

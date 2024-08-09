@@ -36,7 +36,15 @@ export default function Login() {
       setIsTyping(false);
     }
 
-    function handleKeydown() {
+    function handleKeydown(e: KeyboardEvent) {
+      if(e.key === "Enter") {
+        setIsTyping(false);
+        login(
+          (document.querySelector("#email") as HTMLInputElement)?.value as string,
+          (document.querySelector("#password") as HTMLInputElement)?.value as string
+        );
+        
+      }
       startTyping();
     }
 
@@ -61,12 +69,9 @@ export default function Login() {
           />
           <div>
             <div
-              class=" relative w-full     justify-center flex flex-col gap-5 mx-auto
-    xl:w-[30vw] lg:w-[50vw]
-    "
-            >
+              class=" relative w-full     justify-center flex flex-col gap-5 mx-auto xl:w-[30vw] lg:w-[50vw]">
               <div class=" mb-12 flex flex-col gap-5  w-full">
-                <p class=" mt-2   w-full text-3xl font-extrabold ">
+                <p class=" mt-2  sm:mt-0  w-full text-3xl font-extrabold ">
                   Open Source Is Simply Better.
                 </p>
                 <p class="text-lg">

@@ -39,21 +39,21 @@ export function SideBarRight(props:  {
                       <div class="flex flex-row gap-5">
                        <Switch fallback={<></>}>
                        <Match when={!item.avatar}>
-                        <div class="w-10 h-10  text-center p-2 rounded">
+                        <div class="w-10 h-10 border  text-center p-2 rounded">
                           {item.username.slice(0, 1).charAt(0).toUpperCase()}
                         </div>
                        </Match>
                        <Match when={item.avatar}>
                        <img
-                          class="w-10 h-10 rounded-full"
+                          class="w-10 h-10 rounded"
                           src={api.cdn.getUrl("users", item.id, item.avatar)}
                           alt={item.username}
                         />
                         </Match>
                        </Switch>
                         <div class="flex flex-col">
-                          <a class="font-bold">{item.username}</a>
-                          <a class="text-sm">{item.bio}</a>
+                          <a class="font-bold">{item.username}</a> 
+                          <p class="text-sm">@{item.username}</p>
                         </div>
                       </div>
                     )}

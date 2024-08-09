@@ -12,7 +12,7 @@ export function SideBarLeft(props: {
 }) {
   const error = false;
   let { theme } = useTheme();
-  const { route } = useNavigation()
+  const { route, navigate } = useNavigation()
   return (
     <>
       <div class="xl:drawer xl:w-[auto]   mr-5   xl:drawer-open lg:drawer-open  ">
@@ -52,7 +52,10 @@ export function SideBarLeft(props: {
             <li>
               <a
                 class={joinClass("text-lg  rounded-full",   route() == "/" && "fill-blue-500 stroke-blue-500 text-blue-500 font-bold")}
-                onClick={() => {}}
+                onClick={() => {
+                  // @ts-ignore
+                  navigate(`/`);
+                }}
               >
                 <Home class= {joinClass("w-7 h-7")} />
                 Home
@@ -126,6 +129,7 @@ export function SideBarLeft(props: {
                   `}
                 onClick={() => {
                   // @ts-ignore
+                  navigate(`/u/${api.authStore.model.username}`);
                 }}
               >
                 <svg
@@ -214,59 +218,7 @@ export function SideBarLeft(props: {
             >
               <p>Post</p>
             </button>
-            <li class="focus:bg-transparent rounded-full">
-              <a
-                class={joinClass(
-                  "flex flex-col rounded-full focus:bg-transparent hover:text-white gap-5 fixed bottom-5",
-                  theme() == "dark"
-                    ? "hover:bg-[#121212]"
-                    : "hover:bg-[#cacaca]"
-                )}
-              >
-                <div class="flex gap-2 hero ">
-                  <img
-                    src={api.cdn.getUrl(
-                      "users",
-                      api.authStore.model.id,
-                      api.authStore.model.avatar
-                    )}
-                    class="w-10 h-10 rounded"
-                  ></img>
-                  <div class="flex flex-col ">
-                    <Dropdown direction="top" point="end">
-                      <DropdownHeader>
-                        <div class="flex flex-row gap-5">
-                          <p class="font-bold text-lg">
-                            {api.authStore.model.username}
-                          </p>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="size-6"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                            />
-                          </svg>
-                        </div>
-                      </DropdownHeader>
-                      <DropdownItem>
-                        <a href="/profile">Profile</a>
-                      </DropdownItem>
-                    </Dropdown>
-                    <p>
-                      @{api.authStore.model.username}
-                      {api.authStore.model.id.slice(0, 5)}
-                    </p>
-                  </div>
-                </div>
-              </a>
-            </li>
+            
           </ul>
         </div>
       </div>

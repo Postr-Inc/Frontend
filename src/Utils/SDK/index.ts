@@ -35,8 +35,9 @@ export default class SDK {
             localStorage.getItem("postr_auth") as string
           ).token,
         },
-      }).then((res) => {
+      }).then(async (res) => {
         if (res.status !== 200) {
+          console.log(await res.json());
           localStorage.removeItem("postr_auth");
           window.location.href = "/auth/login";
         } else {
@@ -105,8 +106,7 @@ export default class SDK {
   };
 
   handleMessages = (data: any) => {
-    let _data = JSON.parse(data);
-    console.log(_data);
+    let _data = JSON.parse(data); 
     let cb = this.callbacks.get(_data.callback);
     if (cb) {
       cb(_data);
@@ -119,6 +119,11 @@ export default class SDK {
     isValid: () => {
       if (!this.authStore.model.token) return false;
       return isTokenExpired(this.authStore.model.token) ? false : true;
+    },
+    logout: () => {
+      localStorage.removeItem("postr_auth");
+      window.dispatchEvent(this.changeEvent);
+      if(window.location.pathname !== "/auth/login") window.location.href = "/auth/login";
     },
     login: async (emailOrUsername: string, password: string) => {
       return new Promise(async (resolve, reject) => {
@@ -247,12 +252,13 @@ export default class SDK {
           expand?: string[];
           recommended?: boolean;
           filter?: string;
+          cacheKey?: string;
         },
         shouldCache = true
       ) => {
         return new Promise(async (resolve, reject) => {
           const { set, get, remove, clear } = useCache();
-          const cacheKey =  `${this.serverURL}/api/collections/${name}/${page}/${limit}`;
+          const cacheKey = options?.cacheKey || `${this.serverURL}/api/collections/${name}?page=${page}&limit=${limit}`; 
           const cacheData = shouldCache ?  await get(cacheKey) : null; 
           if (cacheData) return resolve({opCode: HttpCodes.OK, items:[...cacheData.payload], totalItems: cacheData.totalItems, totalPages: cacheData.totalPages});
           let cb = this.callback((data) => {
@@ -262,6 +268,7 @@ export default class SDK {
               items: data.payload,
               totalItems: data.totalItems,
               totalPages: data.totalPages,
+              cacheKey
             }) as any;
           });
           this.sendMsg({
@@ -351,14 +358,19 @@ export default class SDK {
        */
       create: async (data: any) => {
         return new Promise((resolve, reject) => {
-          let cb = this.callback((data) => {
-            if (data.error) return reject(data);
-            resolve(data);
+          let cb = this.callback((data) => { 
+            if(data.opCode !== HttpCodes.OK) return reject(data) 
+            resolve(data.payload)
           });
           this.sendMsg({
-            type: "create",
-            collection: name,
-            data,
+            type: GeneralTypes.CREATE,
+            payload: {
+              collection: name,
+              data,
+            },
+            security: {
+              token: this.authStore.model.token,
+            },
             callback: cb,
           });
         });

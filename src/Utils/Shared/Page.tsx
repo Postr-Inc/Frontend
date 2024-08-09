@@ -13,7 +13,7 @@ export default function Page(props: { children: any , params: ()=> any, route: (
             <h1 class="text-3xl">Something went wrong</h1>
         </div>
     }>
-         <div id={props.id} class={joinClass("relative xl:flex xl:w-[16vw]  md:w-[50vw]  xl:p-0  lg:flex   2xl:w-[64vw]    justify-center xl:mx-auto ")}>
+         <div id={props.id} class={joinClass("relative xl:flex xl:w-[30rem]  md:w-[50vw]  xl:p-0  lg:flex   2xl:w-[64vw]    justify-center xl:mx-auto ")}>
          <Show when={props.route() !== "/auth/login" && props.route() !== "/auth/signup" && props.route() !== "/auth/forgot"}>
          <SideBarLeft {...{
              params: props.params,
@@ -22,7 +22,7 @@ export default function Page(props: { children: any , params: ()=> any, route: (
         }} />
         </Show>
         
-        <div class="flex flex-col   w-full">
+        <div class="flex flex-col  h-full w-full  ">
             
         {props.children}
         </div>

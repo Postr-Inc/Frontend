@@ -15,6 +15,10 @@ import Heart from "../Icons/heart";
 import Dropdown, { DropdownHeader, DropdownItem } from "../UI/UX/dropdown";
 import Carousel, { CarouselItem } from "../UI/UX/Carousel";
 import StringJoin from "@/src/Utils/StringJoin";
+import { A } from "@solidjs/router";
+import Verified from "../Icons/Verified";
+import Bookmark from "../Icons/Bookmark";
+import Share from "../Icons/Share";
 const created = (created: any) => {
   let date = new Date(created);
   let now = new Date();
@@ -60,13 +64,14 @@ type Props = {
   updated?: Date;
   expand?: { [key: string]: any } | any;
   comments?: string[];
-  file: string[]; 
+  file?: string[]; 
   isRepost?: boolean;
   disabled?: boolean;
   [key: string]: any;
 };
 
 export default function Post(props: Props) {
+  console.log(props);
   let { theme } = useTheme();
   let { likes, updateLikes, comments } = usePost(props);
 
@@ -78,16 +83,16 @@ export default function Post(props: Props) {
   
   return (
     <Card
-      class={joinClass(
-        theme() === "dark"
-          ? "bg-black text-white border-[#1c1c1c] border-t-0"
-          : " border-[#e0e0e0]",
-        "rounded-none",
-        props.page && props.page.includes("view") ? "border-l-0 border-r-0" : "",
+      class={joinClass( 
+        window.location.pathname.includes("/view") && !props.disabled ? "border-none" : theme() === "dark"
+        ? "bg-black text-white border-[#1c1c1c]  "
+        : "  border-[#f3f3f3] border   ",
+        props.noBottomBorder && !props.disabled ? "border " : "rounded-none ",
+      "z-10  relative",  
         "p-1 text-md shadow-none ",
         props.disabled
-          ? "rounded"
-          : `border-t-0 ${
+          ? "rounded "
+          : `   rounded-none shadow-none${
               theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : ""
             }`
       )}
@@ -106,6 +111,7 @@ export default function Post(props: Props) {
               {props.expand.author.username.slice(0, 1).charAt(0).toUpperCase()}
             </div>
           </Match>
+          
           <Match when={props.expand.author.avatar}>
             <img
               src={api.cdn.getUrl(
@@ -118,15 +124,26 @@ export default function Post(props: Props) {
             />
           </Match>
         </Switch>
+        
+         
+         <div class="flex gap-2">
+        <div class="flex">
         <CardTitle
-          class="cursor-pointer "
+          class="cursor-pointer items-center gap-5 "
           onClick={() => props.navigate(StringJoin("/u/", props.expand.author.username))}
         >
           {props.expand.author.username}
         </CardTitle>
-        <CardTitle> @{props.expand.author.username}</CardTitle>
-        <CardTitle>·</CardTitle>
-        <CardTitle>{created(props.created)}</CardTitle>
+        <Show when={props.expand.author.validVerified}>
+          <Verified class="w-5  h-5 mx-1 text-blue-500 fill-blue-500 stroke-white " />
+        </Show>
+        </div>
+        <CardTitle class="text-sm opacity-50"> @{props.expand.author.username}</CardTitle>
+        <CardTitle class="text-sm opacity-50">·</CardTitle>
+        <CardTitle class="text-sm opacity-50">{created(props.created)}</CardTitle>
+         </div>
+       
+        
         <Show when={!props.disabled}>
           <CardTitle class="absolute right-5">
             <Dropdown direction="left" point="start">
@@ -137,7 +154,7 @@ export default function Post(props: Props) {
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="size-6"
+                  class="size-6 " 
                 >
                   <path
                     stroke-linecap="round"
@@ -201,11 +218,11 @@ export default function Post(props: Props) {
           </CardTitle>
         </Show>
       </CardHeader>
-      <Show when={props.file.length > 0}>
+      <Show when={props.files && props.files.length > 0}>
       <CardContent class="p-1">
         
         <Carousel >
-        <For each={props.file} fallback={<></>}>
+        <For each={props.files} fallback={<></>}>
           {(item) => (
              <CarouselItem>
               <img
@@ -224,13 +241,28 @@ export default function Post(props: Props) {
         </Carousel>
       </CardContent>
       </Show>
-      <CardContent class="p-1 cursor-pointer" onClick={()=>{ props.navigate(StringJoin("/view/", "post/", props.id)) }}>{props.content}</CardContent>
+      <CardContent class="p-1 cursor-pointer">
+        <A href={StringJoin("/view/", "post/", props.id)} class="z-[99999]">
+        {props.content}
+        </A>
+      </CardContent>
       {/**
        * @search - repost section
        */}
       <CardContent class="p-1">
+        
         <Show when={props.isRepost}>
-          <Post {...props.expand.repost} disabled={true} />
+          <Post  
+           author={props.expand.repost.author}
+           id={props.expand.repost.id}
+           content={props.expand.repost.content}
+           disabled={true}
+           created={props.expand.repost.created}
+           updated={props.expand.repost.updated}
+           expand={props.expand.repost.expand}
+           comments={props.expand.repost.comments}
+           files={props.expand.repost.files}
+          />
         </Show>
       </CardContent>
 
@@ -278,7 +310,7 @@ export default function Post(props: Props) {
                 d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
               />
             </svg>
-            {comments().length}
+            {comments() && comments().length}
           </div>
           <div class="flex hero gap-2">
             <svg
@@ -293,9 +325,12 @@ export default function Post(props: Props) {
                 <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
               </g>
             </svg>
-            {props.views.length}
+            {props.views && props.views.length || 0}
           </div>
-          <div class="flex absolute right-5"></div>
+          <div class="flex absolute right-5 gap-5">
+            <Bookmark class="w-6 h-6" />
+            <Share class="w-6 h-6" />
+          </div>
         </CardFooter>
       </Show>
     </Card>

@@ -46,10 +46,9 @@ export default function useNavigation($route?: string, $params?: any) {
       setParams($params);
     } else {
       setParams(params.find((p) => p.route === route)?.params || null);
-    }
-    window.history.pushState({}, "", route); // Update the URL
-    window.dispatchEvent(new Event("popstate")); // Trigger the popstate event
-    setRoute(route);
+    } 
+    window.history.pushState(null, "", route); 
+    window.dispatchEvent(new Event("popstate"))
   };
 
   window.addEventListener("popstate", () => {
@@ -57,12 +56,12 @@ export default function useNavigation($route?: string, $params?: any) {
     setRoute(path);
     const matchingParams = params.find((p) => p.route === path)?.params || null;
     setParams(matchingParams);
+    console.log("working")
   });
 
   const goBack = () => {
     const index = arrayOfNavigations.indexOf(currentRoute);
-    console.log(index);
-    if (index === 0)  navigate("/", null);
+    if (index === 0) return;
     currentRoute = arrayOfNavigations[index - 1];
     setRoute(currentRoute);
     window.history.back();

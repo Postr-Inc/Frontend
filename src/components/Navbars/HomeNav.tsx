@@ -7,6 +7,11 @@ import { createSignal, createEffect } from "solid-js";
 import useScrollingDirection from "@/src/Utils/Hooks/useScrollingDirection";
 import useDevice from "@/src/Utils/Hooks/useDevice";
 import { Portal } from "solid-js/web";
+import Modal from "../Modal";
+import MobileSidebar from "../Modals/MobileSidebar";
+import Bookmark from "../Icons/Bookmark";
+import Settings from "../Icons/Settings";
+import LogoutModal from "@/src/Utils/Modals/LogoutModal";
 export default function HomeNav({
   navigate,
   page,
@@ -26,25 +31,113 @@ export default function HomeNav({
       class={joinClass(
         " flex flex-col sticky top-0  sm:p-0  z-[9999]",
         theme() === "dark"
-          ? "bg-black z-[99999] text-white  border-[#121212] border-2 border-b-none "
-          : "bg-white  border   border-[#e0e0e0] bg-opacity-75 bg-white ",
+          ? "bg-black z-[99999] text-white  border-[#121212] border border-l-0 border-r-0 border-b-none "
+          : "bg-white  border    border-[#f3f3f3]   bg-white ",
         " backdrop-blur-sm ", 
         mobile() && scrollingDirection() === "up" ? "slide-up-active slide-up  " :  mobile()  ? "slide-up" : ""
       )}
     >  
-      <div class="flex flex-row hero p-2">
-      <Show when={mobile()}>
-       <div class={joinClass("rounded-full border-base-200")}>
-          <img src={api.cdn.getUrl("users", api.authStore.model.id, api.authStore.model.avatar)} class="w-10 h-10 rounded" alt="logo" />
-        </div> 
-       </Show>
-       <Show when={mobile()}>
-         <div class={joinClass("flex justify-center w-full")}>
-          <img src={logo} class="w-12 h-12 rounded" alt="logo" /> 
-         </div>
-       </Show>
-      </div> 
-      <div class={joinClass("flex hero sm:p-3 xl:p-2    text-sm   xl:mt-0 justify-evenly ", )}>
+      <div class="flex xl:p-3 w-full sm:p-3  z-[9999999] justify-between ">
+                <div class="flex gap-2 hero">
+                  <div class="flex flex-col   w-full">
+                    <div class="flex  justify-between gap-2 w-full">
+                      <div class="flex flex-row  gap-2  ">
+                        <div class="dropdown     ">
+                          <label tabIndex={0}>
+                            {typeof window != "undefined"  ? (
+                              <>
+                                {api.authStore.model?.avatar ? (
+                                  <img
+                                    src={api.cdn.getUrl("users", api.authStore.model.id, api.authStore.model.avatar)}
+                                    alt={api.authStore.model.username}
+                                    class="rounded object-cover w-12 h-12 cursor-pointer"
+                                  ></img>
+                                ) : (
+                                  <div class="avatar placeholder">
+                                  <div class="bg-base-300 text-black   avatar  w-16 h-16   border cursor-pointer rounded   border-white">
+                                    <span class="text-2xl">
+                                      {api.authStore.model.username.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                                )}
+                              </>
+                            ) : (
+                              ""
+                            )}
+                          </label>
+                          <ul
+                            tabIndex={0}
+                            style={{
+                               border: theme() === 'dark' ? '1px solid #2d2d2d' : '1px solid #f9f9f9',
+                               "border-radius": '10px'
+                            }}
+                            class="dropdown-content  menu   w-[16rem] shadow bg-base-100  rounded "
+                          >
+                            <li>
+                              <a
+                                onClick={() => {
+                                  navigate("/u/" + api.authStore.model.username);
+                                }}
+                              class="rounded-full">
+                                View Profile
+                              </a>
+                            </li>
+                            {typeof window != "undefined" &&
+                            api.authStore.model.postr_plus ? (
+                              <li>
+                                <a class="rounded-full">
+                                  Your benefits
+                                  <span class="badge badge-outline border-blue-500 text-blue-500">
+                                    ++
+                                  </span>
+                                </a>
+                              </li>
+                            ) : (
+                              ""
+                            )}
+                            <li>
+                              <a class="rounded-full">Set Status</a>
+                            </li>
+                            <li>
+                              <a class="rounded-full"
+                                onClick={() => {
+                                  //@ts-ignore
+                                  document
+                                    .getElementById("logout-modal")
+                                    //@ts-ignore
+                                    .showModal();
+                                }}
+                              >
+                                Logout{" "}
+                                <span class="font-bold">
+                                  {" "}
+                                  @{api.authStore.model.username}
+                                </span>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                        <div class="flex flex-col">
+                          <p class="font-bold ">
+                            {  api.authStore.model.username}
+                          </p>
+                          <p class="text-lg">
+                            @ {api.authStore.model.username}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="flex gap-4"> 
+                        <Bookmark class="w-7 h-7" />
+                        <Settings class="w-7 h-7" />
+                      </div>
+                    </div>
+                   
+                  </div>
+                </div>
+              </div>
+      <div class={joinClass("  sm:p-3 xl:p-2    text-sm   xl:mt-0  justify-between flex  ", )}>
         <div class="flex flex-col">
           <p
             class={joinClass("cursor-pointer", page() !== "recommended" ? "text-gray-500" : "")}
@@ -55,7 +148,7 @@ export default function HomeNav({
             Recommended
           </p>
           {page() === "recommended" ? (
-            <div class=" rounded-full   h-1 bg-blue-500"></div>
+            <div class="rounded-md   h-1 bg-blue-500"></div>
           ) : (
             ""
           )}
@@ -70,14 +163,32 @@ export default function HomeNav({
             Following
           </p>
           {page() === "following" ? (
-            <div class=" rounded-full   h-1 bg-blue-500"></div>
+            <div class=" rounded-md   h-1 bg-blue-500"></div>
+          ) : (
+            ""
+          )}
+        </div>
+        <div class="flex flex-col text-sm">
+          <p
+            class={joinClass("cursor-pointer", page() !== "following" ? "text-gray-500" : "")}
+            onClick={() => {
+             swapFeed("trending", 0);
+            }}
+          >
+            Trending
+          </p>
+          {page() === "trending" ? (
+            <div class=" rounded-md   h-1 bg-blue-500"></div>
           ) : (
             ""
           )}
         </div>
 
         
-      </div>
+      </div> 
+      <Portal >
+        <LogoutModal  />
+      </Portal>
     </div>
   );
 }

@@ -11,7 +11,8 @@ export default function Home() {
   const { route, params, navigate } = useNavigation("/");
   const { feed, currentPage, setFeed, posts, loading } = useFeed("home");
   if (!api.authStore.isValid()) {
-    navigate("/auth/login", null);
+    localStorage.removeItem("postr_auth");
+    window.location.href = "/auth/login";
   }
   api.on("authChange", () => {
     if (!api.authStore.isValid()) {

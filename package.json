@@ -1,6 +1,7 @@
 {
-  "name": "vite-template-solid",
+  "name": "Postr",
   "version": "0.0.0",
+  "type": "module",
   "description": "",
   "scripts": {
     "start": "vite",

@@ -1,6 +1,6 @@
 import { api } from "@/src";
 import useTheme from "@/src/Utils/Hooks/useTheme";
-import { createSignal, For, Match, Switch } from "solid-js";
+import { createSignal, For, Match, Show, Switch } from "solid-js"; 
 export function SideBarRight(props:  {
     params: any;
     route: any;
@@ -8,9 +8,11 @@ export function SideBarRight(props:  {
 }) { 
     const { theme } = useTheme();
   
-    const [RelevantPeople, setRelevantPeople] = createSignal([]) as any[]; 
+    const [RelevantPeople, setRelevantPeople] = createSignal([], {equals: false}) as any[]; 
+    const [RelevantText, setRelevantText] = createSignal("Relevant People", {equals: false}) 
     //@ts-ignore
     window.setRelevantPeople = setRelevantPeople;
+    window.setRelevantText = setRelevantText;
 
     return (
       <>
@@ -27,12 +29,13 @@ export function SideBarRight(props:  {
               <li>
                   <input type="text" class="w-full input input-ghost rounded-full input-bordered" placeholder="Search" />
               </li>
-              <li class={`
+               <Show when={RelevantPeople() && RelevantPeople().length > 0}>
+               <li class={`
                 ${
-                  theme() == 'dark' ? 'xl:border xl:border-[#121212]' : 'xl:border xl:border-[#ecececd8]'
-                }  p-5 rounded-lg`}>
+                  theme() == 'dark' ? 'xl:border xl:border-[#121212]' : 'xl:border xl:border-[#d3d3d3d8]'
+                }  p-5 rounded-xl`}>
                 <a class="w-full relative">
-                  <h1 class="font-bold text-lg">Relevant People</h1>
+                  <h1 class="font-bold text-lg">{RelevantText()}</h1>
                   <div class="flex flex-col gap-5">
                   <For each={RelevantPeople()} >
                     {(item) => (
@@ -61,6 +64,7 @@ export function SideBarRight(props:  {
                   </div>
                 </a>
               </li>
+               </Show>
               <div class="flex flex-col gap-5 mt-2 p-2 text-sm">
                 <li class="flex flex-row gap-5">
                   <a class="cursor-pointer hover:underline">

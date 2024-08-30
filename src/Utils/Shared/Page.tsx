@@ -7,13 +7,14 @@ import useTheme from "../Hooks/useTheme";
 import { joinClass } from "../Joinclass";
 import { api } from "@/src";
 import CreatePostModal from "@/src/components/Modals/CreatePostModal";
-export default function Page(props: { children: any , params: ()=> any, route: () => string, navigate: any, id: string }) { ; 
+export default function Page(props: { children: any , params: ()=> any, route: () => string, navigate: any, id: string }) {
+     const { theme } = useTheme();
     return <ErrorBoundary fallback={
-        <div class="flex justify-center items-center h-screen">
+        <div class="flex justify-center items-center  w-screen h-screen">
             <h1 class="text-3xl">Something went wrong</h1>
         </div>
     }>
-         <div id={props.id} class={joinClass("relative xl:flex xl:w-[30rem]  md:w-[50vw]  xl:p-0  lg:flex   2xl:w-[64vw]    justify-center xl:mx-auto ")}>
+         <div id={props.id} class={joinClass("relative xl:flex xl:w-[30rem] w-[100vw]    xl:p-0  lg:flex   2xl:w-[74vw]    justify-center xl:mx-auto ", )}>
          <Show when={props.route() !== "/auth/login" && props.route() !== "/auth/signup" && props.route() !== "/auth/forgot"}>
          <SideBarLeft {...{
              params: props.params,
@@ -22,7 +23,7 @@ export default function Page(props: { children: any , params: ()=> any, route: (
         }} />
         </Show>
         
-        <div class="flex flex-col  h-full w-full  ">
+        <div class={joinClass("flex flex-col  h-full w-full  ", theme() === "dark" ? "border border-gray-800" : "border border-gray-200")}>
             
         {props.children}
         </div>

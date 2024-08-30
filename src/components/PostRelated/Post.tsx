@@ -86,8 +86,8 @@ export default function Post(props: Props) {
       class={joinClass( 
         window.location.pathname.includes("/view") && !props.disabled ? "border-none" : theme() === "dark"
         ? "bg-black text-white border-[#1c1c1c]  "
-        : "  border-[#f3f3f3] border   ",
-        props.noBottomBorder && !props.disabled ? "border " : "rounded-none ",
+        : "  border-gray-200 border   ",
+       theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : "",
       "z-10  relative",  
         "p-1 text-md shadow-none ",
         props.disabled
@@ -218,8 +218,14 @@ export default function Post(props: Props) {
           </CardTitle>
         </Show>
       </CardHeader>
+      <CardContent class="p-1 cursor-pointer">
+        <A href={StringJoin("/view/", "post/", props.id)} class="z-[99999]">
+        {props.content}
+        </A>
+      </CardContent>
       <Show when={props.files && props.files.length > 0}>
-      <CardContent class="p-1">
+      
+      <CardContent class="p-1   h-[300px]">
         
         <Carousel >
         <For each={props.files} fallback={<></>}>
@@ -228,7 +234,7 @@ export default function Post(props: Props) {
               <img
               src={api.cdn.getUrl("posts", props.id, item)}
               class={joinClass(
-                "w-full h-96 object-cover rounded-xl",
+                "w-full h-[400px]  object-cover rounded-xl",
                 "cursor-pointer",
                 theme() === "dark"
                   ? "border-[#121212] border"
@@ -241,11 +247,7 @@ export default function Post(props: Props) {
         </Carousel>
       </CardContent>
       </Show>
-      <CardContent class="p-1 cursor-pointer">
-        <A href={StringJoin("/view/", "post/", props.id)} class="z-[99999]">
-        {props.content}
-        </A>
-      </CardContent>
+       
       {/**
        * @search - repost section
        */}

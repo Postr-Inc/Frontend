@@ -129,7 +129,7 @@ export function SideBarLeft(props: {
                   `}
                 onClick={() => {
                   // @ts-ignore
-                  navigate(`/u/${api.authStore.model.username}`);
+                  navigate(`/u/${api.authStore.model.username}`, {id: api.authStore.model.id});
                 }}
               >
                 <svg

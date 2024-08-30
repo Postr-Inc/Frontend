@@ -7,7 +7,7 @@ export function SideBarRight(props:  {
     navigate: any;
 }) { 
     const { theme } = useTheme();
-  
+    const { params, route, navigate } = props;
     const [RelevantPeople, setRelevantPeople] = createSignal([], {equals: false}) as any[]; 
     const [RelevantText, setRelevantText] = createSignal("Relevant People", {equals: false}) 
     //@ts-ignore
@@ -36,7 +36,7 @@ export function SideBarRight(props:  {
                 }  p-5 rounded-xl`}>
                 <a class="w-full relative">
                   <h1 class="font-bold text-lg">{RelevantText()}</h1>
-                  <div class="flex flex-col gap-5">
+                  <div class="flex flex-col mt-5 gap-5">
                   <For each={RelevantPeople()} >
                     {(item) => (
                       <div class="flex flex-row gap-5">
@@ -54,7 +54,7 @@ export function SideBarRight(props:  {
                         />
                         </Match>
                        </Switch>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col cursor-pointer" onClick={()=>  navigate(`/u/${item.username}`, {id: item.username})}>
                           <a class="font-bold">{item.username}</a> 
                           <p class="text-sm">@{item.username}</p>
                         </div>

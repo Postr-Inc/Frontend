@@ -37,24 +37,25 @@ export default function User() {
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any;
   const [feed, setFeed] = createSignal([]) as any;
-  let [loading, setLoading] = createSignal(true);
-  console.log(route());
-  createEffect(() => {
+  let [loading, setLoading] = createSignal(true); 
+  createEffect(() => {  
+    setLoading(true);
     api
       .collection("users")
       .list(1, 1, {
         cacheKey: `user_${params().id}`,
         filter: StringJoin("username=", `"${params().id}"`),
+        order: "desc",
+        recommended: false,
         expand: ["followers.followers", "following.following", "following", "followers"],
       })
-      .then(async (d: any) => {
-        if (d.opCode == HttpCodes.OK) {
+      .then(async (d: any) => { 
+        if (d.opCode == HttpCodes.OK) { 
           setUser(d.items[0]);
           let feed = (await handleFeed(view(), params, 1)) as any;
           console.log(feed);
-          setFeed(feed.items);
-          console.log(d.items[0] );
-          if(api.authStore.model.id === d.items[0].id) {
+          setFeed(feed.items); 
+          if(api.authStore.model.username === d.items[0].id) {
             let Relevant = d.items[0].expand.followers
             let arr = []
             // create an array of the followers of the followers
@@ -66,7 +67,7 @@ export default function User() {
               } 
             })
             setRelevantPeople(arr)
-          }else{
+          }else if(d.items[0].hasOwnProperty("expand") && d.items[0].expand.following.length > 0) {
             setRelevantPeople(d.items[0].expand.following)
           } 
           setTimeout(() => {

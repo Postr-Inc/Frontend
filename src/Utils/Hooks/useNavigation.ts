@@ -39,16 +39,15 @@ export default function useNavigation($route?: string, $params?: any) {
   }
 
   const navigate = (route: string, $params?: any) => {
-    currentRoute = route;
-    arrayOfNavigations.push(route);
     if ($params) {
       params.push({ route, params: $params });
       setParams($params);
-    } else {
-      setParams(params.find((p) => p.route === route)?.params || null);
-    } 
-    window.history.pushState(null, "", route); 
-    window.dispatchEvent(new Event("popstate"))
+    }
+    setRoute(route);
+    window.history.pushState(null, "", route);
+    currentRoute = route;
+    arrayOfNavigations.push(route);
+    window.dispatchEvent(new Event("popstate"));
   };
 
   window.addEventListener("popstate", () => {

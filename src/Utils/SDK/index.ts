@@ -4,14 +4,7 @@ import { HttpCodes } from "./opCodes";
 import { authStore } from "./Types/AuthStore";
 import { GeneralTypes } from "./Types/GeneralTypes";
 const ip = null;
-fetch("https://api.ipify.org?format=json")
-  .then((response) => response.json())
-  .then((data) => {
-    sessionStorage.setItem("ip", data.ip);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+ 
 export default class SDK {
   serverURL: string;
   ip = "";
@@ -29,22 +22,7 @@ export default class SDK {
      */
     this.statisticalData = JSON.parse(localStorage.getItem("postr_statistical") || "{}");
     if (localStorage.getItem("postr_auth")) {
-      fetch(`${this.serverURL}/auth/verify`, {
-        headers: {
-          Authorization: JSON.parse(
-            localStorage.getItem("postr_auth") as string
-          ).token,
-        },
-      }).then(async (res) => {
-        if (res.status !== 200) {
-          console.log(await res.json());
-          localStorage.removeItem("postr_auth");
-          window.location.href = "/auth/login";
-        } else {
-          console.log("Token valid");
-          this.connect();
-        }
-      });
+      this.connect()
     }
     window.onbeforeunload = () => {
       localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
@@ -58,6 +36,9 @@ export default class SDK {
   };
 
   connect = async () => {
+    let d = await fetch("https://api.ipify.org?format=json") .then((response) => response.json()) 
+    this.ip = d.ip;
+    console.log(d)
     const isHTTP =
       this.serverURL.includes("http://") ||
       this.serverURL.includes("localhost") ||
@@ -69,17 +50,22 @@ export default class SDK {
     document.cookie = `ipAddress=${this.ip}; path=/; SameSite=Lax; Secure`;
 
     // first check if token is valid
-    let res = await fetch(`${this.serverURL}/auth/verify`, {
-      headers: {
-        Authorization: this.authStore.model.token,
-      },
-    });
-    if (res.status !== 200) {
-      console.log("Token invalid, reauthenticating");
-      localStorage.removeItem("postr_auth");
-      window.dispatchEvent(this.changeEvent);
-      return;
+    if(localStorage.getItem("postr_auth")){ 
+      let res = await fetch(`${this.serverURL}/auth/verify`, {
+        headers: {
+          Authorization: this.authStore.model.token,
+        },
+      });
+      if (res.status !== 200) {
+        console.log("Token invalid, reauthenticating");
+        localStorage.removeItem("postr_auth"); 
+        window.location.href = "/auth/login"
+        return;
+      }
+    }else{ 
+        window.location.href = "/auth/login"
     }
+     
     this.ws = new WebSocket(wsUrl + "/ws");
 
     this.ws.onopen = () => {
@@ -260,9 +246,10 @@ export default class SDK {
           const { set, get, remove, clear } = useCache();
           const cacheKey = options?.cacheKey || `${this.serverURL}/api/collections/${name}?page=${page}&limit=${limit}`; 
           const cacheData = shouldCache ?  await get(cacheKey) : null; 
-          if (cacheData) return resolve({opCode: HttpCodes.OK, items:[...cacheData.payload], totalItems: cacheData.totalItems, totalPages: cacheData.totalPages});
+          if (cacheData) return resolve({opCode: HttpCodes.OK, 
+             ...(Array.isArray(cacheData) ? {items: [...cacheData]} : {items: [cacheData.payload]}), totalItems: cacheData.totalItems, totalPages: cacheData.totalPages});
           let cb = this.callback((data) => {
-            shouldCache && set(cacheKey, data,  new Date().getTime() + 3600); // cache for 1 hour
+            shouldCache && set(cacheKey, data.payload,  new Date().getTime() + 3600); // cache for 1 hour
             resolve({
               opCode: data.opCode,
               items: data.payload,
@@ -293,7 +280,7 @@ export default class SDK {
        * @param data
        */
 
-       update: async (id: string, data: any) => {
+       update: async (id: string, data: any, options?: {cacheKey?: string, expand?:any[]}) => {
         return new Promise(async (resolve, reject)=> {
             // update cache
             const { set, get, remove, clear } = useCache();
@@ -328,11 +315,24 @@ export default class SDK {
                     }
                     
                     break;
-
+                  case "users":
+                    for(let cache of cacheData){ 
+                      if(cache.url.includes(options?.cacheKey as any)){
+                          // now grab the data
+                          var cacheDataJSON = await (await caches.open(key)).match(cache).then((res)=> res?.json()); 
+                          if(Array.isArray(cacheDataJSON.value)){
+                            cacheDataJSON.value = cacheDataJSON.value.map((e: any)=> e.id === id ? {...e, ...data} : e)
+                          }else{
+                            cacheDataJSON.value = {...cacheDataJSON.value, ...data}
+                          }
+                          set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+                           
+                      }
+                  }
                 }
                 
             }
-            let cb = this.callback((data)=>{
+            let cb = this.callback((data)=>{ 
                if(data.opCode !== HttpCodes.OK) return reject(data)
                 resolve(data)
             })
@@ -341,7 +341,8 @@ export default class SDK {
                 payload: {
                     collection: name,
                     id: id,
-                    fields: data
+                    fields: data,
+                    options
                 },
                 security : {
                     token: this.authStore.model.token

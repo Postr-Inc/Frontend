@@ -7,6 +7,7 @@ const ip = null;
  
 export default class SDK {
   serverURL: string;
+  hasChecked = false;
   ip = "";
   changeEvent: CustomEvent;
   ws: WebSocket | null = null;
@@ -35,10 +36,10 @@ export default class SDK {
     });
   };
 
-  connect = async () => {
-    let d = await fetch("https://api.ipify.org?format=json") .then((response) => response.json()) 
-    this.ip = d.ip;
-    console.log(d)
+  connect = async () => { 
+    if(!this.ip){
+      await this.getIP();
+    } 
     const isHTTP =
       this.serverURL.includes("http://") ||
       this.serverURL.includes("localhost") ||
@@ -50,12 +51,13 @@ export default class SDK {
     document.cookie = `ipAddress=${this.ip}; path=/; SameSite=Lax; Secure`;
 
     // first check if token is valid
-    if(localStorage.getItem("postr_auth")){ 
+    if(localStorage.getItem("postr_auth") && !this.hasChecked){
       let res = await fetch(`${this.serverURL}/auth/verify`, {
         headers: {
           Authorization: this.authStore.model.token,
         },
       });
+      this.hasChecked = true;
       if (res.status !== 200) {
         console.log("Token invalid, reauthenticating");
         localStorage.removeItem("postr_auth"); 

@@ -5,6 +5,7 @@ import { joinClass } from "@/src/Utils/Joinclass";
 import Home from "../../Icons/Home";
 import Dropdown, { DropdownHeader, DropdownItem } from "../../UI/UX/dropdown";
 import useNavigation from "@/src/Utils/Hooks/useNavigation";
+import { Portal } from "solid-js/web";
 export function SideBarLeft(props: {
   params: () => any;
   route: () => string;
@@ -222,13 +223,14 @@ export function SideBarLeft(props: {
           </ul>
         </div>
       </div>
-      <dialog
+       <Portal>
+       <dialog
         id="postr_plus"
         class="modal max-w-[100vw] max-h-[100vh] w-screen h-screen  "
       >
         <div class="modal-box w-screen h-screen max-w-[100vw] max-h-[100vh] rounded-none">
           {/** gradient blue to white background */}
-          <div class="flex flex-col bg-gradient-to-t fixed top-0 left-0 from-slate-50 to-blue-100 w-full h-full">
+          <div class="flex p-5 flex-col bg-gradient-to-t fixed top-0 left-0 from-slate-50 to-blue-100 w-full h-full">
             <span
               class="cursor-pointer absolute top-5 left-5  rounded-full
                   "
@@ -252,9 +254,16 @@ export function SideBarLeft(props: {
                 />
               </svg>
             </span>
+
+            <div class="flex flex-col items-center justify-center">
+               
+              <h1 class="text-6xl font-bold">Upgrade to Postr Plus</h1>
+              <p class="text-xl mt-5">Support the project further by upgrading - get access to new features early and a sweet badge</p>
+              </div>
           </div>
         </div>
       </dialog>
+       </Portal>
     </>
   );
 }

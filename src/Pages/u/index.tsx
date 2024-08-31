@@ -57,7 +57,7 @@ export default function User() {
           setFeed(feed.items); 
           if(api.authStore.model.username === d.items[0].id) {
             let Relevant = d.items[0].expand.followers
-            let arr = []
+            let arr = [] as any[]
             // create an array of the followers of the followers
             Relevant.forEach((d: any) => {
               if(d.hasOwnProperty("expand") && d.id !== api.authStore.model.id) { 
@@ -66,8 +66,12 @@ export default function User() {
                 })
               } 
             })
+            
+            //@ts-ignore
             setRelevantPeople(arr)
           }else if(d.items[0].hasOwnProperty("expand") && d.items[0].expand.following.length > 0) {
+            
+            //@ts-ignore
             setRelevantPeople(d.items[0].expand.following)
           } 
           setTimeout(() => {
@@ -75,6 +79,7 @@ export default function User() {
           }, 1000);
         }
       });
+      //@ts-ignore
       setRelevantText("You might also like")
   }, [params().id]);
 
@@ -137,7 +142,7 @@ export default function User() {
         <Match when={!loading()  }>
           <div class="flex flex-col relative">
             <div
-              class="flex flex-row justify-between p-2 h-[8rem]"
+              class="flex flex-row justify-between p-2 h-[10rem]"
               style={{
                 "background-size": "cover",
                 "background-image":
@@ -164,11 +169,11 @@ export default function User() {
                 <Match when={user() && user().avatar}>
                   <img
                     src={api.cdn.getUrl("users", user().id, user().avatar)}
-                    class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-4 object-cover"
+                    class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
                   />
                 </Match>
                 <Match when={!user() || !user().avatar}>
-                  <div class="rounded-full w-24 h-24 mx-1 border-4 border-white -mt-4 bg-base-300"></div>
+                  <div class="rounded-full w-24 h-24 mx-1 border-4 border-white -mt-12 bg-base-300"></div>
                 </Match>
               </Switch>
               <Switch>
@@ -207,9 +212,9 @@ export default function User() {
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
                   class={
-                    theme === "dark"
+                    joinClass( theme === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
-                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm"
+                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-1")
                   }
                 >
                   Edit Profile

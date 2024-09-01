@@ -46,7 +46,7 @@ export default class SDK {
       this.serverURL.includes("127.0.0.1");
     const wsUrl = isHTTP
       ? this.serverURL.replace("http", "ws")
-      : this.serverURL.replace("https", "wss");
+      : this.serverURL.replace("https", "ws");
     document.cookie = `Authorization=${this.authStore.model.token}; path=/; SameSite=Lax; Secure`;
     document.cookie = `ipAddress=${this.ip}; path=/; SameSite=Lax; Secure`;
 
@@ -64,9 +64,7 @@ export default class SDK {
         window.location.href = "/auth/login"
         return;
       }
-    }else{ 
-        window.location.href = "/auth/login"
-    }
+    } 
      
     this.ws = new WebSocket(wsUrl + "/ws");
 
@@ -79,7 +77,7 @@ export default class SDK {
     let reConnect = () => {
       setTimeout(() => {
         this.ws?.close();
-        this.ws = new WebSocket(wsUrl);
+        this.ws = new WebSocket(wsUrl + "/ws");
       }, 5000);
     };
 
@@ -229,7 +227,7 @@ export default class SDK {
        * @param limit
        * @param options
        * @param shouldCache
-       * @returns {Promise<any>}
+       * @returns {Promise<{opCode: number, items: any[], totalItems: number, totalPages: number}>}
        */
       list: async (
         page: number = 1,

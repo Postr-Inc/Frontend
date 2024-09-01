@@ -8,6 +8,8 @@ import logo from "@/src/assets/icon_transparent.png";
 import { joinClass } from "@/src/Utils/Joinclass";
 import useTheme from "@/src/Utils/Hooks/useTheme";
 import useDevice from "@/src/Utils/Hooks/useDevice";
+import Modal from "@/src/components/Modal";
+import RegisterModal from "@/src/Utils/Modals/RegisterModal";
 export default function Login() {
   const { navigate, params } = useNavigation("/auth/login");
   const { isAuthenticated, isLoading, error, login } = useAuth();
@@ -127,7 +129,7 @@ export default function Login() {
                 <p class="text-xs">
                   Don't have an account?{" "}
                   <button
-                    onClick={() => navigate("/auth/register", null)}
+                    onClick={() =>  document.getElementById("register")?.showModal()}
                     class="text-blue-500"
                   >
                     Sign up
@@ -138,6 +140,8 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+       <RegisterModal />
     </>
   );
 }

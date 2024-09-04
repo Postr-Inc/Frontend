@@ -37,12 +37,9 @@ export default function User() {
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any; 
-  let [loading, setLoading] = createSignal(true); 
-  let { feed, currentPage, posts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'});
-  console.log(feed())
-  createEffect(() => {  
-    setLoading(true);
-    
+  let [loading, setLoading] = createSignal(true);  
+  let { feed, currentPage, posts, reset } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  createEffect(() => {    
     api.collection("users")
       .list(1, 1, {
         filter:  StringJoin("username", "=", `"${params().id}"`),

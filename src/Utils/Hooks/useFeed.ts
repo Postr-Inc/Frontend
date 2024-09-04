@@ -10,6 +10,7 @@ async function list(collection: any, currentPage: any, feed: any,  options: {fil
         recommended: true,
         order: options.sort || "createdAt",
         filter: options.filter || "",
+        cacheKey:`${collection}_${feed()}_${JSON.stringify(options)}`,
         expand: [
           "comments.likes",
           "comments",
@@ -41,12 +42,25 @@ async function list(collection: any, currentPage: any, feed: any,  options: {fil
 export default function useFeed(collection: string, options?: { _for?: string, filter?: string , sort?:string}) {
   const [feed, setFeed] = createSignal(options._for === "home" ? "recommended" : "all");
   const [currentPage, setCurrentPage] = createSignal(1);
-  const [posts, setPosts] = createSignal<any[]>([]);
+  const [posts, setPosts] = createSignal<any[]>([], { equals: false });
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal(null);
   const [hasMore, setHasMore] = createSignal(true);
   const [refresh, setRefresh] = createSignal(false);
+
+  function reset() {
+    setPosts([]);
+    setCurrentPage(1);
+    setHasMore(true);
+  }
   createEffect(() => {
+    window.addEventListener("popstate", () => { 
+      setLoading(true);
+      setPosts([]);
+      setCurrentPage(1);
+      setHasMore(true);
+      setFeed("all");
+    });
     console.log(feed())
     // HANDLE SCROLLING
     async function handleScroll() {
@@ -127,5 +141,5 @@ export default function useFeed(collection: string, options?: { _for?: string, f
       console.log(e);
       setError(e);
     });
-  return { feed, currentPage, posts, loading, error, hasMore, setFeed };
+  return { feed, currentPage, posts, loading, error, hasMore, setFeed, reset };
 }

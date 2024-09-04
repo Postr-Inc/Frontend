@@ -10,7 +10,6 @@ import useTheme from "@/src/Utils/Hooks/useTheme";
 import useDevice from "@/src/Utils/Hooks/useDevice";
 import Modal from "@/src/components/Modal";
 import RegisterModal from "@/src/Utils/Modals/RegisterModal";
-import { Portal } from "solid-js/web";
 export default function Login() {
   const { navigate, params } = useNavigation("/auth/login");
   const { isAuthenticated, isLoading, error, login } = useAuth();
@@ -62,18 +61,9 @@ export default function Login() {
   });
   return (
     <>
-      <div class="hero   h-screen w-screen p-0  min-h-screen">
-        <div class="hero-content flex-col lg:flex-row">
-        <img
-            src={logo}
-            class={joinClass(
-              "max-w-xl rounded-lg sm:w-[120px] sm:hidden  xsm:w-[120px] xsm:hidden",
-              theme() === "light" && "black"
-            )}
-          />
-          <div>
-            <div
-              class=" relative w-full     justify-center flex flex-col gap-5 mx-auto xl:w-[30vw] lg:w-[50vw]">
+       <div
+              class=" relative w-full p-2 xl:mt-5    justify-center flex flex-col gap-5 mx-auto xl:w-[30vw] lg:w-[50vw]">
+                <img src={logo} class="w-20 h-20 mx-auto black" />
               <div class=" mb-12 flex flex-col gap-5  w-full">
                 <p class=" mt-2  sm:mt-0  w-full text-3xl font-extrabold ">
                   Open Source Is Simply Better.
@@ -138,14 +128,8 @@ export default function Login() {
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
- <Portal>
 
-
- <RegisterModal />
- </Portal> 
+       <RegisterModal />
     </>
   );
 }

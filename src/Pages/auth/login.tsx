@@ -66,7 +66,7 @@ export default function Login() {
         <img
             src={logo}
             class={joinClass(
-              "max-w-xl rounded-lg sm:w-[120px] sm:hidden ",
+              "max-w-xl rounded-lg sm:w-[120px] sm:hidden  xsm:w-[120px] xsm:hidden",
               theme() === "light" && "black"
             )}
           />

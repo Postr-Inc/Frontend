@@ -12,18 +12,18 @@ import Page from "@/src/Utils/Shared/Page";
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Match, onMount, Show, Switch , For} from "solid-js";
 export default function View(props: any) {
-  let { route, params, navigate, goBack } = useNavigation(
+  let { route, params, searchParams, navigate, goBack } = useNavigation(
     "/view/:collection/:id"
   );
-  let { id, collection } = useParams()
+  let { id, collection } = useParams() 
   const [isReplying, setIsReplying] = createSignal(false);
   let [post, setPost] = createSignal<any>(null);
   if (!api.authStore.isValid()) navigate("/auth/login", null);
   let { mobile } = useDevice();
-
+  
   onMount(() => {
     api
-      .collection("posts")
+      .collection(searchParams.get("comment") === "true" ? "comments" : "posts")
       .get(id, {
         expand: [
           "comments",
@@ -81,22 +81,36 @@ export default function View(props: any) {
             View Post Engagements
           </div>
         </Show>
-        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "  relative mb-5  border-b-0  border-l-0 border-r-0 p-3 sm:hidden ", theme() === "dark" ? "border  border-[#1c1c1c]" : " border border-[#f3f3f3]")}>
+        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "  relative     border-l-0 border-r-0 p-3 sm:hidden ", theme() === "dark" ? "border  border-[#1c1c1c]" : " border border-[#dadada]")}>
           <div class="flex flex-row gap-5">
-            <img
-              src={api.cdn.getUrl(
-                "users",
-                api.authStore.model.id,
-                api.authStore.model.avatar
-              )}
-              class="w-10 h-10 rounded-full"
-              alt="logo"
-            />
-            <div contentEditable="true" class="input border-none focus:outline-none p-2 w-full" onInput={(e) => {
+            <Show when={api.authStore.model.avatar}>
+              <img
+                src={api.cdn.getUrl(
+                  "users",
+                  api.authStore.model.id,
+                  api.authStore.model.avatar
+                )}
+                class="w-10 h-10 rounded-full"
+                alt="logo"
+              />
+            </Show>
+            <Show when={!api.authStore.model.avatar}>
+              <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                {api.authStore.model.username[0].toUpperCase()}
+              </div>
+            </Show>
+            
+            <div
+            onClick={(e) => {
+              e.currentTarget.querySelector("p").focus();
+              e.currentTarget.querySelector("p").innerText = ""
+            }}
+            contentEditable="true" class="input border-none focus:outline-none p-2 w-full" onInput={(e) => {
               if (e.currentTarget.textContent.length > 0) {
-                setIsReplying(true);
+                setIsReplying(true); 
               } else {
                 setIsReplying(false);
+                e.currentTarget.innerText = `Reply to ${post() && post().expand.author.username}`
               }
             }
             }>
@@ -104,7 +118,7 @@ export default function View(props: any) {
             </div>
           </div>
           {isReplying() && (
-            <div class="relative flex p-2">
+            <div class="relative flex p-2 ">
               <Media  class="w-6 h-6 cursor-pointer mb-5 mt-2" />
               <button class={joinClass("btn btn-sm rounded-full  right-0 absolute mb-5 mt-2 ", theme() === "dark" ? "bg-white text-black hover:bg-black" : "bg-black text-white")}>
                 Post
@@ -112,11 +126,13 @@ export default function View(props: any) {
             </div>
           )}
         </div>
-         <For each={post() && post().comments}>
-          {(comment) => (
-            <Post {...{ ...comment, page: route(), navigate }} /> 
+        <div  >
+        <For each={post() && post().expand.comments}>
+          {(comment) => ( 
+            <Post {...{ ...comment, page: route(), navigate, isComment: true }} />
           )}
         </For>
+        </div>
       </div>
 
     </Page>

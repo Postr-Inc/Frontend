@@ -27,6 +27,7 @@ export default class SDK {
     }
     window.onbeforeunload = () => {
       localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
+      useCache().clear();
     }
   }
 
@@ -389,7 +390,7 @@ export default class SDK {
           let cacheKey = `${this.serverURL}/api/collections/${name}/${id}`;
           let cacheData = await useCache().get(cacheKey); 
           if(cacheData) return resolve(cacheData.payload);
-          let cb = this.callback((data)=>{ 
+          let cb = this.callback((data)=>{  
               if(data.opCode !== HttpCodes.OK) return reject(data)
               useCache().set(cacheKey, data, new Date().getTime() + 3600);
               resolve(data.payload)

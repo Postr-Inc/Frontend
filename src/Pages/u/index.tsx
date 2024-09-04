@@ -16,6 +16,7 @@ import { Item } from "@kobalte/core/menubar";
 import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import EditProfileModal from "@/src/components/Modals/EditProfileModal";
 import { Portal } from "solid-js/web";
+import useFeed from "@/src/Utils/Hooks/useFeed";
 async function handleFeed(
   type: string,
   params: any,
@@ -35,53 +36,32 @@ export default function User() {
   const { params, route, navigate, goBack } = useNavigation("/u/:id");
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
-  const [view, setView] = createSignal("posts") as any;
-  const [feed, setFeed] = createSignal([]) as any;
+  const [view, setView] = createSignal("posts") as any; 
   let [loading, setLoading] = createSignal(true); 
+  let { feed, currentPage, posts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'});
+  console.log(feed())
   createEffect(() => {  
     setLoading(true);
-    api
-      .collection("users")
+    
+    api.collection("users")
       .list(1, 1, {
-        cacheKey: `user_${params().id}`,
-        filter: StringJoin("username=", `"${params().id}"`),
-        order: "desc",
-        recommended: false,
-        expand: ["followers.followers", "following.following", "following", "followers"],
+        filter:  StringJoin("username", "=", `"${params().id}"`),
+        expand: ["followers", "following"],
+        cacheKey: `/u/user_${params().id}`
       })
-      .then(async (d: any) => { 
-        if (d.opCode == HttpCodes.OK) { 
-          setUser(d.items[0]);
-          let feed = (await handleFeed(view(), params, 1)) as any;
-          console.log(feed);
-          setFeed(feed.items); 
-          if(api.authStore.model.username === d.items[0].id) {
-            let Relevant = d.items[0].expand.followers
-            let arr = [] as any[]
-            // create an array of the followers of the followers
-            Relevant.forEach((d: any) => {
-              if(d.hasOwnProperty("expand") && d.id !== api.authStore.model.id) { 
-                d.expand.followers.forEach((f: any) => {
-                   arr.push(f)
-                })
-              } 
-            })
-            
-            //@ts-ignore
-            setRelevantPeople(arr)
-          }else if(d.items[0].hasOwnProperty("expand") && d.items[0].expand.following.length > 0) {
-            
-            //@ts-ignore
-            setRelevantPeople(d.items[0].expand.following)
-          } 
-          setTimeout(() => {
-            setLoading(false);
-          }, 1000);
+      .then((data: any) => {
+        console.log(data)
+        if (data.opCode === HttpCodes.OK) {
+          setUser(data.items[0]);
+           
+          setLoading(false);
         }
       });
+   
+   
       //@ts-ignore
       setRelevantText("You might also like")
-  }, [params().id]);
+  }, [params().id,  posts()]);
 
   function follow(type: string) {
     console.log(type)
@@ -304,22 +284,22 @@ export default function User() {
             </div>
             <div class="flex flex-col">
 
-              {feed().length > 0 && (
-                <For each={feed()}>
+              {posts().length > 0 && (
+                <For each={posts()}>
                   {(item: any, index: any) => {
                     let copiedObj = { ...item };
                     console.log(copiedObj);
                     return (
                       <div
                         class={joinClass(
-                          index() == feed().length - 1 && feed().length > 1
+                          index() == posts().length - 1 && posts().length > 1
                             ? "sm:mb-[70px]"
                             : ""
                         )}
                       >
                         {" "}
                         <Post
-                          noBottomBorder={index() == feed().length - 1}
+                          noBottomBorder={index() == posts().length - 1}
                           author={copiedObj.author}
                           comments={copiedObj.comments}
                           content={copiedObj.content}

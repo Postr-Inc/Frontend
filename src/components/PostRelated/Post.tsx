@@ -67,6 +67,7 @@ type Props = {
   file?: string[]; 
   isRepost?: boolean;
   disabled?: boolean;
+  isComment?: boolean;
   [key: string]: any;
 };
 
@@ -84,7 +85,7 @@ export default function Post(props: Props) {
   return (
     <Card
       class={joinClass( 
-        window.location.pathname.includes("/view") && !props.disabled ? "border-none" : theme() === "dark"
+   theme() === "dark"
         ? "bg-black text-white border-[#1c1c1c]  "
         : "  border-gray-200 border   ",
        theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : "",
@@ -219,7 +220,9 @@ export default function Post(props: Props) {
         </Show>
       </CardHeader>
       <CardContent class="p-1 cursor-pointer">
-        <A href={StringJoin("/view/", "post/", props.id)} class="z-[99999]">
+        <A href={StringJoin("/view/", "post/", props.id,
+          props.isComment ? "?comment=true" : ""
+        )} class="z-[99999]">
         {props.content}
         </A>
       </CardContent>
@@ -280,7 +283,7 @@ export default function Post(props: Props) {
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              onClick={() => updateLikes(props.expand.author.id)}
+              onClick={() => updateLikes(props.expand.author.id, props.isComment)}
               class={joinClass(
                 "w-6 h- cursor-pointer",
                 likes().includes(props.expand.author.id)

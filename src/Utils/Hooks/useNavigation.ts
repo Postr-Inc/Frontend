@@ -17,6 +17,9 @@ export default function useNavigation($route?: string, $params?: any) {
     params.find((p) => p.route === currentRoute)?.params || null
   );
 
+
+  const searchParams = new URL(window.location.href).searchParams;
+
   const parseParams = (route: string) => {
     const paramNames = route
       .split("/")
@@ -80,5 +83,5 @@ export default function useNavigation($route?: string, $params?: any) {
     setParams(matchingParams);
   };
 
-  return { route, navigate, goBack, goForward, params: _params };
+  return { route, navigate, goBack, goForward, params: _params, searchParams };
 }

@@ -2,20 +2,18 @@ import { api } from "@/src";
 import { createEffect, createSignal } from "solid-js";
 import { HttpCodes } from "../SDK/opCodes";
 
-async function list(currentPage: any, feed: any) {
+async function list(collection: any, currentPage: any, feed: any,  options: {filter?: string, sort?:string} = {}) {
   return new Promise((resolve, reject) => {
     api
-      .collection("posts")
-      .list(currentPage(), 10, {
-        order: "dec",
-        filter:
-          feed() === "recommended"
-            ? `author.id != "${api.authStore.model.id}"`
-            : "",
+      .collection(collection)
+      .list(currentPage(), 10, {  
         recommended: true,
+        order: options.sort || "createdAt",
+        filter: options.filter || "",
         expand: [
           "comments.likes",
           "comments",
+          "comments.author",
           "author",
           "author.following",
           "author.followers",
@@ -40,8 +38,8 @@ async function list(currentPage: any, feed: any) {
  * @description Rule of thumb move line heavy code and make it its own hook ( Best practice ) 
  * @param _for 
  */
-export default function useFeed(_for: string) {
-  const [feed, setFeed] = createSignal(_for === "home" ? "recommended" : "all");
+export default function useFeed(collection: string, options?: { _for?: string, filter?: string , sort?:string}) {
+  const [feed, setFeed] = createSignal(options._for === "home" ? "recommended" : "all");
   const [currentPage, setCurrentPage] = createSignal(1);
   const [posts, setPosts] = createSignal<any[]>([]);
   const [loading, setLoading] = createSignal(true);
@@ -72,15 +70,15 @@ export default function useFeed(_for: string) {
           const currentPageValue = currentPage() + 1;
           setCurrentPage(currentPageValue);
           console.log("fetching page " + currentPageValue);
-          const data = await list(currentPageValue, feed) as any;
-          setPosts((prevPosts) => [...prevPosts, ...data?.items]);
+          const data = await list(collection, currentPage, feed, options) as any;
+          setPosts([...posts(), ...data?.items]);
     
           // Update hasMore if there are no more pages to load
           if (data?.totalPages <= currentPageValue) {
             setHasMore(false);
           }
-        } catch (e) {
-          setError(e);
+        } catch (e) { 
+          setError(e as any);
         } finally {
           setLoading(false); // Ensure loading is set to false after fetching
         }
@@ -101,7 +99,7 @@ export default function useFeed(_for: string) {
 
     
   });
-  list(currentPage, feed)
+  list(collection, currentPage, feed, options)
     .then((data: any) => { 
       setPosts([...posts(), ...data?.items]);
       setLoading(false);

@@ -5,7 +5,7 @@ export default function usePost(postData: any){
      let [likes, setLikes] = createSignal<any[]>(postData.likes || [])
      let [comments, setComments] = createSignal<any[]>(postData.comments || [])
      let [views, setViews] = createSignal<any[]>(postData.views || [])
-     function updateLikes(userid: string){
+     function updateLikes(userid: string, isComment: boolean = false){
          let index = likes().findIndex((like) => like === userid)
          if(index === -1){
              setLikes([...likes(), userid]) 
@@ -13,7 +13,9 @@ export default function usePost(postData: any){
              let newLikes = likes().filter((like) => like !== userid)
              setLikes(newLikes) 
          } 
-         api.collection("posts").update(postData.id, {likes: likes()})
+         api.collection(
+            isComment ? "comments" : "posts"
+         ).update(postData.id, {likes: likes()})
      }
   
      return {likes, updateLikes, comments, views}

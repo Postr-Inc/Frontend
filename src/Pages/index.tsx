@@ -9,7 +9,7 @@ import LoadingIndicator from "../components/Icons/loading";
 import { joinClass } from "../Utils/Joinclass";
 export default function Home() {
   const { route, params, navigate } = useNavigation("/");
-  const { feed, currentPage, setFeed, posts, loading } = useFeed("home");
+  const { feed, currentPage, setFeed, posts, loading } = useFeed("posts", {  filter: `author.id  != "${api.authStore.model.id}"`});
   if (!api.authStore.isValid()) {
     localStorage.removeItem("postr_auth");
     window.location.href = "/auth/login";

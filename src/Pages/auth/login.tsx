@@ -10,6 +10,7 @@ import useTheme from "@/src/Utils/Hooks/useTheme";
 import useDevice from "@/src/Utils/Hooks/useDevice";
 import Modal from "@/src/components/Modal";
 import RegisterModal from "@/src/Utils/Modals/RegisterModal";
+import { Portal } from "solid-js/web";
 export default function Login() {
   const { navigate, params } = useNavigation("/auth/login");
   const { isAuthenticated, isLoading, error, login } = useAuth();
@@ -61,7 +62,7 @@ export default function Login() {
   });
   return (
     <>
-      <div class="hero bg-base-200 w-screen p-0o min-h-screen">
+      <div class="hero   h-screen w-screen p-0  min-h-screen">
         <div class="hero-content flex-col lg:flex-row">
         <img
             src={logo}
@@ -140,8 +141,11 @@ export default function Login() {
           </div>
         </div>
       </div>
+ <Portal>
 
-       <RegisterModal />
+
+ <RegisterModal />
+ </Portal> 
     </>
   );
 }

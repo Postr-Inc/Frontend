@@ -64,7 +64,7 @@ type Props = {
   updated?: Date;
   expand?: { [key: string]: any } | any;
   comments?: string[];
-  file?: string[]; 
+  file?: string[];
   isRepost?: boolean;
   disabled?: boolean;
   isComment?: boolean;
@@ -72,33 +72,40 @@ type Props = {
 };
 
 export default function Post(props: Props) {
-  console.log(props);
+  console.log(props.pinned);
   let { theme } = useTheme();
   let { likes, updateLikes, comments } = usePost(props);
 
   api.collection("posts").subscribe(props.id, {
     cb: (data: any) => {
-       console.log(data);
+      console.log(data);
     },
   })
-  
+
   return (
     <Card
-      class={joinClass( 
-   theme() === "dark"
-        ? "bg-black text-white border-[#1c1c1c]  "
-        : "  border-gray-200 border   ",
-       theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : "",
-      "z-10  relative",  
+      class={joinClass(
+        theme() === "dark"
+          ? "bg-black text-white border-[#1c1c1c]  "
+          : "  border-gray-200 border   ",
+        theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : "",
+        "z-10  relative",
         "p-1 text-md shadow-none ",
+        window.location.pathname.includes("view")  ? "border-r-0 border-b-0  border-l-0"  : window.location.pathname.includes('view') && props.isComment ? 
+        "border-t-0" : "",
         props.disabled
           ? "rounded "
-          : `   rounded-none shadow-none${
-              theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : ""
-            }`
+          : `   rounded-none shadow-none${theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : ""
+          }`
       )}
     >
+      <Show when={props.pinned}>
+        <div class="flex hero   gap-5  "><svg viewBox="0 0 24 24" aria-hidden="true" class="w-4 h-4
+              fill-black
+        "><g><path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path></g></svg>Pinned</div>
+      </Show>
       <CardHeader class="flex p-[0.3rem]   mt-2 flex-row gap-3 space-y-0  relative ">
+
         <Switch fallback={<></>}>
           <Match when={!props.expand.author.avatar}>
             <div
@@ -112,7 +119,7 @@ export default function Post(props: Props) {
               {props.expand.author.username.slice(0, 1).charAt(0).toUpperCase()}
             </div>
           </Match>
-          
+
           <Match when={props.expand.author.avatar}>
             <img
               src={api.cdn.getUrl(
@@ -125,26 +132,26 @@ export default function Post(props: Props) {
             />
           </Match>
         </Switch>
-        
-         
-         <div class="flex gap-2">
-        <div class="flex">
-        <CardTitle
-          class="cursor-pointer items-center gap-5 "
-          onClick={() => props.navigate(StringJoin("/u/", props.expand.author.username))}
-        >
-          {props.expand.author.username}
-        </CardTitle>
-        <Show when={props.expand.author.validVerified}>
-          <Verified class="w-5  h-5 mx-1 text-blue-500 fill-blue-500 stroke-white " />
-        </Show>
+
+
+        <div class="flex gap-2">
+          <div class="flex">
+            <CardTitle
+              class="cursor-pointer items-center gap-5 "
+              onClick={() => props.navigate(StringJoin("/u/", props.expand.author.username))}
+            >
+              {props.expand.author.username}
+            </CardTitle>
+            <Show when={props.expand.author.validVerified}>
+              <Verified class="w-5  h-5 mx-1 text-blue-500 fill-blue-500 stroke-white " />
+            </Show>
+          </div>
+          <CardTitle class="text-sm opacity-50"> @{props.expand.author.username}</CardTitle>
+          <CardTitle class="text-sm opacity-50">·</CardTitle>
+          <CardTitle class="text-sm opacity-50">{created(props.created)}</CardTitle>
         </div>
-        <CardTitle class="text-sm opacity-50"> @{props.expand.author.username}</CardTitle>
-        <CardTitle class="text-sm opacity-50">·</CardTitle>
-        <CardTitle class="text-sm opacity-50">{created(props.created)}</CardTitle>
-         </div>
-       
-        
+
+
         <Show when={!props.disabled}>
           <CardTitle class="absolute right-5">
             <Dropdown direction="left" point="start">
@@ -155,7 +162,7 @@ export default function Post(props: Props) {
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="size-6 " 
+                  class="size-6 "
                 >
                   <path
                     stroke-linecap="round"
@@ -201,19 +208,19 @@ export default function Post(props: Props) {
                 <p class="font-bold"> Block @{props.expand.author.username}</p>
               </DropdownItem>
               <DropdownItem>
-              <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              class={joinClass(
-                "cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  size-6 hover:p-2 hover:text-sky-500 ",
-                theme() === "dark" ? "fill-white" : "fill-black"
-              )}
-            >
-              <g>
-                <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
-              </g>
-            </svg>
-              <p class="font-bold w-full"> View Post Engagement </p>
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  class={joinClass(
+                    "cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  size-6 hover:p-2 hover:text-sky-500 ",
+                    theme() === "dark" ? "fill-white" : "fill-black"
+                  )}
+                >
+                  <g>
+                    <path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"></path>
+                  </g>
+                </svg>
+                <p class="font-bold w-full"> View Post Engagement </p>
               </DropdownItem>
             </Dropdown>
           </CardTitle>
@@ -223,50 +230,50 @@ export default function Post(props: Props) {
         <A href={StringJoin("/view/", "post/", props.id,
           props.isComment ? "?comment=true" : ""
         )} class="z-[99999]">
-        {props.content}
+          {props.content}
         </A>
       </CardContent>
       <Show when={props.files && props.files.length > 0}>
-      
-      <CardContent class="p-1   h-[300px]">
-        
-        <Carousel >
-        <For each={props.files} fallback={<></>}>
-          {(item) => (
-             <CarouselItem>
-              <img
-              src={api.cdn.getUrl("posts", props.id, item)}
-              class={joinClass(
-                "w-full h-[400px]  object-cover rounded-xl",
-                "cursor-pointer",
-                theme() === "dark"
-                  ? "border-[#121212] border"
-                  : "border-[#cacaca] border"
+
+        <CardContent class="p-1   h-[300px]">
+
+          <Carousel >
+            <For each={props.files} fallback={<></>}>
+              {(item) => (
+                <CarouselItem>
+                  <img
+                    src={api.cdn.getUrl("posts", props.id, item)}
+                    class={joinClass(
+                      "w-full h-[400px]  object-cover rounded-xl",
+                      "cursor-pointer",
+                      theme() === "dark"
+                        ? "border-[#121212] border"
+                        : "border-[#cacaca] border"
+                    )}
+                  />
+                </CarouselItem>
               )}
-            />
-             </CarouselItem>
-          )}
-        </For>
-        </Carousel>
-      </CardContent>
+            </For>
+          </Carousel>
+        </CardContent>
       </Show>
-       
+
       {/**
        * @search - repost section
        */}
       <CardContent class="p-1">
-        
+
         <Show when={props.isRepost}>
-          <Post  
-           author={props.expand.repost.author}
-           id={props.expand.repost.id}
-           content={props.expand.repost.content}
-           disabled={true}
-           created={props.expand.repost.created}
-           updated={props.expand.repost.updated}
-           expand={props.expand.repost.expand}
-           comments={props.expand.repost.comments}
-           files={props.expand.repost.files}
+          <Post
+            author={props.expand.repost.author}
+            id={props.expand.repost.id}
+            content={props.expand.repost.content}
+            disabled={true}
+            created={props.expand.repost.created}
+            updated={props.expand.repost.updated}
+            expand={props.expand.repost.expand}
+            comments={props.expand.repost.comments}
+            files={props.expand.repost.files}
           />
         </Show>
       </CardContent>
@@ -297,7 +304,8 @@ export default function Post(props: Props) {
                 d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
               />
             </svg>
-            <span class="countdown">  <span style={{"--value": Math.abs(likes().length)}}></span></span> 
+            <span class="countdown">  <span style={{ "--value": Math.abs(likes().length) }}></span></span>
+            
           </div>
           <div class="flex items-center gap-2 ">
             <svg
@@ -316,7 +324,9 @@ export default function Post(props: Props) {
               />
             </svg>
             {comments() && comments().length}
+             
           </div>
+          <div class=" flex items-center gap-2 "><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="   hover:rounded-full hover:bg-green-400 hover:bg-opacity-20   hover:text-green-600 cursor-pointer  w-6 h-6 size-6 "><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"></path></svg></div>
           <div class="flex hero gap-2">
             <svg
               viewBox="0 0 24 24"
@@ -332,6 +342,7 @@ export default function Post(props: Props) {
             </svg>
             {props.views && props.views.length || 0}
           </div>
+           
           <div class="flex absolute right-5 gap-5">
             <Bookmark class="w-6 h-6" />
             <Share class="w-6 h-6" />

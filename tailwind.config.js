@@ -19,7 +19,7 @@ module.exports = {
     extend: {
       screens: {
         "2xl": "1400px",
-        'xsm':  {'max': '639px'},
+        'xsm':  {'min': '600px'},
         'sm':  {'max': '767px'},
         'xl':  {'min': '1280px'}, 
       },

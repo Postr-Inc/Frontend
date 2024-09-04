@@ -38,7 +38,7 @@ export default function User() {
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any; 
   let [loading, setLoading] = createSignal(true);  
-  let { feed, currentPage, posts, reset } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
   createEffect(() => {    
     api.collection("users")
       .list(1, 1, {
@@ -54,11 +54,19 @@ export default function User() {
           setLoading(false);
         }
       });
+
+
+      if(posts().length > 0){
+          // set pinned posts to the top
+          setPosts(posts().sort((a: any, b: any) => b.pinned - a.pinned))
+      }
    
    
       //@ts-ignore
       setRelevantText("You might also like")
   }, [params().id,  posts()]);
+
+ 
 
   function follow(type: string) {
     console.log(type)
@@ -284,8 +292,7 @@ export default function User() {
               {posts().length > 0 && (
                 <For each={posts()}>
                   {(item: any, index: any) => {
-                    let copiedObj = { ...item };
-                    console.log(copiedObj);
+                    let copiedObj = { ...item }; 
                     return (
                       <div
                         class={joinClass(
@@ -304,6 +311,7 @@ export default function User() {
                           id={copiedObj.id}
                           likes={copiedObj.likes}
                           navigate={navigate}
+                          pinned={copiedObj.pinned}
                           expand={copiedObj.expand}
                           route={route}
                           files={copiedObj.files}

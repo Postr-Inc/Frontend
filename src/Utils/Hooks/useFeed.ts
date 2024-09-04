@@ -115,7 +115,7 @@ export default function useFeed(collection: string, options?: { _for?: string, f
   });
   list(collection, currentPage, feed, options)
     .then((data: any) => { 
-      setPosts([...posts(), ...data?.items]);
+      setPosts([...posts(), ...data.items]);
       setLoading(false);
       let relevantPeople: any[] = []
       for (let i = 0; i < data?.items.length; i++) {  
@@ -141,5 +141,5 @@ export default function useFeed(collection: string, options?: { _for?: string, f
       console.log(e);
       setError(e);
     });
-  return { feed, currentPage, posts, loading, error, hasMore, setFeed, reset };
+  return { feed, currentPage, posts,  loading, error, hasMore, setFeed, reset, setPosts };
 }

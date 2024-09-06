@@ -385,9 +385,9 @@ export default class SDK {
        * @returns {Promise<any>}
        */
 
-      get: async (id: string, options?:{expand?: string[]}) => {
+      get: async (id: string, options?:{expand?: string[], cacheKey?: string}) => {
         return new Promise(async (resolve, reject)=>{
-          let cacheKey = `${this.serverURL}/api/collections/${name}/${id}`;
+          let cacheKey =  options?.cacheKey || `${this.serverURL}/api/collections/${name}/${id}`;
           let cacheData = await useCache().get(cacheKey); 
           if(cacheData) return resolve(cacheData.payload);
           let cb = this.callback((data)=>{  

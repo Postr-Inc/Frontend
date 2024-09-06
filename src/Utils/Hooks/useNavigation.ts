@@ -47,9 +47,9 @@ export default function useNavigation($route?: string, $params?: any) {
       setParams($params);
     }
     setRoute(route);
-    window.history.pushState(null, "", route);
     currentRoute = route;
-    arrayOfNavigations.push(route);
+    arrayOfNavigations.push(route);  
+    window.history.pushState(null, "",route);
     window.dispatchEvent(new Event("popstate"));
   };
 
@@ -58,7 +58,6 @@ export default function useNavigation($route?: string, $params?: any) {
     setRoute(path);
     const matchingParams = params.find((p) => p.route === path)?.params || null;
     setParams(matchingParams);
-    console.log("working")
   });
 
   const goBack = () => {
@@ -67,6 +66,7 @@ export default function useNavigation($route?: string, $params?: any) {
     currentRoute = arrayOfNavigations[index - 1];
     setRoute(currentRoute);
     window.history.back();
+    window.dispatchEvent(new Event("popstate"));
   };
 
   const goForward = () => {
@@ -74,14 +74,11 @@ export default function useNavigation($route?: string, $params?: any) {
     if (index === arrayOfNavigations.length - 1) return;
     currentRoute = arrayOfNavigations[index + 1];
     setRoute(currentRoute);
+    window.history.forward();
+    window.dispatchEvent(new Event("popstate"));
   };
 
-  window.onpopstate = () => {
-    const path = new URL(window.location.href).pathname;
-    setRoute(path);
-    const matchingParams = params.find((p) => p.route === path)?.params || null;
-    setParams(matchingParams);
-  };
+   
 
   return { route, navigate, goBack, goForward, params: _params, searchParams };
 }

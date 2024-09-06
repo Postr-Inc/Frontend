@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createSignal, Show, } from "solid-js"; 
 import useAuth from "../../Utils/Hooks/useAuth";
 import { api } from "../..";
 import Page from "@/src/Utils/Shared/Page";
@@ -10,6 +10,7 @@ import useTheme from "@/src/Utils/Hooks/useTheme";
 import useDevice from "@/src/Utils/Hooks/useDevice";
 import Modal from "@/src/components/Modal";
 import RegisterModal from "@/src/Utils/Modals/RegisterModal";
+import { Portal } from "solid-js/web";
 export default function Login() {
   const { navigate, params } = useNavigation("/auth/login");
   const { isAuthenticated, isLoading, error, login } = useAuth();
@@ -128,8 +129,9 @@ export default function Login() {
                 </p>
               </div>
             </div>
-
-       <RegisterModal />
+     <Portal>
+        <RegisterModal />
+     </Portal>
     </>
   );
 }

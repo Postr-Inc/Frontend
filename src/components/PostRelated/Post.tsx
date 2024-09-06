@@ -227,11 +227,10 @@ export default function Post(props: Props) {
         </Show>
       </CardHeader>
       <CardContent class="p-1 cursor-pointer">
-        <A href={StringJoin("/view/", "post/", props.id,
-          props.isComment ? "?comment=true" : ""
-        )} class="z-[99999]">
-          {props.content}
-        </A>
+         
+        <a onClick={() => props.navigate(StringJoin("/view/", props.isComment ? "comments/" : "posts/", props.id))}>
+          <p class="text-md">{props.content}</p>
+        </a>
       </CardContent>
       <Show when={props.files && props.files.length > 0}>
 

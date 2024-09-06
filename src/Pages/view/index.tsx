@@ -12,19 +12,31 @@ import Page from "@/src/Utils/Shared/Page";
 import { useNavigate, useParams } from "@solidjs/router";
 import { createEffect, createSignal, Match, onMount, Show, Switch , For} from "solid-js";
 export default function View(props: any) {
-  let { route, params, searchParams, navigate, goBack } = useNavigation(
+  var { route, params, searchParams, navigate, goBack } = useNavigation(
     "/view/:collection/:id"
-  );
-  let { id, collection } = useParams() 
+  ); 
+  let { id, collection } = useParams();
   const [isReplying, setIsReplying] = createSignal(false);
-  let [post, setPost] = createSignal<any>(null);
+  let [post, setPost] = createSignal<any>(null, { equals: false });
+  
+  // Ensure auth check on every render
   if (!api.authStore.isValid()) navigate("/auth/login", null);
+  
   let { mobile } = useDevice();
   
-  onMount(() => {
+  function createComment() {
+    // Your comment creation logic here
+  }
+
+  function fetchP() { 
+    let { params } = useNavigation("/view/:collection/:id");
+    let { id, collection } = params();
+    console.log({ id, collection }); 
+    setPost(null);
     api
-      .collection(searchParams.get("comment") === "true" ? "comments" : "posts")
-      .get(id, {
+      .collection( collection )
+      .get(id, { 
+        cacheKey: `post_${id}`,
         expand: [
           "comments",
           "comments.likes",
@@ -43,12 +55,18 @@ export default function View(props: any) {
       .catch((err) => {
         console.log(err);
       });
-  })
+  }
 
+  // CreateEffect to trigger refetching when the `id` changes
+  createEffect(() => {
+    window.addEventListener("popstate", fetchP); 
+    fetchP();
+  }, params()); // Depend on the `id` parameter
 
   let { theme } = useTheme();
+
   return (
-    <Page {...{ params: useParams, route, navigate: props.navigate }} id="view">
+    <Page {...{ params: useParams, route, navigate: props.navigate }} id={id}>
       <div class={joinClass("flex flex-col w-full h-full h-screen", theme() === "dark" ? "border border-[#1c1c1c]" : "border")}>
         <div class="flex flex-row gap-5 p-2">
           <ArrowLeft class="w-6 h-6 cursor-pointer" onClick={() => goBack()} stroke-width="2" fill={theme() === "dark" ? "#fff" : "#000"} />
@@ -65,12 +83,12 @@ export default function View(props: any) {
           </Switch>
         </div>
         <Show when={post() && post().author === api.authStore.model.id}>
-          <div class="flex flex-row gap-5 p-5 mt-2 border  border-[#f3f3f3] boder-b-0 border-r-0 border-l-0">
+          <div class="flex flex-row gap-5 p-5 mt-2 border border-[#f3f3f3] border-b-0 border-r-0 border-l-0">
             <svg
               viewBox="0 0 24 24"
               aria-hidden="true"
               class={joinClass(
-                "cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20  size-6 hover:p-2 hover:text-sky-500 ",
+                "cursor-pointer hover:rounded-full hover:bg-sky-500 hover:bg-opacity-20 size-6 hover:p-2 hover:text-sky-500",
                 theme() === "dark" ? "fill-white" : "fill-black"
               )}
             >
@@ -81,15 +99,11 @@ export default function View(props: any) {
             View Post Engagements
           </div>
         </Show>
-        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "  relative     border-l-0 border-r-0 p-3 sm:hidden ", theme() === "dark" ? "border  border-[#1c1c1c]" : " border border-[#dadada]")}>
+        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "relative border-l-0 border-r-0 p-3 sm:hidden", theme() === "dark" ? "border border-[#1c1c1c]" : "border border-[#dadada]")}>
           <div class="flex flex-row gap-5">
             <Show when={api.authStore.model.avatar}>
               <img
-                src={api.cdn.getUrl(
-                  "users",
-                  api.authStore.model.id,
-                  api.authStore.model.avatar
-                )}
+                src={api.cdn.getUrl("users", api.authStore.model.id, api.authStore.model.avatar)}
                 class="w-10 h-10 rounded-full"
                 alt="logo"
               />
@@ -99,42 +113,40 @@ export default function View(props: any) {
                 {api.authStore.model.username[0].toUpperCase()}
               </div>
             </Show>
-            
             <div
-            onClick={(e) => {
-              e.currentTarget.querySelector("p").focus();
-              e.currentTarget.querySelector("p").innerText = ""
-            }}
-            contentEditable="true" class="input border-none focus:outline-none p-2 w-full" onInput={(e) => {
-              if (e.currentTarget.textContent.length > 0) {
-                setIsReplying(true); 
-              } else {
-                setIsReplying(false);
-                e.currentTarget.innerText = `Reply to ${post() && post().expand.author.username}`
-              }
-            }
-            }>
+              onClick={(e) => {
+                e.currentTarget.querySelector("p").focus();
+                e.currentTarget.querySelector("p").innerText = "";
+              }}
+              contentEditable="true"
+              class="input border-none focus:outline-none p-2 w-full"
+              onInput={(e) => {
+                if (e.currentTarget.textContent.length > 0) {
+                  setIsReplying(true);
+                } else {
+                  setIsReplying(false);
+                  e.currentTarget.innerText = `Reply to ${post() && post().expand.author.username}`;
+                }
+              }}
+            >
               <p>Reply to {post() && post().expand.author.username}</p>
             </div>
           </div>
           {isReplying() && (
-            <div class="relative flex p-2 ">
-              <Media  class="w-6 h-6 cursor-pointer mb-5 mt-2" />
-              <button class={joinClass("btn btn-sm rounded-full  right-0 absolute mb-5 mt-2 ", theme() === "dark" ? "bg-white text-black hover:bg-black" : "bg-black text-white")}>
+            <div class="relative flex p-2">
+              <Media class="w-6 h-6 cursor-pointer mb-5 mt-2" />
+              <button class={joinClass("btn btn-sm rounded-full right-0 absolute mb-5 mt-2", theme() === "dark" ? "bg-white text-black hover:bg-black" : "bg-black text-white")}>
                 Post
               </button>
             </div>
           )}
         </div>
-        <div  >
-        <For each={post() && post().expand.comments}>
-          {(comment) => ( 
-            <Post {...{ ...comment, page: route(), navigate, isComment: true }} />
-          )}
-        </For>
+        <div>
+          <For each={post() && post().expand.comments}>
+            {(comment) => <Post {...{ ...comment, page: route(), navigate, isComment: true }} />}
+          </For>
         </div>
       </div>
-
     </Page>
   );
 }

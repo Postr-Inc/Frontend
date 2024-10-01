@@ -17,6 +17,7 @@ export default function Login() {
   const { theme } = useTheme();
   let { mobile } = useDevice();
   let [isTyping, setIsTyping] = createSignal(false);
+   
   createEffect(() => { 
     api.getIP()
     if (isAuthenticated()) {

@@ -71,11 +71,12 @@ type Props = {
   [key: string]: any;
 };
 
-export default function Post(props: Props) {
-  console.log(props.pinned);
+export default function Post(props: Props) { 
+  console.log(Object.keys(props));
   let { theme } = useTheme();
-  let { likes, updateLikes, comments } = usePost(props);
+  let { likes, updateLikes,   commentLength } = usePost(props);
 
+  console.log(likes());
   api.collection("posts").subscribe(props.id, {
     cb: (data: any) => {
       console.log(data);
@@ -89,8 +90,8 @@ export default function Post(props: Props) {
           ? "bg-black text-white border-[#1c1c1c]  "
           : "  border-gray-200 border   ",
         theme() === "dark" && !props.page ? "hover:bg-[#121212]" : theme() === "light" && !props.page ? "hover:bg-[#faf9f9]" : "",
-        "z-10  relative",
-        "p-1 text-md shadow-none ",
+        "z-10  relative h-fit",
+        "p-2 text-md shadow-none ",
         window.location.pathname.includes("view")  ? "border-r-0 border-b-0  border-l-0"  : window.location.pathname.includes('view') && props.isComment ? 
         "border-t-0" : "",
         props.disabled
@@ -99,7 +100,7 @@ export default function Post(props: Props) {
           }`
       )}
     >
-      <Show when={props.pinned}>
+      <Show when={props.pinned && window.location.pathname.includes("/u")}>
         <div class="flex hero   gap-5  "><svg viewBox="0 0 24 24" aria-hidden="true" class="w-4 h-4
               fill-black
         "><g><path d="M7 4.5C7 3.12 8.12 2 9.5 2h5C15.88 2 17 3.12 17 4.5v5.26L20.12 16H13v5l-1 2-1-2v-5H3.88L7 9.76V4.5z"></path></g></svg>Pinned</div>
@@ -289,10 +290,10 @@ export default function Post(props: Props) {
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              onClick={() => updateLikes(props.expand.author.id, props.isComment)}
+              onClick={() => updateLikes(api.authStore.model.id, props.isComment)}
               class={joinClass(
                 "w-6 h- cursor-pointer",
-                likes().includes(props.expand.author.id)
+                likes().includes(api.authStore.model.id)
                   ? "fill-red-500 stroke-red-500"
                   : ""
               )}
@@ -314,7 +315,7 @@ export default function Post(props: Props) {
               stroke-width="1.5"
               stroke="currentColor"
               class="size-6 cursor-pointer"
-              onClick={() => props.navigate(StringJoin("/view/", "post/", props.id))}
+              onClick={() => props.navigate(StringJoin("/view/", "posts/", props.id))}
             >
               <path
                 stroke-linecap="round"
@@ -322,7 +323,7 @@ export default function Post(props: Props) {
                 d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
               />
             </svg>
-            {comments() && comments().length}
+            {commentLength()}
              
           </div>
           <div class=" flex items-center gap-2 "><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="   hover:rounded-full hover:bg-green-400 hover:bg-opacity-20   hover:text-green-600 cursor-pointer  w-6 h-6 size-6 "><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"></path></svg></div>

@@ -165,7 +165,7 @@ export default class SDK {
   }
 
   sendMsg = async (msg: any) => {
-    await this.waitUntilConnected(); 
+    await this.waitUntilConnected();  
     this.ws?.send(JSON.stringify(msg));
   };
 
@@ -336,7 +336,7 @@ export default class SDK {
             let cb = this.callback((data)=>{ 
                if(data.opCode !== HttpCodes.OK) return reject(data)
                 resolve(data)
-            })
+            }) 
             this.sendMsg({
                 type: GeneralTypes.UPDATE,
                 payload: {
@@ -346,7 +346,7 @@ export default class SDK {
                     options
                 },
                 security : {
-                    token: this.authStore.model.token
+                    token: JSON.parse(localStorage.getItem("postr_auth") || "{}").token
                 },
                 callback: cb
             })
@@ -358,7 +358,7 @@ export default class SDK {
        * @param data
        * @returns {Promise<any>}
        */
-      create: async (data: any) => {
+      create: async (data: any, options?: {cacheKey?: string, expand?:any[]}) => {
         return new Promise((resolve, reject) => {
           let cb = this.callback((data) => { 
             if(data.opCode !== HttpCodes.OK) return reject(data) 
@@ -369,6 +369,7 @@ export default class SDK {
             payload: {
               collection: name,
               data,
+              expand: options?.expand
             },
             security: {
               token: this.authStore.model.token,

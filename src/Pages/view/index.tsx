@@ -1,42 +1,86 @@
+//@ts-nocheck
 import { api } from "@/src";
 import ArrowLeft from "@/src/components/Icons/ArrowLeft";
 import LoadingIndicator from "@/src/components/Icons/loading";
 import Media from "@/src/components/Icons/Media";
-import Post from "@/src/components/PostRelated/Post";
+import Post from "@/src/components/PostRelated/Post"; 
 import useDevice from "@/src/Utils/Hooks/useDevice";
 import useNavigation from "@/src/Utils/Hooks/useNavigation";
 import useTheme from "@/src/Utils/Hooks/useTheme";
-import { joinClass } from "@/src/Utils/Joinclass";
-
-import Page from "@/src/Utils/Shared/Page";
+import { joinClass } from "@/src/Utils/Joinclass"; 
+import Page from "@/src/Utils/Shared/Page"; 
+import { Index } from "solid-js"
+ 
+ 
 import { useNavigate, useParams } from "@solidjs/router";
-import { createEffect, createSignal, Match, onMount, Show, Switch , For} from "solid-js";
+import { createEffect, createSignal, Match, onMount, Show, Switch, For } from "solid-js";
+import Carousel, {  CarouselItem } from "@/src/components/UI/UX/Carousel";
 export default function View(props: any) {
   var { route, params, searchParams, navigate, goBack } = useNavigation(
     "/view/:collection/:id"
-  ); 
+  );
   let { id, collection } = useParams();
   const [isReplying, setIsReplying] = createSignal(false);
   let [post, setPost] = createSignal<any>(null, { equals: false });
-  
+  let [comments, setComments] = createSignal<any[]>([]);
+   
+  let [comment, setComment] = createSignal<any>({
+    content: "",
+    media: [],
+    likes:[],
+    author: api.authStore.model.id,  
+    ...(collection === "comments" ? { mainComment: id } : {  post: id }),
+  });
+ 
   // Ensure auth check on every render
   if (!api.authStore.isValid()) navigate("/auth/login", null);
-  
+
   let { mobile } = useDevice();
-  
-  function createComment() {
-    // Your comment creation logic here
+
+  function createComment() {  
+    
+    Object.assign(post().expand, { comments: post().expand.comments || []  }); 
+    api.collection("comments").create(comment(), {
+      expand: ["author"],
+    }).then((data : any) => {
+      let author = api.authStore.model;
+      delete author.token
+      delete author.email;
+      Object.assign(data, {expand: { author: api.authStore.model }}); 
+      if(post().expand.comments){
+        post().expand.comments.push(data);
+      }
+      post().comments.push(data?.id); 
+      if(!post().expand.comments.find((c: any) => c.id === data.id)){
+        post().expand.comments.push(data);
+      } 
+      let Updatedata = { 
+        comments: post().comments,
+        expand: {
+          comments: post().expand.comments,
+          ...post().expand
+        }
+      }
+      setPost({
+        ...Updatedata,
+        ...post(),
+      });
+      setComment({ content: "", media: [], author: api.authStore.model.id, post: null });
+      api.collection(collection === "comments" ? "comments" : "posts").update(post().id, Updatedata).then((data) => {
+        console.log(data);
+      });
+    })
   }
 
-  function fetchP() { 
+  function fetchP() {
     let { params } = useNavigation("/view/:collection/:id");
     let { id, collection } = params();
-    console.log({ id, collection }); 
+    console.log({ id, collection });
     setPost(null);
     api
-      .collection( collection )
-      .get(id, { 
-        cacheKey: `post_${id}`,
+      .collection(collection)
+      .get(id, {
+        cacheKey: `post-${id}`,
         expand: [
           "comments",
           "comments.likes",
@@ -48,18 +92,26 @@ export default function View(props: any) {
           "repost.author",
         ],
       })
-      .then((data) => {
-        console.log(data);
+      .then((data) => { 
         setPost(data);
       })
       .catch((err) => {
         console.log(err);
       });
+
+
+      api.collection("comments").list(1, 10, {
+        filter:  collection === "comments" ? `mainComment="${id}"` : `post="${id}"`,
+        expand: ["author", "likes", "comments"],
+        cacheKey: `${collection}-${id}-comments`,
+      }).then((data) => {  
+        setComments(data.items);
+      });
   }
 
   // CreateEffect to trigger refetching when the `id` changes
   createEffect(() => {
-    window.addEventListener("popstate", fetchP); 
+    window.addEventListener("popstate", fetchP);
     fetchP();
   }, params()); // Depend on the `id` parameter
 
@@ -67,7 +119,7 @@ export default function View(props: any) {
 
   return (
     <Page {...{ params: useParams, route, navigate: props.navigate }} id={id}>
-      <div class={joinClass("flex flex-col w-full h-full h-screen", theme() === "dark" ? "border border-[#1c1c1c]" : "border")}>
+      <div class={joinClass("flex flex-col w-full   ", theme() === "dark" ? "border border-[#1c1c1c]" : "border")}>
         <div class="flex flex-row gap-5 p-2">
           <ArrowLeft class="w-6 h-6 cursor-pointer" onClick={() => goBack()} stroke-width="2" fill={theme() === "dark" ? "#fff" : "#000"} />
           <h1 class="font-bold">Post</h1>
@@ -116,7 +168,7 @@ export default function View(props: any) {
             <div
               onClick={(e) => {
                 e.currentTarget.querySelector("p").focus();
-                e.currentTarget.querySelector("p").innerText = "";
+                e.currentTarget.querySelector("p").innerText = "";  
               }}
               contentEditable="true"
               class="input border-none focus:outline-none p-2 w-full"
@@ -127,6 +179,7 @@ export default function View(props: any) {
                   setIsReplying(false);
                   e.currentTarget.innerText = `Reply to ${post() && post().expand.author.username}`;
                 }
+                setComment({ ...comment(), content: e.currentTarget.textContent });
               }}
             >
               <p>Reply to {post() && post().expand.author.username}</p>
@@ -134,16 +187,48 @@ export default function View(props: any) {
           </div>
           {isReplying() && (
             <div class="relative flex p-2">
-              <Media class="w-6 h-6 cursor-pointer mb-5 mt-2" />
-              <button class={joinClass("btn btn-sm rounded-full right-0 absolute mb-5 mt-2", theme() === "dark" ? "bg-white text-black hover:bg-black" : "bg-black text-white")}>
+              <input type="file" id="media" class="hidden" accept="image/*,video/*" multiple onChange={(e) => setComment({ ...comment(), media: e.target.files })} />
+              <label for="media" class="cursor-pointer">
+
+
+
+                <Media class="w-6 h-6 cursor-pointer mb-5 mt-2" />
+              </label>
+              <button 
+               onClick={createComment}
+               class={joinClass("btn btn-sm rounded-full right-0 absolute mb-5 mt-2", theme() === "dark" ? "bg-white text-black hover:bg-black" : "bg-black text-white")}>
                 Post
               </button>
             </div>
           )}
+          <Show when={comment() && comment().media}>
+            <Carousel class="h-[200px]" >
+              <For each={comment() && comment().media}>
+                {(file, index) => (
+                  <CarouselItem 
+                  showDelete={true}
+                  id={index()} 
+                  onDelete={() =>  {
+                     if("media" in comment()){
+                       // media is a file list
+                       let media = comment().media;
+                       media = Array.from(media);
+                       media.splice(index(), 1);
+                       setComment({ ...comment(), media: media });
+                     }
+                  }}>
+                    <img src={URL.createObjectURL(file)} class="w-full h-full object-cover" />
+                  </CarouselItem>
+                )}
+              </For>
+            </Carousel>
+          </Show>
         </div>
         <div>
-          <For each={post() && post().expand.comments}>
-            {(comment) => <Post {...{ ...comment, page: route(), navigate, isComment: true }} />}
+          <For each={comments()}>
+            {(comment, index) => (
+              <Post {...{ ...comment, page: route(), navigate, isComment: true }} />
+            )}
           </For>
         </div>
       </div>

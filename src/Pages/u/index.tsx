@@ -46,8 +46,7 @@ export default function User() {
         expand: ["followers", "following"],
         cacheKey: `/u/user_${params().id}`
       })
-      .then((data: any) => {
-        console.log(data)
+      .then((data: any) => { 
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
            
@@ -57,14 +56,13 @@ export default function User() {
 
 
       if(posts().length > 0){
-          // set pinned posts to the top
-          setPosts(posts().sort((a: any, b: any) => b.pinned - a.pinned))
+          
       }
    
    
       //@ts-ignore
       setRelevantText("You might also like")
-  }, [params().id,  posts()]);
+  }, [params().id ]);
 
  
 

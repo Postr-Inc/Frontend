@@ -274,6 +274,17 @@ export default class SDK {
           });
         });
       },
+
+      createFile: async (file: File) => {
+        // turn file into a buffer
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        return new Promise((resolve, reject) => {
+          reader.onload = () => {
+            resolve({ data: Array.from(new Uint8Array(reader.result as ArrayBuffer)), name: file.name });
+          };
+        });
+      },
       /**
        * @method update
        * @description Update a record in a collection

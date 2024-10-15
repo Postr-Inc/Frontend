@@ -242,7 +242,7 @@ export default function Post(props: Props) {
               {(item) => (
                 <CarouselItem>
                   <img
-                    src={api.cdn.getUrl("posts", props.id, item)}
+                    src={api.cdn.getUrl(props.isComment ? "comments" : "posts", props.id, item)}
                     class={joinClass(
                       "w-full h-[400px]  object-cover rounded-xl",
                       "cursor-pointer",

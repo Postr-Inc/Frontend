@@ -31,16 +31,39 @@ export default function View(props: any) {
     author: api.authStore.model.id,  
     ...(collection === "comments" ? { mainComment: id } : {  post: id }),
   });
+
+  let [files, setFiles] = createSignal<any>([]);
  
   // Ensure auth check on every render
   if (!api.authStore.isValid()) navigate("/auth/login", null);
 
   let { mobile } = useDevice();
 
-  function createComment() {  
-    
+  async function createComment() {  
+    let data = comment();
     Object.assign(post().expand, { comments: post().expand.comments || []  }); 
-    api.collection("comments").create(comment(), {
+
+    // turn files into buffers
+    if(files().length > 0) {
+      let filesData = files().map((file: any) => {
+        let fileObj = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        } 
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        return new Promise((resolve, reject) => {
+          reader.onload = () => {
+            resolve({ data: Array.from(new Uint8Array(reader.result as ArrayBuffer)), ...fileObj });
+          };
+        });
+      });
+      filesData = await Promise.all(filesData);
+      data.files = filesData;
+    }
+ 
+    api.collection("comments").create(data, {
       expand: ["author"],
     }).then((data : any) => {
       let author = api.authStore.model;
@@ -61,10 +84,12 @@ export default function View(props: any) {
           ...post().expand
         }
       }
+
       setPost({
         ...Updatedata,
         ...post(),
       });
+      setFiles([]);
       setComment({ content: "", media: [], author: api.authStore.model.id, post: null });
       api.collection(collection === "comments" ? "comments" : "posts").update(post().id, Updatedata).then((data) => {
         console.log(data);
@@ -187,7 +212,10 @@ export default function View(props: any) {
           </div>
           {isReplying() && (
             <div class="relative flex p-2">
-              <input type="file" id="media" class="hidden" accept="image/*,video/*" multiple onChange={(e) => setComment({ ...comment(), media: e.target.files })} />
+              <input type="file" id="media" class="hidden" accept="image/*,video/*" multiple onChange={(e) => {
+                setComment({ ...comment(), media: e.target.files })
+                setFiles(Array.from(e.target.files));
+              }} />
               <label for="media" class="cursor-pointer">
 
 
@@ -201,13 +229,15 @@ export default function View(props: any) {
               </button>
             </div>
           )}
-          <Show when={comment() && comment().media}>
+          <Show when={comment() && comment().media.length > 0}>
             <Carousel class="h-[200px]" >
-              <For each={comment() && comment().media}>
+              <For each={comment() && Array.from(comment().media)}>
                 {(file, index) => (
+                  console.log(file),
                   <CarouselItem 
                   showDelete={true}
                   id={index()} 
+                  fileSizeError={file.size > 100000}
                   onDelete={() =>  {
                      if("media" in comment()){
                        // media is a file list
@@ -215,6 +245,7 @@ export default function View(props: any) {
                        media = Array.from(media);
                        media.splice(index(), 1);
                        setComment({ ...comment(), media: media });
+                       setFiles(media);
                      }
                   }}>
                     <img src={URL.createObjectURL(file)} class="w-full h-full object-cover" />

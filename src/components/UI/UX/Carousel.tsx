@@ -73,6 +73,9 @@ export function CarouselItem(props: any) {
           <button class="btn btn-circle btn-ghost" >X</button>  
         </span>
       </Show>
+      <Show when={props.fileSizeError}>
+        <div class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-md">File size too large</div>
+      </Show>
       {props.children}
      { items().length > 1 &&   <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
         <Show when={currentIndex() !== 0}>

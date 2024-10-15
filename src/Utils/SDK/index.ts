@@ -86,7 +86,8 @@ export default class SDK {
       console.log("Connection closed");
       reConnect();
     };
-    this.ws.onerror = () => {
+    this.ws.onerror = (e) => {
+      console.log(e);
       console.log("Error connecting to server");
       reConnect();
     };

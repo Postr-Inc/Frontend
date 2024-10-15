@@ -47,7 +47,7 @@ export default class SDK {
       this.serverURL.includes("127.0.0.1");
     const wsUrl = isHTTP
       ? this.serverURL.replace("http", "ws")
-      : this.serverURL.replace("https", "ws");
+      : this.serverURL.replace("https", "wss");
     document.cookie = `Authorization=${this.authStore.model.token}; path=/; SameSite=Lax; Secure`;
     document.cookie = `ipAddress=${this.ip}; path=/; SameSite=Lax; Secure`;
 

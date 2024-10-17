@@ -22,9 +22,7 @@ export default class SDK {
      * @description data metrics used to track user activity - this is stored locally
      */
     this.statisticalData = JSON.parse(localStorage.getItem("postr_statistical") || "{}");
-    if (localStorage.getItem("postr_auth")) {
-      this.connect()
-    }
+   
     window.onbeforeunload = () => {
       localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
       useCache().clear();
@@ -66,31 +64,8 @@ export default class SDK {
         return;
       }
     } 
-     
-    this.ws = new WebSocket(wsUrl + "/ws");
-
-    this.ws.onopen = () => {
-      console.log("Connected to server");
-    };
-    this.ws.onmessage = (event) => {
-      this.handleMessages(event.data);
-    };
-    let reConnect = () => {
-      setTimeout(() => {
-        this.ws?.close();
-        this.ws = new WebSocket(wsUrl + "/ws");
-      }, 5000);
-    };
-
-    this.ws.onclose = () => {
-      console.log("Connection closed");
-      reConnect();
-    };
-    this.ws.onerror = (e) => {
-      console.log(e);
-      console.log("Error connecting to server");
-      reConnect();
-    };
+      
+    
   };
 
   handleMessages = (data: any) => {
@@ -157,17 +132,19 @@ export default class SDK {
     },
   };
 
-  async waitUntilConnected() {
-    // with infinite loop
-    while (this.ws?.readyState !== WebSocket.OPEN) {
-      console.log("Waiting for connection");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
+ 
 
   sendMsg = async (msg: any) => {
-    await this.waitUntilConnected();  
-    this.ws?.send(JSON.stringify(msg));
+    let data = await fetch(`${this.serverURL}/collection/${msg.payload.collection}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: this.authStore.model.token,
+      },
+      body: JSON.stringify(msg),
+    })
+
+    return data.json();
   };
 
   callback(cb: (data: any) => void) {
@@ -250,17 +227,8 @@ export default class SDK {
           const cacheData = shouldCache ?  await get(cacheKey) : null; 
           if (cacheData) return resolve({opCode: HttpCodes.OK, 
              ...(Array.isArray(cacheData) ? {items: [...cacheData]} : {items: [cacheData.payload]}), totalItems: cacheData.totalItems, totalPages: cacheData.totalPages});
-          let cb = this.callback((data) => {
-            shouldCache && set(cacheKey, data.payload,  new Date().getTime() + 3600); // cache for 1 hour
-            resolve({
-              opCode: data.opCode,
-              items: data.payload,
-              totalItems: data.totalItems,
-              totalPages: data.totalPages,
-              cacheKey
-            }) as any;
-          });
-          this.sendMsg({
+          
+          let out = await this.sendMsg({
             type: GeneralTypes.LIST,
             payload: {
               collection: name,
@@ -271,8 +239,16 @@ export default class SDK {
             security: {
               token: this.authStore.model.token,
             },
-            callback: cb,
-          });
+            callback: "",
+          }) as any;
+          shouldCache && set(cacheKey, out.payload,  new Date().getTime() + 3600); // cache for 1 hour
+          resolve({
+            opCode:  out.opCode,
+            items: out.payload,
+            totalItems:out.totalItems,
+            totalPages: out.totalPages,
+            cacheKey
+          }) as any; 
         });
       },
 
@@ -345,11 +321,8 @@ export default class SDK {
                 }
                 
             }
-            let cb = this.callback((data)=>{ 
-               if(data.opCode !== HttpCodes.OK) return reject(data)
-                resolve(data)
-            }) 
-            this.sendMsg({
+            
+            let out = this.sendMsg({
                 type: GeneralTypes.UPDATE,
                 payload: {
                     collection: name,
@@ -360,8 +333,9 @@ export default class SDK {
                 security : {
                     token: JSON.parse(localStorage.getItem("postr_auth") || "{}").token
                 },
-                callback: cb
-            })
+                callback:  ""
+            }) 
+            resolve(out)
         })
        },
       /**
@@ -372,11 +346,8 @@ export default class SDK {
        */
       create: async (data: any, options?: {cacheKey?: string, expand?:any[]}) => {
         return new Promise((resolve, reject) => {
-          let cb = this.callback((data) => { 
-            if(data.opCode !== HttpCodes.OK) return reject(data) 
-            resolve(data.payload)
-          });
-          this.sendMsg({
+          
+          let out = this.sendMsg({
             type: GeneralTypes.CREATE,
             payload: {
               collection: name,
@@ -386,8 +357,9 @@ export default class SDK {
             security: {
               token: this.authStore.model.token,
             },
-            callback: cb,
-          });
+            callback: "",
+          }) as any
+          resolve(out.payload)
         });
       },
 
@@ -408,7 +380,7 @@ export default class SDK {
               useCache().set(cacheKey, data, new Date().getTime() + 3600);
               resolve(data.payload)
           }) 
-          this.sendMsg({
+          let out = this.sendMsg({
             type: GeneralTypes.GET,
             payload: {
               collection: name,
@@ -418,8 +390,11 @@ export default class SDK {
             security: {
               token: this.authStore.model.token
             },
-            callback: cb
-          })
+            callback:""
+          }) as any;
+          if(out.opCode !== HttpCodes.OK) return reject(out)
+           useCache().set(cacheKey, out, new Date().getTime() + 3600);
+           resolve(out.payload) 
         })
       },
     };

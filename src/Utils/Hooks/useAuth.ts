@@ -10,10 +10,9 @@ export default function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await api.authStore.login(email, password);
+      await api.authStore.login(email, password);
       setIsAuthenticated(api.authStore.isValid());
-      setIsLoading(false);
-      api.connect() 
+      setIsLoading(false); 
     } catch (error: any) { 
       setIsLoading(false);
       setError(error.message);

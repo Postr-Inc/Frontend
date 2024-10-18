@@ -26,9 +26,12 @@ export default function Home() {
       <HomeNav navigate={navigate} page={feed} swapFeed={setFeed} />
       <ErrorBoundary
         fallback={
-        <div class="flex flex-col justify-center text-center mt-5">
+          (err, reset) =>  <div class="flex flex-col justify-center text-center mt-5">
             <h1 class="text-3xl">Something went wrong</h1>
-            <button onClick={()=> setFeed("home")}>Retry</button>
+            <p>
+              {err.message}
+            </p>
+            <button onClick={()=> setFeed("home")} class="bg-blue-500 text-white p-2 rounded-md">Reload</button>
         </div>
 
         }

@@ -99,8 +99,7 @@ export default function View(props: any) {
 
   function fetchP() {
     let { params } = useNavigation("/view/:collection/:id");
-    let { id, collection } = params();
-    console.log({ id, collection });
+    let { id, collection } = params(); 
     setPost(null);
     api
       .collection(collection)
@@ -155,7 +154,7 @@ export default function View(props: any) {
               <LoadingIndicator />
             </Match>
             <Match when={post() !== null}>
-              <Post {...{ ...post(), page: route(), navigate }} />
+              <Post {...{ ...post(), page: route(), navigate, isComment: collection === "comments" }} />
             </Match>
           </Switch>
         </div>

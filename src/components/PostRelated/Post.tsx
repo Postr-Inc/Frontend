@@ -72,16 +72,9 @@ type Props = {
 };
 
 export default function Post(props: Props) { 
-  console.log(Object.keys(props));
   let { theme } = useTheme();
   let { likes, updateLikes,   commentLength } = usePost(props);
-
-  console.log(likes());
-  api.collection("posts").subscribe(props.id, {
-    cb: (data: any) => {
-      console.log(data);
-    },
-  })
+ 
 
   return (
     <Card

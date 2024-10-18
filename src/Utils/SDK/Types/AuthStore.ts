@@ -16,5 +16,7 @@ export type authStore = {
     },
     login: (emailOrUsername: string, password: string) => Promise<authStore["model"]>,
     logout: () => void,
+    requestPasswordReset: (email: string) => Promise<void>,
+    resetPassword: (password: string, token: string) => Promise<void>,  
     isValid: () => boolean,
 }

@@ -83,6 +83,39 @@ export default class SDK {
       if (!this.authStore.model.token) return false;
       return isTokenExpired(this.authStore.model.token) ? false : true;
     },
+    requestPasswordReset: async (email: string) => {
+      return new Promise(async (resolve, reject) => {
+        const response = await fetch(`${this.serverURL}/auth/requestPasswordReset`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+          }),
+        });
+        const { status, message } = await response.json();
+        if (status !== 200) return reject(message);
+        return resolve();
+      });
+    },
+    resetPassword: async (token: string, password: string) => {
+      return new Promise(async (resolve, reject) => {
+        const response = await fetch(`${this.serverURL}/auth/resetPassword`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token,
+            password,
+          }),
+        });
+        const { status, message } = await response.json();
+        if (status !== 200) return reject(message);
+        return resolve();
+      });
+    },
     logout: () => {
       localStorage.removeItem("postr_auth");
       window.dispatchEvent(this.changeEvent);
@@ -105,8 +138,7 @@ export default class SDK {
             ipAddress: this.ip,
             deviceInfo: navigator.userAgent,
           }),
-        });
-        console.log(response);
+        }); 
         const { data, status, message } = await response.json();
         if (status !== 200)  return reject(message);
         this.authStore.model = data;
@@ -135,6 +167,7 @@ export default class SDK {
  
 
   sendMsg = async (msg: any) => {
+    console.log(msg.payload)
     let data = await fetch(`${this.serverURL}/collection/${msg.payload.collection}`, {
       method: "POST",
       headers: {
@@ -142,7 +175,7 @@ export default class SDK {
         Authorization: this.authStore.model.token,
       },
       body: JSON.stringify(msg),
-    })
+    }) 
 
     return data.json();
   };
@@ -374,13 +407,8 @@ export default class SDK {
         return new Promise(async (resolve, reject)=>{
           let cacheKey =  options?.cacheKey || `${this.serverURL}/api/collections/${name}/${id}`;
           let cacheData = await useCache().get(cacheKey); 
-          if(cacheData) return resolve(cacheData.payload);
-          let cb = this.callback((data)=>{  
-              if(data.opCode !== HttpCodes.OK) return reject(data)
-              useCache().set(cacheKey, data, new Date().getTime() + 3600);
-              resolve(data.payload)
-          }) 
-          let out = this.sendMsg({
+          if(cacheData) return resolve(cacheData.payload); 
+          let out = await this.sendMsg({
             type: GeneralTypes.GET,
             payload: {
               collection: name,
@@ -393,7 +421,7 @@ export default class SDK {
             callback:""
           }) as any;
           if(out.opCode !== HttpCodes.OK) return reject(out)
-           useCache().set(cacheKey, out, new Date().getTime() + 3600);
+           useCache().set(cacheKey, out, new Date().getTime() + 3600);  
            resolve(out.payload) 
         })
       },

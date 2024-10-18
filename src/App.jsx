@@ -8,9 +8,7 @@ import Registration from './Pages/auth/Registration';
 
 function App() {
   const { route, params, goBack, goForward, navigate } = useNavigation();
-  
-  if(api.authStore.isValid()) api.connect();
-
+   
   api.on('change', () => {
      if(!api.authStore.isValid()) navigate('/auth/login');
   }); 

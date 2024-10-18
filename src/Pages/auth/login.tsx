@@ -112,7 +112,7 @@ export default function Login() {
               <p class="text-xs">
                 Forgot your password?{" "}
                 <button
-                  onClick={() => navigate("/auth/forgot", null)}
+                  onClick={() => navigate("/auth/ForgotPassword", null)}
                   class="text-blue "
                 >
                   Reset it

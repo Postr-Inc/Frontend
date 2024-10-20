@@ -27,6 +27,8 @@ export default class SDK {
       localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
       useCache().clear();
     }
+
+    // check if
   }
 
   on = (type: "authChange" | string, cb: (data: any) => void) => {
@@ -35,21 +37,8 @@ export default class SDK {
     });
   };
 
-  connect = async () => { 
-    if(!this.ip){
-      await this.getIP();
-    } 
-    const isHTTP =
-      this.serverURL.includes("http://") ||
-      this.serverURL.includes("localhost") ||
-      this.serverURL.includes("127.0.0.1");
-    const wsUrl = isHTTP
-      ? this.serverURL.replace("http", "ws")
-      : this.serverURL.replace("https", "wss");
-    document.cookie = `Authorization=${this.authStore.model.token}; path=/; SameSite=Lax; Secure`;
-    document.cookie = `ipAddress=${this.ip}; path=/; SameSite=Lax; Secure`;
-
-    // first check if token is valid
+  checkAuth = async () => { 
+     
     if(localStorage.getItem("postr_auth") && !this.hasChecked){
       let res = await fetch(`${this.serverURL}/auth/verify`, {
         headers: {

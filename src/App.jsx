@@ -5,10 +5,13 @@ import useNavigation from './Utils/Hooks/useNavigation';
 import Login from './Pages/auth/login';
 import Home from './Pages';
 import Registration from './Pages/auth/Registration';
+import { createEffect } from 'solid-js';
 
 function App() {
   const { route, params, goBack, goForward, navigate } = useNavigation();
-   
+  createEffect(() => {
+    api.checkAuth();
+  });
   api.on('change', () => {
      if(!api.authStore.isValid()) navigate('/auth/login');
   }); 

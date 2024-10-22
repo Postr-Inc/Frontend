@@ -6,9 +6,12 @@ module.exports = {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px"
-      }
+        screens: {
+        "2xl": "1400px",
+        'xsm':  {'min': '600px'},
+        'sm':  {'max': '767px'},
+        'xl':  {'min': '1280px'}, 
+      },
     },
     extend: {
       colors: {

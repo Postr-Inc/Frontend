@@ -253,7 +253,7 @@ export default function User() {
             <Show when={!user()}>
               <div class="w-screen justify-center flex mx-auto"></div>
             </Show>
-            <div class="flex flex-row justify-between p-2 border-b">
+            <div class="flex flex-row justify-between p-2 border-b-base-200">
               <p
                 class="flex flex-col border-b-gray-500"
                 onClick={() => setView("posts")}

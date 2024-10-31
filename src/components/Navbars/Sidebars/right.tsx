@@ -16,7 +16,7 @@ export function SideBarRight(props:  {
 
     return (
       <>
-        <div class="xl:drawer   xl:w-[auto] xl:drawer-end xl:drawer-open lg:drawer-open  mx-5   ">
+        <div class="xl:drawer  md:p-2  xl:w-[auto] xl:drawer-end xl:drawer-open lg:drawer-open  mx-5   ">
           <input id="my-drawer-2" type="checkbox" class="drawer-toggle" /> 
           <div class="drawer-side">
             <label

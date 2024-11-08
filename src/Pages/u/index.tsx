@@ -38,8 +38,27 @@ export default function User() {
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any; 
   let [loading, setLoading] = createSignal(true);  
-  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  const [posts, setPosts] = createSignal([], {
+    equals: false
+  }) 
+  const [feed, setFeed] = createSignal("all")
+  const [error, setError] = createSignal(null)
+  let [refresh, setRefresh] = createSignal(false)
+  async function getPosts(feed: string){
+   await handleFeed("posts", params, 1, user()).then((data: any) => {
+      if (data.opCode === HttpCodes.OK) {
+        setPosts(data.items);
+        setLoading(false);
+      }
+      else{
+        setError(data);
+      }
+   });
+  }
   createEffect(() => {    
+    setPosts([]);
+    setLoading(true);
+    
     api.collection("users")
       .list(1, 1, {
         filter:  StringJoin("username", "=", `"${params().id}"`),
@@ -49,7 +68,7 @@ export default function User() {
       .then((data: any) => { 
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
-           
+          getPosts("all")
           setLoading(false);
         }
       });
@@ -62,6 +81,55 @@ export default function User() {
    
       //@ts-ignore
       setRelevantText("You might also like")
+       
+        async function handleScroll() {
+          // Check if the user has scrolled to the bottom of the page
+          if (
+            window.innerHeight + document.documentElement.scrollTop !==
+            document.documentElement.offsetHeight
+          ) {
+            return;
+          }
+    
+          // Prevent fetching if already loading or refreshing
+          if (loading() || refresh()) {
+            return;
+          }
+    
+          // Check if there are more pages to fetch
+          if (hasMore()) {
+            setLoading(true); // Set loading to true before fetching
+            try {
+              const currentPageValue = currentPage() + 1;
+              setCurrentPage(currentPageValue);
+              console.log("fetching page " + currentPageValue);
+              const data = await list(collection, currentPage, feed, options) as any;
+              setPosts([...posts(), ...data?.items]);
+    
+              // Update hasMore if there are no more pages to load
+              if (data?.totalPages <= currentPageValue) {
+                setHasMore(false);
+              }
+            } catch (e) {
+              setError(e as any);
+            } finally {
+              setLoading(false); 
+            }
+          }
+        }
+        window.addEventListener("scroll", handleScroll);
+        // handle refresh mobile swipe
+        function handleTouchStart(e: TouchEvent) {
+          if (e.touches[0].clientY < 50) {
+            setRefresh(true);
+          }
+        }
+        function handleTouchEnd(e: TouchEvent) {
+          setRefresh(false);
+        }
+        window.addEventListener("touchstart", handleTouchStart);
+        window.addEventListener("touchend", handleTouchEnd);
+        
   }, [params().id ]);
 
  

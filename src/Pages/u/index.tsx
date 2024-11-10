@@ -41,6 +41,7 @@ export default function User() {
   const [view, setView] = createSignal("posts") as any; 
   let [loading, setLoading] = createSignal(true);  
   let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  let [notFound, setNotFound] = createSignal(false);
   createEffect(() => {    
     api.collection("users")
       .list(1, 1, {

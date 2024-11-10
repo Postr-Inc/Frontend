@@ -18,38 +18,41 @@ import EditProfileModal from "@/src/components/Modals/EditProfileModal";
 import { Portal } from "solid-js/web";
 import useFeed from "@/src/Utils/Hooks/useFeed";
 import { useParams } from "@solidjs/router";
+import LoadingIndicator from "@/src/components/Icons/loading";
 async function handleFeed(
   type: string,
   params: any,
   page: number,
-  user = api.authStore.model
-) {
-  switch (type) {
-    case "posts":
-      return api.collection("posts").list(page, 10, {
-        expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
-        cacheKey: `user_${params().id}_posts`,
-        filter: `author.username="${params().id}"`,
-      });
+  user = api.authStore.model,
+  otherOptions = {
+    filter: "",
+    sort: "asc",
   }
+) {
+  return api.collection(type).list(page, 10, {
+    expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
+    cacheKey: `/u/${params().id}_${type}_${page}${JSON.stringify(otherOptions)}`,
+    filter: otherOptions.filter || `author.username="${params().id}"`,
+  });
 }
 export default function User() {
   const { params, route, navigate, goBack } = useNavigation("/u/:id");
-  const u = useParams();   
+  const u = useParams();
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
-  const [view, setView] = createSignal("posts") as any; 
-  let [loading, setLoading] = createSignal(true);  
-  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  const [view, setView] = createSignal("posts") as any;
+  let [loading, setLoading] = createSignal(true);
+  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", { filter: `author.username="${params().id}"`, sort: 'asc' });
   let [notFound, setNotFound] = createSignal(false);
-  createEffect(() => {    
+  let [feedLoading, setFeedLoading] = createSignal(false);
+  createEffect(() => {
     api.collection("users")
       .list(1, 1, {
-        filter:  StringJoin("username", "=", `"${u.id}"`),
+        filter: StringJoin("username", "=", `"${u.id}"`),
         expand: ["followers", "following"],
         cacheKey: `/u/user_${u.id}`
       })
-      .then((data: any) => {  
+      .then((data: any) => {
         if (!data.items[0]) {
           setNotFound(true);
           console.log("not found")
@@ -58,18 +61,69 @@ export default function User() {
         }
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
-           
-          setLoading(false);
+          handleFeed("posts", params, currentPage(), data.items[0]).then((data: any) => {
+            if (data.opCode === HttpCodes.OK) {
+              setPosts(data.items);
+              setLoading(false);
+            }
+          });
         }
       });
 
- 
-   
-      //@ts-ignore
-      setRelevantText("You might also like")
-  }, [params().id ]);
 
- 
+
+    //@ts-ignore
+    setRelevantText("You might also like")
+  }, [params().id]);
+
+
+
+  function swapFeed(type: string) {
+    setFeedLoading(true)
+    switch (type) {
+      case "posts":
+        handleFeed("posts", params, currentPage(), user()).then((data: any) => {
+          if (data.opCode === HttpCodes.OK) {
+            setPosts(data.items);
+             
+          }
+        });
+        break;
+      case "Replies":
+        handleFeed("comments", params, currentPage(), user(), {
+          filter: `author.username="${params().id}"`,
+          sort: "asc",
+        }).then((data: any) => {
+          console.log(data)
+          if (data.opCode === HttpCodes.OK) {
+            setPosts(data.items); 
+          }
+        });
+        break;
+      case "Likes":
+        console.log(`likes.id ="${api.authStore.model.id} && author.username != "${params().id}"`)
+        handleFeed("posts", params, currentPage(), user(), {
+          filter: `likes.id ="${api.authStore.model.id}" && author.username != "${params().id}"`,
+          sort: "asc",
+        }).then((data: any) => {
+          if (data.opCode === HttpCodes.OK) {
+            console.log(data)
+            setPosts(data.items); 
+          }
+        });
+        break;
+      case "snippets":
+        handleFeed("snippets", params, currentPage(), user()).then((data: any) => {
+          if (data.opCode === HttpCodes.OK) {
+            setPosts(data.items); 
+          }
+        });
+        break;
+    }
+    setTimeout(() => {
+      setFeedLoading(false)
+    }, 1000)
+  }
 
   function follow(type: string) {
     console.log(type)
@@ -126,13 +180,13 @@ export default function User() {
             <div class="text-2xl">User not found</div>
           </div>
         </Match>
-        <Match when={loading() }>
+        <Match when={loading()}>
           <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>
         </Match>
-        <Match when={!loading()  }>
+        <Match when={!loading()}>
           <div class="flex flex-col relative">
             <div
               class="flex flex-row justify-between p-2 h-[10rem]"
@@ -165,8 +219,10 @@ export default function User() {
                     class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
                   />
                 </Match>
-                <Match when={user() == null || !Object.hasOwnProperty.call(user(), "avatar")}>
-                  <div class="rounded-full w-24 h-24 mx-1 border-4 border-white -mt-12 bg-base-300"></div>
+                <Match when={!user() || !user().avatar}>
+                  <div class="rounded-full w-24 h-24 mx-1 border-4 border-white -mt-12 bg-base-300 flex items-center justify-center">
+                    <p class="text-2xl text-black">{user() && user().username[0]}</p>
+                  </div>
                 </Match>
               </Switch>
               <Switch>
@@ -205,9 +261,9 @@ export default function User() {
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
                   class={
-                    joinClass( theme === "dark"
+                    joinClass(theme === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
-                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-1")
+                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3")
                   }
                 >
                   Edit Profile
@@ -265,8 +321,11 @@ export default function User() {
             </Show>
             <div class="flex flex-row justify-between p-2 border-b-base-200">
               <p
-                class="flex flex-col border-b-gray-500"
-                onClick={() => setView("posts")}
+                class="flex flex-col cursor-pointer border-b-gray-500"
+                onClick={() => {
+                  setView("posts");
+                  swapFeed("posts");
+                }}
               >
                 Posts
                 <Show when={view() === "posts"}>
@@ -276,13 +335,21 @@ export default function User() {
                   <span class="bg-blue-500 w-full text-white p-[0.15rem] rounded-full transition-all duration-300 ease-in-out"></span>
                 </Show>
               </p>
-              <p onClick={() => setView("Replies")} class="flex flex-col">
+              <p
+                onClick={() => {
+                  setView("Replies")
+                  swapFeed("Replies")
+                  console.log("replies")
+                }} class="flex flex-col  cursor-pointer">
                 Replies
                 <Show when={view() === "Replies"}>
                   <span class="bg-blue-500 w-full text-white p-[0.15rem] rounded-full  "></span>
                 </Show>
               </p>
-              <p onClick={() => setView("Likes")} class="flex flex-col">
+              <p onClick={() => {
+                setView("Likes")
+                swapFeed("Likes")
+              }} class="flex flex-col  cursor-pointer">
                 Likes
                 <Show when={view() === "Likes"}>
                   <span class="bg-blue-500 w-full text-white p-[0.15rem] rounded-full  "></span>
@@ -297,40 +364,49 @@ export default function User() {
             </div>
             <div class="flex flex-col">
 
-              {posts().length > 0 && (
-                <For each={posts()}>
-                  {(item: any, index: any) => {
-                    let copiedObj = { ...item }; 
-                    return (
-                      <div
-                        class={joinClass(
-                          index() == posts().length - 1 && posts().length > 1
-                            ? "sm:mb-[70px]"
-                            : ""
-                        )}
-                      >
-                        {" "}
-                        <Post
-                          noBottomBorder={index() == posts().length - 1}
-                          author={copiedObj.author}
-                          comments={copiedObj.comments}
-                          content={copiedObj.content}
-                          created={copiedObj.created}
-                          id={copiedObj.id}
-                          likes={copiedObj.likes}
-                          navigate={navigate}
-                          pinned={copiedObj.pinned}
-                          expand={copiedObj.expand}
-                          route={route}
-                          files={copiedObj.files}
-                          isRepost={copiedObj.isRepost}
-                          params={params}
-                        />{" "}
-                      </div>
-                    );
-                  }}
-                </For>
-              )}
+              <Switch>
+                <Match when={feedLoading()}>
+                  <For each={Array.from({ length: 10 })}>
+                    {() => <LoadingIndicator />}
+                  </For>
+                </Match>
+                <Match when={!feedLoading()}>
+                  {posts().length > 0 && (
+                    <For each={posts()}>
+                      {(item: any, index: any) => {
+                        let copiedObj = { ...item };
+                        return (
+                          <div
+                            class={joinClass(
+                              index() == posts().length - 1 && posts().length > 1
+                                ? "sm:mb-[70px]"
+                                : ""
+                            )}
+                          >
+                            {" "}
+                            <Post
+                              noBottomBorder={index() == posts().length - 1}
+                              author={copiedObj.author}
+                              comments={copiedObj.comments}
+                              content={copiedObj.content}
+                              created={copiedObj.created}
+                              id={copiedObj.id}
+                              likes={copiedObj.likes}
+                              navigate={navigate}
+                              pinned={copiedObj.pinned}
+                              expand={copiedObj.expand}
+                              route={route}
+                              files={copiedObj.files}
+                              isRepost={copiedObj.isRepost}
+                              params={params}
+                            />{" "}
+                          </div>
+                        );
+                      }}
+                    </For>
+                  )}
+                </Match>
+              </Switch>
             </div>
           </Show>
         </Match>

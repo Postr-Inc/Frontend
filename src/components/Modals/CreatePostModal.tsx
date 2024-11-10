@@ -238,7 +238,7 @@ export default function CreatePostModal() {
         <Portal>
           <dialog
             id="visibility"
-            class="modal sm:modal-bottom xl:modal-middle  "
+            class="modal sm:modal-bottom xl:modal-middle md:modal-middle  "
           >
             <div class="modal-box w-32 gap-1">
               <div class="flex flex-col gap-2">

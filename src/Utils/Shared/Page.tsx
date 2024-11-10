@@ -14,7 +14,7 @@ export default function Page(props: { children: any , params: ()=> any, route: (
             <h1 class="text-3xl">Something went wrong</h1>
         </div>
     }>
-         <div id={props.id} class={joinClass("relative xl:flex xl:w-[30rem] w-[100vw]    xl:p-0  lg:flex   2xl:w-[64vw]    justify-center xl:mx-auto ", )}>
+         <div id={props.id} class={joinClass("relative xl:flex xl:w-[30rem] w-[100vw]   xl:p-0  lg:flex   2xl:w-[64vw]    justify-center xl:mx-auto ", )}>
          <Show when={props.route() !== "/auth/login" && props.route() !== "/auth/signup" && props.route() !== "/auth/forgot"}>
          <SideBarLeft {...{
              params: props.params,

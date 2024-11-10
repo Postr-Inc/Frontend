@@ -39,13 +39,9 @@ export default function User() {
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any; 
-  let [loading, setLoading] = createSignal(true);    
-  let [posts, setPosts] = createSignal([], { equals: false }) as any; 
-  let [notFound, setNotFound] = createSignal(false);
+  let [loading, setLoading] = createSignal(true);  
+  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
   createEffect(() => {    
-    setLoading(true);
-    setPosts([]);
-    console.log(u.id)
     api.collection("users")
       .list(1, 1, {
         filter:  StringJoin("username", "=", `"${u.id}"`),
@@ -61,43 +57,17 @@ export default function User() {
         }
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
-          
-          handleFeed("posts", params, 1, data.items[0]).then((data: any) => {
-            if (data.opCode === HttpCodes.OK) {
-              setPosts(data.items);
-              let relevantPeople: any[] = []
-              for (let i = 0; i < data?.items.length; i++) {  
-                if(data?.items[i].expand.author.followers.length < 1) continue;
-                let followers = data?.items[i].expand.author.expand.followers
-                if(followers.length < 1) continue;
-                for (let j = 0; j < followers.length; j++) { 
-                  if (followers[j].id !== api.authStore.model.id   && relevantPeople.length < 5 && !followers[j].followers.includes(api.authStore.model.id) 
-                  && !relevantPeople.find((i)=> i.id === followers[j].id)  
-                  ) { 
-                    relevantPeople.push(followers[j]);
-                  } 
-                }
-              } 
-              //@ts-ignore
-              window.setRelevantPeople && setRelevantPeople(relevantPeople);
-              
-              setLoading(false);
-
-            }
-          });
-          setLoading(false);  
+           
+          setLoading(false);
         }
       });
 
  
    
-      //@ts-ignore 
-     
-  }, [ params().id]);
+      //@ts-ignore
+      setRelevantText("You might also like")
+  }, [params().id ]);
 
- 
-   
-   
  
 
   function follow(type: string) {
@@ -292,7 +262,7 @@ export default function User() {
             <Show when={!user()}>
               <div class="w-screen justify-center flex mx-auto"></div>
             </Show>
-            <div class="flex flex-row justify-between p-2 border-b">
+            <div class="flex flex-row justify-between p-2 border-b-base-200">
               <p
                 class="flex flex-col border-b-gray-500"
                 onClick={() => setView("posts")}

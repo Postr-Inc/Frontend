@@ -159,7 +159,7 @@ export default function View(props: any) {
           </Switch>
         </div>
         <Show when={post() && post().author === api.authStore.model.id}>
-          <div class="flex flex-row gap-5 p-5 mt-2 border border-[#f3f3f3] border-b-0 border-r-0 border-l-0">
+          <div class="flex flex-row gap-5 p-5 mt-2 ">
             <svg
               viewBox="0 0 24 24"
               aria-hidden="true"

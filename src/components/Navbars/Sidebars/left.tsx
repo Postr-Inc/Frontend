@@ -16,7 +16,7 @@ export function SideBarLeft(props: {
   const { route, navigate } = useNavigation()
   return (
     <>
-      <div class="xl:drawer xl:w-[auto]   mr-5   xl:drawer-open lg:drawer-open  ">
+      <div class="xl:drawer xl:w-[auto]  md:p-2  mr-5   xl:drawer-open lg:drawer-open  ">
         <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
         {error ? (
           <div class="toast toast-end">

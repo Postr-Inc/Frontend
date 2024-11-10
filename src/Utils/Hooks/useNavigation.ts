@@ -54,6 +54,7 @@ export default function useNavigation($route?: string, $params?: any) {
   };
 
   window.addEventListener("popstate", () => {
+    console.log("route change")
     const path = new URL(window.location.href).pathname;
     setRoute(path);
     const matchingParams = params.find((p) => p.route === path)?.params || null;

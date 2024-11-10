@@ -17,6 +17,7 @@ import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import EditProfileModal from "@/src/components/Modals/EditProfileModal";
 import { Portal } from "solid-js/web";
 import useFeed from "@/src/Utils/Hooks/useFeed";
+import { useParams } from "@solidjs/router";
 async function handleFeed(
   type: string,
   params: any,
@@ -26,7 +27,7 @@ async function handleFeed(
   switch (type) {
     case "posts":
       return api.collection("posts").list(page, 10, {
-        expand: ["author", "likes", "comments", "repost", "repost.author"],
+        expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
         cacheKey: `user_${params().id}_posts`,
         filter: `author.username="${params().id}"`,
       });
@@ -34,36 +35,69 @@ async function handleFeed(
 }
 export default function User() {
   const { params, route, navigate, goBack } = useNavigation("/u/:id");
+  const u = useParams();   
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any; 
-  let [loading, setLoading] = createSignal(true);  
-  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", {filter: `author.username="${params().id}"`, sort: 'asc'}); 
+  let [loading, setLoading] = createSignal(true);    
+  let [posts, setPosts] = createSignal([], { equals: false }) as any; 
+  let [notFound, setNotFound] = createSignal(false);
   createEffect(() => {    
+    setLoading(true);
+    setPosts([]);
+    console.log(u.id)
     api.collection("users")
       .list(1, 1, {
-        filter:  StringJoin("username", "=", `"${params().id}"`),
+        filter:  StringJoin("username", "=", `"${u.id}"`),
         expand: ["followers", "following"],
-        cacheKey: `/u/user_${params().id}`
+        cacheKey: `/u/user_${u.id}`
       })
-      .then((data: any) => { 
+      .then((data: any) => {  
+        if (!data.items[0]) {
+          setNotFound(true);
+          console.log("not found")
+          setLoading(false);
+          return;
+        }
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
-           
-          setLoading(false);
+          
+          handleFeed("posts", params, 1, data.items[0]).then((data: any) => {
+            if (data.opCode === HttpCodes.OK) {
+              setPosts(data.items);
+              let relevantPeople: any[] = []
+              for (let i = 0; i < data?.items.length; i++) {  
+                if(data?.items[i].expand.author.followers.length < 1) continue;
+                let followers = data?.items[i].expand.author.expand.followers
+                if(followers.length < 1) continue;
+                for (let j = 0; j < followers.length; j++) { 
+                  if (followers[j].id !== api.authStore.model.id   && relevantPeople.length < 5 && !followers[j].followers.includes(api.authStore.model.id) 
+                  && !relevantPeople.find((i)=> i.id === followers[j].id)  
+                  ) { 
+                    relevantPeople.push(followers[j]);
+                  } 
+                }
+              } 
+              //@ts-ignore
+              window.setRelevantPeople && setRelevantPeople(relevantPeople);
+              
+              setLoading(false);
+
+            }
+          });
+          setLoading(false);  
         }
       });
 
+ 
+   
+      //@ts-ignore 
+     
+  }, [ params().id]);
 
-      if(posts().length > 0){
-          
-      }
+ 
    
    
-      //@ts-ignore
-      setRelevantText("You might also like")
-  }, [params().id ]);
-
  
 
   function follow(type: string) {
@@ -116,6 +150,11 @@ export default function User() {
   return (
     <Page {...{ params, route, navigate, id: "user" }}>
       <Switch>
+        <Match when={notFound()}>
+          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
+            <div class="text-2xl">User not found</div>
+          </div>
+        </Match>
         <Match when={loading() }>
           <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
             <div class="loading loading-spinner text-blue-500">
@@ -155,7 +194,7 @@ export default function User() {
                     class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
                   />
                 </Match>
-                <Match when={!user() || !user().avatar}>
+                <Match when={user() == null || !Object.hasOwnProperty.call(user(), "avatar")}>
                   <div class="rounded-full w-24 h-24 mx-1 border-4 border-white -mt-12 bg-base-300"></div>
                 </Match>
               </Switch>
@@ -191,7 +230,7 @@ export default function User() {
                   </button>
                 </Match>
               </Switch>
-              <Show when={user().id === api.authStore.model.id}>
+              <Show when={user() && user().id === api.authStore.model.id}>
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
                   class={

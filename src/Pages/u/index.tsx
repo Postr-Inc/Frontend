@@ -25,13 +25,13 @@ async function handleFeed(
   page: number,
   user = api.authStore.model,
   otherOptions = {
-    filter: "",
-    sort: "asc",
+    filter: "", 
   }
 ) {
   return api.collection(type).list(page, 10, {
     expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
-    cacheKey: `/u/${params().id}_${type}_${page}${JSON.stringify(otherOptions)}`,
+    sort: "asc",
+    cacheKey: `/u/${params().id}_${type}_${page}/${JSON.stringify(otherOptions)}`,
     filter: otherOptions.filter || `author.username="${params().id}"`,
   });
 }
@@ -42,7 +42,8 @@ export default function User() {
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any;
   let [loading, setLoading] = createSignal(true);
-  let { feed, currentPage, posts, reset, setPosts } = useFeed("posts", { filter: `author.username="${params().id}"`, sort: 'asc' });
+  let { feed,   posts, reset, setPosts } = useFeed("posts", { filter: `author.username="${params().id}"`, sort: 'asc' });
+  const [currentPage, setCurrentPage] = createSignal(1);
   let [notFound, setNotFound] = createSignal(false);
   let [feedLoading, setFeedLoading] = createSignal(false);
   createEffect(() => {
@@ -63,6 +64,10 @@ export default function User() {
           setUser(data.items[0]);
           handleFeed("posts", params, currentPage(), data.items[0]).then((data: any) => {
             if (data.opCode === HttpCodes.OK) {
+              // sort posts pinned
+              let pinned = data.items.filter((p: any) => p.pinned); 
+              let notPinned = data.items.filter((p: any) => !p.pinned);
+              data.items = [...pinned, ...notPinned]; 
               setPosts(data.items);
               setLoading(false);
             }
@@ -74,6 +79,7 @@ export default function User() {
 
     //@ts-ignore
     setRelevantText("You might also like")
+    setCurrentPage(1);
   }, [params().id]);
 
 
@@ -82,17 +88,21 @@ export default function User() {
     setFeedLoading(true)
     switch (type) {
       case "posts":
-        handleFeed("posts", params, currentPage(), user()).then((data: any) => {
+        handleFeed("posts", params, currentPage(), user(), {
+          filter: `author.username="${params().id}"`, 
+        }).then((data: any) => {
           if (data.opCode === HttpCodes.OK) {
+            let pinned = data.items.filter((p: any) => p.pinned); 
+            let notPinned = data.items.filter((p: any) => !p.pinned);
+            data.items = [...pinned, ...notPinned]; 
             setPosts(data.items);
-             
-          }
+            
+          } 
         });
         break;
       case "Replies":
         handleFeed("comments", params, currentPage(), user(), {
-          filter: `author.username="${params().id}"`,
-          sort: "asc",
+          filter: `author.username="${params().id}"`, 
         }).then((data: any) => {
           console.log(data)
           if (data.opCode === HttpCodes.OK) {
@@ -103,8 +113,7 @@ export default function User() {
       case "Likes":
         console.log(`likes.id ="${api.authStore.model.id} && author.username != "${params().id}"`)
         handleFeed("posts", params, currentPage(), user(), {
-          filter: `likes.id ="${api.authStore.model.id}" && author.username != "${params().id}"`,
-          sort: "asc",
+          filter: `likes.id ="${user().id}" && author.username != "${params().id}"`, 
         }).then((data: any) => {
           if (data.opCode === HttpCodes.OK) {
             console.log(data)

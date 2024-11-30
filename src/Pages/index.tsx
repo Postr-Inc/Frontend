@@ -2,14 +2,14 @@ import { api } from "..";
 import HomeNav from "../components/Navbars/HomeNav";
 import Page from "../Utils/Shared/Page";
 import useNavigation from "../Utils/Hooks/useNavigation";
-import { createSignal, ErrorBoundary, For, Match, Switch } from "solid-js";
+import { createEffect, createSignal, ErrorBoundary, For, Match, Switch } from "solid-js";
 import useFeed from "../Utils/Hooks/useFeed";
 import Post from "../components/PostRelated/Post";
 import LoadingIndicator from "../components/Icons/loading";
 import { joinClass } from "../Utils/Joinclass";
 export default function Home() {
   const { route, params, navigate } = useNavigation("/");
-  const { feed, currentPage, setFeed, posts, loading} = useFeed("posts", {  filter: `author.id  != "${api.authStore.model.id}"`});
+  const { feed, currentPage, setFeed, posts, loading} = useFeed("posts", {  filter: `author.id  != "${api.authStore.model.id}"`, _for:"home"});
   if (!api.authStore.isValid()) {
     localStorage.removeItem("postr_auth");
     window.location.href = "/auth/login";
@@ -19,6 +19,12 @@ export default function Home() {
       navigate("/auth/login", null);
     }
   });
+
+  createEffect(() => {
+    window.onbeforeunload = function () {
+      window.scrollTo(0, 0);
+    }
+  });
    
 
   return (
@@ -26,7 +32,7 @@ export default function Home() {
       <HomeNav navigate={navigate} page={feed} swapFeed={setFeed} />
       <ErrorBoundary
         fallback={
-          (err, reset) =>  <div class="flex flex-col justify-center text-center mt-5">
+          (err, reset) =>  <div class="flex flex-col justify-center text-center mt-5 gap-5">
             <h1 class="text-3xl">Something went wrong</h1>
             <p>
               {err.message}

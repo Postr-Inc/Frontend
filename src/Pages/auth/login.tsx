@@ -5,6 +5,7 @@ import { api } from "../..";
 import Page from "@/src/Utils/Shared/Page";
 import useNavigation from "@/src/Utils/Hooks/useNavigation";
 import logo from "@/src/assets/icon_transparent.png";
+import LandingPage from "@/src/assets/Landing Page.jpg"
 import { joinClass } from "@/src/Utils/Joinclass";
 import useTheme from "@/src/Utils/Hooks/useTheme";
 import useDevice from "@/src/Utils/Hooks/useDevice";
@@ -17,6 +18,8 @@ export default function Login() {
   const { theme } = useTheme();
   let { mobile } = useDevice();
   let [isTyping, setIsTyping] = createSignal(false);
+  let [email, setEmail] = createSignal("");
+  let [password, setPassword] = createSignal("");
    
   createEffect(() => { 
     api.getIP()
@@ -62,54 +65,56 @@ export default function Login() {
     window.addEventListener("click", handleClick);
   });
   return (
-    <>
+    <div  style={{"background-image": `url(${LandingPage})`, "background-size": "cover", "background-position": "center"}} class="w-full h-screen flex justify-center items-center">
        <div
+
+              
               class=" relative w-full p-2 xl:mt-5    justify-center flex flex-col gap-5 mx-auto xl:w-[30vw] lg:w-[50vw]">
-                <img src={logo} class="w-20 h-20 mx-auto black" />
+                <img src={logo} class="w-20 h-20 mx-auto  " />
               <div class=" mb-12 flex flex-col gap-5  w-full">
-                <p class=" mt-2  sm:mt-0  w-full text-3xl font-extrabold ">
+                <p class=" mt-2  sm:mt-0  w-full text-3xl text-white font-extrabold  theme:text-black">
                   Open Source Is Simply Better.
                 </p>
-                <p class="text-lg">
+                <p class="text-lg text-white">
                   Join the community building a safer, more secure social space.
                 </p>
               </div>
-              <label for="email">Email</label>
+              <label for="email" class="text-white">Email</label>
               <div class="relative w-full">
                 <input
                   name="email"
                   id="email"
                   autocomplete="email"
+                  onInput={() =>  setEmail((document.querySelector("#email") as HTMLInputElement)?.value)}
                   type="email"
                   class="input rounded input-bordered w-full"
                 ></input>
               </div>
-              <label for="password">Password</label>
+              <label for="password" class="text-white">Password</label>
 
               <input
                 name="password"
                 id="password"
                 autocomplete="password"
                 type="password"
+                onInput={() =>  setPassword((document.querySelector("#password") as HTMLInputElement)?.value)}
                 class="input rounded input-bordered w-full"
               ></input>
 
               <button
                 onClick={() => {
                   login(
-                    (document.querySelector("#email") as HTMLInputElement)
-                      ?.value as string,
-                    (document.querySelector("#password") as HTMLInputElement)
-                      ?.value as string
+                    email(),
+                    password()
                   );
                 }}
-                class="btn  text-white rounded hover:bg-rose-500  bg-rose-500 relative"
+                class="btn  text-white rounded border-none hover:bg-[#754aff] bg-rose-500 relative"
               >
                 {isLoading() ? "Loading..." : "Sign in"}
               </button>
 
               <p class="text-xs text-red-500">{error()}</p>
-              <p class="text-xs">
+              <p class="text-xs text-white">
                 Forgot your password?{" "}
                 <button
                   onClick={() => navigate("/auth/ForgotPassword", null)}
@@ -118,7 +123,7 @@ export default function Login() {
                   Reset it
                 </button>
               </p>
-              <div class="">
+              <div class="text-white">
                 <p class="text-xs">
                   Don't have an account?{" "}
                   <button
@@ -133,6 +138,6 @@ export default function Login() {
      <Portal>
         <RegisterModal />
      </Portal>
-    </>
+    </div>
   );
 }

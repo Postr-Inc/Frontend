@@ -32,7 +32,7 @@ async function handleFeed(
   console.log(otherOptions)
   return api.collection(type).list(page, 10, {
     expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
-    sort: otherOptions.sort.length > 0 ? otherOptions.sort : "-created",
+    sort: otherOptions.sort || "-created",
     cacheKey: `/u/${params().id}_${type}_${page}/${JSON.stringify(otherOptions)}`,
     filter: otherOptions.filter || `author.username="${params().id}"`,
   });
@@ -50,6 +50,7 @@ export default function User() {
   let [feedLoading, setFeedLoading] = createSignal(false);
   let [totalPages, setTotalPages] = createSignal(0); 
   createEffect(() => {
+    api.checkAuth()
     window.onbeforeunload = function () {
       window.scrollTo(0, 0);
     }
@@ -128,8 +129,7 @@ export default function User() {
             let pinned = data.items.filter((p: any) => p.pinned); 
             let notPinned = data.items.filter((p: any) => !p.pinned);
             data.items = [...pinned, ...notPinned]; 
-            setPosts(data.items);
-            
+            setPosts(data.items); 
           } 
         });
         break;
@@ -146,7 +146,7 @@ export default function User() {
       case "Likes":
         console.log(`likes.id ="${api.authStore.model.id} && author.username != "${params().id}"`)
         handleFeed("posts", params, currentPage(), user(), {
-          filter: `likes.id ="${user().id}" && author.username != "${params().id}"`, 
+          filter: `likes.id ="${user().id}"`, 
         }).then((data: any) => {
           if (data.opCode === HttpCodes.OK) {
             console.log(data)
@@ -155,11 +155,7 @@ export default function User() {
         });
         break;
       case "snippets":
-        handleFeed("snippets", params, currentPage(), user()).then((data: any) => {
-          if (data.opCode === HttpCodes.OK) {
-            setPosts(data.items); 
-          }
-        });
+         
         break;
     }
     setTimeout(() => {
@@ -247,8 +243,9 @@ export default function User() {
                 />
               </div>
 
-              <div class="flex flex-row gap-2">
+              <div class="flex flex-row gap-2"> 
                 <Search class="p-2 h-[2.2rem] bg-base-200 rounded-full bg-opacity-50 xl:hidden" />
+                   
                 <Ellipse class="p-2 h-[2.2rem] bg-base-200 rounded-full bg-opacity-50 xl:hidden" />
               </div>
             </div>
@@ -290,8 +287,8 @@ export default function User() {
                   <button
                     class={
                       theme === "dark"
-                        ? "bg-white text-black p-2 w-24 mr-2 text-sm"
-                        : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm"
+                        ? "bg-white text-black p-2 mt-2 w-24 mr-2 text-sm"
+                        : "bg-black text-white p-2 rounded-full  mt-2 w-24 mr-2 text-sm"
                     }
                     onclick={() => follow("follow")}
                   >

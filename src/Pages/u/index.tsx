@@ -24,13 +24,15 @@ async function handleFeed(
   params: any,
   page: number,
   user = api.authStore.model,
-  otherOptions = {
-    filter: "", 
+  otherOptions: {
+    filter?:  string, 
+    sort?: string,
   }
 ) {
+  console.log(otherOptions)
   return api.collection(type).list(page, 10, {
     expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
-    sort: "asc",
+    sort: otherOptions.sort.length > 0 ? otherOptions.sort : "-created",
     cacheKey: `/u/${params().id}_${type}_${page}/${JSON.stringify(otherOptions)}`,
     filter: otherOptions.filter || `author.username="${params().id}"`,
   });
@@ -41,12 +43,27 @@ export default function User() {
   const [user, setUser] = createSignal(null, { equals: false }) as any;
   const { theme } = useTheme();
   const [view, setView] = createSignal("posts") as any;
-  let [loading, setLoading] = createSignal(true);
-  let { feed,   posts, reset, setPosts } = useFeed("posts", { filter: `author.username="${params().id}"`, sort: 'asc' });
-  const [currentPage, setCurrentPage] = createSignal(1);
+  let [loading, setLoading] = createSignal(true); 
+  let [posts, setPosts] = createSignal([]);
+  const [currentPage, setCurrentPage] = createSignal(0);
   let [notFound, setNotFound] = createSignal(false);
   let [feedLoading, setFeedLoading] = createSignal(false);
+  let [totalPages, setTotalPages] = createSignal(0); 
   createEffect(() => {
+    window.onbeforeunload = function () {
+      window.scrollTo(0, 0);
+    }
+    // more on scroll
+    window.onscroll = function () {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        setCurrentPage(currentPage() + 1);
+        console.log("scrolling")
+      }
+    }
+
+    
+    
+
     api.collection("users")
       .list(1, 1, {
         filter: StringJoin("username", "=", `"${u.id}"`),
@@ -59,16 +76,16 @@ export default function User() {
           console.log("not found")
           setLoading(false);
           return;
-        }
+        } 
         if (data.opCode === HttpCodes.OK) {
           setUser(data.items[0]);
-          handleFeed("posts", params, currentPage(), data.items[0]).then((data: any) => {
-            if (data.opCode === HttpCodes.OK) {
-              // sort posts pinned
-              let pinned = data.items.filter((p: any) => p.pinned); 
-              let notPinned = data.items.filter((p: any) => !p.pinned);
-              data.items = [...pinned, ...notPinned]; 
-              setPosts(data.items);
+          handleFeed("posts", params, currentPage(), data.items[0], {
+            filter: `author.username="${params().id}"`, 
+            sort: '-pinned',
+          }).then((data: any) => {
+            if (data.opCode === HttpCodes.OK) { 
+              setPosts(data.items); 
+              setTotalPages(data.totalPages); 
               setLoading(false);
             }
           });
@@ -78,9 +95,25 @@ export default function User() {
 
 
     //@ts-ignore
-    setRelevantText("You might also like")
-    setCurrentPage(1);
+    setRelevantText("You might also like") 
+    setCurrentPage(1)
   }, [params().id]);
+
+  createEffect(() => {
+    console.log("current page", currentPage())
+    if (currentPage() > 1) { 
+      console.log("fetching more")
+      handleFeed(view(), params, currentPage(), user(), {
+        filter: `author.username="${params().id}"`, 
+        sort: '-pinned',
+      }).then((data: any) => {
+        if (data.opCode === HttpCodes.OK) {
+          setPosts([...posts(), ...data.items]);
+          setFeedLoading(false);
+        }
+      });
+    }
+  }, [currentPage()]);
 
 
 

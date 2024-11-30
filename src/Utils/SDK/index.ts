@@ -155,8 +155,8 @@ export default class SDK {
 
  
 
-  sendMsg = async (msg: any) => {
-    console.log(msg.payload)
+  sendMsg = async (msg: any) => { 
+    console.log(msg)
     let data = await fetch(`${this.serverURL}/collection/${msg.payload.collection}`, {
       method: "POST",
       headers: {
@@ -166,6 +166,12 @@ export default class SDK {
       body: JSON.stringify(msg),
     }) 
 
+     if(data.status !== 200) {
+      return {
+        opCode: data.status,
+        message: "An error occured",
+      };
+     }
     return data.json();
   };
 
@@ -179,6 +185,24 @@ export default class SDK {
       cleanup();
     });
     return id;
+  }
+
+  public deepSearch = async (collections: string[], query: string) => {
+    return new Promise(async (resolve, reject) => { 
+      let out = await this.sendMsg({
+        type: GeneralTypes.DEEP_SEARCH,
+        payload: {
+          collections,
+          query,
+        },
+        security: {
+          token: this.authStore.model.token,
+        },
+        callback: "",
+      });
+      if(out.opCode !== HttpCodes.OK) return reject(out);
+      resolve(out.payload);
+    });
   }
 
   /**
@@ -218,7 +242,7 @@ export default class SDK {
               token: this.authStore.model.token,
             },
             callback: cb,
-          });
+          }); 
         })
       },
       /**
@@ -262,8 +286,9 @@ export default class SDK {
               token: this.authStore.model.token,
             },
             callback: "",
-          }) as any;
-          shouldCache && set(cacheKey, out.payload,  new Date().getTime() + 3600); // cache for 1 hour
+          }) as any;  
+          if(out.opCode !== HttpCodes.OK) return reject(out);
+          shouldCache && set(cacheKey, out.payload,  new Date().getTime() + 3600); // cache for 1 hour\ 
           resolve({
             opCode:  out.opCode,
             items: out.payload,

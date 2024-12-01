@@ -2,6 +2,9 @@
 module.exports = {
   darkMode: ["class", '[data-kb-theme="dark"]'],
   content: ["./src/**/*.{ts,tsx}"],
+  daisyui: {
+    themes: ["light", "dark", "cupcake", "black"],
+  },
   theme: {
     container: {
       center: true,
@@ -10,7 +13,7 @@ module.exports = {
         "2xl": "1400px",
         'xsm':  {'min': '600px'},
         'sm':  {'max': '767px'},
-        'xl':  {'min': '1280px'}, 
+        'xl':  {'min': '1920px'}, 
       },
     },
     extend: {

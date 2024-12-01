@@ -1,34 +1,35 @@
-## Usage
+<p align="center"><img src="https://v6-0.pages.dev/icons/icon-blue.jpg"/></p>
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+<p>Postr - building a space safe for all ( open source is simply better. )</p>
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+# Setup
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+1. Fork Repo
+2. run `npm install` & `npm run dev`
+3. take off 🚀
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+# Feature List
 
-## Available Scripts
+## Upcoming   
+- [ ] Polls
+- [ ] Ability to mute & block creators
+- [ ] Notifications
+- [ ] Search
+- [ ] Improve the use of collections
+- [ ] Selective updates
+- [ ] Private Creator Dashboards & analytics
+- [ ] Embedding outside content from different platforms
+- [ ] Developer Dashboards 
+- [ ] Messaging 
 
-In the project directory, you can run:
 
-### `npm run dev` or `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+## Features that are finished
+- [x] Reposting & Replies
+- [x] Create content with images
+- [x] View user profiles
+- [x] Embedding content within other applications
+- [x] Fast navigation
+- [x] Relevant who to follow side view
+- [x] Badges - showcasing who is subscriber and who is verified 
+- [x] Rolling our own authentication  
+- [x] Client Side Cache

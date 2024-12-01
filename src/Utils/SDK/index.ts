@@ -155,9 +155,9 @@ export default class SDK {
 
  
 
-  sendMsg = async (msg: any) => { 
+  sendMsg = async (msg: any, type: any) => { 
     console.log(msg)
-    let data = await fetch(`${this.serverURL}/collection/${msg.payload.collection}`, {
+    let data = await fetch(type === "search" ? `${this.serverURL}/deepsearch` : `${this.serverURL}/collection/${msg.payload.collection}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -199,8 +199,8 @@ export default class SDK {
           token: this.authStore.model.token,
         },
         callback: "",
-      });
-      if(out.opCode !== HttpCodes.OK) return reject(out);
+      }, "search") as any;
+      if(out.opCode !== HttpCodes.OK) return reject(out); 
       resolve(out.payload);
     });
   }

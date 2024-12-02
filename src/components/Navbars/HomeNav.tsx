@@ -29,7 +29,7 @@ export default function HomeNav({
   return (
     <div
       class={joinClass(
-        " flex flex-col sticky top-0  sm:p-0  md:p-5 z-[9999]",
+        " flex flex-col sticky top-0  sm:p-0  md:p-4 z-[9999]",
         theme() === "dark"
           ? "bg-black z-[99999] text-white  border-[#121212] border border-l-0 border-r-0 border-b-none "
           : "bg-white  border    border-[#f3f3f3]   bg-white ",
@@ -37,7 +37,7 @@ export default function HomeNav({
         mobile() && scrollingDirection() === "up" ? "slide-up-active slide-up  " :  mobile()  ? "slide-up" : ""
       )}
     >  
-      <div class="flex xl:p-3 w-full sm:p-3  z-[9999999] justify-between ">
+      <div class="flex   w-full sm:p-3  z-[9999999] justify-between ">
                 <div class="flex gap-2 hero">
                   <div class="flex flex-col   w-full">
                     <div class="flex  justify-between gap-2 w-full">
@@ -137,8 +137,8 @@ export default function HomeNav({
                   </div>
                 </div>
               </div>
-      <div class={joinClass("  sm:p-3 xl:p-2    text-sm   xl:mt-0  justify-between flex  ", )}>
-        <div class="flex flex-col">
+      <div class={joinClass("  sm:p-3  mt-3  text-sm     justify-between flex  ", )}>
+        <div class="flex flex-col rounded">
           <p
             class={joinClass("cursor-pointer", page() !== "recommended" ? "text-gray-500" : "")}
             onClick={() => {
@@ -148,7 +148,7 @@ export default function HomeNav({
             Recommended
           </p>
           {page() === "recommended" ? (
-            <div class="rounded-md   h-1 bg-blue-500"></div>
+            <div class="rounded-md   h-[2px] bg-blue-500"></div>
           ) : (
             ""
           )}
@@ -163,7 +163,7 @@ export default function HomeNav({
             Following
           </p>
           {page() === "following" ? (
-            <div class=" rounded-md   h-1 bg-blue-500"></div>
+            <div class=" rounded-md    h-[2px] bg-blue-500"></div>
           ) : (
             ""
           )}
@@ -178,7 +178,7 @@ export default function HomeNav({
             Trending
           </p>
           {page() === "trending" ? (
-            <div class=" rounded-md   h-1 bg-blue-500"></div>
+            <div class=" rounded-md   h-[2px] bg-blue-500"></div>
           ) : (
             ""
           )}

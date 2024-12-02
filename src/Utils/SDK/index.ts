@@ -116,6 +116,7 @@ export default class SDK {
           reject("Invalid email or password")
           return;
         }
+        let ip = await this.getIP();
         const response = await fetch(`${this.serverURL}/auth/login`, {
           method: "POST",
           headers: {
@@ -124,7 +125,7 @@ export default class SDK {
           body: JSON.stringify({
             emailOrUsername,
             password,
-            ipAddress: this.ip,
+            ipAddress:  ip,
             deviceInfo: navigator.userAgent,
           }),
         }); 
@@ -141,7 +142,8 @@ export default class SDK {
     try {
       const response = await fetch("https://api.ipify.org?format=json");
       const data = await response.json();
-      this.ip = data.ip;
+      this.ip = data.ip; 
+      return data.ip;
     } catch (error) {
       console.error(error);
     }

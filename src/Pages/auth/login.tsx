@@ -44,13 +44,10 @@ export default function Login() {
       setIsTyping(false);
     }
 
-    function handleKeydown(e: KeyboardEvent) {
+   async  function handleKeydown(e: KeyboardEvent) {
       if(e.key === "Enter") {
         setIsTyping(false);
-        login(
-          (document.querySelector("#email") as HTMLInputElement)?.value as string,
-          (document.querySelector("#password") as HTMLInputElement)?.value as string
-        );
+        await login( email(), password());
         
       }
       startTyping();

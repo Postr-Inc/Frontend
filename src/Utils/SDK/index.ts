@@ -326,28 +326,25 @@ export default class SDK {
                 switch(name){
                   case "posts":
                     for(let cache of cacheData){ 
-                        if(cache.url.includes(`${this.serverURL}/api/collections/${name}`)){
-                            // now grab the data
-                            const cacheDataJSON = await (await caches.open(key)).match(cache).then((res)=> res?.json());
-                            console.log(cacheDataJSON)
-                            if(Array.isArray(cacheDataJSON.value.payload)){
-                                const payload = cacheDataJSON.value.payload;
-                                const post = payload.find((e: any)=> e.id === id);
-                                if(post){
-                                    const index = payload.indexOf(post);
-                                    payload[index] = {...post, ...data}
-                                    cacheDataJSON.payload = payload;
-                                }
-                                set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
-                            }else{
-                                const post = cacheDataJSON.value.payload;
-                                if(post.id === id){
-                                    cacheDataJSON.value.payload = {...post, ...data}
-                                    set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
-                                }
-                            }
-                           
-                        }
+                      const cacheDataJSON = await (await caches.open(key)).match(cache).then((res)=> res?.json());
+                      
+                      if(Array.isArray(cacheDataJSON.value)){
+                          const payload = cacheDataJSON.value 
+                          const post = payload.find((e: any)=> e.id === id); 
+                          if(post){
+                              const index = payload.indexOf(post); 
+                              payload[index] = {...post, ...data}
+                              cacheDataJSON.value.payload = payload;
+                              set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+                          } 
+                      }else{
+                          const post = cacheDataJSON.value 
+                          console.log(id, post)
+                          if(post.id === id){
+                              cacheDataJSON.value.payload = {...post, ...data}
+                          }
+                          set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+                      }
                     }
                     
                     break;

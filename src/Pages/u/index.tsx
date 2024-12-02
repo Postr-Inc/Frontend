@@ -219,7 +219,7 @@ export default function User() {
           </div>
         </Match>
         <Match when={loading()}>
-          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
+          <div class={joinClass("flex flex-col items-center justify-center h-screen   z-[99999]  ", theme() == "dark" ? "bg-transparent" : "bg-white")}>
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>
@@ -299,8 +299,11 @@ export default function User() {
               <Show when={user() && user().id === api.authStore.model.id}>
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
+                  style={{
+                    "border-radius":"5rem"
+                  }}
                   class={
-                    joinClass(theme === "dark"
+                    joinClass(theme() === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
                       : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3")
                   }

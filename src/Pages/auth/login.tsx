@@ -21,8 +21,7 @@ export default function Login() {
   let [email, setEmail] = createSignal("");
   let [password, setPassword] = createSignal("");
    
-  createEffect(() => { 
-    api.getIP()
+  createEffect(() => {  
     if (isAuthenticated()) {
       navigate("/", null);
     } else if (error()) {

@@ -8,6 +8,8 @@ export default function useAuth() {
   const [error, setError] = createSignal("");
 
   const login = async (email: string, password: string) => {
+    alert("Logging in", email, password);
+    console.log("Logging in", email, password);
     try {
       setIsLoading(true);
       await api.authStore.login(email, password);

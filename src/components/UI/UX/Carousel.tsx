@@ -56,9 +56,11 @@ export function CarouselItem(props: any) {
   });
 
   function handleDelete() {  
-    removeItem(props.id); 
+    removeItem(props.id);  
     document.getElementById(props.id).remove();
-    props.onDelete();
+    if(props.hasOwnProperty('onDelete')) {
+      props.onDelete();
+    }
   }
   
 

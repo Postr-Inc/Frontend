@@ -5,4 +5,5 @@ export enum GeneralTypes {
     GET = 'get',
     DELETE = 'delete',
     SUBSCRIBE = 'subscribe',
+    DEEP_SEARCH = 'deep_search',
 }

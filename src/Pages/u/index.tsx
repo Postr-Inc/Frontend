@@ -436,7 +436,12 @@ export default function User() {
                               expand={copiedObj.expand}
                               route={route}
                               files={copiedObj.files}
+                              isPoll={copiedObj.isPoll}
+                              pollOptions={copiedObj.pollOptions}
                               isRepost={copiedObj.isRepost}
+                              pollVotes={copiedObj.pollVotes}
+                              pollEnds={copiedObj.pollEnds}
+                              whoVoted={copiedObj.whoVoted || []}
                               params={params}
                             />{" "}
                           </div>

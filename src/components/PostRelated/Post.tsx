@@ -341,20 +341,21 @@ async function updatePoll() {
       <Show when={props.isPoll && hasVoted()}> 
         <For each={props.pollOptions}>
           {(item) => (
-            <CardContent class="p-1 cursor-pointer">
-              <div class="flex gap-2"> 
+            <CardContent class="p-1 items-center cursor-pointer flex  gap-12 justify-between w-full">
+              <div class="flex gap-2 w-full"> 
                 <div class={joinClass("flex items-center gap-2")}
-                  style={{ width: `${calculateVotePercentage(parseInt(item.votes), totalVotes())}%`, "background-color": "skyblue", padding: "0.5rem", "border-radius": "0.5rem" }}
+                  style={{ width: `${calculateVotePercentage(parseInt(item.votes), totalVotes())}%`, "background-color": "skyblue", padding: "0.5rem", "border-radius": "0.2rem" }}
                 >
                   <p>{item.content}</p>
-                  <p>{calculateVotePercentage(parseInt(item.votes),  totalVotes())}%</p>
+                  
                 </div>
               </div>
+              <p class="font-bold">{calculateVotePercentage(parseInt(item.votes),  totalVotes())}%</p>
             </CardContent>
           )}
         </For>
-        <div class="flex gap-2">
-           votes {totalVotes()} - {calculatePollEnds(props.pollEnds)} left
+        <div class="flex gap-2 text-sm mt-2 text-gray-500">
+           votes {totalVotes()} • {calculatePollEnds(props.pollEnds)} left
         </div>
       </Show>
       <Show when={props.files && props.files.length > 0}>

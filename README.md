@@ -11,8 +11,7 @@
 
 # Feature List
 
-## Upcoming   
-- [ ] Polls
+## Upcoming    
 - [ ] Ability to mute & block creators
 - [ ] Notifications
 - [ ] Search
@@ -25,7 +24,8 @@
 
 
 ## Features that are finished
-- [x] Reposting & Replies
+- [x] Reposting & Replies 
+- [x] Polls
 - [x] Create content with images
 - [x] View user profiles
 - [x] Embedding content within other applications

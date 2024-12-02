@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js";
+import { createSignal, For, createEffect } from "solid-js";
 import useTheme from "../../Utils/Hooks/useTheme";
 import { api } from "@/src";
 import { joinClass } from "@/src/Utils/Joinclass";
@@ -26,7 +26,7 @@ export default function CreatePostModal() {
   const { theme } = useTheme();
   let [params, setParams] = createSignal<any>(null);
   let [isPosting, setIsPosting] = createSignal(false);
-  let [files, setFiles] = createSignal<any>([]);
+  let [files, setFiles] = createSignal<any>([], { equals: false });
   let [postData, setPostData] = createSignal<any>({
     content: "",
     links: [],
@@ -63,10 +63,9 @@ export default function CreatePostModal() {
       });
       filesData = await Promise.all(filesData);
       data.files = filesData;
-    }
-    console.log("Data", data);
+    } 
      try {
-      let res = await api.collection("posts").create(data) as any;
+      let res = await api.collection(window.hasOwnProperty("modal") ? window?.modal : "posts").create(data);
       setPostData({
         content: "",
         links: [],
@@ -94,6 +93,15 @@ export default function CreatePostModal() {
   window.setParams = (params: any) => {
     setParams(params);
   };
+
+  //@ts-ignore
+  window.repost = (post: any) => {
+    setPostData({ ...postData(), isRepost: true, repost: post , hidden: ["repostButton"]});
+  }
+
+  createEffect(() => {
+    console.log(files())
+  }, [files()]);
   return (
     <dialog id="createPostModal" class="modal z-[-1]">
       <div class="modal-box scroll p-2 z-[-1] h-fit">
@@ -116,6 +124,7 @@ export default function CreatePostModal() {
             class="w-10 h-10 rounded"
             alt="logo"
           />
+          <div class="flex flex-col gap-2 w-full">
           <textarea
             maxLength={200}
             class={joinClass(
@@ -131,6 +140,7 @@ export default function CreatePostModal() {
           <Show when={postData().isRepost}>
             <Post {...postData().repost} />
           </Show>
+          </div>
         </div>
         <Show when={files().length > 0}>
           <Carousel>
@@ -138,8 +148,11 @@ export default function CreatePostModal() {
               {(file: File) => (
                 <Carousel.Item
                   showDelete={true}
-                  onDeleted={() =>
-                    setFiles(files().filter((f: any) => f !== file))
+                  id={file.name}
+                  onDeleted={() => {
+                    setFiles(files().filter((f: any) => f.name !== file.name));
+                  }
+                    
                   }
                 >
                   <img
@@ -301,9 +314,7 @@ export default function CreatePostModal() {
             type="file"
             hidden
             id="files"
-            onChange={(file: any) =>
-              setFiles([...files(), ...file.target.files])
-            }
+            onInput={(file: any) => setFiles(Array.from(file.target.files))}
             multiple
             accept="image/*"
           />

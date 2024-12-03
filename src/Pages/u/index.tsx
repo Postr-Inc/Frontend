@@ -209,7 +209,17 @@ export default function User() {
     "Oct",
     "Nov",
     "Dec",
-  ];
+  ]; 
+  createEffect(() => {
+    if(user() && !api.subscriptions.has("users" + user().id)) {
+      console.log("subscribing")
+      api.collection("users").subscribe(user().id, {
+        cb: (data: any) => { 
+          setUser(data)
+        },
+      })
+    }
+  }, [user()]);
   return (
     <Page {...{ params, route, navigate, id: "user" }}>
       <Switch>
@@ -219,7 +229,7 @@ export default function User() {
           </div>
         </Match>
         <Match when={loading()}>
-          <div class={joinClass("flex flex-col items-center justify-center h-screen   z-[99999]  ", theme() == "dark" ? "bg-transparent" : "bg-white")}>
+          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>
@@ -232,7 +242,7 @@ export default function User() {
                 "background-size": "cover",
                 "background-image":
                   user() && user().banner
-                    ? `url(${api.cdn.getUrl("users", user().id, user().banner)})`
+                    ? `url(${ user().banner.includes("blob") ? user().banner : api.cdn.getUrl("users", user().id, user().banner)})`
                     : "linear-gradient(90deg, #ff5858 0%, #f09819 49%, #ff5858 100%)",
               }}
             >
@@ -254,7 +264,7 @@ export default function User() {
               <Switch>
                 <Match when={user() && user().avatar}>
                   <img
-                    src={api.cdn.getUrl("users", user().id, user().avatar)}
+                    src={user().avatar.includes("blob") ? user().avatar : api.cdn.getUrl("users", user().id, user().avatar)}
                     class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
                   />
                 </Match>
@@ -299,11 +309,8 @@ export default function User() {
               <Show when={user() && user().id === api.authStore.model.id}>
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
-                  style={{
-                    "border-radius":"5rem"
-                  }}
                   class={
-                    joinClass(theme() === "dark"
+                    joinClass(theme === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
                       : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3")
                   }
@@ -459,7 +466,7 @@ export default function User() {
         </Match>
       </Switch>
       <Portal>
-        <EditProfileModal />
+        <EditProfileModal  updateUser={(data: any) => { setUser({ ...user(), ...data }) }} />
       </Portal>
     </Page>
   );

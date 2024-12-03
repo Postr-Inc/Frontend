@@ -228,7 +228,7 @@ export default function User() {
           </div>
         </Match>
         <Match when={loading()}>
-          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
+          <div class={joinClass("flex flex-col items-center justify-center h-screen  z-[99999]  ", theme() === "dark" ? "bg-white" : "bg-black")}>
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>

@@ -228,7 +228,7 @@ export default function User() {
           </div>
         </Match>
         <Match when={loading()}>
-          <div class={joinClass("flex flex-col items-center justify-center h-screen  z-[99999]  ", theme() === "dark" ? "bg-white" : "bg-black")}>
+          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>
@@ -264,7 +264,7 @@ export default function User() {
                 <Match when={user() && user().avatar}>
                   <img
                     src={user().avatar.includes("blob") ? user().avatar : api.cdn.getUrl("users", user().id, user().avatar)}
-                    class={joinClass("rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover", theme() == "dark" ? "bg-black" : "bg-white" )}
+                    class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
                   />
                 </Match>
                 <Match when={!user() || !user().avatar}>
@@ -283,8 +283,8 @@ export default function User() {
                   }}
                     class={
                       theme() === "dark"
-                        ? "bg-white text-black p-2 w-24 mr-2 mt-2 text-sm"
-                        : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm"
+                        ? "bg-black text-black p-2 w-24 mr-2 mt-2 text-sm"
+                        : "bg-white text-white p-2 rounded-full w-24 mr-2 text-sm"
                     }
                     onclick={() => follow("unfollow")}
                   >
@@ -315,9 +315,6 @@ export default function User() {
               <Show when={user() && user().id === api.authStore.model.id}>
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
-                  style={{
-                    "border-radius":"9999px"
-                  }}
                   class={
                     joinClass(theme() === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"

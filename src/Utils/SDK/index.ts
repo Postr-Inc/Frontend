@@ -31,7 +31,12 @@ export default class SDK {
       useCache().clear();
     }
 
-    // check if
+    // check if logged in and check if ws is closed periodically
+    setInterval(() => {
+      if(this.ws === null || this.ws.readyState === WebSocket.CLOSED && localStorage.getItem("postr_auth")){
+        this.wsReconnect();
+      }
+    }, 0) // check every 5 minutes
   }
 
   on = (type: "authChange" | string, cb: (data: any) => void) => {
@@ -39,6 +44,68 @@ export default class SDK {
       cb(event);
     });
   };
+
+    wsReconnect = () => {
+      this.ws = new WebSocket(`${this.serverURL}/subscriptions`);
+      this.ws.onmessage = (event) => {
+        this.handleMessages(event.data);
+      };
+    }
+
+  updateCache = async (collection: string, id: string, data: any) => {
+    const { set, get, remove, clear } = useCache();
+    const keys = await caches.keys(); 
+    for(let key of keys){
+        const cacheData = await (await caches.open(key)).keys(); 
+        switch(collection){
+          case "posts":
+            for(let cache of cacheData){ 
+              const cacheDataJSON = await (await caches.open(key)).match(cache).then((res)=> res?.json());
+              
+              if(Array.isArray(cacheDataJSON.value)){
+                  const payload = cacheDataJSON.value 
+                  const post = payload.find((e: any)=> e.id === id); 
+                  if(post){
+                      const index = payload.indexOf(post); 
+                      payload[index] = {...post, ...data}
+                      cacheDataJSON.value.payload = payload;
+                      set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+                  } 
+              }else{
+                  const post = cacheDataJSON.value 
+                  console.log(id, post)
+                  if(post.id === id){
+                      cacheDataJSON.value.payload = {...post, ...data}
+                  }
+                  set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+              }
+            }
+            
+            break;
+          case "users":
+            for(let cache of cacheData){ 
+             // find user by id
+              if(cache.url.includes(id)){
+                  // now grab the data
+                  var cacheDataJSON = await (await caches.open(key)).match(cache).then((res)=> res?.json()); 
+                  if(Array.isArray(cacheDataJSON.value)){
+                    cacheDataJSON.value = cacheDataJSON.value.map((e: any)=> e.id === id ? {...e, ...data} : e)
+                  }else{
+                    // if update data is a buffer convert to base64
+                    if(data.avatar){
+                      data.avatar = Buffer.from(data.avatar).toString('base64');
+                    }else if(data.banner){
+                      data.banner = Buffer.from(data.banner).toString('base64');
+                    }
+                    cacheDataJSON.value = {...cacheDataJSON.value, ...data}
+                  }
+                  set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
+              }
+          }
+        }
+        
+    }
+  }
 
   checkAuth = async () => { 
      

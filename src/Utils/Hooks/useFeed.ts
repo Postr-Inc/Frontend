@@ -63,28 +63,28 @@ export default function useFeed(collection: string, options?: { _for?: string, f
     });
     console.log(feed())
     // HANDLE SCROLLING
-    async function handleScroll() {
-      // Check if the user has scrolled to the bottom of the page
-      if (
-        window.innerHeight + document.documentElement.scrollTop !==
-        document.documentElement.offsetHeight
-      ) {
-        return;
-      }
-    
+    async function handleScroll() { 
       // Prevent fetching if already loading or refreshing
       if (loading() || refresh()) {
         return;
       }
     
+      // Check if the user is not at the bottom of the page
+      if (window.innerHeight + window.scrollY  < document.body.offsetHeight) {
+        return
+      } 
+ 
+    
+       
       // Check if there are more pages to fetch
       if (hasMore()) {
+        console.log("fetching more"); 
         setLoading(true); // Set loading to true before fetching
         try {
           const currentPageValue = currentPage() + 1;
           setCurrentPage(currentPageValue);
           console.log("fetching page " + currentPageValue);
-          const data = await list(collection, currentPage, feed, options) as any;
+          const data = await list(collection, currentPage, feed, options) as any; 
           setPosts([...posts(), ...data?.items]);
     
           // Update hasMore if there are no more pages to load
@@ -116,6 +116,17 @@ export default function useFeed(collection: string, options?: { _for?: string, f
   list(collection, currentPage, feed, options)
     .then((data: any) => { 
       setPosts([...posts(), ...data.items]);
+      // for each post subscribe to the post 
+      for (let i = 0; i < data?.items.length; i++) {
+         api.collection("posts").subscribe(data.items[i].id, {
+          cb(data) { 
+            let index = posts().findIndex((i) => i.id === data.id);
+            let newPosts = [...posts()];
+            newPosts[index] = data;
+            setPosts(newPosts);
+          },
+         });
+      }
       setLoading(false);
       let relevantPeople: any[] = []
       for (let i = 0; i < data?.items.length; i++) {  
@@ -133,6 +144,7 @@ export default function useFeed(collection: string, options?: { _for?: string, f
       } 
       //@ts-ignore
       window.setRelevantPeople && setRelevantPeople(relevantPeople);
+      console.log(data, currentPage())
       if (data?.totalPages <= currentPage()) {
         setHasMore(false);
       }

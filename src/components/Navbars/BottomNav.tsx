@@ -16,11 +16,18 @@ export default function BottomNav() {
     <div
       class={joinClass(
         "fixed bottom-0  z-[999999] w-full", 
-        "xl:hidden lg:hidden 2xl:hidden"
+        "xl:hidden lg:hidden 2xl:hidden",
       )}
     >
-        <div class={joinClass("btn btn-circle btn-xl bg-blue-500 fixed bottom-24 right-3", scrollingDirection() == "down" && "bg-opacity-50")}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="fill-white stroke-white size-6" onClick={() => document.getElementById("createPostModal")?.showModal()}>
+        <div class={joinClass("btn btn-circle btn-xl bg-blue-500 fixed bottom-24 right-3", scrollingDirection() == "down" && "bg-opacity-50",
+        theme() == "dark" ? "bg-black" : "bg-white"
+        )}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="fill-white stroke-white size-6" onClick={() =>{
+            //@ts-ignore   
+           document.getElementById("createPostModal")?.showModal()
+           //@ts-ignore   
+           window.modal = "comments" 
+        }}>
   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 </svg>
 

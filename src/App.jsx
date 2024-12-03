@@ -11,6 +11,17 @@ function App() {
   const { route, params, goBack, goForward, navigate } = useNavigation();
   createEffect(() => {
     api.checkAuth();
+    addEventListener('beforeunload', (event) => { 
+
+      event.preventDefault();  
+     
+      caches.keys().then(function(names) {
+        for (let name of names) caches.delete(name);
+      });  
+    
+      return event.returnValue = '';  
+    
+    });
   });
   api.on('change', () => {
      if(!api.authStore.isValid()) navigate('/auth/login');

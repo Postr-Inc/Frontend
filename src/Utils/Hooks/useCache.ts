@@ -33,7 +33,12 @@ export default function useCache() {
     }
 
     const clear = async () => {
-        await caches.delete(cacheName);
+        const cache = await caches.open(cacheName);
+        await cache.keys().then(keys => {
+            keys.forEach(key => {
+                cache.delete(key);
+            });
+        });
     }
 
     // clear expired items periodically

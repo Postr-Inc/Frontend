@@ -28,8 +28,7 @@ async function handleFeed(
     filter?:  string, 
     sort?: string,
   }
-) {
-  console.log(otherOptions)
+) { 
   return api.collection(type).list(page, 10, {
     expand: ["author", "likes", "comments", "repost", "repost.author", "author.followers"],
     sort: otherOptions.sort || "-created",
@@ -211,8 +210,7 @@ export default function User() {
     "Dec",
   ]; 
   createEffect(() => {
-    if(user() && !api.subscriptions.has("users" + user().id)) {
-      console.log("subscribing")
+    if(user() && !api.subscriptions.has("users" + user().id)) { 
       api.collection("users").subscribe(user().id, {
         cb: (data: any) => { 
           setUser(data)
@@ -280,6 +278,9 @@ export default function User() {
                   when={user() && user().id != api.authStore.model.id && user().followers.includes(api.authStore.model.id)}
                 >
                   <button
+                  style={{
+                    "border-radius":"9999px"
+                  }}
                     class={
                       theme() === "dark"
                         ? "bg-white text-black p-2 w-24 mr-2 mt-2 text-sm"
@@ -296,6 +297,10 @@ export default function User() {
                   }
                 >
                   <button
+                  
+                  style={{
+                    "border-radius":"9999px"
+                  }}
                     class={
                       theme() === "dark"
                         ? "bg-white text-black p-2 mt-2 w-24 mr-2 text-sm"
@@ -311,7 +316,7 @@ export default function User() {
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
                   class={
-                    joinClass(theme === "dark"
+                    joinClass(theme() === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
                       : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3")
                   }

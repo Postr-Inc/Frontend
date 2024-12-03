@@ -315,6 +315,9 @@ export default function User() {
               <Show when={user() && user().id === api.authStore.model.id}>
                 <button
                   onClick={() => document.getElementById("editProfileModal").showModal()}
+                  style={{
+                    "border-radius":"9999px"
+                  }}
                   class={
                     joinClass(theme() === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"

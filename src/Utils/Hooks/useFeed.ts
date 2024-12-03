@@ -120,10 +120,7 @@ export default function useFeed(collection: string, options?: { _for?: string, f
       for (let i = 0; i < data?.items.length; i++) {
          api.collection("posts").subscribe(data.items[i].id, {
           cb(data) { 
-            let index = posts().findIndex((i) => i.id === data.id);
-            let newPosts = [...posts()];
-            newPosts[index] = data;
-            setPosts(newPosts);
+            
           },
          });
       }

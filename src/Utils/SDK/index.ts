@@ -13,11 +13,13 @@ export default class SDK {
   ws: WebSocket | null = null;
   statisticalData: any[];
   callbacks: Map<string, (data: any) => void>;
+  subscriptions: Map<string, (data: any) => void>;
   constructor(data: { serverURL: string }) {
     this.serverURL = data.serverURL;
     this.ip = sessionStorage.getItem("ip") as string;
     this.callbacks = new Map();
     this.changeEvent = new CustomEvent("authChange");
+    this.subscriptions = new Map();
     /**
      * @description data metrics used to track user activity - this is stored locally
      */
@@ -25,6 +27,7 @@ export default class SDK {
    
     window.onbeforeunload = () => {
       localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
+      this.ws?.send(JSON.stringify({ type: "disconnect", payload: { ip: this.ip } }));
       useCache().clear();
     }
 
@@ -42,7 +45,7 @@ export default class SDK {
     if(localStorage.getItem("postr_auth") && !this.hasChecked){
       let res = await fetch(`${this.serverURL}/auth/verify`, {
         headers: {
-          Authorization: this.authStore.model.token,
+          Authorization:  JSON.parse(localStorage.getItem("postr_auth") || "{}").token,
         },
       });
       this.hasChecked = true;
@@ -52,16 +55,27 @@ export default class SDK {
         window.location.href = "/auth/login"
         return;
       }
+      if(this.ws === null) this.connectToWS();
     } 
       
     
   };
 
-  handleMessages = (data: any) => {
-    let _data = JSON.parse(data); 
-    let cb = this.callbacks.get(_data.callback);
+  waitUntilSocketIsOpen = (cb: () => void) => {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      cb();
+    } else {
+      setTimeout(() => {
+        this.waitUntilSocketIsOpen(cb);
+      }, 100);
+    }
+  }
+
+  handleMessages = (data: any) => { 
+    let _data = JSON.parse(data);  
+    let cb = this.subscriptions.get(_data.callback); 
     if (cb) {
-      cb(_data);
+      cb(_data.payload);
     }
   };
 
@@ -115,8 +129,7 @@ export default class SDK {
         if(emailOrUsername === "" || password === "" || !emailOrUsername || !password || emailOrUsername.length < 3 || password.length < 3) {
           reject("Invalid email or password")
           return;
-        }
-        let ip = await this.getIP();
+        } 
         const response = await fetch(`${this.serverURL}/auth/login`, {
           method: "POST",
           headers: {
@@ -124,14 +137,14 @@ export default class SDK {
           },
           body: JSON.stringify({
             emailOrUsername,
-            password,
-            ipAddress:  ip,
+            password, 
             deviceInfo: navigator.userAgent,
           }),
         }); 
         const { data, status, message } = await response.json();
         if (status !== 200)  return reject(message);
         this.authStore.model = data;
+        this.connectToWS();
         localStorage.setItem("postr_auth", JSON.stringify(data)); 
         return resolve(data);
         
@@ -149,33 +162,53 @@ export default class SDK {
     }
   }
 
+  connectToWS = () => {
+    this.ws = new WebSocket(`${this.serverURL}/subscriptions`);
+    this.ws.onmessage = (event) => {
+      this.handleMessages(event.data);
+    };
+  }
+
   cdn = {
     getUrl: (collection: string, id: string, file: string) => {
       return this.serverURL + `/api/files/${collection}/${id}/${file}`;
-    },
+    } 
   };
 
  
 
-  sendMsg = async (msg: any, type: any) => { 
-    console.log(msg)
-    let data = await fetch(type === "search" ? `${this.serverURL}/deepsearch` : `${this.serverURL}/collection/${msg.payload.collection}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: this.authStore.model.token,
-      },
-      body: JSON.stringify(msg),
-    }) 
-
-     if(data.status !== 200) {
+  sendMsg = async (msg: any, type: any) => {
+    console.log(msg);
+  
+    let body;
+    let headers;
+  
+    body = JSON.stringify(msg);
+    headers = {
+      "Content-Type": "application/json",
+      Authorization: this.authStore.model.token,
+    };
+    const data = await fetch(
+      type === "search"
+        ? `${this.serverURL}/deepsearch`
+        : `${this.serverURL}/collection/${msg.payload.collection}`,
+      {
+        method: "POST",
+        headers,
+        body,
+      }
+    );
+  
+    if (data.status !== 200) {
       return {
         opCode: data.status,
-        message: "An error occured",
+        message: "An error occurred",
       };
-     }
+    }
+  
     return data.json();
   };
+  
 
   callback(cb: (data: any) => void) {
     const id = Math.random().toString(36).substring(7);
@@ -229,22 +262,14 @@ export default class SDK {
        */
       subscribe: async (id: "*" | string, options: { cb: (data: any) => void }) => {
         return new Promise(async (resolve, reject) => {
-          let cb = this.callback((data) => {
-            if (data.opCode !== HttpCodes.OK) return reject(data);
-            options.cb(data.payload);
-          });
-          this.sendMsg({
-            type: GeneralTypes.SUBSCRIBE,
-            payload: {
-              collection: name,
-              id,
-              options,
-            },
-            security: {
-              token: this.authStore.model.token,
-            },
-            callback: cb,
-          }); 
+           if(!this.subscriptions.has(`${name}:${id}`)){ 
+              this.subscriptions.set(`${name}:${id}`, options.cb); 
+              this.waitUntilSocketIsOpen(() => {
+                this.ws?.send(JSON.stringify({ payload: { collection: name, id, callback: `${name}:${id}` }, security: { token: this.authStore.model.token } }));
+              });
+           }else{
+              reject("Already subscribed to this collection");
+           }
         })
       },
       /**
@@ -358,6 +383,12 @@ export default class SDK {
                           if(Array.isArray(cacheDataJSON.value)){
                             cacheDataJSON.value = cacheDataJSON.value.map((e: any)=> e.id === id ? {...e, ...data} : e)
                           }else{
+                            // if update data is a buffer convert to base64
+                            if(data.avatar){
+                              data.avatar = Buffer.from(data.avatar).toString('base64');
+                            }else if(data.banner){
+                              data.banner = Buffer.from(data.banner).toString('base64');
+                            }
                             cacheDataJSON.value = {...cacheDataJSON.value, ...data}
                           }
                           set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);

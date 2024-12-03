@@ -264,7 +264,7 @@ export default function User() {
                 <Match when={user() && user().avatar}>
                   <img
                     src={user().avatar.includes("blob") ? user().avatar : api.cdn.getUrl("users", user().id, user().avatar)}
-                    class="rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover"
+                    class={joinClass("rounded-full xl:w-24 xl:h-24 w-[5rem] h-[5rem] mx-1 border-2  -mt-12 object-cover", theme() == "dark" ? "bg-black" : "bg-white" )}
                   />
                 </Match>
                 <Match when={!user() || !user().avatar}>

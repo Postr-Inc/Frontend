@@ -308,7 +308,7 @@ async function updatePoll() {
           <p class="text-md">{props.content}</p>
         </a>
       </CardContent> 
-      <Show when={props.isPoll && !hasVoted() && pollEnds() > new Date()}>
+      <Show when={props.isPoll && !hasVoted()}>
        <div>
        <For each={props.pollOptions}>
           {(item) => ( 

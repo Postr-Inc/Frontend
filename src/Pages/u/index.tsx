@@ -216,6 +216,7 @@ export default function User() {
       api.collection("users").subscribe(user().id, {
         cb: (data: any) => { 
           setUser(data)
+          api.updateCache("users", user().id, data)
         },
       })
     }
@@ -280,8 +281,8 @@ export default function User() {
                 >
                   <button
                     class={
-                      theme === "dark"
-                        ? "bg-white text-black p-2 w-24 mr-2 text-sm"
+                      theme() === "dark"
+                        ? "bg-white text-black p-2 w-24 mr-2 mt-2 text-sm"
                         : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm"
                     }
                     onclick={() => follow("unfollow")}
@@ -296,7 +297,7 @@ export default function User() {
                 >
                   <button
                     class={
-                      theme === "dark"
+                      theme() === "dark"
                         ? "bg-white text-black p-2 mt-2 w-24 mr-2 text-sm"
                         : "bg-black text-white p-2 rounded-full  mt-2 w-24 mr-2 text-sm"
                     }

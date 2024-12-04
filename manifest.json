@@ -23,9 +23,9 @@
     "handle_links": "prefered",
     "icons": [
       {
-        "src": "icons/icon-blue.jpg",
+        "src": "icons/icon-blue.png",
         "sizes": "512x512",
-        "type": "image/jpeg",
+        "type": "image/png",
         "purpose": "any"
       }
     ],

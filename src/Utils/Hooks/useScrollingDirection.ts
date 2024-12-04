@@ -1,37 +1,37 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
 
 export default function useScrollingDirection() {
-  const [scrollingDirection, setScrollingDirection] = createSignal("up");
+  const [scrollingDirection, setScrollingDirection] = createSignal("up", { equals: false });
   const [lastScroll, setLastScroll] = createSignal(0);
-  const threshold = 10; // Adjust the threshold as needed
+  let timeoutId;
 
   createEffect(() => {
-    let isScrolling = false;
+    const onScroll = () => {
+      const st = window.pageYOffset || document.documentElement.scrollTop;
 
-    const handleScroll = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        setTimeout(() => {
-          const currentScroll = window.scrollY;
-
-          if (Math.abs(currentScroll - lastScroll()) > threshold) {
-            if (currentScroll < lastScroll()) {
-              setScrollingDirection("up");
-            } else {
-              setScrollingDirection("down");
-            }
-            setLastScroll(currentScroll);
-          }
-
-          isScrolling = false;
-        }, 50); // Throttle the updates (50ms delay)
+      // Clear previous timeout if scrolling continues
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
+
+      // Set a timeout to detect the direction after 1 second
+      timeoutId = setTimeout(() => {
+        if (st > lastScroll()) {
+          setScrollingDirection("down");
+        } else {
+          setScrollingDirection("up");
+        }
+        setLastScroll(st);
+      }, 1000); // Delay in milliseconds
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll);
 
     onCleanup(() => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", onScroll);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     });
   });
 

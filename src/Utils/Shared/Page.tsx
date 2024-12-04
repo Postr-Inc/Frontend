@@ -9,12 +9,8 @@ import { api } from "@/src";
 import CreatePostModal from "@/src/components/Modals/CreatePostModal";
 export default function Page(props: { children: any , params: ()=> any, route: () => string, navigate: any, id: string }) {
      const { theme } = useTheme();
-    return <ErrorBoundary fallback={
-        <div class="flex justify-center items-center  w-screen h-screen">
-            <h1 class="text-3xl">Something went wrong</h1>
-        </div>
-    }>
-         <div id={props.id} class={joinClass("relative xl:flex xl:w-[40vw] w-[100vw]   xl:p-0  lg:flex   2xl:w-[79rem]    justify-center xl:mx-auto ", )}>
+    return <>
+   <div id={props.id} class={joinClass("relative xl:flex xl:w-[40vw] w-[100vw]   xl:p-0  lg:flex   2xl:w-[79rem]    justify-center xl:mx-auto ", )}>
          <Show when={props.route() !== "/auth/login" && props.route() !== "/auth/signup" && props.route() !== "/auth/forgot"}>
          <SideBarLeft {...{
              params: props.params,
@@ -23,7 +19,7 @@ export default function Page(props: { children: any , params: ()=> any, route: (
         }} />
         </Show>
         
-        <div class={joinClass("flex flex-col  h-full w-full  ", theme() === "dark" ? "border border-gray-800" : "border border-gray-200")}>
+        <div class={joinClass("flex flex-col  h-full w-full  ", theme() === "dark" ? "border border-[#3e3e3e] sm:border-none" : "sm:border-none border border-gray-200")}>
             
         {props.children}
         </div>
@@ -40,6 +36,6 @@ export default function Page(props: { children: any , params: ()=> any, route: (
        <BottomNav />
     </div>
     
-    <CreatePostModal />
-    </ErrorBoundary>
+    <CreatePostModal /> 
+    </>
 }

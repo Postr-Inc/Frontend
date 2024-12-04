@@ -14,6 +14,7 @@ export function SideBarLeft(props: {
   const error = false;
   let { theme } = useTheme();
   const { route, navigate } = useNavigation()
+  console.log(route());
   return (
     <>
       <div class="xl:drawer xl:w-[auto]  md:p-2  mr-5   xl:drawer-open lg:drawer-open  ">
@@ -52,7 +53,7 @@ export function SideBarLeft(props: {
             </li>
             <li>
               <a
-                class={joinClass("text-lg  rounded-full",   route() == "/" && "fill-blue-500 stroke-blue-500 text-blue-500 font-bold")}
+                class={joinClass("text-lg  rounded-full ",   route() === "/" ? "fill-blue-500 stroke-blue-500 text-blue-500 font-bold" : " fill-white")}
                 onClick={() => {
                   // @ts-ignore
                   navigate(`/`);
@@ -123,9 +124,9 @@ export function SideBarLeft(props: {
               <a
                 class={`text-xl  rounded-full rounded-full
                     ${
-                      props.params()?.user == api.authStore.model.id
+                      route() === `/u/${api.authStore.model.username}`
                         ? "fill-blue-500 stroke-blue-500 text-blue-500"
-                        : ""
+                        : "fill-white"
                     }
                   `}
                 onClick={() => {

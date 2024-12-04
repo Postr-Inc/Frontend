@@ -23,7 +23,7 @@
     "handle_links": "prefered",
     "icons": [
       {
-        "src": "icons/icon-blue.png",
+        "src": "/icons/icon-blue.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"
@@ -50,50 +50,8 @@
         "url": "https://postlyapp.com/manifest.json",
         "id": ""
       }
-    ],
-    "shortcuts": [
-      {
-        "name": "Settings",
-        "url": "/app/settings",
-        "description": "Quickly access your settings",
-        "icons": [
-          {
-            "src": "/icons/logo.png",
-            "sizes": "238x238"
-          }
-        ]
-      },
-      {
-        "name": "Feed",
-        "url": "/",
-        "icons": [
-          {
-            "src": "/icons/logo.png",
-            "sizes": "238x238"
-          }
-        ]
-      },
-      {
-        "name": "Privacy Policy",
-        "url": "/public/information/privacy.pdf",
-        "icons": [
-          {
-            "src": "/icons/eye.png",
-            "sizes": "238x238"
-          }
-        ]
-      },
-      {
-        "name": "Terms of Service",
-        "url": "/public/information/terms.pdf",
-        "icons": [
-          {
-            "src": "/icons/logo.png",
-            "sizes": "238x238"
-          }
-        ]
-      }
-    ],
+    ], 
+       
     "prefer_related_applications": false,
     "dir": "ltr"
   }

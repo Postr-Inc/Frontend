@@ -25,7 +25,7 @@
       {
         "src": "icons/icon-blue.jpg",
         "sizes": "512x512",
-        "type": "image/png",
+        "type": "image/jpeg",
         "purpose": "any"
       }
     ],

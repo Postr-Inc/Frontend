@@ -7,20 +7,21 @@ import useNavigation from "@/src/Utils/Hooks/useNavigation";
 import Heart from "../Icons/heart";
 import Mail from "../Icons/Mail";
 import Scissors from "../Icons/Scissors";
+import { createEffect, createSignal } from "solid-js";
 
 export default function BottomNav() {
   const { theme } = useTheme();
   const { route, navigate } = useNavigation();
-  const { scrollingDirection } = useScrollingDirection();
+  const { scrollingDirection } = useScrollingDirection()
   return (
     <div
       class={joinClass(
-        "fixed bottom-0  z-[999999] w-full", 
+        "fixed bottom-[-2px]  z-[999999] w-full", 
         "xl:hidden lg:hidden 2xl:hidden",
       )}
     >
-        <div class={joinClass("btn btn-circle btn-xl bg-blue-500 fixed bottom-24 right-3", scrollingDirection() == "down" && "bg-opacity-50",
-        theme() == "dark" ? "bg-black" : "bg-white"
+        <div class={joinClass("btn btn-circle btn-xl bg-blue-500 fixed bottom-24 right-3", scrollingDirection() == "down" ? "bg-opacity-50" : 
+        scrollingDirection() == "up" ? "bg-opacity-100" : "bg-opacity-100", 
         )}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="fill-white stroke-white size-6" onClick={() =>{
             //@ts-ignore   
@@ -36,8 +37,10 @@ export default function BottomNav() {
         class={joinClass(
           " flex justify-between p-5   h-full bg[#121212]   border border-l-0 border-b-0 border-r-0",
           theme() === "dark"
-            ? "text-white fill-white stroke-white border-t-[#53535322]"
-            : "bg-white border-t-[#e0e0e0]"
+            ? "text-white fill-white stroke-white bg-black border-t-[#53535322]"
+            : "bg-white border-t-[#e0e0e0]",
+            scrollingDirection() == "down" ? "bg-opacity-50" : 
+            scrollingDirection() == "up" ? "bg-opacity-100" : "bg-opacity-100", 
         )}
       >
         <li class="flex ">

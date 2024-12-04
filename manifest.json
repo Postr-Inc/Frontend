@@ -23,7 +23,7 @@
     "handle_links": "prefered",
     "icons": [
       {
-        "src": "/src/assets/icon.png",
+        "src": "/src/assets/icon.jpg",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"

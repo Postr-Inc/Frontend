@@ -22,7 +22,7 @@ export default function useScrollingDirection() {
           setScrollingDirection("up");
         }
         setLastScroll(st);
-      }, 1000); // Delay in milliseconds
+      }, 100); // Delay in milliseconds
     };
 
     window.addEventListener("scroll", onScroll);

@@ -73,6 +73,18 @@ export default function User() {
       .then((data: any) => {
         if (!data.items[0]) {
           setNotFound(true);
+          setUser({
+            id: crypto.randomUUID(),
+            username: "not found",
+            created: new Date().toISOString(),
+            bio: "User not found",
+            followers: [],
+            following: [],
+            expand: {
+              followers: [],
+              following: [],
+            }
+          })
           console.log("not found")
           setLoading(false);
           return;
@@ -162,8 +174,7 @@ export default function User() {
     }, 1000)
   }
 
-  function follow(type: string) {
-    console.log(type)
+  function follow(type: string) { 
     let followers = user().followers as any[]
     let isFollowing = api.authStore.model.following
     switch (type) {
@@ -182,13 +193,12 @@ export default function User() {
         setLoading(false)
         !isFollowing.includes(user().id) && isFollowing.push(user().id)
         break;
-    }
-    console.log(isFollowing)
+    } 
     api.collection("users").update(user().id, {
       followers,
     }, {
       expand: ["followers", "following"],
-      cacheKey: `/u/user_${user().username}`
+      cacheKey: `/u/user_${user().username}`, 
     })
     api.collection("users").update(api.authStore.model.id, { following: isFollowing }, {
       expand: ["followers", "following"],
@@ -209,26 +219,17 @@ export default function User() {
     "Nov",
     "Dec",
   ]; 
-  createEffect(() => {
-    if(user() && !api.subscriptions.has("users" + user().id)) { 
-      api.collection("users").subscribe(user().id, {
-        cb: (data: any) => { 
-          setUser(data)
-          api.updateCache("users", user().id, data)
-        },
-      })
-    }
-  }, [user()]);
+   
   return (
     <Page {...{ params, route, navigate, id: "user" }}>
       <Switch>
-        <Match when={notFound()}>
-          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
-            <div class="text-2xl">User not found</div>
-          </div>
-        </Match>
+         
         <Match when={loading()}>
-          <div class="flex flex-col items-center justify-center h-screen bg-white z-[99999]  ">
+          <div class={
+            joinClass("flex flex-col items-center justify-center h-screen z-[99999]  ",
+              theme() === "dark" ? "bg-black" : "bg-white"
+            )
+          }>
             <div class="loading loading-spinner text-blue-500">
             </div>
           </div>
@@ -281,12 +282,13 @@ export default function User() {
                   style={{
                     "border-radius":"9999px"
                   }}
+                    disabled={notFound()}
                     class={
                       theme() === "dark"
                         ? "bg-black text-black p-2 w-24 mr-2 mt-2 text-sm"
                         : "bg-white text-white p-2 rounded-full w-24 mr-2 text-sm"
                     }
-                    onclick={() => follow("unfollow")}
+                    onclick={() => notFound() ? null : follow("unfollow")}
                   >
                     Unfollow
                   </button>
@@ -294,6 +296,7 @@ export default function User() {
                 <Match
                   when={
                     !user() && user().id != api.authStore.model.id || user().id != api.authStore.model.id && !user().followers.includes(api.authStore.model.id)
+                    && !notFound()
                   }
                 >
                   <button
@@ -301,12 +304,13 @@ export default function User() {
                   style={{
                     "border-radius":"9999px"
                   }}
+                    disabled={notFound()}
                     class={
-                      theme() === "dark"
-                        ? "bg-white text-black p-2 mt-2 w-24 mr-2 text-sm"
-                        : "bg-black text-white p-2 rounded-full  mt-2 w-24 mr-2 text-sm"
+                       joinClass(theme() === "dark"
+                       ? "bg-white text-black p-2 mt-2 w-24 mr-2  text-sm"
+                       : "bg-black text-white p-2 rounded-full  mt-2 w-24 mr-2 text-sm", "rounded-full")
                     }
-                    onclick={() => follow("follow")}
+                    onclick={() => notFound() ? null : follow("follow")}
                   >
                     Follow
                   </button>
@@ -314,11 +318,11 @@ export default function User() {
               </Switch>
               <Show when={user() && user().id === api.authStore.model.id}>
                 <button
-                  onClick={() => document.getElementById("editProfileModal").showModal()}
+                  onClick={() => document.getElementById("editProfileModal")?.showModal()}
                   class={
                     joinClass(theme() === "dark"
                       ? "bg-white text-black p-2 w-24 mr-2 text-sm"
-                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3")
+                      : "bg-black text-white p-2 rounded-full w-24 mr-2 text-sm", "sm:mt-2 md:mt-3","rounded-full")
                   }
                 >
                   Edit Profile
@@ -347,7 +351,7 @@ export default function User() {
                   </a>
                 </p>
               )}
-              <p class="flex flex-row gap-2 items-cente text-sm opacity-50">
+              <p class="flex flex-row gap-2 items-center text-sm opacity-50">
                 {" "}
                 <Calendar class="h-5 w-5" /> Joined{" "}
                 {user() && months[new Date(user().created).getMonth()]}{" "}
@@ -426,7 +430,7 @@ export default function User() {
                   </For>
                 </Match>
                 <Match when={!feedLoading()}>
-                  {posts().length > 0 && (
+                  {posts().length > 0 ?  
                     <For each={posts()}>
                       {(item: any, index: any) => {
                         let copiedObj = { ...item };
@@ -463,8 +467,14 @@ export default function User() {
                           </div>
                         );
                       }}
-                    </For>
-                  )}
+                    </For> : <div class="flex flex-col  p-5  mb-5 items-center justify-center">
+                      <h1 class="text-3xl">No posts</h1>
+                      <p>
+                        {user().username} has no posts yet
+                      </p>
+                    </div> 
+                  }
+                  
                 </Match>
               </Switch>
             </div>

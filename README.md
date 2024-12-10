@@ -1,10 +1,10 @@
 <p align="center"><img src="https://v6-0.pages.dev/icons/icon-blue.jpg"/></p>
+<h1>Posly - building a space safe for all ( open source is simply better. )</h1>
 
 # Mission
 
 Postly is like Twitter, but its main difference is that it is fully open-sourced. The users completely have control over what they see and their data. This is important in the world today. The goal will be to encourage people to create platforms that are transparent, since we will only be able to thrive as a society by spreading knowledge rather than hiding it.
-
-<p>Posly - building a space safe for all ( open source is simply better. )</p>
+ 
 
 # Setup
 

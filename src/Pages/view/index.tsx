@@ -22,7 +22,7 @@ export default function View(props: any) {
   let { id, collection } = useParams();
   const [isReplying, setIsReplying] = createSignal(false);
   let [post, setPost] = createSignal<any>(null, { equals: false });
-  let [comments, setComments] = createSignal<any[]>([]);
+  let [comments, setComments] = createSignal<any[]>([], { equals: false });
    
   let [comment, setComment] = createSignal<any>({
     content: "",
@@ -66,8 +66,7 @@ export default function View(props: any) {
     api.collection("comments").create(data, {
       expand: ["author"],
       invalidateCache: [`${collection}-${id}-comments`],
-    }).then((data : any) => {
-      console.log(data); 
+    }).then((data : any) => { 
       let author = api.authStore.model;
       delete author.token
       delete author.email;
@@ -92,9 +91,10 @@ export default function View(props: any) {
         ...post(),
       });
       setFiles([]);
+      setComments([data, ...comments()]);
       setComment({ content: "", media: [], author: api.authStore.model.id, post: null });
       api.collection(collection === "comments" ? "comments" : "posts").update(post().id, Updatedata).then((data) => {
-        console.log(data);
+         setPost(data);
       });
     })
   }

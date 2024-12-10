@@ -25,12 +25,15 @@ export default class SDK {
      */
     this.statisticalData = JSON.parse(localStorage.getItem("postr_statistical") || "{}");
    
-    window.onbeforeunload = () => {
-      localStorage.setItem("postr_statistical", JSON.stringify(this.statisticalData));
-      this.ws?.send(JSON.stringify({ type: "disconnect", payload: { ip: this.ip } }));
-      useCache().clear();
-    }
-
+    
+     window.onbeforeunload = function () {
+      // clear app cache
+      caches.keys().then((keys) => {
+        keys.forEach((key) => {
+          caches.delete(key);
+        });
+      });
+     }
     // check if logged in and check if ws is closed periodically
     setInterval(() => {
       if(this.ws === null || this.ws.readyState === WebSocket.CLOSED && localStorage.getItem("postr_auth")){
@@ -253,7 +256,7 @@ export default class SDK {
     body = JSON.stringify(msg);
     headers = {
       "Content-Type": "application/json",
-      Authorization: this.authStore.model.token,
+      Authorization: JSON.parse(localStorage.getItem("postr_auth") || "{}").token,
     };
     const data = await fetch(
       type === "search"
@@ -375,17 +378,18 @@ export default class SDK {
               page,
               limit,
               options,
+              cacheKey: options?.cacheKey
             },
             security: {
               token: this.authStore.model.token,
             },
             callback: "",
-          }) as any;  
+          }) as any;   
           if(out.opCode !== HttpCodes.OK) return reject(out);
           shouldCache && set(cacheKey, out.payload,  new Date().getTime() + 3600); // cache for 1 hour\ 
           resolve({
             opCode:  out.opCode,
-            items: out.payload,
+            items:  out.payload,
             totalItems:out.totalItems,
             totalPages: out.totalPages,
             cacheKey
@@ -432,11 +436,10 @@ export default class SDK {
                               set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
                           } 
                       }else{
-                          const post = cacheDataJSON.value 
-                          console.log(id, post)
+                          const post = cacheDataJSON.value  
                           if(post.id === id){
                               cacheDataJSON.value.payload = {...post, ...data}
-                          }
+                          } 
                           set(cache.url, cacheDataJSON.value, new Date().getTime() + 3600);
                       }
                     }
@@ -466,7 +469,7 @@ export default class SDK {
                 
             }
             
-            let out = this.sendMsg({
+            let out = await this.sendMsg({
                 type: GeneralTypes.UPDATE,
                 payload: {
                     collection: name,
@@ -488,18 +491,19 @@ export default class SDK {
        * @param data
        * @returns {Promise<any>}
        */
-      create: async (data: any, options?: {cacheKey?: string, expand?:any[]}) => {
-        return new Promise((resolve, reject) => {
+      create: async (data: any, options?: {cacheKey?: string, expand?:any[], [ key: string]: any }) => { 
+        return new Promise(async (resolve, reject) => {
           
-          let out = this.sendMsg({
+          let out = await this.sendMsg({
             type: GeneralTypes.CREATE,
             payload: {
               collection: name,
+              invalidateCache: options?.invalidateCache,
               data,
               expand: options?.expand
             },
             security: {
-              token: this.authStore.model.token,
+              token: JSON.parse(localStorage.getItem("postr_auth") || "{}").token,
             },
             callback: "",
           }) as any

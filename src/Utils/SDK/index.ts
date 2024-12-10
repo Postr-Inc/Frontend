@@ -482,7 +482,7 @@ export default class SDK {
                 },
                 callback:  ""
             }) 
-            resolve(out)
+            resolve(out.payload)
         })
        },
       /**

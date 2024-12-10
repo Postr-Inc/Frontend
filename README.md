@@ -1,5 +1,5 @@
 <p align="center"><img src="https://v6-0.pages.dev/icons/icon-blue.jpg"/></p>
-<h1>Posly - building a space safe for all ( open source is simply better. )</h1>
+<h1>Postly - building a space safe for all ( open source is simply better. )</h1>
 
 # Mission
 

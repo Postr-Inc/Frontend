@@ -65,7 +65,9 @@ export default function View(props: any) {
  
     api.collection("comments").create(data, {
       expand: ["author"],
+      invalidateCache: [`${collection}-${id}-comments`],
     }).then((data : any) => {
+      console.log(data); 
       let author = api.authStore.model;
       delete author.token
       delete author.email;
@@ -99,8 +101,7 @@ export default function View(props: any) {
 
   function fetchP() {
     let { params } = useNavigation("/view/:collection/:id");
-    let { id, collection } = params(); 
-    setPost(null);
+    let { id, collection } = params();  
     api
       .collection(collection)
       .get(id, {
@@ -110,6 +111,7 @@ export default function View(props: any) {
           "comments.likes",
           "comments.author",
           "author",
+          "author.followers",
           "likes",
           "repost",
           "repost.likes",
@@ -117,6 +119,7 @@ export default function View(props: any) {
         ],
       })
       .then((data) => { 
+        console.log(data);
         setPost(data);
       })
       .catch((err) => {
@@ -128,13 +131,16 @@ export default function View(props: any) {
         filter:  collection === "comments" ? `mainComment="${id}"` : `post="${id}"`,
         expand: ["author", "likes", "comments"],
         cacheKey: `${collection}-${id}-comments`,
+        "sort": "-created"
       }).then((data) => {  
+        console.log(data);
         setComments(data.items);
       });
   }
 
   // CreateEffect to trigger refetching when the `id` changes
   createEffect(() => {
+    api.checkAuth();
     window.addEventListener("popstate", fetchP);
     fetchP();
   }, params()); // Depend on the `id` parameter
@@ -175,7 +181,8 @@ export default function View(props: any) {
             View Post Engagements
           </div>
         </Show>
-        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "relative border-l-0 border-r-0 p-3 sm:hidden", theme() === "dark" ? "border border-[#1c1c1c]" : "border border-[#dadada]")}>
+        <div class={joinClass(post() && post().comments.length < 1 && "mb-[120px]", "relative border-l-0 border-r-0 p-3 sm:hidden", theme() === "dark" ? "border border-[#1c1c1c]" : "border border-[#dadada]", 
+        post() && post().whoCanSee && post().whoCanSee[0] === "private" && post().expand.author.id !== api.authStore.model.id ? "hidden" : "")}> 
           <div class="flex flex-row gap-5">
             <Show when={api.authStore.model.avatar}>
               <img
@@ -190,23 +197,28 @@ export default function View(props: any) {
               </div>
             </Show>
             <div
-              onClick={(e) => {
-                e.currentTarget.querySelector("p").focus();
-                e.currentTarget.querySelector("p").innerText = "";  
+              onClick={(e) => { 
+                document.querySelector(".input")?.focus(); 
+                e.currentTarget.innerText = "";
               }}
               contentEditable="true"
-              class="input border-none focus:outline-none p-2 w-full"
+              class={joinClass("input border-none focus:outline-none p-2 w-full")}
+              
               onInput={(e) => {
                 if (e.currentTarget.textContent.length > 0) {
                   setIsReplying(true);
                 } else {
                   setIsReplying(false);
-                  e.currentTarget.innerText = `Reply to ${post() && post().expand.author.username}`;
+                  e.currentTarget.innerText =  post() ?   post().whoCanSee && post().whoCanSee[0] === "private"  && post().expand.author.id === api.authStore.model.id ?  "Only you can comment on this post" : post().whoCanSee && post().whoCanSee[0] === "followers" && post().expand.author.expand.followers.find((f: any) => f.id === api.authStore.model.id) ?  "..." : post().whoCanSee && post().whoCanSee[0] === "public" ? "Reply to " + post().expand.author.username : "..." : "..."
                 }
                 setComment({ ...comment(), content: e.currentTarget.textContent });
               }}
             >
-              <p>Reply to {post() && post().expand.author.username}</p>
+              {
+                post() ?   post().whoCanSee && post().whoCanSee[0] === "private"  && post().expand.author.id === api.authStore.model.id ?  "Only you can comment on this post" :
+                post().whoCanSee && post().whoCanSee[0] === "followers" && post().expand.author.expand.followers.find((f: any) => f.id === api.authStore.model.id) ?  "..." : post().whoCanSee && post().whoCanSee[0] === "public" ? "Reply to " + post().expand.author.username : "..." : "..."
+              }
+              
             </div>
           </div>
           {isReplying() && (

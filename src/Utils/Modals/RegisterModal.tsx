@@ -36,27 +36,16 @@ export default function RegisterModal() {
 
     createEffect(() => {
         // wait until user stops typing
-        let typingTimeout: any;
-        function startTyping() {
-            if (typingTimeout) {
-                clearTimeout(typingTimeout);
+        let timeout: any;
+        if (email() || username()) {
+            if (timeout) {
+                clearTimeout(timeout);
             }
-            typingTimeout = setTimeout(() => {
-                console.log("Checking");
+            timeout = setTimeout(() => {
                 checkEmailandUsername();
-            }, 1000);
-        }
-        function stopTyping() {
-            clearTimeout(typingTimeout);
-        }
-        function handleKeydown(e: KeyboardEvent) {
-            startTyping();
+            }, 1000)
         }
 
-        window.addEventListener("keydown", handleKeydown);
-        return () => {
-            window.removeEventListener("keydown", handleKeydown);
-        }
     });
     function checkDateOfBirth() {
         // Check if date of birth is valid ie atleast 17
@@ -106,10 +95,10 @@ export default function RegisterModal() {
                      </Switch>
                     <Switch>
                         <Match when={theme() === "light"}>
-                            <img src="/src/assets/icon_transparent.png" class="w-12 h-12 xl:w-20 xl:h-20 black" />
+                            <img src="/icons/icon_transparent.png" class="w-12 h-12 xl:w-20 xl:h-20 black" />
                         </Match>
                         <Match when={theme() === "dark"}>
-                            <img src="/assets/icon_transparent.png" class="w-20 h-20" />
+                            <img src="/icons/icon_transparent.png" class="w-20 h-20" />
                         </Match>
                     </Switch>
                     <div></div>
